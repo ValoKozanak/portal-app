@@ -1,5 +1,6 @@
 const express = require('express');
 const { db } = require('../database');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -65,6 +66,24 @@ router.post('/', (req, res) => {
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Chyba pri vytváraní úlohy' });
+      }
+
+      // Poslanie email notifikácie
+      if (assigned_to && assigned_to !== created_by) {
+        // Získanie mena priradeného používateľa
+        db.get('SELECT name FROM users WHERE email = ?', [assigned_to], (err, user) => {
+          if (!err && user) {
+            emailService.sendTaskNotification(
+              assigned_to,
+              user.name,
+              title,
+              description || 'Bez popisu',
+              company_name
+            ).catch(error => {
+              console.error('Email notification error:', error);
+            });
+          }
+        });
       }
 
       res.json({ 

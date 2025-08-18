@@ -1,7 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { db } = require('../database');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -228,6 +230,129 @@ router.put('/users/:id/password', (req, res) => {
       }
     );
   });
+});
+
+// Password Reset - Požiadavka na reset
+router.post('/forgot-password', (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email je povinný' });
+  }
+
+  // Generovanie reset tokenu
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hodina
+
+  db.get('SELECT id, name FROM users WHERE email = ?', [email], (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: 'Databázová chyba' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'Používateľ s týmto emailom neexistuje' });
+    }
+
+    // Uloženie reset tokenu do databázy
+    db.run(
+      'UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?',
+      [resetToken, resetTokenExpiry.toISOString(), user.id],
+      function(err) {
+        if (err) {
+          return res.status(500).json({ error: 'Chyba pri ukladaní reset tokenu' });
+        }
+
+        // Poslanie emailu
+        emailService.sendPasswordResetEmail(email, resetToken)
+          .then(result => {
+            if (result.success) {
+              res.json({ message: 'Email s inštrukciami na reset hesla bol odoslaný' });
+            } else {
+              res.status(500).json({ error: 'Chyba pri posielaní emailu' });
+            }
+          })
+          .catch(error => {
+            console.error('Email error:', error);
+            res.status(500).json({ error: 'Chyba pri posielaní emailu' });
+          });
+      }
+    );
+  });
+});
+
+// Password Reset - Overenie tokenu
+router.post('/verify-reset-token', (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Token je povinný' });
+  }
+
+  db.get(
+    'SELECT id, email FROM users WHERE reset_token = ? AND reset_token_expiry > ?',
+    [token, new Date().toISOString()],
+    (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: 'Databázová chyba' });
+      }
+
+      if (!user) {
+        return res.status(400).json({ error: 'Neplatný alebo expirovaný token' });
+      }
+
+      res.json({ 
+        message: 'Token je platný',
+        email: user.email 
+      });
+    }
+  );
+});
+
+// Password Reset - Nastavenie nového hesla
+router.post('/reset-password', (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token a nové heslo sú povinné' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Heslo musí mať aspoň 6 znakov' });
+  }
+
+  db.get(
+    'SELECT id, email FROM users WHERE reset_token = ? AND reset_token_expiry > ?',
+    [token, new Date().toISOString()],
+    (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: 'Databázová chyba' });
+      }
+
+      if (!user) {
+        return res.status(400).json({ error: 'Neplatný alebo expirovaný token' });
+      }
+
+      // Hashovanie nového hesla
+      bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+          return res.status(500).json({ error: 'Chyba pri hashovaní hesla' });
+        }
+
+        // Aktualizácia hesla a vymazanie reset tokenu
+        db.run(
+          'UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
+          [hashedPassword, user.id],
+          function(err) {
+            if (err) {
+              return res.status(500).json({ error: 'Chyba pri aktualizácii hesla' });
+            }
+
+            res.json({ message: 'Heslo bolo úspešne zmenené' });
+          }
+        );
+      });
+    }
+  );
 });
 
 module.exports = router;

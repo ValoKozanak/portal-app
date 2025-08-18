@@ -98,7 +98,26 @@ const initDatabase = () => {
       `, (err) => {
         // Ignorujeme chybu ak stĺpec už existuje
         if (err && !err.message.includes('duplicate column name')) {
-          console.error('Chyba pri pridávaní status stĺpca:', err);
+          console.error('Error adding status column to companies:', err);
+        }
+      });
+
+      // Pridanie reset_token stĺpcov do users tabuľky ak neexistujú
+      db.run(`
+        ALTER TABLE users ADD COLUMN reset_token TEXT
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding reset_token column to users:', err);
+        }
+      });
+
+      db.run(`
+        ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding reset_token_expiry column to users:', err);
         }
       });
 

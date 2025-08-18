@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { initDatabase } = require('./database');
@@ -8,6 +9,7 @@ const companiesRoutes = require('./routes/companies');
 const tasksRoutes = require('./routes/tasks');
 const filesRoutes = require('./routes/files');
 const cmsRoutes = require('./routes/cms');
+const testRoutes = require('./routes/test');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +28,7 @@ app.use('/api/companies', companiesRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/cms', cmsRoutes);
+app.use('/api/test', testRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
