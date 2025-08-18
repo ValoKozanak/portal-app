@@ -26,8 +26,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     setError('');
 
     try {
-      // Simulácia náhľadu
-      setPreviewUrl(`/api/files/${file.id}/preview`);
+      // Absolútna URL pre backend
+      setPreviewUrl(`http://localhost:5000/api/files/${file.id}/preview`);
     } catch (err) {
       setError('Nepodarilo sa načítať náhľad súboru');
       console.error('Chyba pri načítaní náhľadu:', err);
@@ -40,7 +40,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      window.open(`/api/files/${file.id}/preview`, '_blank');
+      window.open(`http://localhost:5000/api/files/${file.id}/preview`, '_blank');
     } catch (err) {
       console.error('Chyba pri otváraní súboru:', err);
       alert('Nepodarilo sa otvoriť súbor');
@@ -51,7 +51,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      const response = await fetch(`/api/files/${file.id}/download`);
+      const response = await fetch(`http://localhost:5000/api/files/${file.id}/download`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -75,7 +75,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-lg shadow-xl w-[95vw] h-[95vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">

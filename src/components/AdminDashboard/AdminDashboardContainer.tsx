@@ -3,6 +3,7 @@ import { useApi } from '../../hooks/useApi';
 import { apiService } from '../../services/apiService';
 import { LoadingSpinner } from '../LoadingSpinner';
 import AssignCompanyModal from '../AssignCompanyModal';
+import FilePreviewModal from '../FilePreviewModal';
 import { 
   UsersIcon, 
   BuildingOfficeIcon, 
@@ -35,12 +36,17 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   const [showCompanyDetailModal, setShowCompanyDetailModal] = useState(false);
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
   const [showFileDetailModal, setShowFileDetailModal] = useState(false);
+  const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+  const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
+  const [previewFile, setPreviewFile] = useState<any>(null);
   const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
   const [userFilter, setUserFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [companyFilter, setCompanyFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [companySearchTerm, setCompanySearchTerm] = useState('');
   const [taskFilter, setTaskFilter] = useState<'all' | 'active' | 'completed'>('active');
+  const [fileFilter, setFileFilter] = useState<string>('all');
+  const [fileSearchTerm, setFileSearchTerm] = useState('');
 
   // API hooks s caching
   const { data: users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useApi(
@@ -95,6 +101,53 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
       reports: Math.floor(Math.random() * 50) + 10 // Placeholder
     };
   }, [users, companies, tasks, files]);
+
+  // Filtrovacie funkcie
+  const filteredCompanies = companies?.filter(company => {
+    if (companyFilter !== 'all') {
+      if (companyFilter === 'active' && company.status !== 'active') return false;
+      if (companyFilter === 'inactive' && company.status !== 'inactive') return false;
+    }
+    if (companySearchTerm) {
+      const searchLower = companySearchTerm.toLowerCase();
+      return (
+        company.name.toLowerCase().includes(searchLower) ||
+        company.ico.includes(searchLower) ||
+        company.owner_email.toLowerCase().includes(searchLower)
+      );
+    }
+    return true;
+  }) || [];
+
+  const filteredTasks = tasks?.filter(task => {
+    if (taskFilter === 'all') return true;
+    if (taskFilter === 'active') return task.status === 'pending' || task.status === 'in_progress';
+    if (taskFilter === 'completed') return task.status === 'completed';
+    return true;
+  }) || [];
+
+  const filteredFiles = files?.filter(file => {
+    // Filter by type
+    if (fileFilter !== 'all') {
+      if (fileFilter === 'pdf' && !file.file_type.includes('pdf')) return false;
+      if (fileFilter === 'image' && !file.file_type.includes('image')) return false;
+      if (fileFilter === 'document' && !file.file_type.includes('document') && !file.file_type.includes('word') && !file.file_type.includes('excel')) return false;
+      if (fileFilter === 'other' && (file.file_type.includes('pdf') || file.file_type.includes('image') || file.file_type.includes('document') || file.file_type.includes('word') || file.file_type.includes('excel'))) return false;
+    }
+    
+    // Filter by search term
+    if (fileSearchTerm) {
+      const searchLower = fileSearchTerm.toLowerCase();
+      return (
+        file.original_name.toLowerCase().includes(searchLower) ||
+        file.company_name?.toLowerCase().includes(searchLower) ||
+        file.uploaded_by?.toLowerCase().includes(searchLower) ||
+        file.file_type.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    return true;
+  }) || [];
 
   // Callback funkcie
   const handleSectionChange = useCallback((section: DashboardSection) => {
@@ -219,6 +272,12 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     }
   }, [refetchCompanies]);
 
+  // Funkcia pre preview súborov
+  const handleFilePreview = useCallback((file: any) => {
+    setPreviewFile(file);
+    setShowFilePreviewModal(true);
+  }, []);
+
   // Loading state
   if (usersLoading && companiesLoading && tasksLoading && filesLoading) {
     return (
@@ -282,7 +341,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                 <div className="flex items-center">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <UsersIcon className="w-6 h-6 text-blue-600" />
-                  </div>
+              </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Celkovo používateľov</p>
                     <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
@@ -454,7 +513,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <PlusIcon className="w-4 h-4" />
                     Vytvoriť úlohu
                   </button>
-                </div>
+              </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6">
@@ -466,7 +525,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                       <CheckCircleIcon className="w-4 h-4 mr-1" />
                       Online
                     </span>
-                  </div>
+              </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Databáza</span>
                     <span className="flex items-center text-green-600">
@@ -1006,8 +1065,8 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                               <div className="flex-shrink-0 h-10 w-10">
                                 <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
                                   <ClipboardDocumentListIcon className="w-5 h-5 text-yellow-600" />
-                                </div>
-                              </div>
+                           </div>
+                        </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{task.title}</div>
                                 <div className="text-sm text-gray-500">{task.description?.substring(0, 50)}...</div>
@@ -1020,16 +1079,16 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                             {task.due_date ? new Date(task.due_date).toLocaleDateString('sk-SK') : 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                              task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                              task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
-                            }`}>
-                              {task.priority === 'urgent' ? 'Urgentná' :
-                               task.priority === 'high' ? 'Vysoká' :
-                               task.priority === 'medium' ? 'Stredná' : 'Nízka'}
-                            </span>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {task.priority === 'urgent' ? 'Urgentná' :
+                             task.priority === 'high' ? 'Vysoká' :
+                             task.priority === 'medium' ? 'Stredná' : 'Nízka'}
+                          </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -1066,10 +1125,10 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                               >
                                 <TrashIcon className="w-4 h-4" />
                               </button>
-                            </div>
+                        </div>
                           </td>
                         </tr>
-                      ))}
+                  ))}
                     </tbody>
                   </table>
                 </div>
@@ -1094,12 +1153,50 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Správa dokumentov</h2>
               <button
-                onClick={() => {/* Implement file upload */}}
+                onClick={() => setShowFileUploadModal(true)}
                 className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center gap-2"
               >
                 <PlusIcon className="w-4 h-4" />
                 Nahrať dokument
               </button>
+            </div>
+
+            {/* File Filter */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex flex-col lg:flex-row gap-4">
+                {/* Search */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vyhľadávanie</label>
+                  <input
+                    type="text"
+                    placeholder="Hľadať podľa názvu, firmy, nahrateľa..."
+                    value={fileSearchTerm}
+                    onChange={(e) => setFileSearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                {/* Type Filter */}
+                <div className="lg:w-64">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Typ súboru</label>
+                  <select
+                    value={fileFilter}
+                    onChange={(e) => setFileFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="all">Všetky typy</option>
+                    <option value="pdf">PDF súbory</option>
+                    <option value="image">Obrázky</option>
+                    <option value="document">Dokumenty (Word, Excel)</option>
+                    <option value="other">Ostatné</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Filter Summary */}
+              <div className="mt-3 text-sm text-gray-600">
+                Zobrazené {filteredFiles.length} z {files?.length || 0} dokumentov
+              </div>
             </div>
             
             <div className="bg-white rounded-lg shadow">
@@ -1107,7 +1204,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                 <div className="text-center py-8">
                   <LoadingSpinner size="lg" text="Načítavam dokumenty..." />
                 </div>
-              ) : files && files.length > 0 ? (
+              ) : filteredFiles.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -1122,7 +1219,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {files.map((file) => (
+                      {filteredFiles.map((file) => (
                         <tr key={file.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -1147,9 +1244,9 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex items-center space-x-2">
                               <button
-                                onClick={() => { setSelectedFile(file); setShowFileDetailModal(true); }}
+                                onClick={() => handleFilePreview(file)}
                                 className="text-blue-600 hover:text-blue-900 p-1"
-                                title="Zobraziť"
+                                title="Náhľad"
                               >
                                 <EyeIcon className="w-4 h-4" />
                               </button>
@@ -1179,13 +1276,30 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
               ) : (
                 <div className="text-center py-8">
                   <DocumentIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Žiadne dokumenty</p>
-                  <button
-                    onClick={() => {/* Implement file upload */}}
-                    className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
-                  >
-                    Nahrať prvý dokument
-                  </button>
+                  <p className="text-gray-500">
+                    {files && files.length > 0 
+                      ? 'Žiadne dokumenty nevyhovujú vybranému filtru' 
+                      : 'Žiadne dokumenty'
+                    }
+                  </p>
+                  {files && files.length > 0 ? (
+                    <button
+                      onClick={() => {
+                        setFileFilter('all');
+                        setFileSearchTerm('');
+                      }}
+                      className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                    >
+                      Zobraziť všetky dokumenty
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowFileUploadModal(true)}
+                      className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                    >
+                      Nahrať prvý dokument
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -1208,7 +1322,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Všeobecné nastavenia</h3>
                 <div className="space-y-4">
                   <div>
@@ -1923,6 +2037,124 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
       {/* Modals */}
       {renderModals()}
       
+      {/* File Upload Modal */}
+      {showFileUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Nahrať dokument</h3>
+              <button
+                onClick={() => setShowFileUploadModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const file = formData.get('file') as File;
+              const companyId = formData.get('companyId') as string;
+              const category = formData.get('category') as string;
+              const uploadedBy = formData.get('uploadedBy') as string;
+
+              if (!file || !companyId || !uploadedBy) {
+                alert('Vyplňte všetky povinné polia');
+                return;
+              }
+
+              const uploadFile = async () => {
+                try {
+                  await apiService.uploadFile(file, parseInt(companyId), uploadedBy, category);
+                  alert('Dokument bol úspešne nahraný');
+                  setShowFileUploadModal(false);
+                  // Refresh files list
+                  refetchFiles();
+                } catch (error) {
+                  console.error('Chyba pri nahrávaní dokumentu:', error);
+                  alert('Chyba pri nahrávaní dokumentu');
+                }
+              };
+
+              uploadFile();
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Súbor *</label>
+                  <input
+                    name="file"
+                    type="file"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Firma *</label>
+                  <select
+                    name="companyId"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Vyberte firmu</option>
+                    {companies?.filter(company => company.status === 'active').map(company => (
+                      <option key={company.id} value={company.id}>
+                        {company.name} ({company.ico})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Kategória</label>
+                  <select
+                    name="category"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Bez kategórie</option>
+                    <option value="faktury">Faktúry</option>
+                    <option value="doklady">Doklady</option>
+                    <option value="zmluvy">Zmluvy</option>
+                    <option value="vykazy">Výkazy</option>
+                    <option value="ostatne">Ostatné</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nahral *</label>
+                  <select
+                    name="uploadedBy"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Vyberte používateľa</option>
+                    {users?.filter(user => user.status === 'active').map(user => (
+                      <option key={user.id} value={user.email}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowFileUploadModal(false)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Zrušiť
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                >
+                  Nahrať
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      
       {/* Assign Company Modal */}
       <AssignCompanyModal
         isOpen={showAssignCompanyModal}
@@ -1936,6 +2168,16 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
           role: user.role,
           department: 'Účtovníctvo' // Default department
         })) || []}
+      />
+
+      {/* File Preview Modal */}
+      <FilePreviewModal
+        isOpen={showFilePreviewModal}
+        onClose={() => {
+          setShowFilePreviewModal(false);
+          setPreviewFile(null);
+        }}
+        file={previewFile}
       />
     </div>
   );

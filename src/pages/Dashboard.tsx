@@ -18,6 +18,7 @@ import CompaniesList from '../components/CompaniesList';
 import CompanyDashboard from '../components/CompanyDashboard';
 import TaskModal, { Task } from '../components/TaskModal';
 import FileUploadModal from '../components/FileUploadModal';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { apiService, Company, FileData } from '../services/apiService';
 
 interface DashboardProps {
@@ -49,6 +50,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const [files, setFiles] = useState<any[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+  const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
+  const [previewFile, setPreviewFile] = useState<FileData | null>(null);
 
   const [stats, setStats] = useState({
     documents: 12,
@@ -444,6 +447,13 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     }
   };
 
+  const handleFilePreview = (file: FileData) => {
+    console.log('handleFilePreview called with file:', file);
+    setPreviewFile(file);
+    setShowFilePreviewModal(true);
+    console.log('showFilePreviewModal set to true');
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'login':
@@ -647,6 +657,12 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                          Nahral: {file.uploaded_by} | Dátum: {new Date(file.created_at).toLocaleDateString('sk-SK')}
                        </div>
                        <div className="flex space-x-2">
+                         <button
+                           onClick={() => handleFilePreview(file)}
+                           className="text-green-600 hover:text-green-700 text-sm font-medium"
+                         >
+                           Náhľad
+                         </button>
                          <button
                            onClick={() => handleDownloadFile(file.id, file.original_name)}
                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -1141,6 +1157,17 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           onClose={() => setShowFileUploadModal(false)}
           companies={companies}
           onFileUpload={handleFileUpload}
+        />
+
+        {/* File Preview Modal */}
+        {console.log('Rendering FilePreviewModal, isOpen:', showFilePreviewModal, 'file:', previewFile)}
+        <FilePreviewModal
+          isOpen={showFilePreviewModal}
+          onClose={() => {
+            setShowFilePreviewModal(false);
+            setPreviewFile(null);
+          }}
+          file={previewFile}
         />
       </div>
     );

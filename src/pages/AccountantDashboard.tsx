@@ -24,6 +24,7 @@ import {
 import CompanyDashboard from '../components/CompanyDashboard';
 import TaskModal, { Task, Employee } from '../components/TaskModal';
 import FileUploadModal from '../components/FileUploadModal';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { Company, apiService } from '../services/apiService';
 
 interface AccountantDashboardProps {
@@ -34,6 +35,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyForDashboard, setSelectedCompanyForDashboard] = useState<Company | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [taskFilter, setTaskFilter] = useState<string>('all');
   const [assignedTasks, setAssignedTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -44,6 +46,8 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+  const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
+  const [previewFile, setPreviewFile] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [stats, setStats] = useState({
     documents: 0,
@@ -244,6 +248,11 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     setShowFileUploadModal(true);
   };
 
+  const handleFilePreview = (file: any) => {
+    setPreviewFile(file);
+    setShowFilePreviewModal(true);
+  };
+
   const handleFileUpload = async (fileData: any) => {
     try {
       // Obnovíme zoznam dokumentov a súborov
@@ -326,6 +335,15 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     company.ico.includes(searchTerm) ||
     company.owner_email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const filteredTasks = assignedTasks.filter(task => {
+    if (taskFilter === 'all') return true;
+    if (taskFilter === 'pending') return task.status === 'pending';
+    if (taskFilter === 'in_progress') return task.status === 'in_progress';
+    if (taskFilter === 'completed') return task.status === 'completed';
+    if (taskFilter === 'cancelled') return task.status === 'cancelled';
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -464,15 +482,74 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </button>
            </div>
 
+          {/* Task Filter */}
+          <div className="px-6 py-3 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">Filter:</span>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setTaskFilter('all')}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    taskFilter === 'all'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                >
+                  Všetky ({assignedTasks.length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('pending')}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    taskFilter === 'pending'
+                      ? 'bg-yellow-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                >
+                  Čakajúce ({assignedTasks.filter(t => t.status === 'pending').length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('in_progress')}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    taskFilter === 'in_progress'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                >
+                  V spracovaní ({assignedTasks.filter(t => t.status === 'in_progress').length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('completed')}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    taskFilter === 'completed'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                >
+                  Dokončené ({assignedTasks.filter(t => t.status === 'completed').length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('cancelled')}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    taskFilter === 'cancelled'
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                  }`}
+                >
+                  Zrušené ({assignedTasks.filter(t => t.status === 'cancelled').length})
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="p-6">
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
               </div>
-            ) : assignedTasks.length > 0 ? (
+            ) : filteredTasks.length > 0 ? (
               <div className="space-y-4">
-                {assignedTasks.map((task) => (
+                {filteredTasks.map((task) => (
                   <div key={task.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -559,9 +636,14 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             ) : (
               <div className="text-center py-12">
                 <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne aktívne úlohy</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  {taskFilter === 'all' ? 'Žiadne úlohy' : 'Žiadne úlohy s vybraným filtrom'}
+                </h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Zatiaľ nemáte žiadne aktívne úlohy od priradených firiem.
+                  {taskFilter === 'all' 
+                    ? 'Zatiaľ nemáte žiadne úlohy od priradených firiem.' 
+                    : 'Skúste zmeniť filter alebo sa vrátiť na "Všetky"'
+                  }
                 </p>
               </div>
             )}
@@ -819,6 +901,12 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
                       </div>
                       <div className="flex space-x-2">
                         <button
+                          onClick={() => handleFilePreview(file)}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                        >
+                          Náhľad
+                        </button>
+                        <button
                           onClick={() => window.open(`/api/files/download/${file.id}`, '_blank')}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
@@ -1017,75 +1105,6 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         </>
       )}
 
-      {/* Priradené firmy */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Priradené firmy</h2>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Hľadať firmy..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {filteredCompanies.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCompanies.map((company) => (
-                <div key={company.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{company.name}</h3>
-                      <p className="text-sm text-gray-600 mb-1">IČO: {company.ico}</p>
-                      <p className="text-sm text-gray-600 mb-1">OR: {company.business_registry || 'N/A'}</p>
-                      <p className="text-sm text-gray-600 mb-3">Vlastník: {company.owner_email}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleOpenCompanyDashboard(company)}
-                        className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md"
-                        title="Otvoriť Dashboard"
-                      >
-                        <ChartBarIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>Vytvorené: {new Date(company.created_at).toLocaleDateString('sk-SK')}</span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                      Priradené
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                {searchTerm ? 'Žiadne firmy nenájdené' : 'Žiadne priradené firmy'}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {searchTerm 
-                  ? 'Skúste zmeniť vyhľadávací výraz' 
-                  : 'Admin vám zatiaľ nepriradil žiadne firmy'
-                }
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
               {/* Company Dashboard Modal */}
         {selectedCompanyForDashboard && (
           <CompanyDashboard
@@ -1120,6 +1139,16 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             onFileUpload={handleFileUpload}
           />
         )}
+
+        {/* File Preview Modal */}
+        <FilePreviewModal
+          isOpen={showFilePreviewModal}
+          onClose={() => {
+            setShowFilePreviewModal(false);
+            setPreviewFile(null);
+          }}
+          file={previewFile}
+        />
       </div>
     );
   };
