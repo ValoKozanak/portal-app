@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ACCOUNTANT
+  CLIENT
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DocumentType {
+  RECEIVED_INVOICE
+  ISSUED_INVOICE
+  CASH_RECEIPT
+  BANK
+  OTHER
+}
+
+enum DocumentState {
+  UPLOADED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  // Relations
+  memberships Membership[]
+  documents   Document[] @relation("DocumentCreator")
+  registrationRequests RegistrationRequest[]
+
+  @@map("users")
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  memberships Membership[]
+  documents   Document[]
+  registrationRequests RegistrationRequest[]
+
+  @@map("companies")
+}
+
+model Membership {
+  userId    String
+  companyId String
+  role      Role
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, companyId])
+  @@map("memberships")
+}
+
+model RegistrationRequest {
+  id          String             @id @default(cuid())
+  email       String
+  passwordHash String
+  companyName String
+  note        String?
+  status      RegistrationStatus @default(PENDING)
+  createdAt   DateTime           @default(now())
+
+  // Relations
+  user    User?    @relation(fields: [email], references: [email])
+  company Company? @relation(fields: [companyName], references: [name])
+
+  @@map("registration_requests")
+}
+
+model Document {
+  id            String        @id @default(cuid())
+  companyId     String
+  createdBy     String
+  type          DocumentType
+  state         DocumentState @default(UPLOADED)
+  issueDate     DateTime?
+  dueDate       DateTime?
+  amount        String?
+  currency      String?
+  supplierName  String?
+  supplierVatId String?
+  note          String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  company  Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  creator  User           @relation("DocumentCreator", fields: [createdBy], references: [id])
+  files    DocumentFile[]
+
+  @@map("documents")
+}
+
+model DocumentFile {
+  id           String   @id @default(cuid())
+  documentId   String
+  objectKey    String
+  originalName String
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("document_files")
+}
