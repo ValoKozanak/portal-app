@@ -203,6 +203,23 @@ const initDatabase = () => {
         VALUES ('Počiatočná verzia', 'Predvolený obsah webu', 'admin@portal.sk', 1)
       `);
 
+      // Vloženie demo úloh (ak existujú firmy)
+      db.run(`
+        INSERT OR IGNORE INTO tasks (
+          title, description, status, priority, assigned_to, 
+          company_id, company_name, created_by, due_date, created_at
+        ) VALUES 
+          ('Aktualizácia účtovníctva', 'Mesačná aktualizácia účtovníctva a kontrola dokladov', 'pending', 'medium', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-15', CURRENT_TIMESTAMP),
+          ('Daňové priznanie', 'Príprava daňového priznania za rok 2023', 'in_progress', 'high', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-03-31', CURRENT_TIMESTAMP),
+          ('Kontrola faktúr', 'Kontrola a spracovanie všetkých faktúr za január', 'completed', 'low', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-01', CURRENT_TIMESTAMP)
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo úloh:', err);
+        } else {
+          console.log('✅ Demo úlohy pridané úspešne');
+        }
+      });
+
       console.log('✅ Databáza inicializovaná úspešne');
       resolve();
     });

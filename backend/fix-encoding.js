@@ -53,3 +53,5 @@ function fixFileEncoding() {
 
 // Spustíme opravu
 fixFileEncoding();
+
+

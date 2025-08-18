@@ -1,15 +1,31 @@
-import { Task } from '../components/TaskModal';
+// Definícia Task interface
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignedTo: string;
+  assignedToEmail: string;
+  dueDate: string;
+  createdAt: string;
+  createdBy: string;
+  category: string;
+  estimatedHours: number;
+  companyId: number;
+  companyName: string;
+}
 
 // Simulované úložište úloh v localStorage
 const TASKS_STORAGE_KEY = 'allTasks';
 
 export interface TaskService {
-  getAllTasks(): Task[];
-  getTasksByCompany(companyId: number): Task[];
-  getTasksByAccountant(accountantEmail: string): Task[];
-  addTask(task: Omit<Task, 'id' | 'createdAt'>): Task;
-  updateTask(taskId: string, updates: Partial<Task>): Task | null;
-  deleteTask(taskId: string): boolean;
+  getAllTasks(): Promise<Task[]>;
+  getTasksByCompany(companyId: number): Promise<Task[]>;
+  getTasksByAccountant(accountantEmail: string): Promise<Task[]>;
+  addTask(task: Omit<Task, 'id' | 'createdAt'>): Promise<Task>;
+  updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null>;
+  deleteTask(taskId: string): Promise<boolean>;
 }
 
 class TaskServiceImpl implements TaskService {
@@ -31,21 +47,21 @@ class TaskServiceImpl implements TaskService {
     }
   }
 
-  getAllTasks(): Task[] {
-    return this.getTasksFromStorage();
+  async getAllTasks(): Promise<Task[]> {
+    return Promise.resolve(this.getTasksFromStorage());
   }
 
-  getTasksByCompany(companyId: number): Task[] {
+  async getTasksByCompany(companyId: number): Promise<Task[]> {
     const allTasks = this.getTasksFromStorage();
-    return allTasks.filter(task => task.companyId === companyId);
+    return Promise.resolve(allTasks.filter(task => task.companyId === companyId));
   }
 
-  getTasksByAccountant(accountantEmail: string): Task[] {
+  async getTasksByAccountant(accountantEmail: string): Promise<Task[]> {
     const allTasks = this.getTasksFromStorage();
-    return allTasks.filter(task => task.assignedToEmail === accountantEmail);
+    return Promise.resolve(allTasks.filter(task => task.assignedToEmail === accountantEmail));
   }
 
-  addTask(taskData: Omit<Task, 'id' | 'createdAt'>): Task {
+  async addTask(taskData: Omit<Task, 'id' | 'createdAt'>): Promise<Task> {
     const allTasks = this.getTasksFromStorage();
     
     const newTask: Task = {
@@ -57,33 +73,33 @@ class TaskServiceImpl implements TaskService {
     allTasks.push(newTask);
     this.saveTasksToStorage(allTasks);
     
-    return newTask;
+    return Promise.resolve(newTask);
   }
 
-  updateTask(taskId: string, updates: Partial<Task>): Task | null {
+  async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const allTasks = this.getTasksFromStorage();
     const taskIndex = allTasks.findIndex(task => task.id === taskId);
     
     if (taskIndex === -1) {
-      return null;
+      return Promise.resolve(null);
     }
 
     allTasks[taskIndex] = { ...allTasks[taskIndex], ...updates };
     this.saveTasksToStorage(allTasks);
     
-    return allTasks[taskIndex];
+    return Promise.resolve(allTasks[taskIndex]);
   }
 
-  deleteTask(taskId: string): boolean {
+  async deleteTask(taskId: string): Promise<boolean> {
     const allTasks = this.getTasksFromStorage();
     const filteredTasks = allTasks.filter(task => task.id !== taskId);
     
     if (filteredTasks.length === allTasks.length) {
-      return false; // Úloha nebola nájdená
+      return Promise.resolve(false); // Úloha nebola nájdená
     }
 
     this.saveTasksToStorage(filteredTasks);
-    return true;
+    return Promise.resolve(true);
   }
 
   // Inicializácia s predvolenými úlohami

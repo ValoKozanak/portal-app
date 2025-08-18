@@ -19,10 +19,11 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'Nesprávne prihlasovacie údaje' });
     }
 
-    // Pre demo účty používame heslo 'password123'
+    // Kontrolujeme heslo
     let isValidPassword = false;
-    if (password === 'password123') {
-      // Pre demo účty akceptujeme jednoduché heslo
+    
+    // Pre demo účty akceptujeme aj jednoduché heslá
+    if (password === 'password123' || password === 'admin123' || password === 'accountant123' || password === 'user123' || password === 'ucetovnik123') {
       isValidPassword = true;
     } else {
       // Pre ostatné účty kontrolujeme hash

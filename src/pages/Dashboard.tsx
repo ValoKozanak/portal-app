@@ -109,18 +109,22 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     const loadUserTasks = async () => {
       try {
         setLoadingTasks(true);
+        console.log('Načítavam úlohy pre firmy:', companies);
         // Načítame úlohy zo všetkých firiem používateľa
         const allTasks: any[] = [];
         
         for (const company of companies) {
           try {
+            console.log(`Načítavam úlohy pre firmu: ${company.id} - ${company.name}`);
             const companyTasks = await apiService.getCompanyTasks(company.id);
+            console.log(`Našiel som ${companyTasks.length} úloh pre firmu ${company.name}:`, companyTasks);
             allTasks.push(...companyTasks);
           } catch (error) {
             console.error(`Chyba pri načítaní úloh pre firmu ${company.id}:`, error);
           }
         }
         
+        console.log('Celkovo načítané úlohy:', allTasks);
         setTasks(allTasks);
       } catch (error) {
         console.error('Chyba pri načítaní úloh:', error);
@@ -1035,27 +1039,39 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Vaše rýchle akcie</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <button 
+            onClick={handleAddTask}
+            disabled={loading || companies.length === 0}
+            className={`flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium ${
+              loading || companies.length === 0 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                : 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+            }`}
+          >
+            <CogIcon className="h-5 w-5 mr-2" />
+            Pridať úlohu
+          </button>
           <button className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
             <DocumentTextIcon className="h-5 w-5 mr-2" />
             Vytvoriť dokument
           </button>
-                     <button 
-             onClick={handleAddCompany}
-             className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-           >
-             <BuildingOfficeIcon className="h-5 w-5 mr-2" />
-             Pridať firmu
-           </button>
-                     <button 
-             onClick={() => setShowEditProfileModal(true)}
-             className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-           >
-             <UsersIcon className="h-5 w-5 mr-2" />
-             Upraviť profil
-           </button>
-                 </div>
-       </div>
+          <button 
+            onClick={handleAddCompany}
+            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <BuildingOfficeIcon className="h-5 w-5 mr-2" />
+            Pridať firmu
+          </button>
+          <button 
+            onClick={() => setShowEditProfileModal(true)}
+            className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+          >
+            <UsersIcon className="h-5 w-5 mr-2" />
+            Upraviť profil
+          </button>
+        </div>
+      </div>
 
        {/* Edit Profile Modal */}
        <EditProfileModal
@@ -1083,31 +1099,35 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         )}
 
         {/* Task Modal */}
-        {companies.length > 0 && (
-          <TaskModal
-            isOpen={showTaskModal}
-            onClose={() => {
-              setShowTaskModal(false);
-              setEditingTask(null);
-            }}
-            onSave={handleSaveTask}
-            task={editingTask}
-            companyEmployees={[]} // Prázdny array pre používateľa
-            company={{ id: companies[0].id, name: companies[0].name }}
-            isAccountant={false}
-            assignedCompanies={companies}
-          />
-        )}
+        <TaskModal
+          isOpen={showTaskModal}
+          onClose={() => {
+            setShowTaskModal(false);
+            setEditingTask(null);
+          }}
+          onSave={handleSaveTask}
+          task={editingTask}
+          companyEmployees={companies.length > 0 ? [
+            {
+              id: '1',
+              name: 'Vlastník firmy',
+              email: userEmail,
+              role: 'owner',
+              department: 'Management'
+            }
+          ] : []}
+          company={companies.length > 0 ? { id: companies[0].id, name: companies[0].name } : undefined}
+          isAccountant={false}
+          assignedCompanies={companies}
+        />
 
         {/* File Upload Modal */}
-        {companies.length > 0 && (
-          <FileUploadModal
-            isOpen={showFileUploadModal}
-            onClose={() => setShowFileUploadModal(false)}
-            companies={companies}
-            onFileUpload={handleFileUpload}
-          />
-        )}
+        <FileUploadModal
+          isOpen={showFileUploadModal}
+          onClose={() => setShowFileUploadModal(false)}
+          companies={companies}
+          onFileUpload={handleFileUpload}
+        />
       </div>
     );
   };

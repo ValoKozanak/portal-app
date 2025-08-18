@@ -61,10 +61,14 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         const assignedCompanies = await apiService.getAccountantCompanies(userEmail);
         setCompanies(assignedCompanies);
 
-        // Načítanie úloh priradených účtovníkovi
-        const accountantTasks = await apiService.getAccountantTasks(userEmail);
+        // Načítanie úloh zo všetkých priradených firiem (nie len priradené účtovníkovi)
+        const companyTasksArrays = await Promise.all(
+          assignedCompanies.map((company) => apiService.getCompanyTasks(company.id))
+        );
+        const allCompanyTasks = companyTasksArrays.flat();
+
         // Konvertujeme API Task na TaskModal Task
-        const convertedTasks: Task[] = accountantTasks.map(apiTask => ({
+        const convertedTasks: Task[] = allCompanyTasks.map(apiTask => ({
           id: apiTask.id.toString(),
           title: apiTask.title,
           description: apiTask.description || '',
@@ -116,7 +120,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     
     setStats({
       documents: totalDocuments,
-      tasks: totalTasks,
+      tasks: totalTasks, // Zobrazujeme všetky úlohy
       completed: completedTasks,
       pending: pendingTasks,
       companies: companies.length,
@@ -555,9 +559,9 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             ) : (
               <div className="text-center py-12">
                 <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne priradené úlohy</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne aktívne úlohy</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Zatiaľ vám neboli priradené žiadne úlohy od firiem.
+                  Zatiaľ nemáte žiadne aktívne úlohy od priradených firiem.
                 </p>
               </div>
             )}

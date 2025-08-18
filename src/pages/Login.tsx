@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { apiService } from '../services/apiService';
 import { 
   EyeIcon,
   EyeSlashIcon,
@@ -10,12 +11,14 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,15 +28,27 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Tu by sa odoslal prihlasovací požiadavek
-    setTimeout(() => {
+    try {
+      const response = await apiService.login(formData.email, formData.password);
+      apiService.setToken(response.token);
+      
+      // Nastav localStorage pre App.tsx
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userRole', response.user.role);
+      localStorage.setItem('userEmail', response.user.email);
+      
+      // Presmerovanie na dashboard
+      navigate('/dashboard');
+    } catch (error: any) {
+      setError(error.message || 'Chyba pri prihlásení');
+    } finally {
       setIsLoading(false);
-      // Presmerovanie na dashboard by sa riešilo cez App.tsx
-    }, 2000);
+    }
   };
 
   const features = [
@@ -75,6 +90,20 @@ const Login: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email adresa

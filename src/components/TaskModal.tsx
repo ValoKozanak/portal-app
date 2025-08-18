@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { XMarkIcon, CalendarIcon, UserIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
+import { XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline';
 
 export interface Task {
   id: string;
@@ -140,7 +140,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
     }
     setErrors({});
-  }, [task, isOpen, isAccountant, assignedCompanies]);
+  }, [task, isOpen]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -238,8 +238,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
   };
 
-  const handleInputChange = useCallback((field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    console.log('handleInputChange called:', field, value);
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      console.log('New formData:', newData);
+      return newData;
+    });
     
     // Vyčistiť chybu pre dané pole
     setErrors(prev => {
@@ -250,9 +255,33 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
       return prev;
     });
-  }, []);
+  };
 
   if (!isOpen) return null;
+
+  // Kontrola či sú dostupné firmy
+  if (!isAccountant && !company) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Chyba
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Pre vytvorenie úlohy musíte mať aspoň jednu firmu. Najprv vytvorte firmu.
+            </p>
+            <button
+              onClick={onClose}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Zavrieť
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">

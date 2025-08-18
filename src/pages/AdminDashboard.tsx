@@ -119,9 +119,19 @@ const AdminDashboard: React.FC = () => {
 
   // Načítanie úloh
   useEffect(() => {
-    const tasks = taskService.getAllTasks();
-    setAllTasks(tasks);
-    setLoadingTasks(false);
+    const loadTasks = async () => {
+      try {
+        setLoadingTasks(true);
+        const tasks = await taskService.getAllTasks();
+        setAllTasks(tasks);
+      } catch (error) {
+        console.error('Chyba pri načítaní úloh:', error);
+      } finally {
+        setLoadingTasks(false);
+      }
+    };
+
+    loadTasks();
   }, []);
 
   // Načítanie všetkých súborov
@@ -271,20 +281,28 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleUpdateTaskStatus = (taskId: string, newStatus: Task['status']) => {
-    const updatedTask = taskService.updateTask(taskId, { status: newStatus });
-    if (updatedTask) {
-      setAllTasks(prev => prev.map(task => 
-        task.id === taskId ? updatedTask : task
-      ));
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: Task['status']) => {
+    try {
+      const updatedTask = await taskService.updateTask(taskId, { status: newStatus });
+      if (updatedTask) {
+        setAllTasks(prev => prev.map(task => 
+          task.id === taskId ? updatedTask : task
+        ));
+      }
+    } catch (error) {
+      console.error('Chyba pri aktualizácii úlohy:', error);
     }
   };
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('Naozaj chcete vymazať túto úlohu?')) {
-      const success = taskService.deleteTask(taskId);
-      if (success) {
-        setAllTasks(prev => prev.filter(task => task.id !== taskId));
+      try {
+        const success = await taskService.deleteTask(taskId);
+        if (success) {
+          setAllTasks(prev => prev.filter(task => task.id !== taskId));
+        }
+      } catch (error) {
+        console.error('Chyba pri mazaní úlohy:', error);
       }
     }
   };
