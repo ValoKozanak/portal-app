@@ -14,6 +14,7 @@ interface CompanyFormData {
   authorized_person: string;
   contact_phone: string;
   contact_email: string;
+  owner_email?: string;
 }
 
 interface CompanyModalProps {
@@ -91,9 +92,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
       newErrors.address = 'Adresa je povinná';
     }
 
-    if (!formData.business_registry.trim()) {
-      newErrors.business_registry = 'Číslo obchodného registra je povinné';
-    }
+    // business_registry nie je povinné v databáze
 
     if (formData.vat_id && !/^SK\d{10}$/.test(formData.vat_id.replace(/\s/g, ''))) {
       newErrors.vat_id = 'IČ DPH musí mať formát SK + 10 číslic';

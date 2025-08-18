@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon, UserIcon, BuildingOfficeIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, BuildingOfficeIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { Company } from '../services/apiService';
 
 interface Accountant {

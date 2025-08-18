@@ -234,14 +234,28 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         // Vytvorenie novej firmy
         const companyData = {
           ...company,
-          owner_email: userEmail
+          owner_email: userEmail,
+          status: 'active'
         };
+        
+        // Kontrola povinných polí
+        if (!companyData.name || !companyData.ico || !companyData.address || !companyData.authorized_person) {
+          alert('Chýbajú povinné údaje: názov firmy, IČO, adresa alebo oprávnená osoba');
+          return;
+        }
+        
+        console.log('Vytváram firmu s dátami:', companyData);
         const response = await apiService.createCompany(companyData);
-        const newCompany = { ...company, id: response.companyId, owner_email: userEmail };
+        console.log('Odpoveď z API:', response);
+        const newCompany = { ...company, id: response.companyId, owner_email: userEmail, status: 'active' };
         setCompanies((prev: Company[]) => [...prev, newCompany]);
+        setShowCompanyModal(false);
+        setEditingCompany(null);
+        setIsEditingCompany(false);
       }
     } catch (error) {
       console.error('Chyba pri ukladaní firmy:', error);
+      alert('Chyba pri ukladaní firmy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
     }
   };
 

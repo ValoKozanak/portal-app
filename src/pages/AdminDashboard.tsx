@@ -769,7 +769,6 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <AdminCompaniesList 
                       companies={allCompanies} 
-                      onDeleteCompany={handleDeleteCompany}
                       onDeactivateCompany={handleDeactivateCompany}
                       onActivateCompany={handleActivateCompany}
                       onOpenDashboard={handleOpenCompanyDashboard}
@@ -783,7 +782,6 @@ const AdminDashboard: React.FC = () => {
                       <h3 className="text-lg font-medium text-gray-900 mb-4">Neaktívne firmy</h3>
                       <AdminCompaniesList 
                         companies={inactiveCompanies} 
-                        onDeleteCompany={handleDeleteCompany}
                         onDeactivateCompany={handleDeactivateCompany}
                         onActivateCompany={handleActivateCompany}
                         onOpenDashboard={handleOpenCompanyDashboard}

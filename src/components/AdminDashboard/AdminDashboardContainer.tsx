@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { apiService } from '../../services/apiService';
-import { taskService } from '../../services/taskService';
 import { LoadingSpinner } from '../LoadingSpinner';
+import AssignCompanyModal from '../AssignCompanyModal';
 import { 
   UsersIcon, 
   BuildingOfficeIcon, 
@@ -27,9 +27,19 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [selectedTask, setSelectedTask] = useState<any>(null); // Used in task modal
+  const [selectedFile, setSelectedFile] = useState<any>(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showUserDetailModal, setShowUserDetailModal] = useState(false);
+  const [showCompanyDetailModal, setShowCompanyDetailModal] = useState(false);
+  const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
+  const [showFileDetailModal, setShowFileDetailModal] = useState(false);
+  const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
+  const [userFilter, setUserFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [companyFilter, setCompanyFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [companySearchTerm, setCompanySearchTerm] = useState('');
   const [taskFilter, setTaskFilter] = useState<'all' | 'active' | 'completed'>('active');
 
   // API hooks s caching
@@ -41,14 +51,14 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   );
 
   const { data: companies, loading: companiesLoading, error: companiesError, refetch: refetchCompanies } = useApi(
-    () => apiService.getAllCompanies(),
+    () => apiService.getAllCompaniesForAdmin(),
     [],
-    'admin-companies',
+    'admin-companies-all',
     2 * 60 * 1000
   );
 
   const { data: tasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useApi(
-    () => taskService.getAllTasks(),
+    () => apiService.getAllTasks(),
     [],
     'admin-tasks',
     1 * 60 * 1000 // 1 minúta cache
@@ -77,7 +87,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     return {
       users: users.length,
       companies: companies.length,
-      tasks: tasks.length,
+      tasks: tasks.length, // Všetky úlohy
       activeTasks: tasks.filter(task => task.status === 'pending' || task.status === 'in_progress').length,
       completedTasks: tasks.filter(task => task.status === 'completed').length,
       documents: files.length,
@@ -104,55 +114,110 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     setSelectedUser(user);
     switch (action) {
       case 'view':
-        // Implement view user details
+        setShowUserDetailModal(true);
         break;
       case 'edit':
         setShowUserModal(true);
         break;
       case 'delete':
-        if (window.confirm(`Naozaj chcete vymazať používateľa ${user.name}?`)) {
-          // Implement delete user
-          console.log('Deleting user:', user.id);
+        const isActive = user.status === 'active';
+        const actionText = isActive ? 'zneaktívniť' : 'aktivovať';
+        const successText = isActive ? 'Používateľ bol zneaktívnený.' : 'Používateľ bol aktivovaný.';
+        const errorText = isActive ? 'Zneaktívnenie používateľa zlyhalo.' : 'Aktivácia používateľa zlyhala.';
+        
+        if (window.confirm(`Naozaj chcete ${actionText} používateľa ${user.name}?`)) {
+          (async () => {
+            try {
+              await apiService.updateUser(user.id, { ...user, status: isActive ? 'inactive' : 'active' });
+              await refetchUsers();
+              alert(successText);
+            } catch (e) {
+              alert(errorText);
+            }
+          })();
         }
         break;
     }
-  }, []);
+  }, [refetchUsers]);
 
   const handleCompanyAction = useCallback((action: 'view' | 'edit' | 'delete', company: any) => {
     setSelectedCompany(company);
     switch (action) {
       case 'view':
-        // Implement view company details
+        setShowCompanyDetailModal(true);
         break;
       case 'edit':
         setShowCompanyModal(true);
         break;
       case 'delete':
-        if (window.confirm(`Naozaj chcete vymazať firmu ${company.name}?`)) {
-          // Implement delete company
-          console.log('Deleting company:', company.id);
+        const isActive = company.status === 'active';
+        const actionText = isActive ? 'zneaktívniť' : 'aktivovať';
+        const successText = isActive ? 'Firma bola zneaktívnená.' : 'Firma bola aktivovaná.';
+        const errorText = isActive ? 'Zneaktívnenie firmy zlyhalo.' : 'Aktivácia firmy zlyhala.';
+        
+        if (window.confirm(`Naozaj chcete ${actionText} firmu ${company.name}?`)) {
+          (async () => {
+            try {
+              console.log('Zmena statusu firmy:', { companyId: company.id, isActive, actionText });
+              if (isActive) {
+                console.log('Volám deactivateCompany...');
+                await apiService.deactivateCompany(company.id);
+                console.log('deactivateCompany úspešne dokončené');
+              } else {
+                console.log('Volám activateCompany...');
+                await apiService.activateCompany(company.id);
+                console.log('activateCompany úspešne dokončené');
+              }
+              console.log('Obnovujem zoznam firiem...');
+              await refetchCompanies();
+              console.log('Zoznam firiem obnovený');
+              alert(successText);
+            } catch (e) {
+              console.error('Chyba pri zmene statusu firmy:', e);
+              alert(errorText);
+            }
+          })();
         }
         break;
     }
-  }, []);
+  }, [refetchCompanies]);
 
   const handleTaskAction = useCallback((action: 'view' | 'edit' | 'delete', task: any) => {
     setSelectedTask(task);
     switch (action) {
       case 'view':
-        // Implement view task details
+        setShowTaskDetailModal(true);
         break;
       case 'edit':
         setShowTaskModal(true);
         break;
       case 'delete':
         if (window.confirm(`Naozaj chcete vymazať úlohu ${task.title}?`)) {
-          // Implement delete task
-          console.log('Deleting task:', task.id);
+          (async () => {
+            try {
+              await apiService.deleteTask(task.id);
+              await refetchTasks();
+              alert('Úloha bola vymazaná.');
+            } catch (e) {
+              alert('Vymazanie úlohy zlyhalo.');
+            }
+          })();
         }
         break;
     }
-  }, []);
+  }, [refetchTasks]);
+
+  // Funkcia na priradenie účtovníkov k firme
+  const handleAssignAccountants = useCallback(async (companyId: number, accountantEmails: string[]) => {
+    try {
+      await apiService.assignAccountantsToCompany(companyId, accountantEmails);
+      await refetchCompanies();
+      alert('Účtovníci boli úspešne priradení k firme.');
+    } catch (error) {
+      console.error('Chyba pri priradení účtovníkov:', error);
+      alert('Chyba pri priradení účtovníkov k firme.');
+    }
+  }, [refetchCompanies]);
 
   // Loading state
   if (usersLoading && companiesLoading && tasksLoading && filesLoading) {
@@ -282,7 +347,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   console.log('Kliknutie na kartu úloh');
-                  setTaskFilter('active');
+                  setTaskFilter('all');
                   setActiveSection('tasks');
                 }}
                 className="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 cursor-pointer text-left"
@@ -292,12 +357,12 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <ClipboardDocumentListIcon className="w-6 h-6 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Aktívne úlohy</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.activeTasks}</p>
+                    <p className="text-sm font-medium text-gray-600">Úlohy</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.tasks}</p>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <span className="text-sm text-gray-500">Dokončené: {stats.completedTasks}</span>
+                  <span className="text-sm text-gray-500">Aktívne: {stats.activeTasks} | Dokončené: {stats.completedTasks}</span>
                   <div className="mt-2">
                     <button 
                       onClick={(e) => {
@@ -490,6 +555,50 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
               </button>
             </div>
             
+            {/* Filtre a vyhľadávanie */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Vyhľadávanie */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Vyhľadávanie</label>
+                  <input
+                    type="text"
+                    placeholder="Hľadať podľa mena alebo emailu..."
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                {/* Filter podľa statusu */}
+                <div className="md:w-48">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={userFilter}
+                    onChange={(e) => setUserFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="all">Všetci ({users?.length || 0})</option>
+                    <option value="active">Aktívni ({users?.filter(u => u.status === 'active').length || 0})</option>
+                    <option value="inactive">Neaktívni ({users?.filter(u => u.status === 'inactive').length || 0})</option>
+                  </select>
+                </div>
+                
+                {/* Vyčistiť filtre */}
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setUserSearchTerm('');
+                      setUserFilter('all');
+                    }}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Vyčistiť filtre
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             <div className="bg-white rounded-lg shadow">
               {usersLoading ? (
                 <div className="text-center py-8">
@@ -509,7 +618,23 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {users.map((user) => (
+                      {(users || [])
+                        .filter(user => {
+                          // Filter podľa statusu
+                          if (userFilter === 'active' && user.status !== 'active') return false;
+                          if (userFilter === 'inactive' && user.status !== 'inactive') return false;
+                          
+                          // Filter podľa vyhľadávania
+                          if (userSearchTerm) {
+                            const searchLower = userSearchTerm.toLowerCase();
+                            const nameMatch = user.name?.toLowerCase().includes(searchLower);
+                            const emailMatch = user.email?.toLowerCase().includes(searchLower);
+                            if (!nameMatch && !emailMatch) return false;
+                          }
+                          
+                          return true;
+                        })
+                        .map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -565,10 +690,18 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                               </button>
                               <button
                                 onClick={() => handleUserAction('delete', user)}
-                                className="text-red-600 hover:text-red-900 p-1"
-                                title="Vymazať"
+                                className={`p-1 ${user.status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                                title={user.status === 'active' ? 'Zneaktívniť' : 'Aktivovať'}
                               >
-                                <TrashIcon className="w-4 h-4" />
+                                {user.status === 'active' ? (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
                               </button>
                             </div>
                           </td>
@@ -597,13 +730,66 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Správa firiem</h2>
-              <button
-                onClick={() => setShowCompanyModal(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
-              >
-                <PlusIcon className="w-4 h-4" />
-                Pridať firmu
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowAssignCompanyModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <UsersIcon className="w-4 h-4" />
+                  Priradiť účtovníkov
+                </button>
+                <button
+                  onClick={() => setShowCompanyModal(true)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  Pridať firmu
+                </button>
+              </div>
+            </div>
+            
+            {/* Filtre a vyhľadávanie */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Vyhľadávanie */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Vyhľadávanie</label>
+                  <input
+                    type="text"
+                    placeholder="Hľadať podľa názvu firmy, IČO alebo adresy..."
+                    value={companySearchTerm}
+                    onChange={(e) => setCompanySearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                
+                {/* Filter podľa statusu */}
+                <div className="md:w-48">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={companyFilter}
+                    onChange={(e) => setCompanyFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="all">Všetky ({companies?.length || 0})</option>
+                    <option value="active">Aktívne ({companies?.filter(c => c.status === 'active').length || 0})</option>
+                    <option value="inactive">Neaktívne ({companies?.filter(c => c.status === 'inactive').length || 0})</option>
+                  </select>
+                </div>
+                
+                {/* Vyčistiť filtre */}
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setCompanySearchTerm('');
+                      setCompanyFilter('all');
+                    }}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Vyčistiť filtre
+                  </button>
+                </div>
+              </div>
             </div>
             
             <div className="bg-white rounded-lg shadow">
@@ -625,7 +811,24 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {companies.map((company) => (
+                      {(companies || [])
+                        .filter(company => {
+                          // Filter podľa statusu
+                          if (companyFilter === 'active' && company.status !== 'active') return false;
+                          if (companyFilter === 'inactive' && company.status !== 'inactive') return false;
+                          
+                          // Filter podľa vyhľadávania
+                          if (companySearchTerm) {
+                            const searchLower = companySearchTerm.toLowerCase();
+                            const nameMatch = company.name?.toLowerCase().includes(searchLower);
+                            const icoMatch = company.ico?.toLowerCase().includes(searchLower);
+                            const addressMatch = company.address?.toLowerCase().includes(searchLower);
+                            if (!nameMatch && !icoMatch && !addressMatch) return false;
+                          }
+                          
+                          return true;
+                        })
+                        .map((company) => (
                         <tr key={company.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -653,7 +856,20 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {'accountantName' in company ? (company.accountantName as string) : 'Nepriradený'}
+                            {company.assignedToAccountants && company.assignedToAccountants.length > 0 ? (
+                              <div>
+                                {company.assignedToAccountants.map((email: string, index: number) => {
+                                  const accountant = users?.find(user => user.email === email);
+                                  return (
+                                    <div key={email} className={index > 0 ? 'mt-1' : ''}>
+                                      {accountant ? accountant.name : email}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              'Nepriradený'
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex items-center space-x-2">
@@ -673,10 +889,18 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                               </button>
                               <button
                                 onClick={() => handleCompanyAction('delete', company)}
-                                className="text-red-600 hover:text-red-900 p-1"
-                                title="Vymazať"
+                                className={`p-1 ${company.status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                                title={company.status === 'active' ? 'Zneaktívniť' : 'Aktivovať'}
                               >
-                                <TrashIcon className="w-4 h-4" />
+                                {company.status === 'active' ? (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
                               </button>
                             </div>
                           </td>
@@ -790,10 +1014,10 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.companyName}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.assignedTo}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.company_name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.assigned_to}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(task.dueDate).toLocaleDateString('sk-SK')}
+                            {task.due_date ? new Date(task.due_date).toLocaleDateString('sk-SK') : 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -923,7 +1147,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex items-center space-x-2">
                               <button
-                                onClick={() => {/* Implement view file */}}
+                                onClick={() => { setSelectedFile(file); setShowFileDetailModal(true); }}
                                 className="text-blue-600 hover:text-blue-900 p-1"
                                 title="Zobraziť"
                               >
@@ -1088,6 +1312,109 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   // Modal components
   const renderModals = () => (
     <>
+      {/* User Detail Modal */}
+      {showUserDetailModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Detail používateľa</h3>
+              <button onClick={() => { setShowUserDetailModal(false); setSelectedUser(null); }} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-gray-600">ID:</span><span className="text-gray-900">{selectedUser.id}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Meno:</span><span className="text-gray-900">{selectedUser.name}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Email:</span><span className="text-gray-900">{selectedUser.email}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Rola:</span><span className="text-gray-900">{selectedUser.role}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Status:</span><span className="text-gray-900">{selectedUser.status}</span></div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => { setShowUserDetailModal(false); setSelectedUser(null); }} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Zavrieť</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Company Detail Modal */}
+      {showCompanyDetailModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Detail firmy</h3>
+              <button onClick={() => { setShowCompanyDetailModal(false); setSelectedCompany(null); }} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              <div className="flex justify-between"><span className="text-gray-600">Názov:</span><span className="text-gray-900">{selectedCompany.name}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">IČO:</span><span className="text-gray-900">{selectedCompany.ico}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Adresa:</span><span className="text-gray-900">{selectedCompany.address}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Obch. register:</span><span className="text-gray-900">{selectedCompany.business_registry || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">DIČ:</span><span className="text-gray-900">{selectedCompany.vat_id || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Daňové ID:</span><span className="text-gray-900">{selectedCompany.tax_id || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Oprávnená osoba:</span><span className="text-gray-900">{selectedCompany.authorized_person}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Kontakt email:</span><span className="text-gray-900">{selectedCompany.contact_email || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Kontakt telefón:</span><span className="text-gray-900">{selectedCompany.contact_phone || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Vlastník:</span><span className="text-gray-900">{selectedCompany.owner_email}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Status:</span><span className="text-gray-900">{selectedCompany.status}</span></div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => { setShowCompanyDetailModal(false); setSelectedCompany(null); }} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Zavrieť</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Task Detail Modal */}
+      {showTaskDetailModal && selectedTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Detail úlohy</h3>
+              <button onClick={() => { setShowTaskDetailModal(false); setSelectedTask(null); }} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              <div className="flex justify-between"><span className="text-gray-600">Názov:</span><span className="text-gray-900">{selectedTask.title}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Firma:</span><span className="text-gray-900">{selectedTask.company_name}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Priradené:</span><span className="text-gray-900">{selectedTask.assigned_to}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Termín:</span><span className="text-gray-900">{selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString('sk-SK') : 'N/A'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Priorita:</span><span className="text-gray-900">{selectedTask.priority}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Status:</span><span className="text-gray-900">{selectedTask.status}</span></div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => { setShowTaskDetailModal(false); setSelectedTask(null); }} className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">Zavrieť</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* File Detail Modal */}
+      {showFileDetailModal && selectedFile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Detail dokumentu</h3>
+              <button onClick={() => { setShowFileDetailModal(false); setSelectedFile(null); }} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-gray-600">Názov:</span><span className="text-gray-900">{selectedFile.original_name}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Typ:</span><span className="text-gray-900">{selectedFile.file_type}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Veľkosť:</span><span className="text-gray-900">{(selectedFile.file_size / 1024).toFixed(1)} KB</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Firma:</span><span className="text-gray-900">{selectedFile.company_name || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Nahral:</span><span className="text-gray-900">{selectedFile.uploaded_by}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Dátum:</span><span className="text-gray-900">{'uploaded_at' in selectedFile && selectedFile.uploaded_at ? new Date(selectedFile.uploaded_at).toLocaleDateString('sk-SK') : 'N/A'}</span></div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => { setShowFileDetailModal(false); setSelectedFile(null); }} className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">Zavrieť</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* User Modal */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1108,67 +1435,132 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                 </svg>
               </button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Meno</label>
-                <input
-                  type="text"
-                  defaultValue={selectedUser?.name || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  defaultValue={selectedUser?.email || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
-                <select
-                  defaultValue={selectedUser?.role || 'user'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="user">Používateľ</option>
-                  <option value="accountant">Účtovník</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  defaultValue={selectedUser?.status || 'active'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="active">Aktívny</option>
-                  <option value="inactive">Neaktívny</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const userData = {
+                name: formData.get('name') as string,
+                email: formData.get('email') as string,
+                password: formData.get('password') as string,
+                role: formData.get('role') as string,
+                status: formData.get('status') as string
+              };
+
+              if (!userData.name || !userData.email || (!selectedUser && !userData.password)) {
+                alert('Vyplňte všetky povinné polia');
+                return;
+              }
+
+              const saveUser = async () => {
+                try {
+                  if (selectedUser) {
+                    // Update existing user
+                    const updateData = {
+                      name: userData.name,
+                      email: userData.email,
+                      role: userData.role,
+                      status: userData.status
+                    };
+                    await apiService.updateUser(selectedUser.id, updateData);
+                    
+                    // Update password if provided
+                    if (userData.password) {
+                      await apiService.changeUserPassword(selectedUser.id, userData.password);
+                    }
+                    
+                    alert('Používateľ bol úspešne upravený');
+                  } else {
+                    // Create new user
+                    await apiService.createUser(userData);
+                    alert('Používateľ bol úspešne vytvorený');
+                  }
                   setShowUserModal(false);
                   setSelectedUser(null);
-                }}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Zrušiť
-              </button>
-              <button
-                onClick={() => {
-                  // Implement save user
-                  console.log('Saving user:', selectedUser);
-                  setShowUserModal(false);
-                  setSelectedUser(null);
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                {selectedUser ? 'Uložiť' : 'Pridať'}
-              </button>
-            </div>
+                  // Refresh users list
+                  refetchUsers();
+                } catch (error) {
+                  console.error('Chyba pri ukladaní používateľa:', error);
+                  alert('Chyba pri ukladaní používateľa');
+                }
+              };
+
+              saveUser();
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Meno *</label>
+                  <input
+                    name="name"
+                    type="text"
+                    defaultValue={selectedUser?.name || ''}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input
+                    name="email"
+                    type="email"
+                    defaultValue={selectedUser?.email || ''}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {selectedUser ? 'Heslo (prázdne = nezmeniť)' : 'Heslo *'}
+                  </label>
+                  <input
+                    name="password"
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={selectedUser ? 'Prázdne = nezmeniť' : 'Zadajte heslo'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
+                  <select
+                    name="role"
+                    defaultValue={selectedUser?.role || 'user'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="user">Používateľ</option>
+                    <option value="accountant">Účtovník</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    name="status"
+                    defaultValue={selectedUser?.status || 'active'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="active">Aktívny</option>
+                    <option value="inactive">Neaktívny</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUserModal(false);
+                    setSelectedUser(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Zrušiť
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  {selectedUser ? 'Uložiť' : 'Pridať'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -1176,7 +1568,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
       {/* Company Modal */}
       {showCompanyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
                 {selectedCompany ? 'Upraviť firmu' : 'Pridať firmu'}
@@ -1193,45 +1585,95 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                 </svg>
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Názov firmy</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Názov firmy *</label>
                 <input
                   type="text"
                   defaultValue={selectedCompany?.name || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Názov firmy"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">IČO</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">IČO *</label>
                 <input
                   type="text"
                   defaultValue={selectedCompany?.ico || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="12345678"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Adresa</label>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adresa *</label>
                 <input
                   type="text"
                   defaultValue={selectedCompany?.address || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Hlavná 123, 811 01 Bratislava"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kontaktná osoba</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Obchodný register</label>
                 <input
                   type="text"
-                  defaultValue={selectedCompany?.contactPerson || ''}
+                  defaultValue={selectedCompany?.business_registry || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Bratislava I, odd. Sro, vl. č. 12345/B"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">DIČ</label>
+                <input
+                  type="text"
+                  defaultValue={selectedCompany?.vat_id || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="SK1234567890"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Daňové ID</label>
+                <input
+                  type="text"
+                  defaultValue={selectedCompany?.tax_id || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="1234567890"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Oprávnená osoba *</label>
+                <input
+                  type="text"
+                  defaultValue={selectedCompany?.authorized_person || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Meno a priezvisko"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kontaktný email</label>
                 <input
                   type="email"
-                  defaultValue={selectedCompany?.email || ''}
+                  defaultValue={selectedCompany?.contact_email || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="kontakt@firma.sk"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kontaktný telefón</label>
+                <input
+                  type="tel"
+                  defaultValue={selectedCompany?.contact_phone || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="+421 2 1234 5678"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email vlastníka *</label>
+                <input
+                  type="email"
+                  defaultValue={selectedCompany?.owner_email || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="vlastnik@firma.sk"
                 />
               </div>
               <div>
@@ -1480,6 +1922,21 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
 
       {/* Modals */}
       {renderModals()}
+      
+      {/* Assign Company Modal */}
+      <AssignCompanyModal
+        isOpen={showAssignCompanyModal}
+        onClose={() => setShowAssignCompanyModal(false)}
+        onAssign={handleAssignAccountants}
+        companies={companies || []}
+        accountants={users?.filter(user => user.role === 'accountant').map(user => ({
+          id: user.id.toString(),
+          name: user.name || '',
+          email: user.email,
+          role: user.role,
+          department: 'Účtovníctvo' // Default department
+        })) || []}
+      />
     </div>
   );
 };

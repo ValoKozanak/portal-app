@@ -199,14 +199,12 @@ class ApiService {
   async deactivateCompany(id: number) {
     return this.request<{ message: string }>(`/companies/${id}/deactivate`, {
       method: 'PATCH',
-      body: JSON.stringify({ status: 'inactive' }),
     });
   }
 
   async activateCompany(id: number) {
     return this.request<{ message: string }>(`/companies/${id}/activate`, {
       method: 'PATCH',
-      body: JSON.stringify({ status: 'active' }),
     });
   }
 

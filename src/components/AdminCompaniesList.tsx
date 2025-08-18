@@ -14,7 +14,6 @@ import { Company } from '../services/apiService';
 
 interface AdminCompaniesListProps {
   companies: Company[];
-  onDeleteCompany: (companyId: number) => void;
   onDeactivateCompany: (companyId: number) => void;
   onActivateCompany: (companyId: number) => void;
   onOpenDashboard?: (company: Company) => void;
@@ -24,7 +23,6 @@ interface AdminCompaniesListProps {
 
 const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
   companies,
-  onDeleteCompany,
   onDeactivateCompany,
   onActivateCompany,
   onOpenDashboard,
