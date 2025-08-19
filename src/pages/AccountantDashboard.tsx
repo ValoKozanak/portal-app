@@ -1300,6 +1300,8 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           <CompanyDashboard
             company={selectedCompanyForDashboard}
             onClose={() => setSelectedCompanyForDashboard(null)}
+            userEmail={userEmail}
+            userRole="accountant"
           />
         )}
 

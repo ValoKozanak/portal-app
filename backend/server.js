@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const companiesRoutes = require('./routes/companies');
 const tasksRoutes = require('./routes/tasks');
 const filesRoutes = require('./routes/files');
+const documentsRoutes = require('./routes/documents');
 const cmsRoutes = require('./routes/cms');
 const testRoutes = require('./routes/test');
 const messagesRoutes = require('./routes/messages');
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/files', filesRoutes);
+app.use('/api/documents', documentsRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/test', testRoutes);
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   DocumentArrowUpIcon,
   DocumentIcon,
-  FolderIcon,
   TrashIcon,
   EyeIcon,
   DocumentTextIcon,
@@ -19,10 +18,14 @@ import { FileData } from '../services/apiService';
 
 interface FileManagerProps {
   files: FileData[];
-  onFileUpload: (file: FileData) => void;
+  onFileUpload?: (file: FileData) => void;
   onFileDelete: (fileId: number) => void;
-  onFileDownload: (file: FileData) => void;
+  onFileDownload?: (file: FileData) => void;
+  onFilePreview?: (file: FileData) => void;
   companyId: number;
+  loading?: boolean;
+  userRole?: 'admin' | 'accountant' | 'company';
+  onEmptyTrash?: () => void;
 }
 
 const FileManager: React.FC<FileManagerProps> = ({
@@ -30,7 +33,11 @@ const FileManager: React.FC<FileManagerProps> = ({
   onFileUpload,
   onFileDelete,
   onFileDownload,
-  companyId
+  onFilePreview,
+  companyId,
+  loading = false,
+  userRole = 'company',
+  onEmptyTrash
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -61,7 +68,6 @@ const FileManager: React.FC<FileManagerProps> = ({
     }
     
     const matchesSearch = file.original_name.toLowerCase().includes(searchTerm.toLowerCase());
-    
     const matchesCategory = selectedCategory === 'all' || (file.category || 'other') === selectedCategory;
     
     return matchesSearch && matchesCategory;
@@ -92,8 +98,24 @@ const FileManager: React.FC<FileManagerProps> = ({
     });
   };
 
+  // Funkcia na preklad kategórií z anglického kódu na slovenský názov
+  const getCategoryName = (categoryCode: string) => {
+    const categoryMap: Record<string, string> = {
+      'documents': 'Dokumenty',
+      'invoices': 'Faktúry',
+      'contracts': 'Zmluvy',
+      'reports': 'Správy',
+      'images': 'Obrázky',
+      'archives': 'Archívy',
+      'other': 'Ostatné'
+    };
+    return categoryMap[categoryCode] || categoryCode;
+  };
+
   const handleFileUpload = (file: FileData) => {
-    onFileUpload(file);
+    if (onFileUpload) {
+      onFileUpload(file);
+    }
     setShowUploadModal(false);
   };
 
@@ -106,7 +128,9 @@ const FileManager: React.FC<FileManagerProps> = ({
     setDownloadingFiles(prev => new Set(prev).add(file.id.toString()));
 
     try {
-      onFileDownload(file);
+      if (onFileDownload) {
+        onFileDownload(file);
+      }
     } catch (error) {
       console.error('Chyba pri sťahovaní súboru:', error);
       alert('Nepodarilo sa stiahnuť súbor');
@@ -143,10 +167,27 @@ const FileManager: React.FC<FileManagerProps> = ({
 
   const totalSize = files.reduce((sum, file) => sum + (file.file_size || 0), 0);
   const filesByCategory = categories.reduce((acc, cat) => {
-    acc[cat.id] = files.filter(f => f && (cat.id === 'all' || (f.category || 'other') === cat.id)).length;
+    if (cat.id === 'all') {
+      acc[cat.id] = files.length;
+    } else {
+      acc[cat.id] = files.filter(f => f && (f.category || 'other') === cat.id).length;
+    }
     return acc;
   }, {} as Record<string, number>);
 
+  // Debug informácie (dočasné)
+  console.log('Files:', files.length);
+  console.log('Filtered files:', filteredFiles.length);
+  console.log('Selected category:', selectedCategory);
+  console.log('Files by category:', filesByCategory);
+  if (files.length > 0) {
+    console.log('Files with categories:', files.map(f => ({ name: f.original_name, category: f.category })));
+  }
+
+
+
+  console.log('FileManager rendering with files:', files.length);
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -158,6 +199,19 @@ const FileManager: React.FC<FileManagerProps> = ({
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
+          {userRole === 'admin' && onEmptyTrash && (
+            <button
+              onClick={() => {
+                if (window.confirm('Naozaj chcete vyprázdniť kôš? Táto akcia je nevratná.')) {
+                  onEmptyTrash();
+                }
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center"
+            >
+              <TrashIcon className="h-4 w-4 mr-2" />
+              Vyprázdniť kôš
+            </button>
+          )}
           <button
             onClick={() => setShowUploadModal(true)}
             className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
@@ -193,7 +247,7 @@ const FileManager: React.FC<FileManagerProps> = ({
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.name} ({filesByCategory[cat.id]})
+                  {cat.name} ({filesByCategory[cat.id] || 0})
                 </option>
               ))}
             </select>
@@ -226,98 +280,105 @@ const FileManager: React.FC<FileManagerProps> = ({
       </div>
 
       {/* Files */}
-      {filteredFiles.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <DocumentIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne súbory</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            {searchTerm || selectedCategory !== 'all' 
-              ? 'Nenašli sa žiadne súbory s vybranými filtrami.'
-              : 'Zatiaľ neboli nahrané žiadne súbory.'
-            }
-          </p>
-          {!searchTerm && selectedCategory === 'all' && (
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-            >
-              Nahrať prvý súbor
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-          {filteredFiles.map((file) => {
-            const Icon = getFileIcon(file.file_type || 'unknown', file.category || 'other');
-            const isDownloading = downloadingFiles.has(file.id.toString());
-            const isDeleting = deletingFiles.has(file.id.toString());
-            
-            return (
-              <div
-                key={file.id}
-                className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow ${
-                  viewMode === 'list' ? 'p-4' : 'p-6'
-                }`}
+      {(() => {
+        console.log('Rendering files section, filteredFiles.length:', filteredFiles.length);
+        return filteredFiles.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow-md">
+            <DocumentIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne súbory</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchTerm || selectedCategory !== 'all' 
+                ? 'Nenašli sa žiadne súbory s vybranými filtrami.'
+                : 'Zatiaľ neboli nahrané žiadne súbory.'
+              }
+            </p>
+            {!searchTerm && selectedCategory === 'all' && (
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
               >
-                <div className={viewMode === 'list' ? 'flex items-center space-x-4' : 'text-center'}>
-                  <div className={`${viewMode === 'list' ? 'flex-shrink-0' : 'mb-4'}`}>
-                    <Icon className={`${viewMode === 'list' ? 'h-8 w-8' : 'h-12 w-12'} text-primary-600`} />
-                  </div>
-                  
-                  <div className={`flex-1 min-w-0 ${viewMode === 'list' ? '' : 'mb-4'}`}>
-                    <h3 className={`font-medium text-gray-900 truncate ${viewMode === 'list' ? 'text-sm' : 'text-lg'}`}>
-                      {file.original_name || 'Neznámy súbor'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {formatFileSize(file.file_size || 0)} • {formatDate(file.created_at || new Date().toISOString())}
-                    </p>
-                  </div>
+                Nahrať prvý súbor
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+            {filteredFiles.map((file) => {
+              const Icon = getFileIcon(file.file_type || 'unknown', file.category || 'other');
+              const isDownloading = downloadingFiles.has(file.id.toString());
+              const isDeleting = deletingFiles.has(file.id.toString());
+              
+              return (
+                <div
+                  key={file.id}
+                  className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow ${
+                    viewMode === 'list' ? 'p-4' : 'p-6'
+                  }`}
+                >
+                  <div className={viewMode === 'list' ? 'flex items-center space-x-4' : 'text-center'}>
+                    <div className={`${viewMode === 'list' ? 'flex-shrink-0' : 'mb-4'}`}>
+                      <Icon className={`${viewMode === 'list' ? 'h-8 w-8' : 'h-12 w-12'} text-primary-600`} />
+                    </div>
+                    
+                    <div className={`flex-1 min-w-0 ${viewMode === 'list' ? '' : 'mb-4'}`}>
+                      <h3 className={`font-medium text-gray-900 truncate ${viewMode === 'list' ? 'text-sm' : 'text-lg'}`}>
+                        {file.original_name || 'Neznámy súbor'}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {formatFileSize(file.file_size || 0)} • {formatDate(file.created_at || new Date().toISOString())}
+                      </p>
+                      <p className="text-xs text-blue-600 font-medium">
+                        {getCategoryName(file.category || 'other')}
+                      </p>
+                    </div>
 
-                                     <div className={`flex space-x-2 ${viewMode === 'list' ? 'flex-shrink-0' : 'justify-center'}`}>
-                     <button
-                       onClick={() => handleFilePreview(file)}
-                       className="text-primary-600 hover:text-primary-700"
-                       title="Náhľad"
-                     >
-                       <EyeIcon className="h-5 w-5" />
-                     </button>
-                     <button
-                       onClick={() => handleFileDownload(file)}
-                       disabled={isDownloading}
-                       className={`text-blue-600 hover:text-blue-700 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                       title={isDownloading ? 'Sťahujem...' : 'Stiahnuť'}
-                     >
-                       <CloudArrowDownIcon className="h-5 w-5" />
-                     </button>
-                     <button
-                       className="text-gray-600 hover:text-gray-700"
-                       title="Zdieľať"
-                     >
-                       <ShareIcon className="h-5 w-5" />
-                     </button>
-                     <button
-                       onClick={() => handleFileDelete(file)}
-                       disabled={isDeleting}
-                       className={`text-red-600 hover:text-red-700 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                       title={isDeleting ? 'Mažem...' : 'Vymazať'}
-                     >
-                       <TrashIcon className="h-5 w-5" />
-                     </button>
-                   </div>
+                    <div className={`flex space-x-2 ${viewMode === 'list' ? 'flex-shrink-0' : 'justify-center'}`}>
+                      <button
+                        onClick={() => handleFilePreview(file)}
+                        className="text-primary-600 hover:text-primary-700"
+                        title="Náhľad"
+                      >
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleFileDownload(file)}
+                        disabled={isDownloading}
+                        className={`text-blue-600 hover:text-blue-700 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title={isDownloading ? 'Sťahujem...' : 'Stiahnuť'}
+                      >
+                        <CloudArrowDownIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        className="text-gray-600 hover:text-gray-700"
+                        title="Zdieľať"
+                      >
+                        <ShareIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleFileDelete(file)}
+                        disabled={isDeleting}
+                        className={`text-red-600 hover:text-red-700 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title={isDeleting ? 'Mažem...' : 'Vymazať'}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        );
+      })()}
 
-             {/* Upload Modal */}
+      {/* Upload Modal */}
        {showUploadModal && (
          <FileUploadModal
            isOpen={showUploadModal}
            onClose={() => setShowUploadModal(false)}
            companyId={companyId}
            onFileUpload={handleFileUpload}
+           userRole={userRole}
          />
        )}
 

@@ -92,6 +92,24 @@ const initDatabase = () => {
         )
       `);
 
+      // Tabuľka dokumentov (organizované do folderov)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS documents (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          original_name TEXT NOT NULL,
+          file_name TEXT NOT NULL,
+          file_path TEXT NOT NULL,
+          file_type TEXT NOT NULL,
+          file_size INTEGER NOT NULL,
+          category TEXT NOT NULL,
+          description TEXT,
+          company_id INTEGER NOT NULL,
+          uploaded_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
       // Pridanie status stĺpca do companies tabuľky ak neexistuje
       db.run(`
         ALTER TABLE companies ADD COLUMN status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive'))

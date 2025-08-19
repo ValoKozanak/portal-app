@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/apiService';
 import { 
   XMarkIcon, 
   DocumentArrowUpIcon,
   DocumentIcon,
-  FolderIcon,
-  TrashIcon,
-  EyeIcon,
   DocumentTextIcon,
   PhotoIcon,
-  ArchiveBoxIcon
+  ArchiveBoxIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { FileData } from '../services/apiService';
 
@@ -25,6 +23,7 @@ interface FileUploadModalProps {
   companyId?: number;
   companies?: Array<{ id: number; name: string }>;
   onFileUpload: (file: FileData) => void;
+  userRole?: 'admin' | 'accountant' | 'company';
 }
 
 const FileUploadModal: React.FC<FileUploadModalProps> = ({ 
@@ -32,13 +31,21 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
   onClose, 
   companyId,
   companies = [],
-  onFileUpload 
+  onFileUpload,
+  userRole = 'company'
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [category, setCategory] = useState('documents');
+  const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [selectedCompanyId, setSelectedCompanyId] = useState<number>(companyId || 0);
+
+  // Pre firmy automaticky nastavíme ich vlastnú firmu
+  useEffect(() => {
+    if (userRole === 'company' && companyId) {
+      setSelectedCompanyId(companyId);
+    }
+  }, [userRole, companyId]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, UploadProgress>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
@@ -138,24 +145,21 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       return;
     }
 
+    if (!category) {
+      alert('Vyberte typ súboru');
+      return;
+    }
+
     setIsUploading(true);
     setUploadErrors({});
 
     try {
       for (const file of selectedFiles) {
-        const metadata = {
-          uploadedBy: 'user@portal.sk', // V reálnej aplikácii by to bolo z autentifikácie
-          description: description || undefined,
-          tags: tags ? tags.split(',').map(tag => tag.trim()) : undefined
-        };
-
         // Progress tracking pre každý súbor
-        const onProgress = (progress: UploadProgress) => {
-          setUploadProgress(prev => ({
-            ...prev,
-            [file.name]: progress
-          }));
-        };
+        setUploadProgress(prev => ({
+          ...prev,
+          [file.name]: { loaded: 0, total: file.size, percentage: 0 }
+        }));
 
         try {
           // Skutočné nahrávanie súboru cez API
@@ -199,44 +203,54 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Výber firmy */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Firma *
-            </label>
-            <select
-              value={selectedCompanyId}
-              onChange={(e) => setSelectedCompanyId(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              required
-            >
-              <option value="">Vyberte firmu</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Výber firmy - skrytý pre firmy */}
+          {userRole !== 'company' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Firma *
+              </label>
+              <select
+                value={selectedCompanyId}
+                onChange={(e) => setSelectedCompanyId(Number(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                required
+              >
+                <option value="">Vyberte firmu</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {/* Pre firmy zobrazíme informáciu o ich firme */}
+          {userRole === 'company' && companyId && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Súbory sa nahrávajú pre vašu firmu</strong>
+              </p>
+            </div>
+          )}
 
           {/* Kategória */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kategória súborov
+              Typ súboru *
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              required
             >
-              {categories.map((cat) => {
-                const Icon = cat.icon;
-                return (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                );
-              })}
+              <option value="">Vyberte typ súboru</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
 

@@ -167,9 +167,13 @@ const Login: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                <button 
+                  type="button"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                  onClick={() => alert('Funkcia na obnovenie hesla bude dostupná v ďalšej verzii.')}
+                >
                   Zabudli ste heslo?
-                </a>
+                </button>
               </div>
             </div>
 

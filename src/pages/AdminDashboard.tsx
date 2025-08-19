@@ -59,12 +59,21 @@ const AdminDashboard: React.FC = () => {
   const [allFiles, setAllFiles] = useState<FileData[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   const [systemAlerts, setSystemAlerts] = useState([
     { id: 1, type: 'warning', message: 'Zálohovanie databázy sa nepodarilo', time: '1 hodinu' },
     { id: 2, type: 'info', message: 'Nová verzia systému je dostupná', time: '2 hodiny' },
     { id: 3, type: 'error', message: 'Kritická chyba v systéme', time: '30 minút' },
   ]);
+
+  // Načítanie userEmail z localStorage
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+    }
+  }, []);
 
   // Načítanie používateľov z API
   useEffect(() => {
@@ -1032,6 +1041,8 @@ const AdminDashboard: React.FC = () => {
           <CompanyDashboard
             company={selectedCompanyForDashboard}
             onClose={() => setSelectedCompanyForDashboard(null)}
+            userEmail={userEmail}
+            userRole="admin"
           />
         )}
 

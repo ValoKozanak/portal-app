@@ -105,6 +105,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   // Naplnenie formulára pri editácii
   useEffect(() => {
+    if (!isOpen) return; // Neresetuj ak nie je modal otvorený
+    
     if (task) {
       setFormData({
         title: task.title,
@@ -140,7 +142,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
     }
     setErrors({});
-  }, [task, isOpen]);
+  }, [task, isOpen, isAccountant]); // Odstránené assignedCompanies z závislostí
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

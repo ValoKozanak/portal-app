@@ -22,6 +22,7 @@ export interface Company {
   contact_email?: string;
   contact_phone?: string;
   owner_email: string;
+  email?: string; // Add email property for compatibility
   assignedToAccountants: string[];
   status: 'active' | 'inactive';
   created_at: string;
@@ -54,6 +55,21 @@ export interface FileData {
   uploaded_by: string;
   file_path: string;
   category: string;
+  created_at: string;
+}
+
+export interface DocumentData {
+  id: number;
+  original_name: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  category: string;
+  description?: string;
+  company_id: number;
+  company_name?: string;
+  uploaded_by: string;
   created_at: string;
 }
 
@@ -242,6 +258,10 @@ class ApiService {
     return this.request<Task[]>(`/tasks/accountant/${accountantEmail}`);
   }
 
+  async getTask(taskId: number) {
+    return this.request<Task>(`/tasks/${taskId}`);
+  }
+
   async createTask(taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) {
     return this.request<{ message: string; taskId: number }>('/tasks', {
       method: 'POST',
@@ -328,7 +348,9 @@ class ApiService {
     const token = this.getToken();
 
     const response = await fetch(url, {
+      method: 'GET',
       headers: {
+        'Content-Type': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
@@ -342,6 +364,12 @@ class ApiService {
 
   async deleteFile(fileId: number) {
     return this.request<{ message: string }>(`/files/${fileId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async emptyTrash(companyId: number) {
+    return this.request<{ message: string }>(`/files/company/${companyId}/trash/empty`, {
       method: 'DELETE',
     });
   }
@@ -403,6 +431,85 @@ class ApiService {
 
   async getConversation(user1: string, user2: string) {
     return this.request<any[]>(`/messages/conversation/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`);
+  }
+
+  // Documents endpoints
+  async getDocumentCategories() {
+    return this.request<{ [key: string]: { name: string; description: string; allowedTypes: string[] } }>('/documents/categories');
+  }
+
+  async getCompanyDocuments(companyId: number, category?: string) {
+    const params = category && category !== 'all' ? `?category=${category}` : '';
+    return this.request<DocumentData[]>(`/documents/company/${companyId}${params}`);
+  }
+
+  async getAllDocuments() {
+    return this.request<DocumentData[]>('/documents/admin/all');
+  }
+
+  async getAccountantDocuments(accountantEmail: string, category?: string) {
+    const params = category && category !== 'all' ? `?category=${category}` : '';
+    return this.request<DocumentData[]>(`/documents/accountant/${encodeURIComponent(accountantEmail)}${params}`);
+  }
+
+  async uploadDocument(formData: FormData) {
+    const url = `${API_BASE_URL}/documents/upload`;
+    const token = this.getToken();
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async downloadDocument(documentId: number) {
+    const url = `${API_BASE_URL}/documents/download/${documentId}`;
+    const token = this.getToken();
+
+    const response = await fetch(url, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async previewDocument(documentId: number) {
+    const url = `${API_BASE_URL}/documents/preview/${documentId}`;
+    const token = this.getToken();
+
+    const response = await fetch(url, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
+  async deleteDocument(documentId: number) {
+    return this.request<{ message: string }>(`/documents/${documentId}`, {
+      method: 'DELETE',
+    });
   }
 }
 
