@@ -36,42 +36,12 @@ const MessageModal: React.FC<MessageModalProps> = ({
   const [recipientEmail, setRecipientEmail] = useState(initialRecipient);
   const [subject, setSubject] = useState(initialSubject);
   const [content, setContent] = useState('');
-  const [messageType, setMessageType] = useState('general');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(companyId);
-  const [loadingCompanies, setLoadingCompanies] = useState(false);
 
-  // Načítanie firiem pre Admin a Accountant
-  useEffect(() => {
-    const loadCompanies = async () => {
-      if (userRole === 'admin' || userRole === 'accountant') {
-        try {
-          setLoadingCompanies(true);
-          let companiesData;
-          
-          if (userRole === 'admin') {
-            companiesData = await apiService.getAllCompanies();
-          } else {
-            companiesData = await apiService.getAccountantCompanies(senderEmail);
-          }
-          
-          setCompanies(companiesData);
-        } catch (error) {
-          console.error('Chyba pri načítaní firiem:', error);
-        } finally {
-          setLoadingCompanies(false);
-        }
-      }
-    };
 
-    if (isOpen) {
-      loadCompanies();
-    }
-  }, [isOpen, userRole, senderEmail]);
 
   // Načítanie používateľov pre výber príjemcu
   useEffect(() => {
@@ -85,43 +55,55 @@ const MessageModal: React.FC<MessageModalProps> = ({
         
         if (userRole === 'user') {
           // User môže poslať správu iba Admin a jemu priradeným Accountant
-          const userCompanies = await apiService.getUserCompanies(senderEmail);
-          const assignedAccountantEmails: string[] = [];
-          
-          // Extraktujeme všetkých priradených účtovníkov zo všetkých firiem používateľa
-          userCompanies.forEach(company => {
-            if (company.assignedToAccountants) {
-              assignedAccountantEmails.push(...company.assignedToAccountants);
-            }
-          });
-          
-          filteredUsers = allUsers.filter(user => 
-            user.role === 'admin' || 
-            (user.role === 'accountant' && assignedAccountantEmails.includes(user.email))
-          );
+          // V novom systéme (1 User = 1 Company) získame priradených účtovníkov
+          try {
+            const userCompanies = await apiService.getUserCompanies(senderEmail);
+            const assignedAccountantEmails: string[] = [];
+            
+            // Extraktujeme všetkých priradených účtovníkov
+            userCompanies.forEach(company => {
+              if (company.assignedToAccountants) {
+                assignedAccountantEmails.push(...company.assignedToAccountants);
+              }
+            });
+            
+            filteredUsers = allUsers.filter(user => 
+              user.role === 'admin' || 
+              (user.role === 'accountant' && assignedAccountantEmails.includes(user.email))
+            );
+          } catch (error) {
+            // Ak sa nepodarí získať priradených účtovníkov, povolíme len admin
+            filteredUsers = allUsers.filter(user => user.role === 'admin');
+          }
         } else if (userRole === 'accountant') {
           // Accountant môže poslať správu iba Admin a priradeným User (z jeho firiem)
-          // Najprv získame firmy, ktoré má accountant na starosti
-          const accountantCompanies = await apiService.getAccountantCompanies(senderEmail);
-          const assignedUserEmails: string[] = [];
-          
-          // Extraktujeme všetkých používateľov z firiem, ktoré má accountant na starosti
-          accountantCompanies.forEach(company => {
-            if (company.owner_email) {
-              assignedUserEmails.push(company.owner_email);
-            }
-          });
-          
-          filteredUsers = allUsers.filter(user => 
-            user.role === 'admin' || 
-            (user.role === 'user' && assignedUserEmails.includes(user.email))
-          );
+          try {
+            const accountantCompanies = await apiService.getAccountantCompanies(senderEmail);
+            const assignedUserEmails: string[] = [];
+            
+            // Extraktujeme všetkých používateľov z firiem, ktoré má accountant na starosti
+            accountantCompanies.forEach(company => {
+              if (company.email) {
+                assignedUserEmails.push(company.email);
+              }
+            });
+            
+            filteredUsers = allUsers.filter(user => 
+              user.role === 'admin' || 
+              (user.role === 'user' && assignedUserEmails.includes(user.email))
+            );
+          } catch (error) {
+            // Ak sa nepodarí získať priradené firmy, povolíme len admin
+            filteredUsers = allUsers.filter(user => user.role === 'admin');
+          }
         }
         // Admin môže poslať správu všetkým
         
         setUsers(filteredUsers);
       } catch (error) {
         console.error('Chyba pri načítaní používateľov:', error);
+        // V prípade chyby povolíme len admin (prázdny zoznam, aby sa nevyskytli ďalšie chyby)
+        setUsers([]);
       } finally {
         setLoadingUsers(false);
       }
@@ -148,16 +130,13 @@ const MessageModal: React.FC<MessageModalProps> = ({
         sender_email: senderEmail,
         recipient_email: recipientEmail,
         subject: subject.trim(),
-        content: content.trim(),
-        company_id: selectedCompanyId,
-        message_type: messageType
+        content: content.trim()
       });
 
       // Reset formulára
       setRecipientEmail('');
       setSubject('');
       setContent('');
-      setMessageType('general');
       
       onSend();
       onClose();
@@ -172,7 +151,6 @@ const MessageModal: React.FC<MessageModalProps> = ({
     setRecipientEmail(initialRecipient);
     setSubject(initialSubject);
     setContent('');
-    setMessageType('general');
     setError('');
     onClose();
   };
@@ -233,33 +211,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
             </div>
           </div>
 
-          {/* Firma (iba pre Admin a Accountant) */}
-          {(userRole === 'admin' || userRole === 'accountant') && (
-            <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                Firma (pre ktorú sa správa posiela)
-              </label>
-              <div className="relative">
-                <select
-                  id="company"
-                  value={selectedCompanyId || ''}
-                  onChange={(e) => setSelectedCompanyId(e.target.value ? Number(e.target.value) : undefined)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Vybrať firmu (voliteľné)</option>
-                  {loadingCompanies ? (
-                    <option value="" disabled>Načítavam firmy...</option>
-                  ) : (
-                    companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name} - {company.owner_email}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-            </div>
-          )}
+
 
           {/* Predmet */}
           <div>
@@ -277,24 +229,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
             />
           </div>
 
-          {/* Typ správy */}
-          <div>
-            <label htmlFor="messageType" className="block text-sm font-medium text-gray-700 mb-2">
-              Typ správy
-            </label>
-            <select
-              id="messageType"
-              value={messageType}
-              onChange={(e) => setMessageType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="general">Všeobecná</option>
-              <option value="question">Otázka</option>
-              <option value="report">Report</option>
-              <option value="urgent">Urgentná</option>
-              <option value="welcome">Vitajúca</option>
-            </select>
-          </div>
+
 
           {/* Obsah */}
           <div>

@@ -26,8 +26,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     setError('');
 
     try {
-      // Absolútna URL pre backend
-      setPreviewUrl(`http://localhost:5000/api/files/${file.id}/preview`);
+      // Použijeme API service pre náhľad
+      const response = await fetch(`http://localhost:5000/api/files/preview/${file.id}`);
+      if (!response.ok) {
+        throw new Error('Nepodarilo sa načítať náhľad');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      setPreviewUrl(url);
     } catch (err) {
       setError('Nepodarilo sa načítať náhľad súboru');
       console.error('Chyba pri načítaní náhľadu:', err);
@@ -40,7 +46,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      window.open(`http://localhost:5000/api/files/${file.id}/preview`, '_blank');
+      window.open(`http://localhost:5000/api/files/preview/${file.id}`, '_blank');
     } catch (err) {
       console.error('Chyba pri otváraní súboru:', err);
       alert('Nepodarilo sa otvoriť súbor');
@@ -51,7 +57,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/files/${file.id}/download`);
+      const response = await fetch(`http://localhost:5000/api/files/download/${file.id}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

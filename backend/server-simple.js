@@ -1,17 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { initDatabase } = require('./database');
+const { initDatabase } = require('./database-simple');
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const companiesRoutes = require('./routes/companies');
-const tasksRoutes = require('./routes/tasks');
-const filesRoutes = require('./routes/files');
-const cmsRoutes = require('./routes/cms');
-const testRoutes = require('./routes/test');
-const messagesRoutes = require('./routes/messages');
-const attendanceRoutes = require('./routes/attendance');
+const authRoutes = require('./routes/auth-simple');
+const companiesRoutes = require('./routes/companies-simple');
+const tasksRoutes = require('./routes/tasks-simple');
+const filesRoutes = require('./routes/files-simple');
+const messagesRoutes = require('./routes/messages-simple');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,21 +22,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // Routes
-app.use('/api/messages', messagesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/files', filesRoutes);
-app.use('/api/cms', cmsRoutes);
-app.use('/api/test', testRoutes);
-app.use('/api/attendance', attendanceRoutes);
+app.use('/api/messages', messagesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server beží' });
 });
-
-
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -56,7 +48,7 @@ app.use((req, res) => {
 initDatabase()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 Server beží na porte ${PORT}`);
+      console.log(`🚀 Jednoduchý server beží na porte ${PORT}`);
       console.log(`📊 API dostupné na http://localhost:${PORT}/api`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
     });

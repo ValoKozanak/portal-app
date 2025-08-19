@@ -3,10 +3,13 @@ import { useApi } from '../../hooks/useApi';
 import { apiService } from '../../services/apiService';
 import { LoadingSpinner } from '../LoadingSpinner';
 import AssignCompanyModal from '../AssignCompanyModal';
+import CompanyModal from '../CompanyModal';
 import FilePreviewModal from '../FilePreviewModal';
 import EmailTestModal from '../EmailTestModal';
 import MessagesList from '../MessagesList';
 import CalendarComponent from '../Calendar';
+import TimeClock from '../TimeClock';
+// import AttendanceReport from '../AttendanceReport';
 import { 
   UsersIcon, 
   BuildingOfficeIcon, 
@@ -24,7 +27,7 @@ import {
   CalendarIcon
 } from '@heroicons/react/24/outline';
 
-type DashboardSection = 'overview' | 'users' | 'companies' | 'tasks' | 'documents' | 'settings' | 'messages' | 'calendar';
+type DashboardSection = 'overview' | 'users' | 'companies' | 'tasks' | 'documents' | 'settings' | 'messages' | 'calendar' | 'timeclock' | 'attendance-report';
 
 interface AdminDashboardContainerProps {}
 
@@ -54,6 +57,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   const [fileFilter, setFileFilter] = useState<string>('all');
   const [fileSearchTerm, setFileSearchTerm] = useState('');
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [selectedCompanyForAttendance, setSelectedCompanyForAttendance] = useState<any>(null);
 
   // API hooks s caching
   const { data: users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useApi(
@@ -94,6 +98,38 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     }
   };
 
+  // Funkcia pre vytvorenie novej firmy (používateľa)
+  const handleCreateCompany = async (companyData: any) => {
+    try {
+      // Vytvoríme novú firmu pomocou API
+      const response = await apiService.createCompany({
+        email: companyData.contact_email,
+        name: companyData.name,
+        role: 'user',
+        status: 'active',
+        phone: companyData.contact_phone,
+        ico: companyData.ico,
+        company_name: companyData.name,
+        address: companyData.address,
+        business_registry: companyData.business_registry,
+        vat_id: companyData.vat_id,
+        tax_id: companyData.tax_id,
+        authorized_person: companyData.authorized_person,
+        contact_email: companyData.contact_email,
+        contact_phone: companyData.contact_phone
+      });
+
+      // Obnovíme zoznam firiem
+      refetchCompanies();
+      refetchUsers();
+      
+      alert('Firma bola úspešne vytvorená!');
+    } catch (error) {
+      console.error('Chyba pri vytváraní firmy:', error);
+      alert('Chyba pri vytváraní firmy: ' + (error as Error).message);
+    }
+  };
+
   // Memoizované štatistiky
   const stats = useMemo(() => {
     if (!users || !companies || !tasks || !files) {
@@ -129,8 +165,8 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
       const searchLower = companySearchTerm.toLowerCase();
       return (
         company.name.toLowerCase().includes(searchLower) ||
-        company.ico.includes(searchLower) ||
-        company.owner_email.toLowerCase().includes(searchLower)
+        (company.ico && company.ico.includes(searchLower)) ||
+        company.email.toLowerCase().includes(searchLower)
       );
     }
     return true;
@@ -351,7 +387,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
             </div>
             
             {/* Štatistiky karty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -570,6 +606,78 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                       className="text-xs text-indigo-600 hover:text-indigo-700 underline"
                     >
                       Zobraziť všetky
+                    </button>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Kliknutie na kartu dochádzky');
+                  setActiveSection('timeclock');
+                }}
+                className="bg-white rounded-lg shadow p-6 border-l-4 border-emerald-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 cursor-pointer text-left"
+              >
+                <div className="flex items-center">
+                  <div className="p-2 bg-emerald-100 rounded-lg">
+                    <CalendarIcon className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Dochádzka</p>
+                    <p className="text-2xl font-bold text-gray-900">⏰</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-sm text-gray-500">Časová karta</span>
+                  <div className="mt-2">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Kliknutie na zobraziť dochádzku');
+                        setActiveSection('timeclock');
+                      }}
+                      className="text-xs text-emerald-600 hover:text-emerald-700 underline"
+                    >
+                      Zobraziť dochádzku
+                    </button>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Kliknutie na kartu reportu dochádzky');
+                  setActiveSection('attendance-report');
+                }}
+                className="bg-white rounded-lg shadow p-6 border-l-4 border-red-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 cursor-pointer text-left"
+              >
+                <div className="flex items-center">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <ChartBarIcon className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Report dochádzky</p>
+                    <p className="text-2xl font-bold text-gray-900">📊</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-sm text-gray-500">Štatistiky</span>
+                  <div className="mt-2">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Kliknutie na zobraziť report dochádzky');
+                        setActiveSection('attendance-report');
+                      }}
+                      className="text-xs text-red-600 hover:text-red-700 underline"
+                    >
+                      Zobraziť report
                     </button>
                   </div>
                 </div>
@@ -1581,6 +1689,168 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
             </div>
           </div>
         );
+      case 'timeclock':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Dochádzka - Admin Panel</h2>
+              <button
+                onClick={handleRefresh}
+                className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Obnoviť
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {companies && companies.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="text-center py-12">
+                    <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne firmy</h3>
+                    <p className="mt-1 text-sm text-gray-500 mb-4">Zatiaľ nie sú registrované žiadne firmy pre dochádzku.</p>
+                  </div>
+                </div>
+              ) : companies && companies.length === 1 ? (
+                <TimeClock 
+                  companyId={companies[0].id} 
+                  companyName={companies[0].name} 
+                />
+              ) : (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Vyberte firmu pre dochádzku</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {companies && companies.map((company) => (
+                      <button
+                        key={company.id}
+                        onClick={() => setSelectedCompanyForAttendance(company)}
+                        className="p-4 border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <BuildingOfficeIcon className="h-6 w-6 text-emerald-600" />
+                          <div className="text-left">
+                            <h3 className="font-medium text-gray-900">{company.name}</h3>
+                            <p className="text-sm text-gray-500">IČO: {company.ico}</p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedCompanyForAttendance && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                  <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                          Dochádzka - {selectedCompanyForAttendance.name}
+                        </h2>
+                        <button
+                          onClick={() => setSelectedCompanyForAttendance(null)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <TimeClock 
+                        companyId={selectedCompanyForAttendance.id} 
+                        companyName={selectedCompanyForAttendance.name} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      case 'attendance-report':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Report dochádzky - Admin Panel</h2>
+              <button
+                onClick={handleRefresh}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Obnoviť
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {companies && companies.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="text-center py-12">
+                    <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne firmy</h3>
+                    <p className="mt-1 text-sm text-gray-500 mb-4">Zatiaľ nie sú registrované žiadne firmy pre report dochádzky.</p>
+                  </div>
+                </div>
+              ) : companies && companies.length === 1 ? (
+                                {/* <AttendanceReport
+                  companyId={companies[0].id}
+                  companyName={companies[0].name}
+                /> */}
+              ) : (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Vyberte firmu pre report dochádzky</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {companies && companies.map((company) => (
+                      <button
+                        key={company.id}
+                        onClick={() => setSelectedCompanyForAttendance(company)}
+                        className="p-4 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <ChartBarIcon className="h-6 w-6 text-red-600" />
+                          <div className="text-left">
+                            <h3 className="font-medium text-gray-900">{company.name}</h3>
+                            <p className="text-sm text-gray-500">IČO: {company.ico}</p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedCompanyForAttendance && activeSection === 'attendance-report' && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                  <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-gray-900">
+                          Report dochádzky - {selectedCompanyForAttendance.name}
+                        </h2>
+                        <button
+                          onClick={() => setSelectedCompanyForAttendance(null)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                                            {/* <AttendanceReport
+                        companyId={selectedCompanyForAttendance.id}  
+                        companyName={selectedCompanyForAttendance.name}
+                      /> */}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -1843,152 +2113,16 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
       )}
 
       {/* Company Modal */}
-      {showCompanyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                {selectedCompany ? 'Upraviť firmu' : 'Pridať firmu'}
-              </h3>
-              <button
-                onClick={() => {
-                  setShowCompanyModal(false);
-                  setSelectedCompany(null);
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Názov firmy *</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.name || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Názov firmy"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">IČO *</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.ico || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="12345678"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Adresa *</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.address || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Hlavná 123, 811 01 Bratislava"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Obchodný register</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.business_registry || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Bratislava I, odd. Sro, vl. č. 12345/B"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">DIČ</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.vat_id || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="SK1234567890"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Daňové ID</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.tax_id || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="1234567890"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Oprávnená osoba *</label>
-                <input
-                  type="text"
-                  defaultValue={selectedCompany?.authorized_person || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Meno a priezvisko"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kontaktný email</label>
-                <input
-                  type="email"
-                  defaultValue={selectedCompany?.contact_email || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="kontakt@firma.sk"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kontaktný telefón</label>
-                <input
-                  type="tel"
-                  defaultValue={selectedCompany?.contact_phone || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="+421 2 1234 5678"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email vlastníka *</label>
-                <input
-                  type="email"
-                  defaultValue={selectedCompany?.owner_email || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="vlastnik@firma.sk"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  defaultValue={selectedCompany?.status || 'active'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="active">Aktívna</option>
-                  <option value="inactive">Neaktívna</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setShowCompanyModal(false);
-                  setSelectedCompany(null);
-                }}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Zrušiť
-              </button>
-              <button
-                onClick={() => {
-                  // Implement save company
-                  console.log('Saving company:', selectedCompany);
-                  setShowCompanyModal(false);
-                  setSelectedCompany(null);
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                {selectedCompany ? 'Uložiť' : 'Pridať'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CompanyModal
+        isOpen={showCompanyModal}
+        onClose={() => {
+          setShowCompanyModal(false);
+          setSelectedCompany(null);
+        }}
+        onSave={handleCreateCompany}
+        currentCompany={selectedCompany}
+        isEditing={!!selectedCompany}
+      />
 
       {/* Task Modal */}
       {showTaskModal && (
@@ -2174,6 +2308,18 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <>
                       <EnvelopeIcon className="w-4 h-4" />
                       Správy
+                    </>
+                  )}
+                  {section === 'timeclock' && (
+                    <>
+                      <CalendarIcon className="w-4 h-4" />
+                      Dochádzka
+                    </>
+                  )}
+                  {section === 'attendance-report' && (
+                    <>
+                      <ChartBarIcon className="w-4 h-4" />
+                      Report dochádzky
                     </>
                   )}
                   {section === 'settings' && (

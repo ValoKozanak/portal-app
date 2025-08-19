@@ -7,13 +7,15 @@ const router = express.Router();
 // Získanie všetkých aktívnych firiem (pre admin)
 router.get('/', (req, res) => {
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    LEFT JOIN company_accountants ca ON c.id = ca.company_id
-    WHERE c.status = 'active'
-    GROUP BY c.id
-    ORDER BY c.created_at DESC
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    LEFT JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE u.role = 'user' AND u.status = 'active' AND u.company_name IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
   `;
 
   db.all(query, [], (err, companies) => {
@@ -34,23 +36,25 @@ router.get('/', (req, res) => {
 });
 
 
-// Získanie firiem pre konkrétneho používateľa
+// Získanie firmy pre konkrétneho používateľa
 router.get('/user/:userEmail', (req, res) => {
   const { userEmail } = req.params;
 
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    LEFT JOIN company_accountants ca ON c.id = ca.company_id
-    WHERE c.owner_email = ? AND c.status = 'active'
-    GROUP BY c.id
-    ORDER BY c.created_at DESC
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    LEFT JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE u.email = ? AND u.role = 'user' AND u.status = 'active' AND u.company_name IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
   `;
 
   db.all(query, [userEmail], (err, companies) => {
     if (err) {
-      return res.status(500).json({ error: 'Chyba pri načítaní firiem' });
+      return res.status(500).json({ error: 'Chyba pri načítaní firmy' });
     }
 
     const processedCompanies = companies.map(company => ({
@@ -69,13 +73,15 @@ router.get('/accountant/:accountantEmail', (req, res) => {
   const { accountantEmail } = req.params;
 
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    INNER JOIN company_accountants ca ON c.id = ca.company_id
-    WHERE ca.accountant_email = ? AND c.status = 'active'
-    GROUP BY c.id
-    ORDER BY c.created_at DESC
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    INNER JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE ua.accountant_email = ? AND u.role = 'user' AND u.status = 'active' AND u.company_name IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
   `;
 
   db.all(query, [accountantEmail], (err, companies) => {
@@ -97,12 +103,15 @@ router.get('/accountant/:accountantEmail', (req, res) => {
 // Získanie všetkých firiem (aktívnych aj neaktívnych) pre admin
 router.get('/admin/all', (req, res) => {
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    LEFT JOIN company_accountants ca ON c.id = ca.company_id
-    GROUP BY c.id
-    ORDER BY c.created_at DESC
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    LEFT JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE u.role = 'user' AND u.company_name IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
   `;
 
   db.all(query, [], (err, companies) => {
@@ -125,13 +134,15 @@ router.get('/admin/all', (req, res) => {
 // Získanie neaktívnych firiem
 router.get('/inactive', (req, res) => {
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    LEFT JOIN company_accountants ca ON c.id = ca.company_id
-    WHERE c.status = 'inactive'
-    GROUP BY c.id
-    ORDER BY c.created_at DESC
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    LEFT JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE u.role = 'user' AND u.status = 'inactive' AND u.company_name IS NOT NULL
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
   `;
 
   db.all(query, [], (err, companies) => {
@@ -155,12 +166,14 @@ router.get('/:id', (req, res) => {
   const { id } = req.params;
 
   const query = `
-    SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
-    FROM companies c
-    LEFT JOIN company_accountants ca ON c.id = ca.company_id
-    WHERE c.id = ?
-    GROUP BY c.id
+    SELECT u.id, u.email, u.name, u.role, u.status, u.ico, u.company_name, u.address, 
+           u.business_registry, u.vat_id, u.tax_id, u.authorized_person, u.contact_email, 
+           u.contact_phone, u.created_at, u.updated_at,
+           GROUP_CONCAT(ua.accountant_email) as assigned_accountants
+    FROM users u
+    LEFT JOIN user_accountants ua ON u.id = ua.user_id
+    WHERE u.id = ? AND u.role = 'user' AND u.company_name IS NOT NULL
+    GROUP BY u.id
   `;
 
   db.get(query, [id], (err, company) => {
@@ -183,69 +196,82 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// Vytvorenie novej firmy
+// Vytvorenie novej firmy (aktualizácia existujúceho user účtu)
 router.post('/', (req, res) => {
   const {
-    ico, name, address, business_registry, vat_id, tax_id,
+    ico, company_name, address, business_registry, vat_id, tax_id,
     authorized_person, contact_email, contact_phone, owner_email
   } = req.body;
 
-  db.run(`
-    INSERT INTO companies (
-      ico, name, address, business_registry, vat_id, tax_id,
-      authorized_person, contact_email, contact_phone, owner_email, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
-  `, [ico, name, address, business_registry, vat_id, tax_id,
-      authorized_person, contact_email, contact_phone, owner_email],
-    function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Firma s týmto IČO už existuje' });
-        }
-        return res.status(500).json({ error: 'Chyba pri vytváraní firmy' });
-      }
+  // Najprv skontrolujeme, či už existuje user s týmto emailom
+  db.get('SELECT id FROM users WHERE email = ?', [owner_email], (err, existingUser) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri kontrole používateľa' });
+    }
 
-      // Poslanie notifikácie pre admina o novej firme
-      db.get(`
-        SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
-      `, [], (err, admin) => {
-        if (!err && admin) {
-          emailService.sendCompanyNotification(
-            admin.email,
-            admin.name || 'Admin',
-            name,
-            owner_email,
-            ico,
-            contact_email
-          ).catch(error => {
-            console.error('Email notification error for admin:', error);
+    if (existingUser) {
+      // Aktualizujeme existujúceho používateľa s firmou
+      db.run(`
+        UPDATE users SET
+          ico = ?, company_name = ?, address = ?, business_registry = ?,
+          vat_id = ?, tax_id = ?, authorized_person = ?,
+          contact_email = ?, contact_phone = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE email = ?
+      `, [ico, company_name, address, business_registry, vat_id, tax_id,
+          authorized_person, contact_email, contact_phone, owner_email],
+        function(err) {
+          if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) {
+              return res.status(400).json({ error: 'Firma s týmto IČO už existuje' });
+            }
+            return res.status(500).json({ error: 'Chyba pri aktualizácii firmy' });
+          }
+
+          // Poslanie notifikácie pre admina o novej firme
+          db.get(`
+            SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
+          `, [], (err, admin) => {
+            if (!err && admin) {
+              emailService.sendCompanyNotification(
+                admin.email,
+                admin.name || 'Admin',
+                company_name,
+                owner_email,
+                ico,
+                contact_email
+              ).catch(error => {
+                console.error('Email notification error for admin:', error);
+              });
+            }
+          });
+
+          res.json({ 
+            message: 'Firma vytvorená úspešne', 
+            companyId: existingUser.id 
           });
         }
-      });
-
-      res.json({ 
-        message: 'Firma vytvorená úspešne', 
-        companyId: this.lastID 
-      });
+      );
+    } else {
+      return res.status(400).json({ error: 'Používateľ s týmto emailom neexistuje' });
     }
-  );
+  });
 });
 
 // Aktualizácia firmy
 router.put('/:id', (req, res) => {
   const { id } = req.params;
   const {
-    ico, name, address, business_registry, vat_id, tax_id,
+    ico, company_name, address, business_registry, vat_id, tax_id,
     authorized_person, contact_email, contact_phone
   } = req.body;
 
   db.run(`
-    UPDATE companies SET
-      ico = ?, name = ?, address = ?, business_registry = ?,
+    UPDATE users SET
+      ico = ?, company_name = ?, address = ?, business_registry = ?,
       vat_id = ?, tax_id = ?, authorized_person = ?,
       contact_email = ?, contact_phone = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `, [ico, name, address, business_registry, vat_id, tax_id,
+    WHERE id = ? AND role = 'user'
+  `, [ico, company_name, address, business_registry, vat_id, tax_id,
       authorized_person, contact_email, contact_phone, id],
     function(err) {
       if (err) {
@@ -265,7 +291,7 @@ router.put('/:id', (req, res) => {
 router.patch('/:id/deactivate', (req, res) => {
   const { id } = req.params;
 
-  db.run('UPDATE companies SET status = "inactive", updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id], function(err) {
+  db.run('UPDATE users SET status = "inactive", updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = "user"', [id], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri deaktivácii firmy' });
     }
@@ -282,7 +308,7 @@ router.patch('/:id/deactivate', (req, res) => {
 router.patch('/:id/activate', (req, res) => {
   const { id } = req.params;
 
-  db.run('UPDATE companies SET status = "active", updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id], function(err) {
+  db.run('UPDATE users SET status = "active", updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = "user"', [id], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri aktivácii firmy' });
     }
@@ -295,11 +321,17 @@ router.patch('/:id/activate', (req, res) => {
   });
 });
 
-// Vymazanie firmy (iba admin)
+// Vymazanie firmy (iba admin) - vymazanie firmy z user účtu
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  db.run('DELETE FROM companies WHERE id = ?', [id], function(err) {
+  db.run(`
+    UPDATE users SET 
+      ico = NULL, company_name = NULL, address = NULL, business_registry = NULL,
+      vat_id = NULL, tax_id = NULL, authorized_person = NULL,
+      contact_email = NULL, contact_phone = NULL, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND role = 'user'
+  `, [id], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri mazaní firmy' });
     }
@@ -320,7 +352,7 @@ router.post('/:id/assign-accountants', (req, res) => {
   db.run('BEGIN TRANSACTION');
 
   // Najprv vymažeme existujúce priradenia
-  db.run('DELETE FROM company_accountants WHERE company_id = ?', [id], (err) => {
+  db.run('DELETE FROM user_accountants WHERE user_id = ?', [id], (err) => {
     if (err) {
       db.run('ROLLBACK');
       return res.status(500).json({ error: 'Chyba pri priraďovaní účtovníkov' });
@@ -330,7 +362,7 @@ router.post('/:id/assign-accountants', (req, res) => {
     const insertPromises = accountantEmails.map(email => {
       return new Promise((resolve, reject) => {
         db.run(
-          'INSERT INTO company_accountants (company_id, accountant_email) VALUES (?, ?)',
+          'INSERT INTO user_accountants (user_id, accountant_email) VALUES (?, ?)',
           [id, email],
           (err) => {
             if (err) reject(err);

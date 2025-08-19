@@ -57,7 +57,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     return tasks
       .filter(task => {
         // Filtrovanie podľa firmy
-        if (filters.companyId !== 'all' && task.company_id !== parseInt(filters.companyId)) {
+        if (filters.companyId !== 'all' && task.user_id !== parseInt(filters.companyId)) {
           return false;
         }
         // Filtrovanie podľa stavu
@@ -363,13 +363,17 @@ const CalendarComponent: React.FC<CalendarProps> = ({
              createdAt: editingTask.created_at,
              createdBy: editingTask.created_by,
              category: 'other',
-             companyId: editingTask.company_id,
+             companyId: editingTask.user_id,
              companyName: editingTask.company_name
            }}
            companyEmployees={[]}
-           company={{ id: editingTask.company_id, name: editingTask.company_name }}
+           company={{ id: editingTask.user_id, name: editingTask.company_name }}
            isAccountant={userRole === 'accountant'}
-           assignedCompanies={companies}
+           assignedCompanies={companies.map(company => ({
+            id: company.id,
+            name: company.company_name || '',
+            ico: company.ico || ''
+          }))}
          />
        )}
     </div>

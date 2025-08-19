@@ -23,7 +23,7 @@ router.get('/company/:companyId', (req, res) => {
 
   db.all(`
     SELECT * FROM tasks 
-    WHERE company_id = ?
+    WHERE user_id = ?
     ORDER BY created_at DESC
   `, [companyId], (err, tasks) => {
     if (err) {
@@ -53,16 +53,16 @@ router.get('/accountant/:accountantEmail', (req, res) => {
 router.post('/', (req, res) => {
   const {
     title, description, status, priority, assigned_to,
-    company_id, company_name, created_by, due_date
+    user_id, company_name, created_by, due_date
   } = req.body;
 
   db.run(`
     INSERT INTO tasks (
       title, description, status, priority, assigned_to,
-      company_id, company_name, created_by, due_date
+      user_id, company_name, created_by, due_date
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [title, description, status, priority, assigned_to,
-      company_id, company_name, created_by, due_date],
+      user_id, company_name, created_by, due_date],
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Chyba pri vytváraní úlohy' });

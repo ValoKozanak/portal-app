@@ -36,12 +36,12 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     currentCompany ? {
       id: currentCompany.id,
       name: currentCompany.name,
-      ico: currentCompany.ico,
-      address: currentCompany.address,
+      ico: currentCompany.ico || '',
+      address: currentCompany.address || '',
       business_registry: currentCompany.business_registry || '',
       vat_id: currentCompany.vat_id || '',
       tax_id: currentCompany.tax_id || '',
-      authorized_person: currentCompany.authorized_person,
+      authorized_person: currentCompany.authorized_person || '',
       contact_phone: currentCompany.contact_phone || '',
       contact_email: currentCompany.contact_email || ''
     } : {
@@ -141,12 +141,12 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     setFormData(currentCompany ? {
       id: currentCompany.id,
       name: currentCompany.name,
-      ico: currentCompany.ico,
-      address: currentCompany.address,
+      ico: currentCompany.ico || '',
+      address: currentCompany.address || '',
       business_registry: currentCompany.business_registry || '',
       vat_id: currentCompany.vat_id || '',
       tax_id: currentCompany.tax_id || '',
-      authorized_person: currentCompany.authorized_person,
+      authorized_person: currentCompany.authorized_person || '',
       contact_phone: currentCompany.contact_phone || '',
       contact_email: currentCompany.contact_email || ''
     } : {

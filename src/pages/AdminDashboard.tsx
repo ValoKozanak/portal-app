@@ -1037,12 +1037,12 @@ const AdminDashboard: React.FC = () => {
 
         {/* File Upload Modal */}
         {allCompanies.length > 0 && (
-          <FileUploadModal
-            isOpen={showFileUploadModal}
-            onClose={() => setShowFileUploadModal(false)}
-            companies={allCompanies}
-            onFileUpload={handleFileUpload}
-          />
+                      <FileUploadModal
+              isOpen={showFileUploadModal}
+              onClose={() => setShowFileUploadModal(false)}
+              companyId={allCompanies.length > 0 ? allCompanies[0].id : undefined}
+              onFileUpload={handleFileUpload}
+            />
         )}
       </div>
     </div>

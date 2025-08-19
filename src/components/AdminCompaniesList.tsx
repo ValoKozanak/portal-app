@@ -38,8 +38,8 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.ico.includes(searchTerm) ||
-    company.owner_email.toLowerCase().includes(searchTerm.toLowerCase())
+    (company.ico && company.ico.includes(searchTerm)) ||
+    company.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (companies.length === 0) {
@@ -108,24 +108,16 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                     <p className="truncate">Oprávnená osoba: {company.authorized_person}</p>
                   </div>
 
-                  {/* Vlastník firmy */}
-                  <div className="mt-3 flex items-center space-x-2 text-sm text-gray-500">
-                    <UserIcon className="h-4 w-4" />
-                    <span>Vlastník: {company.owner_email}</span>
-                  </div>
-
                   {/* Kontaktné údaje */}
                   <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <UserIcon className="h-4 w-4 mr-1" />
+                      <span>{company.email}</span>
+                    </div>
                     {company.contact_phone && (
                       <div className="flex items-center">
                         <PhoneIcon className="h-4 w-4 mr-1" />
                         <span>{company.contact_phone}</span>
-                      </div>
-                    )}
-                    {company.contact_email && (
-                      <div className="flex items-center">
-                        <EnvelopeIcon className="h-4 w-4 mr-1" />
-                        <span>{company.contact_email}</span>
                       </div>
                     )}
                   </div>

@@ -265,7 +265,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                   </div>
                   
                   <div className={`flex-1 min-w-0 ${viewMode === 'list' ? '' : 'mb-4'}`}>
-                    <h3 className={`font-medium text-gray-900 truncate ${viewMode === 'list' ? 'text-sm' : 'text-lg'}`}>
+                    <h3 className={`font-medium text-gray-900 truncate ${viewMode === 'list' ? 'text-sm' : 'text-lg'}`} title={file.original_name || 'Neznámy súbor'}>
                       {file.original_name || 'Neznámy súbor'}
                     </h3>
                     <p className="text-sm text-gray-500">

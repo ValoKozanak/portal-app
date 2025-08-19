@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   CalculatorIcon,
@@ -14,8 +14,11 @@ import {
   CheckCircleIcon,
   StarIcon
 } from '@heroicons/react/24/outline';
+import CompanyRegistrationModal from '../components/CompanyRegistrationModal';
 
 const Home: React.FC = () => {
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+
   const services = [
     {
       name: 'Podvojné účtovníctvo',
@@ -107,12 +110,12 @@ const Home: React.FC = () => {
               Poskytujeme kompletný servis s dôrazom na spoľahlivosť, presnosť a moderné riešenia.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
+              <button
+                onClick={() => setShowRegistrationModal(true)}
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
               >
                 Stať sa klientom
-              </Link>
+              </button>
               <Link
                 to="/contact"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
@@ -242,6 +245,16 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Company Registration Modal */}
+      <CompanyRegistrationModal
+        isOpen={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onSuccess={() => {
+          setShowRegistrationModal(false);
+          // Tu by sa mohla zobraziť potvrďovacia správa
+        }}
+      />
     </div>
   );
 };

@@ -12,18 +12,21 @@ export interface User {
 
 export interface Company {
   id: number;
-  ico: string;
+  email: string;
   name: string;
-  address: string;
+  role: 'admin' | 'accountant' | 'user';
+  status: 'active' | 'inactive';
+  phone?: string;
+  ico?: string;
+  company_name?: string;
+  address?: string;
   business_registry?: string;
   vat_id?: string;
   tax_id?: string;
-  authorized_person: string;
+  authorized_person?: string;
   contact_email?: string;
   contact_phone?: string;
-  owner_email: string;
   assignedToAccountants: string[];
-  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
@@ -35,7 +38,7 @@ export interface Task {
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assigned_to: string;
-  company_id: number;
+  user_id: number;
   company_name: string;
   created_by: string;
   due_date?: string;
@@ -49,11 +52,23 @@ export interface FileData {
   original_name: string;
   file_type: string;
   file_size: number;
-  company_id: number;
+  user_id: number;
   company_name?: string;
   uploaded_by: string;
   file_path: string;
   category: string;
+  created_at: string;
+}
+
+export interface Message {
+  id: number;
+  subject: string;
+  content: string;
+  sender_email: string;
+  recipient_email: string;
+  sender_name?: string;
+  recipient_name?: string;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -281,7 +296,7 @@ class ApiService {
   async uploadFile(file: File, companyId: number, uploadedBy: string, category?: string): Promise<FileData> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('company_id', companyId.toString());
+    formData.append('user_id', companyId.toString());
     formData.append('uploaded_by', uploadedBy);
     if (category) {
       formData.append('category', category);
@@ -353,15 +368,15 @@ class ApiService {
 
   // Messages endpoints
   async getUserMessages(userEmail: string) {
-    return this.request<any[]>(`/messages/user/${encodeURIComponent(userEmail)}`);
+    return this.request<Message[]>(`/messages/user/${encodeURIComponent(userEmail)}`);
   }
 
   async getCompanyMessages(companyId: number) {
-    return this.request<any[]>(`/messages/company/${companyId}`);
+    return this.request<Message[]>(`/messages/company/${companyId}`);
   }
 
   async getAllMessages() {
-    return this.request<any[]>('/messages/admin/all');
+    return this.request<Message[]>('/messages/admin/all');
   }
 
   async sendMessage(messageData: {
@@ -369,8 +384,6 @@ class ApiService {
     recipient_email: string;
     subject: string;
     content: string;
-    company_id?: number;
-    message_type?: string;
   }) {
     return this.request<{ message: string; messageId: number }>('/messages', {
       method: 'POST',
@@ -397,12 +410,20 @@ class ApiService {
   }
 
   async getUnreadCount(userEmail: string) {
-    const response = await this.request<{ unreadCount: number }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-count`);
-    return response.unreadCount;
+    const response = await this.request<{ count: number }>(`/messages/unread-count/${encodeURIComponent(userEmail)}`);
+    return response.count;
   }
 
   async getConversation(user1: string, user2: string) {
     return this.request<any[]>(`/messages/conversation/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`);
+  }
+
+  // Registrácia firmy
+  async registerCompany(companyData: Omit<Company, "id" | "assignedToAccountants" | "created_at" | "updated_at"> & { password: string }) {
+    return this.request<{ message: string; companyId: number }>('/companies/register', {
+      method: 'POST',
+      body: JSON.stringify(companyData),
+    });
   }
 }
 

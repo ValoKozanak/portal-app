@@ -27,6 +27,8 @@ import FileUploadModal from '../components/FileUploadModal';
 import FilePreviewModal from '../components/FilePreviewModal';
 import MessagesList from '../components/MessagesList';
 import CalendarComponent from '../components/Calendar';
+import TimeClock from '../components/TimeClock';
+// import AttendanceReport from '../components/AttendanceReport';
 import { Company, apiService } from '../services/apiService';
 
 interface AccountantDashboardProps {
@@ -52,6 +54,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
   const [previewFile, setPreviewFile] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [selectedCompanyForAttendance, setSelectedCompanyForAttendance] = useState<Company | null>(null);
   const [stats, setStats] = useState({
     documents: 0,
     tasks: 0,
@@ -96,7 +99,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           createdAt: apiTask.created_at,
           createdBy: apiTask.created_by,
           category: 'other', // Default kategória
-          companyId: apiTask.company_id,
+          companyId: apiTask.user_id,
           companyName: apiTask.company_name
         }));
         setAssignedTasks(convertedTasks);
@@ -206,8 +209,8 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               status: taskData.status,
               priority: taskData.priority,
               assigned_to: taskData.assignedToEmail || taskData.assignedTo,
-              company_id: selectedCompany.id,
-              company_name: selectedCompany.name,
+              user_id: selectedCompany.id,
+              company_name: selectedCompany.company_name || '',
               created_by: userEmail,
               due_date: taskData.dueDate
             });
@@ -224,7 +227,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               createdBy: userEmail,
               category: taskData.category,
               companyId: selectedCompany.id,
-              companyName: selectedCompany.name
+              companyName: selectedCompany.company_name
             };
             
             setAssignedTasks(prev => [...prev, newTask]);
@@ -353,10 +356,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   };
 
-  const filteredCompanies = companies.filter(company =>
-    company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.ico.includes(searchTerm) ||
-    company.owner_email.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredCompanies = companies.filter(company =>
+            (company.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+    (company.ico?.includes(searchTerm) || false) ||
+    (company.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false)        
   );
 
   const filteredTasks = assignedTasks.filter(task => {
@@ -390,7 +393,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
       </div>
 
       {/* Štatistiky */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-6">
         <button 
           onClick={() => setActiveSection('documents')}
           className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
@@ -517,6 +520,42 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               {unreadMessagesCount > 0 && (
                 <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} neprečítaných</p>
               )}
+            </div>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveSection('timeclock')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'timeclock' ? 'ring-2 ring-emerald-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <CalendarIcon className="h-8 w-8 text-emerald-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Dochádzka</p>
+              <p className="text-2xl font-bold text-gray-900">⏰</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
+            </div>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveSection('attendance-report')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'attendance-report' ? 'ring-2 ring-red-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <ChartBarIcon className="h-8 w-8 text-red-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Report dochádzky</p>
+              <p className="text-2xl font-bold text-gray-900">📊</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
         </button>
@@ -1084,9 +1123,9 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
                     <div key={company.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{company.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{company.company_name}</h3>
                           <p className="text-sm text-gray-600 mb-2">IČO: {company.ico}</p>
-                          <p className="text-sm text-gray-500 mb-2">Vlastník: {company.owner_email}</p>
+                          <p className="text-sm text-gray-500 mb-2">Vlastník: {company.email}</p>
                           <p className="text-sm text-gray-500">{company.address}</p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -1139,7 +1178,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             status: task.status,
             priority: task.priority,
             assigned_to: task.assignedTo,
-            company_id: task.companyId || 0,
+            user_id: task.companyId || 0,
             company_name: task.companyName || 'Neznáma firma',
             created_by: task.createdBy,
             due_date: task.dueDate,
@@ -1170,7 +1209,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
                   createdAt: apiTask.created_at,
                   createdBy: apiTask.created_by,
                   category: 'other',
-                  companyId: apiTask.company_id,
+                  companyId: apiTask.user_id,
                   companyName: apiTask.company_name
                 }));
 
@@ -1295,6 +1334,142 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         </>
       )}
 
+      {activeSection === 'timeclock' && (
+        <div className="space-y-6">
+          {companies.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-center py-12">
+                <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne priradené firmy</h3>
+                <p className="mt-1 text-sm text-gray-500 mb-4">Nemáte priradené žiadne firmy pre dochádzku.</p>
+              </div>
+            </div>
+          ) : companies.length === 1 ? (
+            <TimeClock 
+              companyId={companies[0].id} 
+              companyName={companies[0].name} 
+            />
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Vyberte firmu pre dochádzku</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {companies.map((company) => (
+                  <button
+                    key={company.id}
+                    onClick={() => setSelectedCompanyForAttendance(company)}
+                    className="p-4 border border-gray-200 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <BuildingOfficeIcon className="h-6 w-6 text-emerald-600" />
+                      <div className="text-left">
+                        <h3 className="font-medium text-gray-900">{company.name}</h3>
+                        <p className="text-sm text-gray-500">IČO: {company.ico}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedCompanyForAttendance && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Dochádzka - {selectedCompanyForAttendance.name}
+                    </h2>
+                    <button
+                      onClick={() => setSelectedCompanyForAttendance(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <TimeClock 
+                    companyId={selectedCompanyForAttendance.id} 
+                    companyName={selectedCompanyForAttendance.name} 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSection === 'attendance-report' && (
+        <div className="space-y-6">
+          {companies.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-center py-12">
+                <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne priradené firmy</h3>
+                <p className="mt-1 text-sm text-gray-500 mb-4">Nemáte priradené žiadne firmy pre report dochádzky.</p>
+              </div>
+            </div>
+          ) : companies.length === 1 ? (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-center py-12">
+                <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Report dochádzky</h3>
+                <p className="mt-1 text-sm text-gray-500 mb-4">Report dochádzky pre {companies[0].name}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Vyberte firmu pre report dochádzky</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {companies.map((company) => (
+                  <button
+                    key={company.id}
+                    onClick={() => setSelectedCompanyForAttendance(company)}
+                    className="p-4 border border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <ChartBarIcon className="h-6 w-6 text-red-600" />
+                      <div className="text-left">
+                        <h3 className="font-medium text-gray-900">{company.name}</h3>
+                        <p className="text-sm text-gray-500">IČO: {company.ico}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedCompanyForAttendance && activeSection === 'attendance-report' && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Report dochádzky - {selectedCompanyForAttendance.name}
+                    </h2>
+                    <button
+                      onClick={() => setSelectedCompanyForAttendance(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="text-center py-12">
+                    <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">Report dochádzky</h3>
+                    <p className="mt-1 text-sm text-gray-500 mb-4">Report dochádzky pre {selectedCompanyForAttendance.name}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
               {/* Company Dashboard Modal */}
         {selectedCompanyForDashboard && (
           <CompanyDashboard
@@ -1314,20 +1489,24 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             onSave={handleSaveTask}
             task={editingTask}
             companyEmployees={[]} // Prázdny array pre účtovníka
-            company={{ id: companies[0].id, name: companies[0].name }}
+            company={{ id: companies[0].id, name: companies[0].company_name || '' }}
             isAccountant={true}
-            assignedCompanies={companies}
+            assignedCompanies={companies.map(company => ({
+              id: company.id,
+              name: company.company_name || '',
+              ico: company.ico || ''
+            }))}
           />
         )}
 
         {/* File Upload Modal */}
         {!loadingCompanies && companies.length > 0 && (
-          <FileUploadModal
-            isOpen={showFileUploadModal}
-            onClose={() => setShowFileUploadModal(false)}
-            companies={companies}
-            onFileUpload={handleFileUpload}
-          />
+                      <FileUploadModal
+              isOpen={showFileUploadModal}
+              onClose={() => setShowFileUploadModal(false)}
+              companyId={companies.length > 0 ? companies[0].id : undefined}
+              onFileUpload={handleFileUpload}
+            />
         )}
 
         {/* File Preview Modal */}

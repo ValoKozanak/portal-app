@@ -297,7 +297,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose })
           status: taskData.status,
           priority: taskData.priority,
           assigned_to: taskData.assignedTo,
-          company_id: company.id,
+          user_id: company.id,
           company_name: company.name,
           created_by: 'current_user', // TODO: získať aktuálneho používateľa
           due_date: taskData.dueDate,

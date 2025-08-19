@@ -33,13 +33,13 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
   useEffect(() => {
     if (isOpen && company) {
       setFormData({
-        ico: company.ico,
+        ico: company.ico || '',
         name: company.name,
-        address: company.address,
+        address: company.address || '',
         business_registry: company.business_registry || '',
         vat_id: company.vat_id || '',
         tax_id: company.tax_id || '',
-        authorized_person: company.authorized_person,
+        authorized_person: company.authorized_person || '',
         contact_email: company.contact_email || '',
         contact_phone: company.contact_phone || ''
       });
@@ -341,7 +341,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             <h3 className="text-sm font-medium text-gray-900 mb-2">Informácie o firme</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {company.id}</p>
-              <p><span className="font-medium">Vlastník:</span> {company.owner_email}</p>
+              <p><span className="font-medium">Vlastník:</span> {company.email}</p>
               <p><span className="font-medium">Vytvorená:</span> {new Date(company.created_at).toLocaleDateString('sk-SK')}</p>
               <p><span className="font-medium">Priradení účtovníci:</span> {company.assignedToAccountants.length}</p>
             </div>

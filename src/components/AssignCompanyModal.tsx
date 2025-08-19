@@ -60,8 +60,8 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.ico.includes(searchTerm) ||
-    company.owner_email.toLowerCase().includes(searchTerm.toLowerCase())
+    (company.ico && company.ico.includes(searchTerm)) ||
+    company.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Zobrazujeme všetky firmy, nie len tie bez priradených účtovníkov
@@ -162,7 +162,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
                             <p className="text-sm text-gray-600">IČO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                            <p className="text-sm text-gray-600">Vlastník: {company.owner_email}</p>
+                            <p className="text-sm text-gray-600">Vlastník: {company.email}</p>
                             {company.assignedToAccountants && company.assignedToAccountants.length > 0 && (
                               <div className="mt-2">
                                 <p className="text-sm text-green-600 font-medium">
@@ -209,7 +209,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
                   <div className="text-sm text-blue-800">
                     <p><strong>{company.name}</strong></p>
                     <p>IČO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                    <p>Vlastník: {company.owner_email}</p>
+                    <p>Vlastník: {company.email}</p>
                   </div>
                 ) : null;
               })()}

@@ -76,9 +76,9 @@ const upload = multer({
 // Získanie všetkých súborov v portáli (pre admin)
 router.get('/admin/all', (req, res) => {
   db.all(`
-    SELECT f.*, c.name as company_name 
+    SELECT f.*, u.company_name 
     FROM files f
-    LEFT JOIN companies c ON f.company_id = c.id
+    LEFT JOIN users u ON f.user_id = u.id
     ORDER BY f.created_at DESC
   `, [], (err, files) => {
     if (err) {
@@ -93,10 +93,10 @@ router.get('/company/:companyId', (req, res) => {
   const { companyId } = req.params;
 
   db.all(`
-    SELECT f.*, c.name as company_name 
+    SELECT f.*, u.company_name 
     FROM files f
-    LEFT JOIN companies c ON f.company_id = c.id
-    WHERE f.company_id = ?
+    LEFT JOIN users u ON f.user_id = u.id
+    WHERE f.user_id = ?
     ORDER BY f.created_at DESC
   `, [companyId], (err, files) => {
     if (err) {
@@ -112,7 +112,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
     return res.status(400).json({ error: 'Žiadny súbor nebol nahraný' });
   }
 
-  const { company_id, uploaded_by, category } = req.body;
+  const { user_id, uploaded_by, category } = req.body;
   const { filename, mimetype, size } = req.file;
   let originalname = req.file.originalname;
   
@@ -134,9 +134,9 @@ router.post('/upload', upload.single('file'), (req, res) => {
   db.run(`
     INSERT INTO files (
       filename, original_name, file_type, file_size,
-      company_id, uploaded_by, file_path, category
+      user_id, uploaded_by, file_path, category
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `, [filename, originalname, mimetype, size, company_id, uploaded_by, req.file.path, category || 'other'],
+  `, [filename, originalname, mimetype, size, user_id, uploaded_by, req.file.path, category || 'other'],
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Chyba pri ukladaní súboru do databázy' });
@@ -144,9 +144,9 @@ router.post('/upload', upload.single('file'), (req, res) => {
 
       // Získame kompletný objekt súboru s informáciami o firme
       db.get(`
-        SELECT f.*, c.name as company_name 
+        SELECT f.*, u.company_name 
         FROM files f
-        LEFT JOIN companies c ON f.company_id = c.id
+        LEFT JOIN users u ON f.user_id = u.id
         WHERE f.id = ?
       `, [this.lastID], (err, file) => {
         if (err) {
@@ -158,9 +158,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
         db.all(`
           SELECT u.email, u.name 
           FROM users u
-          JOIN user_companies uc ON u.id = uc.user_id
-          WHERE uc.company_id = ? AND u.email != ?
-        `, [company_id, uploaded_by], (err, users) => {
+          WHERE u.id = ? AND u.email != ?
+        `, [user_id, uploaded_by], (err, users) => {
           if (!err && users && users.length > 0) {
             // Pošleme notifikáciu každému používateľovi firmy
             users.forEach(user => {

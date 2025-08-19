@@ -6,7 +6,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
-import { apiService } from '../services/apiService';
+import { apiService, Message } from '../services/apiService';
 import MessageModal from './MessageModal';
 
 interface MessagesListProps {
@@ -15,21 +15,6 @@ interface MessagesListProps {
   companyId?: number;
   isAdmin?: boolean;
   onMessageAction?: () => void;
-}
-
-interface Message {
-  id: number;
-  sender_email: string;
-  recipient_email: string;
-  subject: string;
-  content: string;
-  company_id?: number;
-  message_type: string;
-  read_at?: string;
-  created_at: string;
-  sender_name?: string;
-  recipient_name?: string;
-  company_name?: string;
 }
 
 const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, companyId, isAdmin = false, onMessageAction }) => {
@@ -72,7 +57,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
     const filterMessagesByPermissions = async () => {
       let filtered = messages.filter(message => {
         if (filter === 'unread') {
-          return !message.read_at && message.recipient_email === userEmail;
+          return !message.is_read && message.recipient_email === userEmail;
         }
         if (filter === 'sent') {
           return message.sender_email === userEmail;
@@ -103,8 +88,8 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
         const assignedUserEmails: string[] = [];
         
         accountantCompanies.forEach(company => {
-          if (company.owner_email) {
-            assignedUserEmails.push(company.owner_email);
+          if (company.email) {
+            assignedUserEmails.push(company.email);
           }
         });
         
@@ -167,30 +152,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
     setShowMessageModal(true);
   };
 
-  const getMessageTypeIcon = (type: string) => {
-    switch (type) {
-      case 'urgent':
-        return <span className="text-red-500">🚨</span>;
-      case 'question':
-        return <span className="text-blue-500">❓</span>;
-      case 'report':
-        return <span className="text-green-500">📊</span>;
-      case 'welcome':
-        return <span className="text-purple-500">👋</span>;
-      default:
-        return <EnvelopeIcon className="h-4 w-4 text-gray-500" />;
-    }
-  };
 
-  const getMessageTypeLabel = (type: string) => {
-    switch (type) {
-      case 'urgent': return 'Urgentná';
-      case 'question': return 'Otázka';
-      case 'report': return 'Report';
-      case 'welcome': return 'Vitajúca';
-      default: return 'Všeobecná';
-    }
-  };
 
   if (loading) {
     return (
@@ -211,7 +173,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
             {filteredMessages.length} správ
             {filter === 'unread' && (
               <span className="text-blue-600 font-medium">
-                {' '}({filteredMessages.filter(m => !m.read_at && m.recipient_email === userEmail).length} neprečítaných)
+                {' '}({filteredMessages.filter(m => !m.is_read && m.recipient_email === userEmail).length} neprečítaných)
               </span>
             )}
           </p>
@@ -245,7 +207,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Neprečítané ({messages.filter(m => !m.read_at && m.recipient_email === userEmail).length})
+          Neprečítané ({messages.filter(m => !m.is_read && m.recipient_email === userEmail).length})
         </button>
         <button
           onClick={() => setFilter('sent')}
@@ -275,19 +237,19 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
           filteredMessages.map((message) => (
             <div
               key={message.id}
-              className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-                message.read_at ? 'border-gray-200' : 'border-blue-500'
+                            className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${       
+                message.is_read ? 'border-gray-200' : 'border-blue-500'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    {getMessageTypeIcon(message.message_type)}
+                    <EnvelopeIcon className="h-5 w-5 text-gray-400" />
                     <h3 className="text-lg font-medium text-gray-900">{message.subject}</h3>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {getMessageTypeLabel(message.message_type)}
+                      Správa
                     </span>
-                    {!message.read_at && message.recipient_email === userEmail && (
+                    {!message.is_read && message.recipient_email === userEmail && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         Nové
                       </span>
@@ -301,11 +263,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
                     <p>
                       <span className="font-medium">Pre:</span> {message.recipient_name || message.recipient_email}
                     </p>
-                    {message.company_name && (
-                      <p>
-                        <span className="font-medium">Firma:</span> {message.company_name}
-                      </p>
-                    )}
+
                     <p className="text-gray-500">
                       {new Date(message.created_at).toLocaleString('sk-SK')}
                     </p>
@@ -317,11 +275,11 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
                 <div className="flex space-x-2 ml-4">
                   {message.recipient_email === userEmail && (
                     <button
-                      onClick={() => message.read_at ? handleMarkAsUnread(message.id) : handleMarkAsRead(message.id)}
+                      onClick={() => message.is_read ? handleMarkAsUnread(message.id) : handleMarkAsRead(message.id)}
                       className="text-gray-600 hover:text-gray-700 p-1"
-                      title={message.read_at ? 'Označiť ako neprečítané' : 'Označiť ako prečítané'}
+                      title={message.is_read ? 'Označiť ako neprečítané' : 'Označiť ako prečítané'}
                     >
-                      {message.read_at ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                      {message.is_read ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
                     </button>
                   )}
                   <button

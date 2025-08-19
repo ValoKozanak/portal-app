@@ -14,7 +14,7 @@ router.post('/', (req, res) => {
     recipient_email,
     subject,
     content,
-    company_id,
+    user_id,
     message_type = 'general'
   } = req.body;
 
@@ -25,9 +25,9 @@ router.post('/', (req, res) => {
   db.run(`
     INSERT INTO messages (
       sender_email, recipient_email, subject, content, 
-      company_id, message_type, created_at
+      user_id, message_type, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-  `, [sender_email, recipient_email, subject, content, company_id, message_type],
+  `, [sender_email, recipient_email, subject, content, user_id, message_type],
     function(err) {
       if (err) {
         return res.status(500).json({ error: 'Chyba pri vytváraní správy' });
@@ -53,7 +53,7 @@ router.get('/user/:userEmail', (req, res) => {
     FROM messages m
     LEFT JOIN users u1 ON m.sender_email = u1.email
     LEFT JOIN users u2 ON m.recipient_email = u2.email
-    LEFT JOIN companies c ON m.company_id = c.id
+    LEFT JOIN users c ON m.user_id = c.id
     WHERE m.sender_email = ? OR m.recipient_email = ?
     ORDER BY m.created_at DESC
   `;
@@ -79,8 +79,8 @@ router.get('/company/:companyId', (req, res) => {
     FROM messages m
     LEFT JOIN users u1 ON m.sender_email = u1.email
     LEFT JOIN users u2 ON m.recipient_email = u2.email
-    LEFT JOIN companies c ON m.company_id = c.id
-    WHERE m.company_id = ?
+    LEFT JOIN users c ON m.user_id = c.id
+    WHERE m.user_id = ?
     ORDER BY m.created_at DESC
   `;
 
@@ -103,7 +103,7 @@ router.get('/admin/all', (req, res) => {
     FROM messages m
     LEFT JOIN users u1 ON m.sender_email = u1.email
     LEFT JOIN users u2 ON m.recipient_email = u2.email
-    LEFT JOIN companies c ON m.company_id = c.id
+    LEFT JOIN users c ON m.user_id = c.id
     ORDER BY m.created_at DESC
   `;
 

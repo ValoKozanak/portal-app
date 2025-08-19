@@ -360,6 +360,111 @@ class EmailService {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
+
+  // Notifikácia o dochádzke
+  async sendAttendanceNotification(type, employee, additionalData = {}) {
+    const time = new Date().toLocaleString('sk-SK');
+    
+    let subject, html;
+    
+    if (type === 'clock_in') {
+      subject = '🟢 Príchod zamestnanca zaznamenaný';
+      html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #059669; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .attendance-card { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #059669; }
+            .button { display: inline-block; background: #059669; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🟢 Príchod zamestnanca</h1>
+              <p>Zamestnanec sa prihlásil do dochádzkového systému</p>
+            </div>
+            <div class="content">
+              <div class="attendance-card">
+                <h3>${employee.first_name} ${employee.last_name}</h3>
+                <p><strong>Pozícia:</strong> ${employee.position}</p>
+                <p><strong>Firma:</strong> ${employee.company_name}</p>
+                <p><strong>Čas príchodu:</strong> ${time}</p>
+                <p><strong>Employee ID:</strong> ${employee.employee_id}</p>
+              </div>
+              
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard" class="button">
+                Zobraziť dochádzku
+              </a>
+            </div>
+            <div class="footer">
+              <p>© 2024 Portal App. Všetky práva vyhradené.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+    } else if (type === 'clock_out') {
+      subject = '🔴 Odchod zamestnanca zaznamenaný';
+      html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #dc2626; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .attendance-card { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc2626; }
+            .hours-info { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .button { display: inline-block; background: #dc2626; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔴 Odchod zamestnanca</h1>
+              <p>Zamestnanec sa odhlásil z dochádzkového systému</p>
+            </div>
+            <div class="content">
+              <div class="attendance-card">
+                <h3>${employee.first_name} ${employee.last_name}</h3>
+                <p><strong>Pozícia:</strong> ${employee.position}</p>
+                <p><strong>Firma:</strong> ${employee.company_name}</p>
+                <p><strong>Čas odchodu:</strong> ${time}</p>
+                <p><strong>Employee ID:</strong> ${employee.employee_id}</p>
+              </div>
+              
+              <div class="hours-info">
+                <h4>📊 Odpracované hodiny:</h4>
+                <p><strong>Celkové hodiny:</strong> ${additionalData.totalHours || 'N/A'} hodín</p>
+                <p><strong>Nadčasy:</strong> ${additionalData.overtimeHours || '0'} hodín</p>
+              </div>
+              
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard" class="button">
+                Zobraziť dochádzku
+              </a>
+            </div>
+            <div class="footer">
+              <p>© 2024 Portal App. Všetky práva vyhradené.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+    }
+
+    // Odoslanie notifikácie adminovi
+    return this.sendEmail('admin@portal.sk', subject, html);
+  }
 }
 
 module.exports = new EmailService();

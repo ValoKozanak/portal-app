@@ -4,9 +4,7 @@ import {
   XMarkIcon, 
   DocumentArrowUpIcon,
   DocumentIcon,
-  FolderIcon,
   TrashIcon,
-  EyeIcon,
   DocumentTextIcon,
   PhotoIcon,
   ArchiveBoxIcon
@@ -23,7 +21,6 @@ interface FileUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   companyId?: number;
-  companies?: Array<{ id: number; name: string }>;
   onFileUpload: (file: FileData) => void;
 }
 
@@ -31,14 +28,13 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
   isOpen, 
   onClose, 
   companyId,
-  companies = [],
   onFileUpload 
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [category, setCategory] = useState('documents');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number>(companyId || 0);
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, UploadProgress>>({});
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
@@ -133,8 +129,9 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       return;
     }
 
-    if (!selectedCompanyId) {
-      alert('Vyberte firmu, pre ktorú nahrávate súbory');
+    // Automaticky použijeme companyId, keďže jeden USER = jedna firma
+    if (!companyId) {
+      alert('Nepodarilo sa identifikovať firmu');
       return;
     }
 
@@ -143,23 +140,11 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 
     try {
       for (const file of selectedFiles) {
-        const metadata = {
-          uploadedBy: 'user@portal.sk', // V reálnej aplikácii by to bolo z autentifikácie
-          description: description || undefined,
-          tags: tags ? tags.split(',').map(tag => tag.trim()) : undefined
-        };
 
-        // Progress tracking pre každý súbor
-        const onProgress = (progress: UploadProgress) => {
-          setUploadProgress(prev => ({
-            ...prev,
-            [file.name]: progress
-          }));
-        };
 
         try {
           // Skutočné nahrávanie súboru cez API
-          const fileData = await apiService.uploadFile(file, selectedCompanyId, 'user@portal.sk', category);
+          const fileData = await apiService.uploadFile(file, companyId, 'user@portal.sk', category);
           
           // Voláme onFileUpload s kompletným objektom súboru
           onFileUpload(fileData);
@@ -199,25 +184,14 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Výber firmy */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Firma *
-            </label>
-            <select
-              value={selectedCompanyId}
-              onChange={(e) => setSelectedCompanyId(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              required
-            >
-              <option value="">Vyberte firmu</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Informácia o firme */}
+          {companyId && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Súbory sa nahrajú pre vašu firmu</strong>
+              </p>
+            </div>
+          )}
 
           {/* Kategória */}
           <div>
@@ -229,14 +203,11 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
-              {categories.map((cat) => {
-                const Icon = cat.icon;
-                return (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                );
-              })}
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -281,7 +252,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
                       <div className="flex items-center space-x-3">
                         <Icon className="h-5 w-5 text-gray-400" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                          <p className="text-sm font-medium text-gray-900" title={file.name}>{file.name}</p>
                           <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                           {error && (
                             <p className="text-xs text-red-600">{error}</p>
@@ -353,7 +324,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </button>
             <button
               onClick={handleUpload}
-              disabled={selectedFiles.length === 0 || isUploading || !selectedCompanyId}
+              disabled={selectedFiles.length === 0 || isUploading || !companyId}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isUploading ? 'Nahrávam...' : `Nahrať ${selectedFiles.length} súborov`}
