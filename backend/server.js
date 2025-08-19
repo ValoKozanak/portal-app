@@ -10,6 +10,7 @@ const tasksRoutes = require('./routes/tasks');
 const filesRoutes = require('./routes/files');
 const cmsRoutes = require('./routes/cms');
 const testRoutes = require('./routes/test');
+const messagesRoutes = require('./routes/messages');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // Routes
+app.use('/api/messages', messagesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
 app.use('/api/tasks', tasksRoutes);
@@ -34,6 +36,8 @@ app.use('/api/test', testRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server beží' });
 });
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

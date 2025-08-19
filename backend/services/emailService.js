@@ -234,9 +234,131 @@ class EmailService {
     return this.sendEmail(userEmail, subject, html);
   }
 
+  // Notifikácia o novom dokumente
+  async sendDocumentNotification(userEmail, userName, fileName, fileSize, fileType, companyName, uploadedBy) {
+    const subject = `📄 Nový dokument: ${fileName}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .document-card { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #17a2b8; }
+          .file-info { display: flex; align-items: center; margin: 10px 0; }
+          .file-icon { font-size: 24px; margin-right: 10px; }
+          .button { display: inline-block; background: #17a2b8; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📄 Nový dokument</h1>
+            <p>Bol nahraný nový dokument do portálu</p>
+          </div>
+          <div class="content">
+            <h2>Ahoj ${userName}!</h2>
+            <p>Bol nahraný nový dokument do portálu, ktorý by vás mohol zaujímať.</p>
+            
+            <div class="document-card">
+              <div class="file-info">
+                <span class="file-icon">📄</span>
+                <div>
+                  <h3>${fileName}</h3>
+                  <p><strong>Firma:</strong> ${companyName}</p>
+                  <p><strong>Typ súboru:</strong> ${fileType}</p>
+                  <p><strong>Veľkosť:</strong> ${this.formatFileSize(fileSize)}</p>
+                  <p><strong>Nahral:</strong> ${uploadedBy}</p>
+                  <p><strong>Dátum:</strong> ${new Date().toLocaleDateString('sk-SK')}</p>
+                </div>
+              </div>
+            </div>
+            
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard" class="button">
+              Zobraziť dokument
+            </a>
+          </div>
+          <div class="footer">
+            <p>© 2024 Portal App. Všetky práva vyhradené.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail(userEmail, subject, html);
+  }
+
+  // Notifikácia o novej firme
+  async sendCompanyNotification(userEmail, userName, companyName, ownerEmail, ico, contactEmail) {
+    const subject = `🏢 Nová firma: ${companyName}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .company-card { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #6f42c1; }
+          .company-info { margin: 10px 0; }
+          .button { display: inline-block; background: #6f42c1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🏢 Nová firma</h1>
+            <p>Bola zaregistrovaná nová firma v portáli</p>
+          </div>
+          <div class="content">
+            <h2>Ahoj ${userName}!</h2>
+            <p>Bola zaregistrovaná nová firma v portáli, ktorá vyžaduje vašu pozornosť.</p>
+            
+            <div class="company-card">
+              <div class="company-info">
+                <h3>${companyName}</h3>
+                <p><strong>IČO:</strong> ${ico}</p>
+                <p><strong>Vlastník:</strong> ${ownerEmail}</p>
+                <p><strong>Kontaktný email:</strong> ${contactEmail}</p>
+                <p><strong>Dátum registrácie:</strong> ${new Date().toLocaleDateString('sk-SK')}</p>
+              </div>
+            </div>
+            
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard" class="button">
+              Zobraziť firmu
+            </a>
+          </div>
+          <div class="footer">
+            <p>© 2024 Portal App. Všetky práva vyhradené.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail(userEmail, subject, html);
+  }
+
   // Pomocná funkcia na odstránenie HTML tagov
   stripHtml(html) {
     return html.replace(/<[^>]*>/g, '');
+  }
+
+  // Pomocná funkcia na formátovanie veľkosti súboru
+  formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 }
 

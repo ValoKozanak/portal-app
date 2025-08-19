@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   ChartBarIcon, 
   UsersIcon, 
   DocumentTextIcon, 
@@ -10,7 +10,8 @@ import {
   CheckCircleIcon,
   BuildingOfficeIcon,
   CalendarIcon,
-  UserIcon
+  UserIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import EditProfileModal from '../components/EditProfileModal';
 import CompanyModal from '../components/CompanyModal';
@@ -19,6 +20,8 @@ import CompanyDashboard from '../components/CompanyDashboard';
 import TaskModal, { Task } from '../components/TaskModal';
 import FileUploadModal from '../components/FileUploadModal';
 import FilePreviewModal from '../components/FilePreviewModal';
+import MessagesList from '../components/MessagesList';
+import CalendarComponent from '../components/Calendar';
 import { apiService, Company, FileData } from '../services/apiService';
 
 interface DashboardProps {
@@ -71,6 +74,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSection, setActiveSection] = useState<string>('overview');
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   // Aktualizácia štatistík na základe reálnych dát
   useEffect(() => {
@@ -89,6 +93,20 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       files: totalFiles
     }));
   }, [tasks, documents, files]);
+
+  // Načítanie počtu neprečítaných správ
+  const loadUnreadMessagesCount = async () => {
+    try {
+      const count = await apiService.getUnreadCount(userEmail);
+      setUnreadMessagesCount(count);
+    } catch (error) {
+      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadUnreadMessagesCount();
+  }, [userEmail]);
 
   // Načítanie firiem z API
   useEffect(() => {
@@ -493,7 +511,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <button 
           onClick={() => setActiveSection('documents')}
           className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
@@ -596,6 +614,51 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           </div>
           <div className="mt-4">
             <span className="text-sm text-indigo-600">Nahrané</span>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveSection('calendar')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'calendar' ? 'ring-2 ring-orange-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <CalendarIcon className="h-8 w-8 text-orange-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Kalendár</p>
+              <p className="text-2xl font-bold text-gray-900">{tasks.filter(task => task.due_date).length}</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-orange-600">Termíny a úlohy</span>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveSection('messages')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'messages' ? 'ring-2 ring-purple-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <EnvelopeIcon className="h-8 w-8 text-purple-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Správy</p>
+              <p className="text-2xl font-bold text-gray-900">-</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
+              {unreadMessagesCount > 0 && (
+                <p className="text-sm text-purple-600 font-medium">{unreadMessagesCount} neprečítaných</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-purple-600">Komunikácia</span>
           </div>
         </button>
        </div>
@@ -987,6 +1050,55 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
          </div>
        )}
 
+               {/* Calendar Section */}
+        {activeSection === 'calendar' && (
+          <CalendarComponent
+            userEmail={userEmail}
+            userRole="user"
+            tasks={tasks}
+            companies={companies}
+            onTaskUpdate={() => {
+              // Reload tasks after update
+              const loadUserTasks = async () => {
+                try {
+                  setLoadingTasks(true);
+                  const allTasks: any[] = [];
+                  
+                  for (const company of companies) {
+                    try {
+                      const companyTasks = await apiService.getCompanyTasks(company.id);
+                      allTasks.push(...companyTasks);
+                    } catch (error) {
+                      console.error(`Chyba pri načítaní úloh pre firmu ${company.id}:`, error);
+                    }
+                  }
+                  
+                  setTasks(allTasks);
+                } catch (error) {
+                  console.error('Chyba pri načítaní úloh:', error);
+                } finally {
+                  setLoadingTasks(false);
+                }
+              };
+
+              if (companies.length > 0) {
+                loadUserTasks();
+              }
+            }}
+          />
+        )}
+
+               {/* Messages Section */}
+        {activeSection === 'messages' && (
+          <div className="bg-white rounded-lg shadow-md">
+            <MessagesList 
+              userEmail={userEmail} 
+              userRole="user" 
+              onMessageAction={loadUnreadMessagesCount}
+            />
+          </div>
+        )}
+
        {/* Default Overview Section */}
        {activeSection === 'overview' && (
          <>
@@ -1169,6 +1281,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           }}
           file={previewFile}
         />
+
+
       </div>
     );
   };

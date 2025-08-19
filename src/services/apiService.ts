@@ -227,6 +227,8 @@ class ApiService {
     return this.request<Company[]>(`/companies/accountant/${encodeURIComponent(accountantEmail)}`);
   }
 
+
+
   // Tasks endpoints
   async getAllTasks() {
     return this.request<Task[]>('/tasks');
@@ -347,6 +349,60 @@ class ApiService {
   // Health check
   async healthCheck() {
     return this.request<{ status: string; message: string }>('/health');
+  }
+
+  // Messages endpoints
+  async getUserMessages(userEmail: string) {
+    return this.request<any[]>(`/messages/user/${encodeURIComponent(userEmail)}`);
+  }
+
+  async getCompanyMessages(companyId: number) {
+    return this.request<any[]>(`/messages/company/${companyId}`);
+  }
+
+  async getAllMessages() {
+    return this.request<any[]>('/messages/admin/all');
+  }
+
+  async sendMessage(messageData: {
+    sender_email: string;
+    recipient_email: string;
+    subject: string;
+    content: string;
+    company_id?: number;
+    message_type?: string;
+  }) {
+    return this.request<{ message: string; messageId: number }>('/messages', {
+      method: 'POST',
+      body: JSON.stringify(messageData),
+    });
+  }
+
+  async markMessageAsRead(messageId: number) {
+    return this.request<{ message: string }>(`/messages/${messageId}/read`, {
+      method: 'PATCH',
+    });
+  }
+
+  async markMessageAsUnread(messageId: number) {
+    return this.request<{ message: string }>(`/messages/${messageId}/unread`, {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteMessage(messageId: number) {
+    return this.request<{ message: string }>(`/messages/${messageId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getUnreadCount(userEmail: string) {
+    const response = await this.request<{ unreadCount: number }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-count`);
+    return response.unreadCount;
+  }
+
+  async getConversation(user1: string, user2: string) {
+    return this.request<any[]>(`/messages/conversation/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`);
   }
 }
 

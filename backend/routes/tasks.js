@@ -86,6 +86,23 @@ router.post('/', (req, res) => {
         });
       }
 
+      // Poslanie notifikácie pre admina
+      db.get(`
+        SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
+      `, [], (err, admin) => {
+        if (!err && admin) {
+          emailService.sendTaskNotification(
+            admin.email,
+            admin.name || 'Admin',
+            title,
+            description || 'Bez popisu',
+            company_name
+          ).catch(error => {
+            console.error('Email notification error for admin:', error);
+          });
+        }
+      });
+
       res.json({ 
         message: 'Úloha vytvorená úspešne', 
         taskId: this.lastID 

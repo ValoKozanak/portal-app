@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { db } = require('../database');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -151,6 +152,51 @@ router.post('/upload', upload.single('file'), (req, res) => {
         if (err) {
           return res.status(500).json({ error: 'Chyba pri načítaní nahraného súboru' });
         }
+
+        // Poslanie email notifikácie o novom dokumente
+        // Získame všetkých používateľov firmy (okrem toho, ktorý nahrával)
+        db.all(`
+          SELECT u.email, u.name 
+          FROM users u
+          JOIN user_companies uc ON u.id = uc.user_id
+          WHERE uc.company_id = ? AND u.email != ?
+        `, [company_id, uploaded_by], (err, users) => {
+          if (!err && users && users.length > 0) {
+            // Pošleme notifikáciu každému používateľovi firmy
+            users.forEach(user => {
+              emailService.sendDocumentNotification(
+                user.email,
+                user.name || user.email.split('@')[0],
+                originalname,
+                size,
+                mimetype,
+                file.company_name,
+                uploaded_by
+              ).catch(error => {
+                console.error('Email notification error for user', user.email, ':', error);
+              });
+            });
+          }
+        });
+
+        // Poslanie notifikácie pre admina
+        db.get(`
+          SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
+        `, [], (err, admin) => {
+          if (!err && admin) {
+            emailService.sendDocumentNotification(
+              admin.email,
+              admin.name || 'Admin',
+              originalname,
+              size,
+              mimetype,
+              file.company_name,
+              uploaded_by
+            ).catch(error => {
+              console.error('Email notification error for admin', admin.email, ':', error);
+            });
+          }
+        });
         
         res.json(file);
       });

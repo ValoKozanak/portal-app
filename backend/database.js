@@ -222,6 +222,42 @@ const initDatabase = () => {
         VALUES ('Počiatočná verzia', 'Predvolený obsah webu', 'admin@portal.sk', 1)
       `);
 
+      // Vytvorenie tabuľky pre správy
+      db.run(`
+        CREATE TABLE IF NOT EXISTS messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          sender_email TEXT NOT NULL,
+          recipient_email TEXT NOT NULL,
+          subject TEXT NOT NULL,
+          content TEXT NOT NULL,
+          company_id INTEGER,
+          message_type TEXT DEFAULT 'general',
+          read_at DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id)
+        )
+      `, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri vytváraní tabuľky messages:', err);
+        }
+      });
+
+      // Vloženie demo správ
+      db.run(`
+        INSERT OR IGNORE INTO messages (
+          sender_email, recipient_email, subject, content, company_id, message_type, created_at
+        ) VALUES 
+          ('admin@portal.sk', 'user@portal.sk', 'Vitajte v portáli', 'Vítame vás v našom účtovníckom portáli! Ak máte otázky, neváhajte nás kontaktovať.', 1, 'welcome', CURRENT_TIMESTAMP),
+          ('accountant@portal.sk', 'user@portal.sk', 'Výročná správa pripravená', 'Výročná správa je pripravená na podpis. Potrebujeme vaše potvrdenie.', 1, 'report', CURRENT_TIMESTAMP),
+          ('user@portal.sk', 'accountant@portal.sk', 'Otázka k faktúre', 'Dobrý deň, mám otázku k faktúre č. 2024/001. Môžete mi prosím vysvetliť položku "Daňové poradenstvo"?', 1, 'question', CURRENT_TIMESTAMP)
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo správ:', err);
+        } else {
+          console.log('✅ Demo správy pridané úspešne');
+        }
+      });
+
       // Vloženie demo úloh (ak existujú firmy)
       db.run(`
         INSERT OR IGNORE INTO tasks (

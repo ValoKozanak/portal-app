@@ -1,5 +1,6 @@
 const express = require('express');
 const { db } = require('../database');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.get('/', (req, res) => {
     res.json(processedCompanies);
   });
 });
+
 
 // Získanie firiem pre konkrétneho používateľa
 router.get('/user/:userEmail', (req, res) => {
@@ -202,6 +204,24 @@ router.post('/', (req, res) => {
         }
         return res.status(500).json({ error: 'Chyba pri vytváraní firmy' });
       }
+
+      // Poslanie notifikácie pre admina o novej firme
+      db.get(`
+        SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
+      `, [], (err, admin) => {
+        if (!err && admin) {
+          emailService.sendCompanyNotification(
+            admin.email,
+            admin.name || 'Admin',
+            name,
+            owner_email,
+            ico,
+            contact_email
+          ).catch(error => {
+            console.error('Email notification error for admin:', error);
+          });
+        }
+      });
 
       res.json({ 
         message: 'Firma vytvorená úspešne', 

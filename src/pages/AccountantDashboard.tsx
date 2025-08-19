@@ -25,6 +25,8 @@ import CompanyDashboard from '../components/CompanyDashboard';
 import TaskModal, { Task, Employee } from '../components/TaskModal';
 import FileUploadModal from '../components/FileUploadModal';
 import FilePreviewModal from '../components/FilePreviewModal';
+import MessagesList from '../components/MessagesList';
+import CalendarComponent from '../components/Calendar';
 import { Company, apiService } from '../services/apiService';
 
 interface AccountantDashboardProps {
@@ -49,6 +51,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
   const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
   const [previewFile, setPreviewFile] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>('overview');
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [stats, setStats] = useState({
     documents: 0,
     tasks: 0,
@@ -56,6 +59,16 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     pending: 0,
     companies: 0,
   });
+
+  // Načítanie počtu neprečítaných správ
+  const loadUnreadMessagesCount = async () => {
+    try {
+      const unreadCount = await apiService.getUnreadCount(userEmail);
+      setUnreadMessagesCount(unreadCount);
+    } catch (error) {
+      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+    }
+  };
 
   // Načítanie firiem a úloh priradených účtovníkovi
   useEffect(() => {
@@ -113,6 +126,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     };
 
     loadAccountantData();
+    loadUnreadMessagesCount();
   }, [userEmail]);
 
   // Aktualizácia štatistík na základe reálnych dát
@@ -130,6 +144,15 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
       companies: companies.length,
     });
   }, [assignedTasks, documents, companies.length]);
+
+  // Automatické aktualizácie počtu neprečítaných správ každých 30 sekúnd
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadUnreadMessagesCount();
+    }, 30000); // 30 sekúnd
+
+    return () => clearInterval(interval);
+  }, [userEmail]);
 
   const handleOpenCompanyDashboard = (company: Company) => {
     setSelectedCompanyForDashboard(company);
@@ -458,6 +481,103 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </div>
           </div>
         </button>
+
+        <button 
+          onClick={() => setActiveSection('calendar')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'calendar' ? 'ring-2 ring-orange-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <CalendarIcon className="h-8 w-8 text-orange-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Kalendár</p>
+              <p className="text-2xl font-bold text-gray-900">{assignedTasks.filter(task => task.dueDate).length}</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
+            </div>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setActiveSection('messages')}
+          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
+            activeSection === 'messages' ? 'ring-2 ring-indigo-500' : ''
+          }`}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <EnvelopeIcon className="h-8 w-8 text-indigo-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Správy</p>
+              <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
+              {unreadMessagesCount > 0 && (
+                <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} neprečítaných</p>
+              )}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Vaše rýchle akcie</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <button 
+            onClick={() => setShowFileUploadModal(true)}
+            disabled={loadingCompanies || companies.length === 0}
+            className={`flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium ${
+              loadingCompanies || companies.length === 0 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                : 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+            }`}
+          >
+            <DocumentTextIcon className="h-5 w-5 mr-2" />
+            Nahrať dokument
+          </button>
+          <button 
+            onClick={handleAddTask}
+            disabled={loadingCompanies || companies.length === 0}
+            className={`flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium ${
+              loadingCompanies || companies.length === 0 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                : 'text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+            }`}
+          >
+            <CogIcon className="h-5 w-5 mr-2" />
+            Vytvoriť úlohu
+          </button>
+          <button 
+            onClick={() => setActiveSection('companies')}
+            disabled={loadingCompanies || companies.length === 0}
+            className={`flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium ${
+              loadingCompanies || companies.length === 0 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                : 'text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+            }`}
+          >
+            <BuildingOfficeIcon className="h-5 w-5 mr-2" />
+            Zobraziť firmy
+          </button>
+          <button 
+            onClick={() => {
+              // Generovanie reportu pre účtovníka
+              alert('Generovanie reportu...\n\nTáto funkcia by generovala report o všetkých priradených firmách a úlohách.');
+            }}
+            disabled={loadingCompanies || companies.length === 0}
+            className={`flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium ${
+              loadingCompanies || companies.length === 0 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                : 'text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500'
+            }`}
+          >
+            <ChartBarIcon className="h-5 w-5 mr-2" />
+            Generovať report
+          </button>
+        </div>
       </div>
 
       {/* Conditional Sections */}
@@ -1005,6 +1125,76 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeSection === 'calendar' && (
+        <CalendarComponent
+          userEmail={userEmail}
+          userRole="accountant"
+          tasks={assignedTasks.map(task => ({
+            id: parseInt(task.id),
+            title: task.title,
+            description: task.description,
+            status: task.status,
+            priority: task.priority,
+            assigned_to: task.assignedTo,
+            company_id: task.companyId || 0,
+            company_name: task.companyName || 'Neznáma firma',
+            created_by: task.createdBy,
+            due_date: task.dueDate,
+            created_at: task.createdAt,
+            updated_at: task.createdAt
+          }))}
+          companies={companies}
+          onTaskUpdate={() => {
+            // Reload tasks after update
+            const loadAccountantData = async () => {
+              try {
+                const assignedCompanies = await apiService.getAccountantCompanies(userEmail);
+                setCompanies(assignedCompanies);
+
+                const companyTasksArrays = await Promise.all(
+                  assignedCompanies.map((company) => apiService.getCompanyTasks(company.id))
+                );
+                const allCompanyTasks = companyTasksArrays.flat();
+
+                const convertedTasks: Task[] = allCompanyTasks.map(apiTask => ({
+                  id: apiTask.id.toString(),
+                  title: apiTask.title,
+                  description: apiTask.description || '',
+                  status: apiTask.status,
+                  priority: apiTask.priority,
+                  assignedTo: apiTask.assigned_to,
+                  dueDate: apiTask.due_date || '',
+                  createdAt: apiTask.created_at,
+                  createdBy: apiTask.created_by,
+                  category: 'other',
+                  companyId: apiTask.company_id,
+                  companyName: apiTask.company_name
+                }));
+
+                setAssignedTasks(convertedTasks);
+              } catch (error) {
+                console.error('Chyba pri načítaní dát účtovníka:', error);
+              } finally {
+                setLoadingTasks(false);
+                setLoadingCompanies(false);
+              }
+            };
+
+            loadAccountantData();
+          }}
+        />
+      )}
+
+      {activeSection === 'messages' && (
+        <div className="bg-white rounded-lg shadow-md">
+          <MessagesList 
+            userEmail={userEmail} 
+            userRole="accountant" 
+            onMessageAction={loadUnreadMessagesCount}
+          />
         </div>
       )}
 

@@ -1,9 +1,12 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { apiService } from '../../services/apiService';
 import { LoadingSpinner } from '../LoadingSpinner';
 import AssignCompanyModal from '../AssignCompanyModal';
 import FilePreviewModal from '../FilePreviewModal';
+import EmailTestModal from '../EmailTestModal';
+import MessagesList from '../MessagesList';
+import CalendarComponent from '../Calendar';
 import { 
   UsersIcon, 
   BuildingOfficeIcon, 
@@ -16,10 +19,12 @@ import {
   TrashIcon,
   EyeIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  EnvelopeIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 
-type DashboardSection = 'overview' | 'users' | 'companies' | 'tasks' | 'documents' | 'settings';
+type DashboardSection = 'overview' | 'users' | 'companies' | 'tasks' | 'documents' | 'settings' | 'messages' | 'calendar';
 
 interface AdminDashboardContainerProps {}
 
@@ -40,6 +45,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   const [showFilePreviewModal, setShowFilePreviewModal] = useState(false);
   const [previewFile, setPreviewFile] = useState<any>(null);
   const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
+  const [showEmailTestModal, setShowEmailTestModal] = useState(false);
   const [userFilter, setUserFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [companyFilter, setCompanyFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -47,6 +53,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'active' | 'completed'>('active');
   const [fileFilter, setFileFilter] = useState<string>('all');
   const [fileSearchTerm, setFileSearchTerm] = useState('');
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   // API hooks s caching
   const { data: users, loading: usersLoading, error: usersError, refetch: refetchUsers } = useApi(
@@ -76,6 +83,16 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     'admin-files',
     5 * 60 * 1000 // 5 minút cache
   );
+
+  // Načítanie počtu neprečítaných správ
+  const loadUnreadMessagesCount = async () => {
+    try {
+      const unreadCount = await apiService.getUnreadCount('admin@portal.sk');
+      setUnreadMessagesCount(unreadCount);
+    } catch (error) {
+      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+    }
+  };
 
   // Memoizované štatistiky
   const stats = useMemo(() => {
@@ -160,7 +177,13 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
     refetchCompanies();
     refetchTasks();
     refetchFiles();
+    loadUnreadMessagesCount();
   }, [refetchUsers, refetchCompanies, refetchTasks, refetchFiles]);
+
+  // Načítanie počtu neprečítaných správ pri načítaní komponentu
+  useEffect(() => {
+    loadUnreadMessagesCount();
+  }, []);
 
   // Admin actions
   const handleUserAction = useCallback((action: 'view' | 'edit' | 'delete', user: any) => {
@@ -328,7 +351,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
             </div>
             
             {/* Štatistiky karty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -470,6 +493,81 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                         setActiveSection('documents');
                       }}
                       className="text-xs text-purple-600 hover:text-purple-700 underline"
+                    >
+                      Zobraziť všetky
+                    </button>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Kliknutie na kartu kalendára');
+                  setActiveSection('calendar');
+                }}
+                className="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 cursor-pointer text-left"
+              >
+                <div className="flex items-center">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <CalendarIcon className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Kalendár</p>
+                    <p className="text-2xl font-bold text-gray-900">{tasks ? tasks.filter(task => task.due_date).length : 0}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-sm text-gray-500">Termíny a úlohy</span>
+                  <div className="mt-2">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Kliknutie na zobraziť kalendár');
+                        setActiveSection('calendar');
+                      }}
+                      className="text-xs text-orange-600 hover:text-orange-700 underline"
+                    >
+                      Zobraziť kalendár
+                    </button>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Kliknutie na kartu správ');
+                  setActiveSection('messages');
+                }}
+                className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 cursor-pointer text-left"
+              >
+                <div className="flex items-center">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <EnvelopeIcon className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Správy</p>
+                    <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
+                    {unreadMessagesCount > 0 && (
+                      <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} neprečítaných</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-sm text-gray-500">Komunikácia</span>
+                  <div className="mt-2">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Kliknutie na zobraziť všetky správy');
+                        setActiveSection('messages');
+                      }}
+                      className="text-xs text-indigo-600 hover:text-indigo-700 underline"
                     >
                       Zobraziť všetky
                     </button>
@@ -1391,6 +1489,17 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <span className="text-sm text-gray-700">SMS notifikácie</span>
                     <input type="checkbox" className="rounded" />
                   </div>
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => setShowEmailTestModal(true)}
+                      className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Test Emailov
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1415,6 +1524,60 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        );
+      case 'calendar':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Kalendár úloh - Admin Panel</h2>
+              <button
+                onClick={handleRefresh}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Obnoviť
+              </button>
+            </div>
+            
+            <CalendarComponent
+              userEmail="admin@portal.sk"
+              userRole="admin"
+              tasks={tasks || []}
+              companies={companies || []}
+              onTaskUpdate={() => {
+                refetchTasks();
+                refetchCompanies();
+              }}
+            />
+          </div>
+        );
+      case 'messages':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Správy - Admin Panel</h2>
+              <button
+                onClick={handleRefresh}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Obnoviť
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md">
+              <MessagesList 
+                userEmail="admin@portal.sk" 
+                userRole="admin" 
+                isAdmin={true} 
+                onMessageAction={loadUnreadMessagesCount}
+              />
             </div>
           </div>
         );
@@ -1958,7 +2121,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              {(['overview', 'users', 'companies', 'tasks', 'documents', 'settings'] as DashboardSection[]).map((section) => (
+              {(['overview', 'users', 'companies', 'tasks', 'documents', 'calendar', 'messages', 'settings'] as DashboardSection[]).map((section) => (
                 <button
                   key={section}
                   onClick={() => {
@@ -1999,6 +2162,18 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <>
                       <DocumentIcon className="w-4 h-4" />
                       Dokumenty
+                    </>
+                  )}
+                  {section === 'calendar' && (
+                    <>
+                      <CalendarIcon className="w-4 h-4" />
+                      Kalendár
+                    </>
+                  )}
+                  {section === 'messages' && (
+                    <>
+                      <EnvelopeIcon className="w-4 h-4" />
+                      Správy
                     </>
                   )}
                   {section === 'settings' && (
@@ -2178,6 +2353,12 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
           setPreviewFile(null);
         }}
         file={previewFile}
+      />
+
+      {/* Email Test Modal */}
+      <EmailTestModal
+        isOpen={showEmailTestModal}
+        onClose={() => setShowEmailTestModal(false)}
       />
     </div>
   );

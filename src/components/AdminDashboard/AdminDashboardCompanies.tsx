@@ -109,3 +109,6 @@ const AdminDashboardCompanies: React.FC<AdminDashboardCompaniesProps> = ({
 
 export default AdminDashboardCompanies;
 
+
+
+

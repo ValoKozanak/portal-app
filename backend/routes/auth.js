@@ -355,4 +355,17 @@ router.post('/reset-password', (req, res) => {
   );
 });
 
+// Získanie všetkých používateľov
+router.get('/users', (req, res) => {
+  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE status = "active" ORDER BY name', [], (err, users) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní používateľov' });
+    }
+
+    res.json(users);
+  });
+});
+
+
+
 module.exports = router;

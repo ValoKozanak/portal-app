@@ -57,8 +57,36 @@ router.post('/send-test-email', (req, res) => {
           });
         break;
 
+      case 'document':
+        emailService.sendDocumentNotification(email, 'Test User', 'test-dokument.pdf', 1024000, 'application/pdf', 'Test Company', 'test@portal.sk')
+          .then(result => {
+            if (result.success) {
+              res.json({ message: 'Document notification email odoslaný úspešne', result });
+            } else {
+              res.status(500).json({ error: 'Chyba pri posielaní document emailu', result });
+            }
+          })
+          .catch(error => {
+            res.status(500).json({ error: 'Chyba pri posielaní document emailu', error: error.message });
+          });
+        break;
+
+      case 'company':
+        emailService.sendCompanyNotification(email, 'Test User', 'Test Company s.r.o.', 'owner@test.sk', '12345678', 'contact@test.sk')
+          .then(result => {
+            if (result.success) {
+              res.json({ message: 'Company notification email odoslaný úspešne', result });
+            } else {
+              res.status(500).json({ error: 'Chyba pri posielaní company emailu', result });
+            }
+          })
+          .catch(error => {
+            res.status(500).json({ error: 'Chyba pri posielaní company emailu', error: error.message });
+          });
+        break;
+
       default:
-        res.status(400).json({ error: 'Neplatný typ emailu. Použite: welcome, task, deadline' });
+        res.status(400).json({ error: 'Neplatný typ emailu. Použite: welcome, task, deadline, document, company' });
     }
   } catch (error) {
     res.status(500).json({ error: 'Chyba pri posielaní emailu', error: error.message });

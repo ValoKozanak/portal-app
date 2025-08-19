@@ -93,3 +93,6 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
 export default React.memo(SearchInput);
 
+
+
+
