@@ -46,6 +46,7 @@ interface TaskModalProps {
     name: string;
     ico: string;
   }>;
+  userEmail?: string; // Email prihláseného používateľa
 }
 
 export interface Employee {
@@ -64,7 +65,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
   companyEmployees,
   company,
   isAccountant = false,
-  assignedCompanies = []
+  assignedCompanies = [],
+  userEmail = ''
 }) => {
   const [formData, setFormData] = useState<{
     title: string;
@@ -194,11 +196,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Pre účtovníkov používame email ako assignedTo
-      const assignedToEmail = formData.assignedTo;
-      const assignedToName = assignedToEmail.includes('@') 
-        ? assignedToEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-        : assignedToEmail;
+      // Pre účtovníkov používame generické hodnoty pre assignedTo, ale email účtovníka pre assignedToEmail
+      const assignedToEmail = isAccountant ? userEmail : formData.assignedTo;
+      const assignedToName = isAccountant 
+        ? formData.assignedTo 
+        : (formData.assignedTo.includes('@') 
+          ? formData.assignedTo.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          : formData.assignedTo);
       
       // Určiť companyId a companyName
       let companyId: number | undefined;
@@ -225,7 +229,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         dueDate: formData.dueDate,
         category: formData.category,
         estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined,
-        createdBy: 'Aktuálny používateľ', // V reálnej aplikácii by tu bolo meno prihláseného používateľa
+        createdBy: userEmail || 'Aktuálny používateľ',
         companyId: companyId,
         companyName: companyName,
       };

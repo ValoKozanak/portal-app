@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import FileManager from './FileManager';
 import TaskModal, { Task, Employee } from './TaskModal';
+import MessagesList from './MessagesList';
 
 import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
@@ -58,11 +59,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     { id: 4, number: '2024/004', amount: 950, status: 'unpaid', dueDate: '15.01.2025', description: 'Právne poradenstvo' },
   ]);
 
-  const [messages] = useState([
-    { id: 1, from: 'Účtovník', subject: 'Výročná správa pripravená', content: 'Výročná správa je pripravená na podpis. Potrebujeme vaše potvrdenie.', date: '15.12.2024', read: false },
-    { id: 2, from: 'Auditor', subject: 'Audit dokončený', content: 'Audit vašich účtovných dokladov bol úspešne dokončený. Všetko je v poriadku.', date: '12.12.2024', read: true },
-    { id: 3, from: 'Systém', subject: 'Nové DPH priznanie', content: 'Bolo vytvorené nové DPH priznanie za Q4 2024. Prosím, overte údaje.', date: '10.12.2024', read: false },
-  ]);
+  // Načítavame skutočné správy cez MessagesList komponent
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   // Súbory pre firmu - načítané z fileService
   const [files, setFiles] = useState<FileData[]>([]);
@@ -77,6 +75,16 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   // State pre TaskModal
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  // Funkcia na načítanie počtu neprečítaných správ
+  const loadUnreadMessagesCount = async () => {
+    try {
+      const unreadCount = await apiService.getUnreadCount(userEmail);
+      setUnreadMessagesCount(unreadCount);
+    } catch (error) {
+      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+    }
+  };
 
 
 
@@ -109,9 +117,18 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
   const handleFileDownload = async (file: FileData) => {
     try {
-      await apiService.downloadFile(file.id);
+      const blob = await apiService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.original_name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Chyba pri sťahovaní súboru:', error);
+      alert('Chyba pri sťahovaní súboru');
     }
   };
 
@@ -152,7 +169,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           description: task.description,
           status: task.status,
           priority: task.priority,
-          assigned_to: task.assignedTo,
+          assigned_to: task.assignedToEmail || task.assignedTo, // Používame email ak je dostupný
           due_date: task.dueDate,
           category: task.category,
           estimated_hours: task.estimatedHours
@@ -167,7 +184,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           description: task.description,
           status: task.status,
           priority: task.priority,
-          assigned_to: task.assignedTo,
+          assigned_to: task.assignedToEmail || task.assignedTo, // Používame email ak je dostupný
           due_date: task.dueDate,
           category: task.category,
           estimated_hours: task.estimatedHours,
@@ -176,24 +193,28 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           company_name: company.name
         };
         
-        const newTaskResponse = await apiService.createTask(apiTaskData);
+        await apiService.createTask(apiTaskData);
         
-        // Convert API Task back to TaskModal Task format
-        const createdApiTask = await apiService.getTask(newTaskResponse.taskId);
-        const createdTask: Task = {
-          id: createdApiTask.id.toString(),
-          title: createdApiTask.title,
-          description: createdApiTask.description || '',
-          status: createdApiTask.status,
-          priority: createdApiTask.priority,
-          assignedTo: createdApiTask.assigned_to,
-          dueDate: createdApiTask.due_date || '',
-          createdAt: createdApiTask.created_at,
-          createdBy: createdApiTask.created_by,
-          category: 'other', // Default category
-        };
+        // Po vytvorení úlohy znovu načítame všetky úlohy z API
+        console.log('CompanyDashboard: Znovu načítavam úlohy po vytvorení novej úlohy');
+        const companyTasks = await apiService.getCompanyTasks(company.id);
+        console.log('CompanyDashboard: Načítané úlohy po vytvorení:', companyTasks);
         
-        setTasks(prev => [createdTask, ...prev]);
+        // Konvertujeme API Task na TaskModal Task
+        const convertedTasks: Task[] = companyTasks.map(apiTask => ({
+          id: apiTask.id.toString(),
+          title: apiTask.title,
+          description: apiTask.description || '',
+          status: apiTask.status,
+          priority: apiTask.priority,
+          assignedTo: apiTask.assigned_to,
+          dueDate: apiTask.due_date || '',
+          createdAt: apiTask.created_at,
+          createdBy: apiTask.created_by,
+          category: 'other', // Default kategória
+        }));
+        
+        setTasks(convertedTasks);
       }
       setShowTaskModal(false);
       setEditingTask(null);
@@ -269,9 +290,12 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     totalInvoices: invoices.length,
     unpaidInvoices: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').length,
     totalAmount: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').reduce((sum, i) => sum + i.amount, 0),
-    unreadMessages: messages.filter(m => !m.read).length,
+    unreadMessages: unreadMessagesCount,
     totalFileSize: files.reduce((sum, f) => sum + f.file_size, 0),
   };
+
+  console.log('CompanyDashboard: Stats objekt:', stats);
+  console.log('CompanyDashboard: Tasks state:', tasks);
 
   // Načítanie súborov, úloh a dokumentov pri otvorení dashboardu
   useEffect(() => {
@@ -280,12 +304,18 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         setLoadingFiles(true);
         setLoadingTasks(true);
         
+        console.log('CompanyDashboard: Začínam načítanie dát pre firmu ID:', company.id);
+        console.log('CompanyDashboard: User email:', userEmail);
+        
         // Načítanie súborov
         const companyFiles = await apiService.getCompanyFiles(company.id);
         setFiles(companyFiles);
         
         // Načítanie úloh
+        console.log('CompanyDashboard: Načítavam úlohy pre firmu ID:', company.id);
         const companyTasks = await apiService.getCompanyTasks(company.id);
+        console.log('CompanyDashboard: Načítané úlohy z API:', companyTasks);
+        
         // Konvertujeme API Task na TaskModal Task
         const convertedTasks: Task[] = companyTasks.map(apiTask => ({
           id: apiTask.id.toString(),
@@ -299,11 +329,15 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           createdBy: apiTask.created_by,
           category: 'other', // Default kategória
         }));
+        console.log('CompanyDashboard: Konvertované úlohy:', convertedTasks);
         setTasks(convertedTasks);
 
+        // Načítanie počtu neprečítaných správ
+        await loadUnreadMessagesCount();
 
       } catch (error) {
         console.error('Chyba pri načítaní dát:', error);
+        console.error('Error details:', error);
       } finally {
         setLoadingFiles(false);
         setLoadingTasks(false);
@@ -311,7 +345,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     };
 
     loadData();
-  }, [company.id]);
+  }, [company.id, userEmail]);
 
   const renderOverview = () => (
     <div className="space-y-6">
@@ -330,7 +364,10 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <button 
+          onClick={() => setActiveTab('tasks')}
+          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <ClipboardDocumentListIcon className="h-8 w-8 text-green-500" />
@@ -339,9 +376,10 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <p className="text-sm font-medium text-gray-600">Úlohy</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
               <p className="text-sm text-gray-500">{stats.pendingTasks} čakajúcich</p>
+              <p className="text-xs text-green-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
-        </div>
+        </button>
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center">
@@ -356,18 +394,22 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <button 
+          onClick={() => setActiveTab('messages')}
+          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <EnvelopeIcon className="h-8 w-8 text-purple-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Správy</p>
-              <p className="text-2xl font-bold text-gray-900">{messages.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
               <p className="text-sm text-gray-500">{stats.unreadMessages} neprečítaných</p>
+              <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Rýchle akcie */}
@@ -428,89 +470,92 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
 
 
-  const renderTasks = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-900">Úlohy</h2>
-        <button 
-          onClick={handleAddTask}
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Pridať úlohu
-        </button>
-      </div>
-
-      {loadingTasks ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
+  const renderTasks = () => {
+    console.log('CompanyDashboard: renderTasks - loadingTasks:', loadingTasks, 'tasks.length:', tasks.length);
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-900">Úlohy</h2>
+          <button 
+            onClick={handleAddTask}
+            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Pridať úlohu
+          </button>
         </div>
-      ) : (
-        <>
-          {/* Zoznam úloh */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task) => (
-              <div key={task.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">{task.title}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <CalendarIcon className="h-4 w-4 mr-1" />
-                      {task.dueDate}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 mt-1">
-                      <UserIcon className="h-4 w-4 mr-1" />
-                      {task.assignedTo}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2 ml-4">
-                    {getStatusBadge(task.status)}
-                    {getPriorityBadge(task.priority)}
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="flex space-x-2">
-                    <button 
-                      onClick={() => handleEditTask(task)}
-                      className="text-primary-600 hover:text-primary-700 text-sm font-medium"
-                    >
-                      Upraviť
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteTask(task.id)}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium"
-                    >
-                      Vymazať
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {/* Prázdny stav */}
-          {tasks.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md">
-              <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne úlohy</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Zatiaľ neboli vytvorené žiadne úlohy pre túto firmu.
-              </p>
-              <button
-                onClick={handleAddTask}
-                className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-              >
-                Vytvoriť prvú úlohu
-              </button>
+        {loadingTasks ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
+          </div>
+        ) : (
+          <>
+            {/* Zoznam úloh */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tasks.map((task) => (
+                <div key={task.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{task.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <CalendarIcon className="h-4 w-4 mr-1" />
+                        {task.dueDate}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <UserIcon className="h-4 w-4 mr-1" />
+                        {task.assignedTo}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end space-y-2 ml-4">
+                      {getStatusBadge(task.status)}
+                      {getPriorityBadge(task.priority)}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleEditTask(task)}
+                        className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                      >
+                        Upraviť
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
+                        Vymazať
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-        </>
-      )}
-    </div>
-  );
+
+            {/* Prázdny stav */}
+            {tasks.length === 0 && (
+              <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne úlohy</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Zatiaľ neboli vytvorené žiadne úlohy pre túto firmu.
+                </p>
+                <button
+                  onClick={handleAddTask}
+                  className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
+                >
+                  Vytvoriť prvú úlohu
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderInvoices = () => (
     <div className="space-y-6">
@@ -682,44 +727,13 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   );
 
   const renderMessages = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-900">Správy</h2>
-        <div className="text-sm text-gray-500">
-          {stats.unreadMessages} neprečítaných správ
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {messages.map((message) => (
-          <div key={message.id} className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${message.read ? 'border-gray-200' : 'border-blue-500'}`}>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-lg font-medium text-gray-900">{message.subject}</h3>
-                  {!message.read && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      Nové
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-500 mt-1">Od: {message.from}</p>
-                <p className="text-sm text-gray-600 mt-2">{message.content}</p>
-                <p className="text-sm text-gray-400 mt-2">{message.date}</p>
-              </div>
-              <div className="flex space-x-2">
-                <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                  Odpovedať
-                </button>
-                <button className="text-gray-600 hover:text-gray-700 text-sm font-medium">
-                  Označiť ako prečítané
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <MessagesList
+      userEmail={userEmail}
+      userRole={userRole === 'company' ? 'user' : userRole}
+      companyId={company.id}
+      isAdmin={userRole === 'admin'}
+      onMessageAction={loadUnreadMessagesCount}
+    />
   );
 
   return (
@@ -841,6 +855,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           task={editingTask}
           companyEmployees={companyEmployees}
           company={company}
+          isAccountant={userRole === 'accountant'}
+          userEmail={userEmail}
         />
       </div>
     </div>

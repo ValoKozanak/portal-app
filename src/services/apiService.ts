@@ -258,6 +258,10 @@ class ApiService {
     return this.request<Task[]>(`/tasks/accountant/${accountantEmail}`);
   }
 
+  async getUserTasks(userEmail: string) {
+    return this.request<Task[]>(`/tasks/user/${encodeURIComponent(userEmail)}`);
+  }
+
   async getTask(taskId: number) {
     return this.request<Task>(`/tasks/${taskId}`);
   }

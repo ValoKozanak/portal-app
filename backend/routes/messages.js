@@ -1,11 +1,32 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { db } = require('../database');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 console.log('Messages routes loaded successfully!');
 
+// Middleware pre autentifikáciu
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
+  if (!token) {
+    return res.status(401).json({ error: 'Prístupový token je vyžadovaný' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Neplatný token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Aplikujeme autentifikáciu na všetky routes
+router.use(authenticateToken);
 
 // Vytvorenie novej správy
 router.post('/', (req, res) => {

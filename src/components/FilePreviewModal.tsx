@@ -51,8 +51,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/files/${file.id}/download`);
-      const blob = await response.blob();
+      // Používame apiService pre konzistenciu
+      const { apiService } = await import('../services/apiService');
+      const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

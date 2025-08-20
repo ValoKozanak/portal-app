@@ -189,7 +189,17 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     try {
       if (editingTask) {
         // Editácia existujúcej úlohy
-        await apiService.updateTask(parseInt(editingTask.id), taskData);
+        const updateData = {
+          title: taskData.title,
+          description: taskData.description,
+          status: taskData.status,
+          priority: taskData.priority,
+          assigned_to: taskData.assignedToEmail || taskData.assignedTo, // Používame email ak je dostupný
+          due_date: taskData.dueDate,
+          category: taskData.category,
+          estimated_hours: taskData.estimatedHours
+        };
+        await apiService.updateTask(parseInt(editingTask.id), updateData);
         setAssignedTasks(prev => prev.map(task => 
           task.id === editingTask.id 
             ? { ...task, ...taskData }
@@ -1319,6 +1329,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             company={{ id: companies[0].id, name: companies[0].name }}
             isAccountant={true}
             assignedCompanies={companies}
+            userEmail={userEmail}
           />
         )}
 

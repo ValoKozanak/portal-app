@@ -11,7 +11,6 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   CloudArrowDownIcon,
-  ShareIcon,
   FolderOpenIcon
 } from '@heroicons/react/24/outline';
 import DocumentUploadModal from './DocumentUploadModal';

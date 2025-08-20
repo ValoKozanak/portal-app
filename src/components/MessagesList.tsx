@@ -45,6 +45,14 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
       setLoading(true);
       let messagesData: Message[];
       
+      // Kontrola, či je používateľ prihlásený
+      const token = apiService.getToken();
+      if (!token) {
+        console.log('Používateľ nie je prihlásený, preskočenie načítania správ');
+        setMessages([]);
+        return;
+      }
+      
       if (isAdmin) {
         messagesData = await apiService.getAllMessages();
       } else if (companyId) {
@@ -56,13 +64,18 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
       setMessages(messagesData);
     } catch (error) {
       console.error('Chyba pri načítaní správ:', error);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
   }, [isAdmin, companyId, userEmail]);
 
   useEffect(() => {
-    loadMessages();
+    // Načítame správy iba ak je používateľ prihlásený
+    const token = apiService.getToken();
+    if (token && userEmail) {
+      loadMessages();
+    }
   }, [userEmail, companyId, isAdmin, loadMessages]);
 
   // Filtrovanie správ podľa oprávnení

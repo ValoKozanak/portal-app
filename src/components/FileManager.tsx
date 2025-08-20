@@ -9,8 +9,7 @@ import {
   ArchiveBoxIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  CloudArrowDownIcon,
-  ShareIcon
+  CloudArrowDownIcon
 } from '@heroicons/react/24/outline';
 import FileUploadModal from './FileUploadModal';
 import FilePreviewModal from './FilePreviewModal';
@@ -347,12 +346,6 @@ const FileManager: React.FC<FileManagerProps> = ({
                         title={isDownloading ? 'Sťahujem...' : 'Stiahnuť'}
                       >
                         <CloudArrowDownIcon className="h-5 w-5" />
-                      </button>
-                      <button
-                        className="text-gray-600 hover:text-gray-700"
-                        title="Zdieľať"
-                      >
-                        <ShareIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleFileDelete(file)}

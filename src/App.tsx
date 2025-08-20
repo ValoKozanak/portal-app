@@ -6,6 +6,7 @@ import LoginModal from './components/LoginModal';
 import CompleteProfileModal from './components/CompleteProfileModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { apiService } from './services/apiService';
 
 // Code splitting pre pages - lazy loading
 const Home = React.lazy(() => import('./pages/Home'));
@@ -50,6 +51,14 @@ function App() {
   const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
   const [pendingAccountantEmail, setPendingAccountantEmail] = useState('');
 
+  // Inicializácia tokenu z localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      apiService.setToken(token);
+    }
+  }, []);
+
   // Performance monitoring a Service Worker sú automaticky inicializované
   // ale momentálne ich nepoužívame v UI
 
@@ -64,6 +73,7 @@ function App() {
     setIsLoggedIn(false);
     setUserRole(null);
     setUserEmail('');
+    apiService.clearToken();
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
   const handleFirstTimeLogin = useCallback((email: string) => {

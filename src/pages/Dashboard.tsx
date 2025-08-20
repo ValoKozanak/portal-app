@@ -6,11 +6,14 @@ import {
   UserIcon,
   EnvelopeIcon,
   PlusIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ClipboardDocumentListIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import EditProfileModal from '../components/EditProfileModal';
 import CompanyModal from '../components/CompanyModal';
 import CompanyDashboard from '../components/CompanyDashboard';
+import TaskModal, { Task } from '../components/TaskModal';
 import { apiService, Company } from '../services/apiService';
 
 interface DashboardProps {
@@ -34,6 +37,10 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(true);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Načítanie počtu neprečítaných správ
   const loadUnreadMessagesCount = useCallback(async () => {
@@ -48,6 +55,121 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   useEffect(() => {
     loadUnreadMessagesCount();
   }, [loadUnreadMessagesCount]);
+
+  // Načítanie úloh používateľa
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setLoadingTasks(true);
+        const apiTasks = await apiService.getUserTasks(userEmail);
+        
+        // Konvertujeme API Task na TaskModal Task
+        const convertedTasks: Task[] = apiTasks.map(apiTask => ({
+          id: apiTask.id.toString(),
+          title: apiTask.title,
+          description: apiTask.description || '',
+          status: apiTask.status,
+          priority: apiTask.priority,
+          assignedTo: apiTask.assigned_to,
+          dueDate: apiTask.due_date || '',
+          createdAt: apiTask.created_at,
+          createdBy: apiTask.created_by,
+          category: 'other', // Default kategória
+        }));
+        
+        setTasks(convertedTasks);
+      } catch (error) {
+        console.error('Chyba pri načítaní úloh:', error);
+      } finally {
+        setLoadingTasks(false);
+      }
+    };
+
+    loadTasks();
+  }, [userEmail]);
+
+  // Funkcie pre správu úloh
+  const handleAddTask = () => {
+    setEditingTask(null);
+    setShowTaskModal(true);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await apiService.deleteTask(parseInt(taskId));
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+    } catch (error) {
+      console.error('Chyba pri mazaní úlohy:', error);
+    }
+  };
+
+  const handleSaveTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
+    try {
+      if (editingTask) {
+        // Update existing task
+        const apiTaskData = {
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          assigned_to: task.assignedToEmail || task.assignedTo, // Používame email ak je dostupný
+          due_date: task.dueDate,
+          category: task.category,
+          estimated_hours: task.estimatedHours
+        };
+        
+        await apiService.updateTask(parseInt(editingTask.id), apiTaskData);
+        setTasks(prev => prev.map(t => t.id === editingTask.id ? { ...t, ...task } : t));
+      } else {
+        // Create new task - potrebujeme vybrať firmu
+        if (companies.length === 0) {
+          alert('Pre vytvorenie úlohy potrebujete mať aspoň jednu firmu.');
+          return;
+        }
+        
+        const selectedCompany = companies[0]; // Použijeme prvú firmu
+        const apiTaskData = {
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          assigned_to: task.assignedToEmail || task.assignedTo, // Používame email ak je dostupný
+          due_date: task.dueDate,
+          category: task.category,
+          estimated_hours: task.estimatedHours,
+          company_id: selectedCompany.id,
+          created_by: userEmail,
+          company_name: selectedCompany.name
+        };
+        
+        const newTaskResponse = await apiService.createTask(apiTaskData);
+        const createdApiTask = await apiService.getTask(newTaskResponse.taskId);
+        const createdTask: Task = {
+          id: createdApiTask.id.toString(),
+          title: createdApiTask.title,
+          description: createdApiTask.description || '',
+          status: createdApiTask.status,
+          priority: createdApiTask.priority,
+          assignedTo: createdApiTask.assigned_to,
+          dueDate: createdApiTask.due_date || '',
+          createdAt: createdApiTask.created_at,
+          createdBy: createdApiTask.created_by,
+          category: 'other',
+        };
+        
+        setTasks(prev => [createdTask, ...prev]);
+      }
+      setShowTaskModal(false);
+      setEditingTask(null);
+    } catch (error) {
+      console.error('Chyba pri ukladaní úlohy:', error);
+    }
+  };
 
   // Načítanie firiem z API
   useEffect(() => {
@@ -81,6 +203,47 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     setEditingCompany(company);
     setIsEditingCompany(true);
     setShowCompanyModal(true);
+  };
+
+  // Helper funkcie pre úlohy
+  const getStatusBadge = (status: string) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-green-100 text-green-800',
+      in_progress: 'bg-blue-100 text-blue-800',
+      cancelled: 'bg-gray-100 text-gray-800',
+    };
+    const labels = {
+      pending: 'Čakajúce',
+      completed: 'Dokončené',
+      in_progress: 'V spracovaní',
+      cancelled: 'Zrušené',
+    };
+    return (
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
+        {labels[status as keyof typeof labels] || status}
+      </span>
+    );
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    const colors = {
+      low: 'bg-gray-100 text-gray-800',
+      medium: 'bg-blue-100 text-blue-800',
+      high: 'bg-orange-100 text-orange-800',
+      urgent: 'bg-red-100 text-red-800',
+    };
+    const labels = {
+      low: 'Nízka',
+      medium: 'Stredná',
+      high: 'Vysoká',
+      urgent: 'Urgentná',
+    };
+    return (
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[priority as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
+        {labels[priority as keyof typeof labels] || priority}
+      </span>
+    );
   };
 
   const handleSaveCompany = async (company: any) => {
@@ -292,7 +455,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
        </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -330,7 +493,100 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
             </div>
           </div>
         </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <ClipboardDocumentListIcon className="h-8 w-8 text-orange-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Vaše úlohy</p>
+              <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
+              <p className="text-sm text-gray-500">{tasks.filter(t => t.status === 'pending').length} čakajúcich</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+       {/* Tasks Section */}
+       <div className="bg-white rounded-lg shadow-md">
+         <div className="px-6 py-4 border-b border-gray-200">
+           <div className="flex justify-between items-center">
+             <h2 className="text-lg font-semibold text-gray-900">Vaše úlohy</h2>
+             <button 
+               onClick={handleAddTask}
+               className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+             >
+               <PlusIcon className="h-5 w-5 mr-2" />
+               Pridať úlohu
+             </button>
+           </div>
+         </div>
+         <div className="p-6">
+           {loadingTasks ? (
+             <div className="text-center py-12">
+               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+               <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
+             </div>
+           ) : tasks.length > 0 ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {tasks.map((task) => (
+                 <div key={task.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">
+                   <div className="flex items-start justify-between mb-3">
+                     <div className="flex-1">
+                       <h3 className="text-lg font-medium text-gray-900 mb-1">{task.title}</h3>
+                       <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                       <div className="flex items-center text-sm text-gray-500 mb-2">
+                         <CalendarIcon className="h-4 w-4 mr-1" />
+                         {task.dueDate}
+                       </div>
+                       <div className="flex items-center text-sm text-gray-500">
+                         <UserIcon className="h-4 w-4 mr-1" />
+                         {task.assignedTo}
+                       </div>
+                     </div>
+                     <div className="flex flex-col items-end space-y-2 ml-4">
+                       {getStatusBadge(task.status)}
+                       {getPriorityBadge(task.priority)}
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                     <div className="flex space-x-2">
+                       <button 
+                         onClick={() => handleEditTask(task)}
+                         className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                       >
+                         Upraviť
+                       </button>
+                       <button 
+                         onClick={() => handleDeleteTask(task.id)}
+                         className="text-red-600 hover:text-red-700 text-sm font-medium"
+                       >
+                         Vymazať
+                       </button>
+                     </div>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <div className="text-center py-12">
+               <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
+               <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne úlohy</h3>
+               <p className="mt-1 text-sm text-gray-500 mb-4">
+                 Zatiaľ nemáte žiadne úlohy. Vytvorte prvú úlohu pre vašu firmu.
+               </p>
+               <button
+                 onClick={handleAddTask}
+                 className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
+               >
+                 Vytvoriť prvú úlohu
+               </button>
+             </div>
+           )}
+         </div>
+       </div>
 
        {/* Edit Profile Modal */}
        <EditProfileModal
@@ -340,7 +596,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
          currentProfile={userProfile}
        />
 
-               {/* Company Modal */}
+       {/* Company Modal */}
         <CompanyModal
           isOpen={showCompanyModal}
           onClose={() => setShowCompanyModal(false)}
@@ -348,6 +604,20 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           currentCompany={editingCompany}
           isEditing={isEditingCompany}
         />
+
+       {/* Task Modal */}
+       <TaskModal
+         isOpen={showTaskModal}
+         onClose={() => {
+           setShowTaskModal(false);
+           setEditingTask(null);
+         }}
+         onSave={handleSaveTask}
+         task={editingTask}
+         companyEmployees={[]}
+         company={companies[0] || null}
+         userEmail={userEmail}
+       />
       </div>
     );
   };

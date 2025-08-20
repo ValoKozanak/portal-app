@@ -1,8 +1,31 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { db } = require('../database');
 const emailService = require('../services/emailService');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+// Middleware pre autentifikáciu
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Prístupový token je vyžadovaný' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Neplatný token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Aplikujeme autentifikáciu na všetky routes
+router.use(authenticateToken);
 
 // Získanie všetkých úloh (pre admin)
 router.get('/', (req, res) => {
@@ -42,6 +65,23 @@ router.get('/accountant/:accountantEmail', (req, res) => {
     WHERE assigned_to = ?
     ORDER BY created_at DESC
   `, [accountantEmail], (err, tasks) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní úloh' });
+    }
+    res.json(tasks);
+  });
+});
+
+// Získanie úloh pre používateľa (vlastníka firmy)
+router.get('/user/:userEmail', (req, res) => {
+  const { userEmail } = req.params;
+
+  db.all(`
+    SELECT t.* FROM tasks t
+    INNER JOIN companies c ON t.company_id = c.id
+    WHERE c.owner_email = ?
+    ORDER BY t.created_at DESC
+  `, [userEmail], (err, tasks) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri načítaní úloh' });
     }
