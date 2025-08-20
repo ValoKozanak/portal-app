@@ -277,10 +277,6 @@ class DropboxService {
       });
 
       console.log('DropboxService.listFiles - response received');
-      console.log('DropboxService.listFiles - response.result:', response.result);
-      console.log('DropboxService.listFiles - entries count:', response.result.entries.length);
-      console.log('DropboxService.listFiles - entries:', response.result.entries);
-
       const mappedFiles = response.result.entries.map(entry => ({
         id: entry['.tag'] === 'deleted' ? '' : (entry as any).id || '',
         name: entry.name,
@@ -290,9 +286,6 @@ class DropboxService {
         content_hash: entry['.tag'] === 'file' ? (entry as any).content_hash || '' : '',
         tag: entry['.tag']
       }));
-
-      console.log('DropboxService.listFiles - mappedFiles:', mappedFiles);
-      console.log('DropboxService.listFiles - mappedFiles.length:', mappedFiles.length);
       
       return mappedFiles;
     } catch (error) {
@@ -331,15 +324,12 @@ class DropboxService {
     try {
       const companyPath = this.getCompanyFolderPath(userEmail);
       
-      console.log('DropboxService.createCompanyFolder - vytváram zložku:', companyPath);
-      
       // Vytvorenie priečinka
       const response = await this.dbx.filesCreateFolderV2({
         path: companyPath,
         autorename: false
       });
       
-      console.log('DropboxService.createCompanyFolder - zložka vytvorená:', response);
       return companyPath;
     } catch (error) {
       console.error('Error creating company folder:', error);
@@ -369,11 +359,6 @@ class DropboxService {
     }
 
     try {
-      console.log('DropboxService.uploadFile - začiatok');
-      console.log('DropboxService.uploadFile - file:', file.name, file.size);
-      console.log('DropboxService.uploadFile - path:', path);
-      console.log('DropboxService.uploadFile - userEmail:', userEmail);
-      
       const fileBuffer = await file.arrayBuffer();
       
       // Ak je zadaný userEmail, použijeme špecifickú cestu pre firmu

@@ -168,7 +168,7 @@ function App() {
                 <Route path="/dashboard" element={dashboardElement} />
                 <Route path="/dropbox-callback" element={
                   (() => {
-                    console.log('=== DropboxCallback route sa spracováva ===');
+                
                     return <DropboxCallback />;
                   })()
                 } />

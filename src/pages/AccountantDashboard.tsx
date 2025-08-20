@@ -8,18 +8,11 @@ import {
   UserGroupIcon,
   ChartBarIcon,
   BellIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
   BuildingOfficeIcon,
   ClipboardDocumentListIcon,
   FolderIcon,
   EnvelopeIcon,
-  UserIcon,
   CalendarIcon,
-  CogIcon,
   CloudIcon
 } from '@heroicons/react/24/outline';
 import { Company, apiService } from '../services/apiService';
@@ -37,7 +30,7 @@ interface AccountantDashboardProps {
 const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
-  const [activeSection, setActiveSection] = useState<string>('overview');
+
   const [showDropboxPage, setShowDropboxPage] = useState(false);
   const [showTasksPage, setShowTasksPage] = useState(false);
   const [showFilesPage, setShowFilesPage] = useState(false);
@@ -95,7 +88,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     }, 30000); // 30 sekúnd
 
     return () => clearInterval(interval);
-  }, [userEmail]);
+  }, [loadUnreadMessagesCount]);
 
 
 

@@ -295,8 +295,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     totalFileSize: files.reduce((sum, f) => sum + f.file_size, 0),
   };
 
-  console.log('CompanyDashboard: Stats objekt:', stats);
-  console.log('CompanyDashboard: Tasks state:', tasks);
+  
 
   // Načítanie súborov, úloh a dokumentov pri otvorení dashboardu
   useEffect(() => {
@@ -305,17 +304,16 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         setLoadingFiles(true);
         setLoadingTasks(true);
         
-        console.log('CompanyDashboard: Začínam načítanie dát pre firmu ID:', company.id);
-        console.log('CompanyDashboard: User email:', userEmail);
+        
         
         // Načítanie súborov
         const companyFiles = await apiService.getCompanyFiles(company.id);
         setFiles(companyFiles);
         
         // Načítanie úloh
-        console.log('CompanyDashboard: Načítavam úlohy pre firmu ID:', company.id);
+
         const companyTasks = await apiService.getCompanyTasks(company.id);
-        console.log('CompanyDashboard: Načítané úlohy z API:', companyTasks);
+        
         
         // Konvertujeme API Task na TaskModal Task
         const convertedTasks: Task[] = companyTasks.map(apiTask => ({

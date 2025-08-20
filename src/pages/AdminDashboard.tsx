@@ -133,7 +133,7 @@ const AdminDashboard: React.FC = () => {
     }, 30000); // 30 sekúnd
 
     return () => clearInterval(interval);
-  }, []);
+  }, [loadCompanies]);
 
   // Načítanie úloh
   useEffect(() => {

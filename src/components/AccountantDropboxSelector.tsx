@@ -126,7 +126,7 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
               userRole="accountant"
               companyName={selectedCompany.companyName}
               onFileSelect={(file) => {
-                console.log('Selected Dropbox file:', file);
+            
               }}
             />
           </div>

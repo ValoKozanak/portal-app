@@ -88,47 +88,25 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
   };
 
   const loadFiles = async (authenticatedOverride?: boolean) => {
-    console.log('=== DROPBOX INTEGRATION - loadFiles ===');
-    console.log('DropboxIntegration.loadFiles - začiatok funkcie');
-    console.log('DropboxIntegration.loadFiles - isAuthenticated:', isAuthenticated);
-    console.log('DropboxIntegration.loadFiles - authenticatedOverride:', authenticatedOverride);
-    
     const isAuth = authenticatedOverride !== undefined ? authenticatedOverride : isAuthenticated;
-    console.log('DropboxIntegration.loadFiles - isAuth (final):', isAuth);
     
     if (!isAuth) {
-      console.log('DropboxIntegration.loadFiles - nie je autentifikovaný, končím');
       return;
     }
 
     setIsLoading(true);
     try {
       console.log('=== DROPBOX INTEGRATION DEBUG ===');
-      console.log('DropboxIntegration.loadFiles - začiatok');
-      console.log('DropboxIntegration.loadFiles - isAuthenticated:', isAuthenticated);
-      console.log('DropboxIntegration.loadFiles - isCompanyView:', isCompanyView);
-      console.log('DropboxIntegration.loadFiles - companyEmail:', companyEmail);
-      console.log('DropboxIntegration.loadFiles - userEmail:', userEmail);
-      console.log('DropboxIntegration.loadFiles - userRole:', userRole);
-      console.log('DropboxIntegration.loadFiles - currentPath:', currentPath);
-      
       // Ak je company view, načítame iba súbory z firmy
       if (isCompanyView && (companyEmail || userEmail)) {
         const emailToUse = companyEmail || userEmail;
         const companyFolder = dropboxService.getCompanyFolderPath(emailToUse!);
-        console.log('DropboxIntegration.loadFiles - emailToUse:', emailToUse);
-        console.log('DropboxIntegration.loadFiles - companyFolder:', companyFolder);
         
-        console.log('DropboxIntegration.loadFiles - volám dropboxService.listFiles...');
         const fileList = await dropboxService.listFiles(companyFolder, emailToUse);
-        console.log('DropboxIntegration.loadFiles - fileList:', fileList);
-        console.log('DropboxIntegration.loadFiles - fileList.length:', fileList.length);
         
         setFiles(fileList);
         setCurrentPath(companyFolder);
-        console.log('DropboxIntegration.loadFiles - súbory nastavené, currentPath:', companyFolder);
       } else {
-        console.log('DropboxIntegration.loadFiles - načítavam všeobecné súbory');
         const fileList = await dropboxService.listFiles(currentPath, userEmail);
         setFiles(fileList);
       }
@@ -140,29 +118,20 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
       }
     } finally {
       setIsLoading(false);
-      console.log('DropboxIntegration.loadFiles - koniec, isLoading nastavené na false');
+
     }
   };
 
   const handleFileUpload = async () => {
     if (!selectedFile || !isAuthenticated) return;
 
-    console.log('DropboxIntegration.handleFileUpload - začiatok');
-    console.log('DropboxIntegration.handleFileUpload - selectedFile:', selectedFile);
-    console.log('DropboxIntegration.handleFileUpload - currentPath:', currentPath);
-    console.log('DropboxIntegration.handleFileUpload - isCompanyView:', isCompanyView);
-    console.log('DropboxIntegration.handleFileUpload - companyEmail:', companyEmail);
-    console.log('DropboxIntegration.handleFileUpload - userEmail:', userEmail);
-
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
       const emailToUse = isCompanyView && companyEmail ? companyEmail : userEmail;
-      console.log('DropboxIntegration.handleFileUpload - emailToUse:', emailToUse);
       
       const result = await dropboxService.uploadFile(selectedFile, currentPath || '', emailToUse);
-      console.log('DropboxIntegration.handleFileUpload - upload result:', result);
       
       // Pridanie nového súboru do zoznamu
       setFiles(prev => [...prev, {
