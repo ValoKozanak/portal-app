@@ -475,7 +475,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <DocumentIcon className="w-6 h-6 text-purple-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Dokumenty</p>
+                    <p className="text-sm font-medium text-gray-600">Súbory</p>
                     <p className="text-2xl font-bold text-gray-900">{stats.documents}</p>
                   </div>
                 </div>
@@ -1285,7 +1285,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                     <option value="all">Všetky typy</option>
                     <option value="pdf">PDF súbory</option>
                     <option value="image">Obrázky</option>
-                    <option value="document">Dokumenty (Word, Excel)</option>
+                    <option value="document">Súbory (Word, Excel)</option>
                     <option value="other">Ostatné</option>
                   </select>
                 </div>
@@ -2161,7 +2161,7 @@ const AdminDashboardContainer: React.FC<AdminDashboardContainerProps> = () => {
                   {section === 'documents' && (
                     <>
                       <DocumentIcon className="w-4 h-4" />
-                      Dokumenty
+                      Súbory
                     </>
                   )}
                   {section === 'calendar' && (

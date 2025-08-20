@@ -26,8 +26,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     setError('');
 
     try {
-      // Absolútna URL pre backend
-      setPreviewUrl(`http://localhost:5000/api/files/${file.id}/preview`);
+      // Používame apiService pre autentifikáciu
+      const { apiService } = await import('../services/apiService');
+      const blob = await apiService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      setPreviewUrl(url);
     } catch (err) {
       setError('Nepodarilo sa načítať náhľad súboru');
       console.error('Chyba pri načítaní náhľadu:', err);
@@ -40,7 +43,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      window.open(`http://localhost:5000/api/files/${file.id}/preview`, '_blank');
+      // Používame apiService pre autentifikáciu
+      const { apiService } = await import('../services/apiService');
+      const blob = await apiService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
     } catch (err) {
       console.error('Chyba pri otváraní súboru:', err);
       alert('Nepodarilo sa otvoriť súbor');
@@ -142,7 +149,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
             </div>
           ) : (
             <div className="h-full overflow-auto">
-              {isImage && (
+              {isImage && previewUrl && (
                 <div className="flex items-center justify-center h-full p-4">
                   <img
                     src={previewUrl}
@@ -151,7 +158,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
                   />
                 </div>
               )}
-              {isPdf && (
+              {isPdf && previewUrl && (
                 <div className="h-full">
                   <iframe
                     src={previewUrl}
@@ -177,6 +184,28 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
                     Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
                     nisi ut aliquip ex ea commodo consequat.
                   </pre>
+                </div>
+              )}
+              {!isImage && !isPdf && !isText && (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-gray-500 text-lg mb-2">📄</div>
+                    <p className="text-gray-600">Náhľad nie je dostupný pre tento typ súboru</p>
+                    <div className="mt-4 space-x-2">
+                      <button
+                        onClick={handleOpenInNewTab}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Otvoriť v novom okne
+                      </button>
+                      <button
+                        onClick={handleDownload}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Stiahnuť súbor
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

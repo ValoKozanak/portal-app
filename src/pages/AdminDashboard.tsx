@@ -24,15 +24,17 @@ import AssignCompanyModal from '../components/AssignCompanyModal';
 import EditUserModal from '../components/EditUserModal';
 import EditCompanyModal from '../components/EditCompanyModal';
 import FileUploadModal from '../components/FileUploadModal';
+import FileManager from '../components/FileManager';
+import FilePreviewModal from '../components/FilePreviewModal';
 import { taskService } from '../services/taskService';
 import { Task } from '../components/TaskModal';
 import { apiService, Company, FileData } from '../services/apiService';
 
 const AdminDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<'overview' | 'users' | 'companies' | 'tasks' | 'documents' | 'settings'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'users' | 'companies' | 'tasks' | 'files' | 'settings'>('overview');
   const [stats, setStats] = useState({
     users: 0,
-    documents: 0,
+    files: 0,
     tasks: 0,
     settings: 23,
     admins: 0,
@@ -60,6 +62,8 @@ const AdminDashboard: React.FC = () => {
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [showFileUploadModal, setShowFileUploadModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
+  const [previewFile, setPreviewFile] = useState<FileData | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const [systemAlerts, setSystemAlerts] = useState([
     { id: 1, type: 'warning', message: 'Zálohovanie databázy sa nepodarilo', time: '1 hodinu' },
@@ -167,11 +171,11 @@ const AdminDashboard: React.FC = () => {
     const totalTasks = allTasks.length;
     const totalCompanies = allCompanies.length;
     const totalAlerts = systemAlerts.length;
-    const totalDocuments = allFiles.length;
+    const totalFiles = allFiles.length;
     
     setStats({
       users: totalUsers,
-      documents: totalDocuments,
+      files: totalFiles,
       tasks: totalTasks,
       settings: 23,
       admins: adminUsers,
@@ -347,7 +351,29 @@ const AdminDashboard: React.FC = () => {
 
   const handleFileUpload = (fileData: FileData) => {
     setAllFiles(prev => [fileData, ...prev]);
-    setStats(prev => ({ ...prev, documents: prev.documents + 1 }));
+    setStats(prev => ({ ...prev, files: prev.files + 1 }));
+  };
+
+  const handleFilePreview = (file: FileData) => {
+    setPreviewFile(file);
+    setShowPreviewModal(true);
+  };
+
+  const handleFileDownload = async (file: FileData) => {
+    try {
+      const blob = await apiService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.original_name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Chyba pri sťahovaní súboru:', error);
+      alert('Chyba pri sťahovaní súboru');
+    }
   };
 
   // Helper funkcie pre badge
@@ -486,7 +512,7 @@ const AdminDashboard: React.FC = () => {
               { id: 'users', name: 'Používatelia', icon: UsersIcon },
               { id: 'companies', name: 'Firmy', icon: BuildingOfficeIcon },
               { id: 'tasks', name: 'Úlohy', icon: ClipboardDocumentListIcon },
-              { id: 'documents', name: 'Dokumenty', icon: DocumentTextIcon },
+              { id: 'files', name: 'Súbory', icon: DocumentTextIcon },
               { id: 'settings', name: 'Nastavenia', icon: CogIcon }
             ].map((tab) => {
               const Icon = tab.icon;
@@ -561,18 +587,21 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </button>
 
-              <div className="bg-white rounded-lg shadow-md p-6">
+                            <button
+                onClick={() => setActiveSection('files')}
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left w-full"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <DocumentTextIcon className="h-8 w-8 text-yellow-500" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Dokumenty</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.documents}</p>
+                    <p className="text-sm font-medium text-gray-600">Súbory</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.files}</p>
                     <p className="text-xs text-gray-500 mt-1">Celkovo v systéme</p>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Ďalšie informačné karty */}
@@ -893,100 +922,17 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeSection === 'documents' && (
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Všetky dokumenty v portáli</h2>
-                  <p className="text-sm text-gray-600 mt-1">Celkovo {allFiles.length} dokumentov</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setShowFileUploadModal(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
-                  >
-                    <DocumentTextIcon className="h-4 w-4 mr-2" />
-                    Nahrať súbor
-                  </button>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="text-sm text-blue-600 hover:text-blue-700 flex items-center"
-                    title="Obnoviť zoznam dokumentov"
-                  >
-                    <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Obnoviť
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              {loadingFiles ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">Načítavam dokumenty...</p>
-                </div>
-              ) : allFiles.length > 0 ? (
-                <div className="space-y-4">
-                  {allFiles.map((file) => (
-                    <div key={file.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4 flex-1">
-                          <div className="text-2xl">
-                            {getFileTypeIcon(file.file_type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
-                              {file.original_name}
-                            </h3>
-                            <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
-                              <span>Veľkosť: {formatFileSize(file.file_size)}</span>
-                              <span>Typ: {file.file_type}</span>
-                              {file.company_name && (
-                                <span>Firma: {file.company_name}</span>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm text-gray-500">
-                              <span>Nahral: {file.uploaded_by}</span>
-                              <span>Dátum: {new Date(file.created_at).toLocaleDateString('sk-SK')}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2 ml-4">
-                          <button
-                            onClick={() => handleDownloadFile(file.id, file.original_name)}
-                            className="text-blue-600 hover:text-blue-700 p-2 rounded-md hover:bg-blue-50"
-                            title="Stiahnuť súbor"
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteFile(file.id)}
-                            className="text-red-600 hover:text-red-700 p-2 rounded-md hover:bg-red-50"
-                            title="Vymazať súbor"
-                          >
-                            <TrashIcon className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne dokumenty</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Zatiaľ neboli nahrané žiadne dokumenty do portálu.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+        {activeSection === 'files' && (
+          <FileManager
+            files={allFiles}
+            onFileUpload={handleFileUpload}
+            onFileDelete={handleDeleteFile}
+            onFileDownload={handleFileDownload}
+            onFilePreview={handleFilePreview}
+            companyId={0} // Pre admina používame 0 ako placeholder
+            loading={loadingFiles}
+            userRole="admin"
+          />
         )}
 
 
@@ -1053,6 +999,18 @@ const AdminDashboard: React.FC = () => {
             onClose={() => setShowFileUploadModal(false)}
             companies={allCompanies}
             onFileUpload={handleFileUpload}
+          />
+        )}
+
+        {/* File Preview Modal */}
+        {previewFile && (
+          <FilePreviewModal
+            file={previewFile}
+            isOpen={showPreviewModal}
+            onClose={() => {
+              setShowPreviewModal(false);
+              setPreviewFile(null);
+            }}
           />
         )}
       </div>

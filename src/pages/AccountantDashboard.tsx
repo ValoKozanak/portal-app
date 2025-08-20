@@ -401,23 +401,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
 
       {/* Štatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <button 
-          onClick={() => setActiveSection('documents')}
-          className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 ${
-            activeSection === 'documents' ? 'ring-2 ring-blue-500' : ''
-          }`}
-        >
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <DocumentTextIcon className="h-8 w-8 text-blue-500" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Dokumenty</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.documents}</p>
-              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
-            </div>
-          </div>
-        </button>
+
 
         <button 
           onClick={() => setActiveSection('tasks')}
@@ -546,7 +530,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             }`}
           >
             <DocumentTextIcon className="h-5 w-5 mr-2" />
-            Nahrať dokument
+                         Nahrať súbor
           </button>
           <button 
             onClick={handleAddTask}
@@ -781,12 +765,12 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         </div>
       )}
 
-      {activeSection === 'documents' && (
+              {activeSection === 'files' && (
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Dokumenty zo všetkých priradených firiem</h2>
-              <p className="text-sm text-gray-600 mt-1">Celkovo {documents.length} dokumentov z {companies.length} firiem</p>
+              <h2 className="text-lg font-semibold text-gray-900">Súbory zo všetkých priradených firiem</h2>
+              <p className="text-sm text-gray-600 mt-1">Celkovo {documents.length} súborov z {companies.length} firiem</p>
             </div>
             <button
               onClick={handleUploadFile}
@@ -798,14 +782,14 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               }`}
             >
               <DocumentTextIcon className="h-5 w-5 mr-2" />
-              {loadingCompanies ? 'Načítavam...' : 'Nahrať dokument'}
+              {loadingCompanies ? 'Načítavam...' : 'Nahrať súbor'}
             </button>
           </div>
           <div className="p-6">
             {loadingDocuments ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam dokumenty...</p>
+                                  <p className="mt-4 text-gray-600">Načítavam súbory...</p>
               </div>
             ) : documents.length > 0 ? (
               <div className="space-y-4">
@@ -866,8 +850,8 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             ) : (
               <div className="text-center py-12">
                 <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne dokumenty</h3>
-                <p className="mt-1 text-sm text-gray-500">Zatiaľ nemáte žiadne nahrané dokumenty</p>
+                                  <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne súbory</h3>
+                  <p className="mt-1 text-sm text-gray-500">Zatiaľ nemáte žiadne nahrané súbory</p>
               </div>
             )}
           </div>
