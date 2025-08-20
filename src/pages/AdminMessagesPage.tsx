@@ -4,14 +4,14 @@ import {
   EnvelopeIcon,
   UserIcon,
   CalendarIcon,
-  CheckIcon,
   TrashIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/apiService';
 
-interface UserMessagesPageProps {
-  userEmail?: string;
+interface AdminMessagesPageProps {
   onBack: () => void;
 }
 
@@ -22,54 +22,99 @@ interface Message {
   sender_email: string;
   sender_name: string;
   recipient_email: string;
+  recipient_name: string;
   company_id: number;
   company_name: string;
-  is_read: boolean;
+  message_type: string;
+  read_at: string | null;
   created_at: string;
 }
 
-const UserMessagesPage: React.FC<UserMessagesPageProps> = ({ 
-  userEmail = 'user@portal.sk', 
-  onBack 
-}) => {
+const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [companyFilter, setCompanyFilter] = useState('all');
   const [senderFilter, setSenderFilter] = useState('all');
+  const [recipientFilter, setRecipientFilter] = useState('all');
+  const [readStatusFilter, setReadStatusFilter] = useState('all');
+  const [messageTypeFilter, setMessageTypeFilter] = useState('all');
 
-  // Načítanie neprečítaných správ používateľa
+  // Načítanie všetkých správ
   useEffect(() => {
-    const loadUnreadMessages = async () => {
+    const loadAllMessages = async () => {
       try {
         setLoadingMessages(true);
-        console.log('Načítavam neprečítané správy pre:', userEmail);
-        const unreadMessages = await apiService.getUnreadMessages(userEmail);
-        console.log('Načítané správy:', unreadMessages);
-        setMessages(unreadMessages);
+        console.log('Načítavam všetky správy...');
+        const allMessages = await apiService.getAllMessages();
+        console.log('Načítané správy:', allMessages);
+        setMessages(allMessages);
       } catch (error) {
-        console.error('Chyba pri načítaní neprečítaných správ:', error);
+        console.error('Chyba pri načítaní správ:', error);
       } finally {
         setLoadingMessages(false);
       }
     };
 
-    loadUnreadMessages();
-  }, [userEmail]);
+    loadAllMessages();
+  }, []);
 
-  // Označenie správy ako prečítaná
-  const handleMarkAsRead = async (messageId: number) => {
+  // Filtrovanie správ
+  const filteredMessages = messages.filter(message => {
+    const matchesSearch = message.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         message.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         message.sender_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         message.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCompany = companyFilter === 'all' || 
+                          (message.company_name && message.company_name === companyFilter);
+    
+    const matchesSender = senderFilter === 'all' || 
+                         message.sender_email === senderFilter;
+    
+    const matchesRecipient = recipientFilter === 'all' || 
+                            message.recipient_email === recipientFilter;
+    
+    const matchesReadStatus = readStatusFilter === 'all' || 
+                             (readStatusFilter === 'read' && message.read_at) ||
+                             (readStatusFilter === 'unread' && !message.read_at);
+    
+    const matchesMessageType = messageTypeFilter === 'all' || 
+                              message.message_type === messageTypeFilter;
+    
+    return matchesSearch && matchesCompany && matchesSender && matchesRecipient && matchesReadStatus && matchesMessageType;
+  });
+
+  // Získanie unikátnych hodnôt pre filter
+  const companies = Array.from(new Set(messages.map(msg => msg.company_name).filter(Boolean)));
+  const senders = Array.from(new Set(messages.map(msg => msg.sender_email)));
+  const recipients = Array.from(new Set(messages.map(msg => msg.recipient_email)));
+  const messageTypes = Array.from(new Set(messages.map(msg => msg.message_type)));
+
+  // Označenie správy ako prečítaná/neprečítaná
+  const handleToggleReadStatus = async (messageId: number, isRead: boolean) => {
     try {
-      await apiService.markMessageAsRead(messageId);
-      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      if (isRead) {
+        await apiService.markMessageAsUnread(messageId);
+      } else {
+        await apiService.markMessageAsRead(messageId);
+      }
+      
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, read_at: isRead ? null : new Date().toISOString() }
+          : msg
+      ));
     } catch (error) {
-      console.error('Chyba pri označení správy ako prečítaná:', error);
-      alert('Chyba pri označení správy ako prečítaná: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
+      console.error('Chyba pri zmenení stavu správy:', error);
+      alert('Chyba pri zmenení stavu správy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
     }
   };
 
   // Vymazanie správy
   const handleDeleteMessage = async (messageId: number) => {
+    if (!window.confirm('Naozaj chcete vymazať túto správu?')) return;
+    
     try {
       await apiService.deleteMessage(messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
@@ -78,36 +123,6 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
       alert('Chyba pri mazaní správy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
     }
   };
-
-  // Označenie všetkých filtrovaných správ ako prečítané
-  const handleMarkAllAsRead = async () => {
-    try {
-      await Promise.all(filteredMessages.map(msg => apiService.markMessageAsRead(msg.id)));
-      setMessages(prev => prev.filter(msg => !filteredMessages.find(fm => fm.id === msg.id)));
-    } catch (error) {
-      console.error('Chyba pri označení všetkých správ ako prečítané:', error);
-      alert('Chyba pri označení všetkých správ ako prečítané: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
-    }
-  };
-
-  // Filtrovanie správ
-  const filteredMessages = messages.filter(message => {
-    const matchesSearch = message.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         message.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         message.sender_name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCompany = companyFilter === 'all' || 
-                          (message.company_name && message.company_name === companyFilter);
-    
-    const matchesSender = senderFilter === 'all' || 
-                         message.sender_email === senderFilter;
-    
-    return matchesSearch && matchesCompany && matchesSender;
-  });
-
-  // Získanie unikátnych firiem a odosielateľov pre filter
-  const companies = Array.from(new Set(messages.map(msg => msg.company_name).filter(Boolean)));
-  const senders = Array.from(new Set(messages.map(msg => msg.sender_email)));
 
   // Formátovanie dátumu
   const formatDate = (dateString: string) => {
@@ -138,18 +153,9 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <EnvelopeIcon className="h-8 w-8 text-purple-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Neprečítané správy</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Správa všetkých správ</h1>
               </div>
             </div>
-            {filteredMessages.length > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center transition-colors"
-              >
-                <CheckIcon className="h-5 w-5 mr-2" />
-                Označiť všetky ako prečítané
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -160,9 +166,9 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Zoznam neprečítaných správ</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Zoznam všetkých správ</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {messages.length} neprečítaných správ
+                  Celkovo {messages.length} správ
                   {filteredMessages.length !== messages.length && (
                     <span className="ml-2 text-purple-600">
                       (Zobrazené: {filteredMessages.length})
@@ -173,7 +179,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
             </div>
             
             {/* Filtre */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {/* Vyhľadávanie */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -215,20 +221,64 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                   ))}
                 </select>
               </div>
-              
-              {/* Reset filtrov */}
+
+              {/* Filter podľa príjemcu */}
               <div>
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setCompanyFilter('all');
-                    setSenderFilter('all');
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                <select
+                  value={recipientFilter}
+                  onChange={(e) => setRecipientFilter(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                 >
-                  Resetovať filtre
-                </button>
+                  <option value="all">Všetci príjemcovia</option>
+                  {recipients.map(recipient => (
+                    <option key={recipient} value={recipient}>{recipient}</option>
+                  ))}
+                </select>
               </div>
+
+              {/* Filter podľa stavu prečítania */}
+              <div>
+                <select
+                  value={readStatusFilter}
+                  onChange={(e) => setReadStatusFilter(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                >
+                  <option value="all">Všetky správy</option>
+                  <option value="read">Prečítané</option>
+                  <option value="unread">Neprečítané</option>
+                </select>
+              </div>
+
+              {/* Filter podľa typu správy */}
+              <div>
+                <select
+                  value={messageTypeFilter}
+                  onChange={(e) => setMessageTypeFilter(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                >
+                  <option value="all">Všetky typy</option>
+                  {messageTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Reset filtrov */}
+            <div className="mt-4">
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setCompanyFilter('all');
+                  setSenderFilter('all');
+                  setRecipientFilter('all');
+                  setReadStatusFilter('all');
+                  setMessageTypeFilter('all');
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+              >
+                Resetovať filtre
+              </button>
             </div>
           </div>
           
@@ -246,15 +296,31 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                       <div className="flex-1">
                         <div className="flex items-center mb-2">
                           <h3 className="text-lg font-medium text-gray-900 mr-3">{message.subject}</h3>
-                          <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
-                            Neprečítané
-                          </span>
+                          {message.read_at ? (
+                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                              <EyeIcon className="h-3 w-3 mr-1" />
+                              Prečítané
+                            </span>
+                          ) : (
+                            <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                              <EyeSlashIcon className="h-3 w-3 mr-1" />
+                              Neprečítané
+                            </span>
+                          )}
+                          {message.message_type && (
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full ml-2">
+                              {message.message_type}
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-600 mb-3 line-clamp-3">{message.content}</p>
                         <div className="flex items-center text-sm text-gray-500 space-x-4">
                           <div className="flex items-center">
                             <UserIcon className="h-4 w-4 mr-1" />
-                            <span>Od: {message.sender_name} ({message.sender_email})</span>
+                            <span>Od: {message.sender_name || message.sender_email}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span>Pre: {message.recipient_name || message.recipient_email}</span>
                           </div>
                           <div className="flex items-center">
                             <CalendarIcon className="h-4 w-4 mr-1" />
@@ -274,11 +340,24 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                     <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                       <div className="flex space-x-2">
                         <button 
-                          onClick={() => handleMarkAsRead(message.id)}
-                          className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center"
+                          onClick={() => handleToggleReadStatus(message.id, !message.read_at)}
+                          className={`text-sm font-medium flex items-center ${
+                            message.read_at 
+                              ? 'text-orange-600 hover:text-orange-700' 
+                              : 'text-green-600 hover:text-green-700'
+                          }`}
                         >
-                          <CheckIcon className="h-4 w-4 mr-1" />
-                          Označiť ako prečítané
+                          {message.read_at ? (
+                            <>
+                              <EyeSlashIcon className="h-4 w-4 mr-1" />
+                              Označiť ako neprečítané
+                            </>
+                          ) : (
+                            <>
+                              <EyeIcon className="h-4 w-4 mr-1" />
+                              Označiť ako prečítané
+                            </>
+                          )}
                         </button>
                         <button 
                           onClick={() => handleDeleteMessage(message.id)}
@@ -296,12 +375,12 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
               <div className="text-center py-12">
                 <EnvelopeIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {messages.length > 0 ? 'Žiadne správy nevyhovujú filtrom' : 'Žiadne neprečítané správy'}
+                  {messages.length > 0 ? 'Žiadne správy nevyhovujú filtrom' : 'Žiadne správy'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {messages.length > 0 
                     ? 'Skúste zmeniť nastavenia filtrov alebo vyhľadávania.'
-                    : 'Všetky vaše správy sú prečítané. Nové správy sa zobrazia tu.'
+                    : 'V systéme nie sú žiadne správy.'
                   }
                 </p>
               </div>
@@ -313,4 +392,4 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
   );
 };
 
-export default UserMessagesPage;
+export default AdminMessagesPage;

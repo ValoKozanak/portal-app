@@ -25,6 +25,7 @@ export interface Company {
   email?: string; // Add email property for compatibility
   assignedToAccountants: string[];
   status: 'active' | 'inactive';
+  hasDropbox?: boolean; // Add hasDropbox property for Dropbox integration
   created_at: string;
   updated_at: string;
 }
@@ -176,6 +177,12 @@ class ApiService {
     return this.request<{ message: string }>(`/auth/users/${id}/password`, {
       method: 'PUT',
       body: JSON.stringify({ password }),
+    });
+  }
+
+  async deleteUser(id: number) {
+    return this.request<{ message: string }>(`/auth/users/${id}`, {
+      method: 'DELETE',
     });
   }
 

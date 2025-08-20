@@ -188,17 +188,44 @@ router.delete('/:id', (req, res) => {
   });
 });
 
-// Získanie počtu neprečítaných správ pre používateľa
+// Získanie neprečítaných správ pre používateľa a jeho firmy
+router.get('/user/:userEmail/unread', (req, res) => {
+  const { userEmail } = req.params;
+
+  const query = `
+    SELECT m.*, 
+           u1.name as sender_name,
+           u2.name as recipient_name,
+           c.name as company_name
+    FROM messages m
+    LEFT JOIN users u1 ON m.sender_email = u1.email
+    LEFT JOIN users u2 ON m.recipient_email = u2.email
+    LEFT JOIN companies c ON m.company_id = c.id
+    WHERE (m.recipient_email = ? OR c.owner_email = ?) AND m.read_at IS NULL
+    ORDER BY m.created_at DESC
+  `;
+
+  db.all(query, [userEmail, userEmail], (err, messages) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní neprečítaných správ' });
+    }
+
+    res.json(messages);
+  });
+});
+
+// Získanie počtu neprečítaných správ pre používateľa a jeho firmy
 router.get('/user/:userEmail/unread-count', (req, res) => {
   const { userEmail } = req.params;
 
   const query = `
     SELECT COUNT(*) as count
-    FROM messages 
-    WHERE recipient_email = ? AND read_at IS NULL
+    FROM messages m
+    LEFT JOIN companies c ON m.company_id = c.id
+    WHERE (m.recipient_email = ? OR c.owner_email = ?) AND m.read_at IS NULL
   `;
 
-  db.get(query, [userEmail], (err, result) => {
+  db.get(query, [userEmail, userEmail], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri získaní počtu neprečítaných správ' });
     }

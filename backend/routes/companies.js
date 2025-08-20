@@ -4,13 +4,32 @@ const emailService = require('../services/emailService');
 
 const router = express.Router();
 
+// Debug endpoint pre dropbox nastavenia
+router.get('/debug/dropbox', (req, res) => {
+  const query = `
+    SELECT c.id, c.name, c.ico, ds.company_id, ds.shared_link_url, ds.permissions
+    FROM companies c
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
+    ORDER BY c.name
+  `;
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
 // Získanie všetkých aktívnych firiem (pre admin)
 router.get('/', (req, res) => {
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     LEFT JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     WHERE c.status = 'active'
     GROUP BY c.id
     ORDER BY c.created_at DESC
@@ -26,7 +45,8 @@ router.get('/', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     }));
 
     res.json(processedCompanies);
@@ -40,9 +60,11 @@ router.get('/user/:userEmail', (req, res) => {
 
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     LEFT JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     WHERE c.owner_email = ? AND c.status = 'active'
     GROUP BY c.id
     ORDER BY c.created_at DESC
@@ -57,7 +79,8 @@ router.get('/user/:userEmail', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     }));
 
     res.json(processedCompanies);
@@ -70,9 +93,11 @@ router.get('/accountant/:accountantEmail', (req, res) => {
 
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     INNER JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     WHERE ca.accountant_email = ? AND c.status = 'active'
     GROUP BY c.id
     ORDER BY c.created_at DESC
@@ -87,7 +112,8 @@ router.get('/accountant/:accountantEmail', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     }));
 
     res.json(processedCompanies);
@@ -98,9 +124,11 @@ router.get('/accountant/:accountantEmail', (req, res) => {
 router.get('/admin/all', (req, res) => {
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     LEFT JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     GROUP BY c.id
     ORDER BY c.created_at DESC
   `;
@@ -115,7 +143,8 @@ router.get('/admin/all', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     }));
 
     res.json(processedCompanies);
@@ -126,9 +155,11 @@ router.get('/admin/all', (req, res) => {
 router.get('/inactive', (req, res) => {
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     LEFT JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     WHERE c.status = 'inactive'
     GROUP BY c.id
     ORDER BY c.created_at DESC
@@ -143,7 +174,8 @@ router.get('/inactive', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     }));
 
     res.json(processedCompanies);
@@ -156,9 +188,11 @@ router.get('/:id', (req, res) => {
 
   const query = `
     SELECT c.*, 
-           GROUP_CONCAT(ca.accountant_email) as assigned_accountants
+           GROUP_CONCAT(ca.accountant_email) as assigned_accountants,
+           CASE WHEN ds.company_id IS NOT NULL THEN 1 ELSE 0 END as hasDropbox
     FROM companies c
     LEFT JOIN company_accountants ca ON c.id = ca.company_id
+    LEFT JOIN dropbox_settings ds ON c.id = ds.company_id
     WHERE c.id = ?
     GROUP BY c.id
   `;
@@ -176,7 +210,8 @@ router.get('/:id', (req, res) => {
       ...company,
       assignedToAccountants: company.assigned_accountants 
         ? company.assigned_accountants.split(',') 
-        : []
+        : [],
+      hasDropbox: Boolean(company.hasDropbox)
     };
 
     res.json(processedCompany);

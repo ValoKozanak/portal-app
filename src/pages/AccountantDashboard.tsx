@@ -178,10 +178,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
 
 
-                 <button 
+        <button 
            onClick={() => setShowTasksPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <ClipboardDocumentListIcon className="h-8 w-8 text-green-500" />
@@ -195,10 +195,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           </div>
         </button>
 
-                 <button 
+        <button 
            onClick={() => setShowTasksPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CheckCircleIcon className="h-8 w-8 text-green-500" />
@@ -211,10 +211,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           </div>
         </button>
 
-                 <button 
+        <button 
            onClick={() => setShowFilesPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <FolderIcon className="h-8 w-8 text-orange-500" />
@@ -227,10 +227,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           </div>
         </button>
 
-                 <button 
+        <button 
            onClick={() => setShowCompaniesPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <BuildingOfficeIcon className="h-8 w-8 text-purple-500" />
@@ -243,10 +243,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           </div>
         </button>
 
-                 <button 
+        <button 
            onClick={() => setShowCalendarPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CalendarIcon className="h-8 w-8 text-orange-500" />
@@ -275,10 +275,10 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
           </div>
         </button>
 
-                 <button 
+        <button 
            onClick={() => setShowMessagesPage(true)}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-         >
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <EnvelopeIcon className="h-8 w-8 text-indigo-500" />
