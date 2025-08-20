@@ -6,16 +6,17 @@ import {
   ChartBarIcon,
   PlusIcon,
   EyeIcon,
-
   ClipboardDocumentListIcon,
   CreditCardIcon,
   EnvelopeIcon,
   FolderIcon,
-  CalendarIcon
+  CalendarIcon,
+  CloudIcon
 } from '@heroicons/react/24/outline';
 import FileManager from './FileManager';
 import TaskModal, { Task, Employee } from './TaskModal';
 import MessagesList from './MessagesList';
+import DropboxIntegration from './DropboxIntegration';
 
 import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
@@ -787,6 +788,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               { id: 'tasks', name: 'Úlohy', icon: ClipboardDocumentListIcon },
               { id: 'invoices', name: 'Faktúry', icon: CurrencyDollarIcon },
               { id: 'files', name: 'Súbory', icon: FolderIcon },
+              { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
               { id: 'accountants', name: 'Účtovníci', icon: UserIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon },
             ].map((tab) => {
@@ -838,6 +840,39 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                   onEmptyTrash={handleEmptyTrash}
                 />
               )}
+            </div>
+          )}
+          {activeTab === 'dropbox' && (
+            <div className="bg-white rounded-lg shadow-md">
+              {(() => {
+                console.log('=== COMPANY DASHBOARD - DROPBOX TAB ===');
+                console.log('CompanyDashboard: Rendering dropbox tab');
+                console.log('CompanyDashboard: activeTab:', activeTab);
+                console.log('CompanyDashboard: company.id:', company.id);
+                console.log('CompanyDashboard: userEmail:', userEmail);
+                console.log('CompanyDashboard: company.owner_email:', company.owner_email);
+                console.log('CompanyDashboard: userRole:', userRole);
+                console.log('CompanyDashboard: company.name:', company.name);
+                return null;
+              })()}
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Dropbox súbory</h2>
+                <p className="text-sm text-gray-600 mt-1">Vaše zdieľané súbory v Dropboxe</p>
+              </div>
+              <div className="p-6">
+                <DropboxIntegration
+                  companyId={company.id}
+                  userEmail={userEmail}
+                  companyEmail={company.owner_email}
+                  isCompanyView={true}
+                  userRole={userRole}
+                  companyName={company.name}
+                  onFileSelect={(file) => {
+                    console.log('Selected Dropbox file:', file);
+                    // Tu môžeme implementovať logiku pre import súboru z Dropbox
+                  }}
+                />
+              </div>
             </div>
           )}
           {activeTab === 'accountants' && renderAccountants()}

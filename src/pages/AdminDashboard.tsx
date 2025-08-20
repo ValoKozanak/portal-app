@@ -15,23 +15,28 @@ import {
   ExclamationTriangleIcon,
   XMarkIcon,
   UserIcon,
-  CalendarIcon
+  CalendarIcon,
+  CloudIcon
 } from '@heroicons/react/24/outline';
 import AddUserModal from '../components/AddUserModal';
 import AdminCompaniesList from '../components/AdminCompaniesList';
-import CompanyDashboard from '../components/CompanyDashboard';
 import AssignCompanyModal from '../components/AssignCompanyModal';
 import EditUserModal from '../components/EditUserModal';
 import EditCompanyModal from '../components/EditCompanyModal';
 import FileUploadModal from '../components/FileUploadModal';
 import FileManager from '../components/FileManager';
 import FilePreviewModal from '../components/FilePreviewModal';
+import DropboxIntegration from '../components/DropboxIntegration';
+import DropboxAdminPanel from '../components/DropboxAdminPanel';
 import { taskService } from '../services/taskService';
 import { Task } from '../components/TaskModal';
 import { apiService, Company, FileData } from '../services/apiService';
 
+// Lazy loading pre CompanyDashboard aby sme predišli cirkulárnej závislosti
+const CompanyDashboard = React.lazy(() => import('../components/CompanyDashboard'));
+
 const AdminDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<'overview' | 'users' | 'companies' | 'tasks' | 'files' | 'settings'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'users' | 'companies' | 'tasks' | 'files' | 'dropbox' | 'settings'>('overview');
   const [stats, setStats] = useState({
     users: 0,
     files: 0,
@@ -587,9 +592,9 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </button>
 
-                            <button
+              <button
                 onClick={() => setActiveSection('files')}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left w-full"
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
               >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -599,6 +604,22 @@ const AdminDashboard: React.FC = () => {
                     <p className="text-sm font-medium text-gray-600">Súbory</p>
                     <p className="text-2xl font-bold text-gray-900">{stats.files}</p>
                     <p className="text-xs text-gray-500 mt-1">Celkovo v systéme</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setActiveSection('dropbox')}
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+              >
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <CloudIcon className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Dropbox</p>
+                    <p className="text-2xl font-bold text-gray-900">∞</p>
+                    <p className="text-xs text-gray-500 mt-1">Cloud úložisko</p>
                   </div>
                 </div>
               </button>
@@ -935,6 +956,21 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
+        {activeSection === 'dropbox' && (
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Dropbox správa</h2>
+              <p className="text-sm text-gray-600 mt-1">Správa Dropbox integrácie a zdieľaní pre firmy</p>
+            </div>
+            <div className="p-6">
+              <DropboxAdminPanel 
+                companies={allCompanies}
+                userEmail={userEmail}
+              />
+            </div>
+          </div>
+        )}
+
 
 
         {activeSection === 'settings' && (
@@ -984,12 +1020,21 @@ const AdminDashboard: React.FC = () => {
         />
 
         {selectedCompanyForDashboard && (
-          <CompanyDashboard
-            company={selectedCompanyForDashboard}
-            onClose={() => setSelectedCompanyForDashboard(null)}
-            userEmail={userEmail}
-            userRole="admin"
-          />
+          <React.Suspense fallback={
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Načítavam dashboard firmy...</p>
+              </div>
+            </div>
+          }>
+            <CompanyDashboard
+              company={selectedCompanyForDashboard}
+              onClose={() => setSelectedCompanyForDashboard(null)}
+              userEmail={userEmail}
+              userRole="admin"
+            />
+          </React.Suspense>
         )}
 
         {/* File Upload Modal */}

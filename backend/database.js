@@ -186,6 +186,26 @@ const initDatabase = () => {
         )
       `);
 
+      // Tabuľka Dropbox nastavení pre firmy
+      db.run(`
+        CREATE TABLE IF NOT EXISTS dropbox_settings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          company_email TEXT NOT NULL,
+          folder_path TEXT NOT NULL,
+          share_link TEXT,
+          is_shared BOOLEAN DEFAULT 0,
+          can_view BOOLEAN DEFAULT 1,
+          can_edit BOOLEAN DEFAULT 0,
+          can_upload BOOLEAN DEFAULT 1,
+          can_delete BOOLEAN DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id)
+        )
+      `);
+
       // Vloženie predvolených používateľov
       db.run(`
         INSERT OR IGNORE INTO users (email, password, name, role, status)

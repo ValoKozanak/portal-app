@@ -17,8 +17,9 @@ const Clients = React.lazy(() => import('./pages/Clients'));
 const FAQ = React.lazy(() => import('./pages/FAQ'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const AdminDashboardContainer = React.lazy(() => import('./components/AdminDashboard/AdminDashboardContainer'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AccountantDashboard = React.lazy(() => import('./pages/AccountantDashboard'));
+const DropboxCallback = React.lazy(() => import('./pages/DropboxCallback'));
 
 // Loading komponent pre Suspense
 const PageLoader = () => (
@@ -34,7 +35,8 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
 
   useEffect(() => {
     // Ak je používateľ prihlásený a nie je na dashboard stránke, presmeruj ho
-    if (isLoggedIn && location.pathname !== '/dashboard') {
+    // Ale nepresmerovávaj, ak je na dropbox-callback stránke
+    if (isLoggedIn && location.pathname !== '/dashboard' && location.pathname !== '/dropbox-callback') {
       navigate('/dashboard');
     }
   }, [isLoggedIn, userRole, navigate, location.pathname]);
@@ -129,7 +131,7 @@ function App() {
 
     switch (userRole) {
       case 'admin':
-        return <AdminDashboardContainer />;
+        return <AdminDashboard />;
       case 'accountant':
         return <AccountantDashboard userEmail={userEmail} />;
       default:
@@ -164,6 +166,12 @@ function App() {
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={dashboardElement} />
+                <Route path="/dropbox-callback" element={
+                  (() => {
+                    console.log('=== DropboxCallback route sa spracováva ===');
+                    return <DropboxCallback />;
+                  })()
+                } />
               </Routes>
             </Suspense>
           </main>
