@@ -13,7 +13,8 @@ import {
   FolderIcon,
   EnvelopeIcon,
   CalendarIcon,
-  CloudIcon
+  CloudIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import { Company, apiService } from '../services/apiService';
 import AccountantDropboxPage from './AccountantDropboxPage';
