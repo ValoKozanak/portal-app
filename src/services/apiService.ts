@@ -388,6 +388,10 @@ class ApiService {
     return this.request<any[]>(`/messages/user/${encodeURIComponent(userEmail)}`);
   }
 
+  async getUnreadMessages(userEmail: string) {
+    return this.request<any[]>(`/messages/user/${encodeURIComponent(userEmail)}/unread`);
+  }
+
   async getCompanyMessages(companyId: number) {
     return this.request<any[]>(`/messages/company/${companyId}`);
   }
