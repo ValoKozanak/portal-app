@@ -344,6 +344,18 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               <p><span className="font-medium">Vlastník:</span> {company.owner_email}</p>
               <p><span className="font-medium">Vytvorená:</span> {new Date(company.created_at).toLocaleDateString('sk-SK')}</p>
               <p><span className="font-medium">Priradení účtovníci:</span> {company.assignedToAccountants.length}</p>
+              {company.assignedToAccountants.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500">
+                    {company.assignedToAccountants.join(', ')}
+                  </p>
+                </div>
+              )}
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <p className="text-xs text-blue-600">
+                  💡 <strong>Many-to-Many vzťah:</strong> Účtovník môže mať viacero firiem a firma môže mať viacero účtovníkov
+                </p>
+              </div>
             </div>
           </div>
 

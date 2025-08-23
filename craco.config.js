@@ -9,8 +9,7 @@ module.exports = {
           "util": require.resolve("util/"),
           "buffer": require.resolve("buffer/"),
           "process": require.resolve("process/browser"),
-          "stream": require.resolve("stream-browserify"),
-          "vm": require.resolve("vm-browserify")
+          "stream": require.resolve("stream-browserify")
         }
       }
     },
@@ -22,5 +21,8 @@ module.exports = {
         }),
       ]
     }
+  },
+  devServer: {
+    allowedHosts: 'all'
   }
 };

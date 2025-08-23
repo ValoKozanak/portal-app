@@ -8,7 +8,9 @@ import {
   PlusIcon,
   ArrowRightIcon,
   ClipboardDocumentListIcon,
-  CalendarIcon
+  CalendarIcon,
+  UserGroupIcon,
+  DocumentIcon
 } from '@heroicons/react/24/outline';
 import EditProfileModal from '../components/EditProfileModal';
 import CompanyModal from '../components/CompanyModal';
@@ -16,7 +18,17 @@ import CompanyDashboard from '../components/CompanyDashboard';
 import { Task } from '../components/TaskModal';
 import UserTasksPage from './UserTasksPage';
 import UserMessagesPage from './UserMessagesPage';
+import UserEmployeesPage from './UserEmployeesPage';
 import { apiService, Company } from '../services/apiService';
+import { hrService } from '../services/hrService';
+
+// Helper funkcia pre lokálne formátovanie dátumu
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 interface DashboardProps {
   userEmail?: string;
@@ -43,6 +55,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [showTasksPage, setShowTasksPage] = useState(false);
   const [showMessagesPage, setShowMessagesPage] = useState(false);
+  const [showEmployeesPage, setShowEmployeesPage] = useState(false);
+  const [employeesCount, setEmployeesCount] = useState({ working: 0, notWorking: 0, total: 0 });
 
   // Načítanie počtu neprečítaných správ
   const loadUnreadMessagesCount = useCallback(async () => {
@@ -54,9 +68,78 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     }
   }, [userEmail]);
 
+  // Načítanie počtu zamestnancov
+  const loadEmployeesCount = useCallback(async () => {
+    try {
+      const userCompanies = await apiService.getUserCompanies(userEmail);
+      let totalWorking = 0;
+      let totalNotWorking = 0;
+      let totalEmployees = 0;
+
+      for (const company of userCompanies) {
+        try {
+          const employees = await hrService.getEmployees(company.id);
+          totalEmployees += employees.length;
+          
+          // Načítanie dochádzky a dovoleniek pre každého zamestnanca
+          const today = formatDate(new Date());
+          
+          for (const employee of employees) {
+            try {
+              const [attendance, leaveRequests] = await Promise.all([
+                hrService.getAttendance(company.id, employee.id),
+                hrService.getLeaveRequests(company.id)
+              ]);
+              
+              const employeeAttendance = attendance.filter(att => att.employee_id === employee.id);
+              const employeeLeaveRequests = leaveRequests.filter(leave => leave.employee_id === employee.id);
+              
+              // Používame rovnakú logiku ako v UserEmployeesPage
+              // Najprv kontrolujeme status zamestnania z databázy
+              if (employee.status === 'terminated' || employee.status === 'inactive') {
+                totalNotWorking++;
+              } else if (employee.status === 'on_leave') {
+                totalNotWorking++;
+              } else {
+                // Kontrola dochádzky na dnešný deň
+                const todayAttendance = employeeAttendance.find(att => att.date === today);
+                
+                if (todayAttendance && todayAttendance.status === 'present') {
+                  totalWorking++;
+                } else {
+                  // Kontrola dovoleniek
+                  const activeLeave = employeeLeaveRequests.find(leave => 
+                    leave.status === 'approved' && 
+                    leave.start_date <= today && 
+                    leave.end_date >= today
+                  );
+                  
+                  if (!activeLeave) {
+                    totalNotWorking++;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(`Chyba pri načítaní detailov pre zamestnanca ${employee.id}:`, error);
+              // Ak sa nepodarí načítať údaje, považujeme za neprítomného
+              totalNotWorking++;
+            }
+          }
+        } catch (error) {
+          console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+        }
+      }
+
+      setEmployeesCount({ working: totalWorking, notWorking: totalNotWorking, total: totalEmployees });
+    } catch (error) {
+      console.error('Chyba pri načítaní počtu zamestnancov:', error);
+    }
+  }, [userEmail]);
+
   useEffect(() => {
     loadUnreadMessagesCount();
-  }, [loadUnreadMessagesCount]);
+    loadEmployeesCount();
+  }, [loadUnreadMessagesCount, loadEmployeesCount]);
 
   // Načítanie úloh používateľa
   useEffect(() => {
@@ -207,19 +290,31 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
+  // Ak je zobrazená stránka zamestnancov, zobrazíme ju
+  if (showEmployeesPage) {
+    return (
+      <UserEmployeesPage
+        userEmail={userEmail}
+        onBack={() => setShowEmployeesPage(false)}
+      />
+    );
+  }
+
+
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Váš Dashboard</h1>
-          <p className="text-gray-600">Vyberte si firmu pre prácu</p>
-          <p className="text-sm text-gray-500 mt-1">Prihlásený ako: {userProfile.name} ({userEmail})</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Váš Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300">Vyberte si firmu pre prácu</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Prihlásený ako: {userProfile.name} ({userEmail})</p>
         </div>
         <div className="mt-4 sm:mt-0 flex items-center space-x-4">
           <button
             onClick={() => setShowEditProfileModal(true)}
-            className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+            className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
           >
             Upraviť profil
           </button>
@@ -227,7 +322,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -239,6 +334,28 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                 </div>
                 </div>
               </div>
+
+        <div 
+          className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => setShowEmployeesPage(true)}
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <UserGroupIcon className="h-8 w-8 text-green-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Zamestnanci</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-2xl font-bold text-green-600">{employeesCount.working}</p>
+                <span className="text-sm text-gray-500">/</span>
+                <p className="text-2xl font-bold text-red-600">{employeesCount.notWorking}</p>
+              </div>
+              <p className="text-sm text-gray-500">{employeesCount.total} celkovo</p>
+            </div>
+          </div>
+        </div>
+
+        
 
         <div 
           className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"

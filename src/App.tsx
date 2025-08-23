@@ -6,6 +6,7 @@ import LoginModal from './components/LoginModal';
 import CompleteProfileModal from './components/CompleteProfileModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { useDarkMode } from './hooks/useDarkMode';
 import { apiService } from './services/apiService';
 
 // Code splitting pre pages - lazy loading
@@ -19,6 +20,7 @@ const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AccountantDashboard = React.lazy(() => import('./pages/AccountantDashboard'));
+const EmployeeDashboard = React.lazy(() => import('./pages/EmployeeDashboard'));
 const DropboxCallback = React.lazy(() => import('./pages/DropboxCallback'));
 
 // Loading komponent pre Suspense
@@ -29,7 +31,7 @@ const PageLoader = () => (
 );
 
 // Komponent pre automatické presmerovanie
-const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean; userRole: 'admin' | 'accountant' | 'user' | null }) => {
+const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean; userRole: 'admin' | 'accountant' | 'user' | 'employee' | null }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,11 +49,14 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
 function App() {
   // Používame localStorage hook pre perzistentné dáta
   const [isLoggedIn, setIsLoggedIn] = useLocalStorage('isLoggedIn', false);
-  const [userRole, setUserRole] = useLocalStorage<'admin' | 'accountant' | 'user' | null>('userRole', null);
+  const [userRole, setUserRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [userEmail, setUserEmail] = useLocalStorage('userEmail', '');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
   const [pendingAccountantEmail, setPendingAccountantEmail] = useState('');
+
+  // Inicializácia dark mode
+  useDarkMode();
 
   // Inicializácia tokenu z localStorage
   useEffect(() => {
@@ -64,7 +69,7 @@ function App() {
   // Performance monitoring a Service Worker sú automaticky inicializované
   // ale momentálne ich nepoužívame v UI
 
-  const handleLogin = useCallback((role: 'admin' | 'accountant' | 'user', email: string) => {
+  const handleLogin = useCallback((role: 'admin' | 'accountant' | 'user' | 'employee', email: string) => {
     setIsLoggedIn(true);
     setUserRole(role);
     setUserEmail(email);
@@ -116,12 +121,12 @@ function App() {
     if (!isLoggedIn) {
       return (
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Pre prístup k dashboardu sa prihláste
           </h2>
           <button
             onClick={() => setShowLoginModal(true)}
-            className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
+            className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
           >
             Prihlásiť sa
           </button>
@@ -134,6 +139,8 @@ function App() {
         return <AdminDashboard />;
       case 'accountant':
         return <AccountantDashboard userEmail={userEmail} />;
+      case 'employee':
+        return <EmployeeDashboard userEmail={userEmail} userRole={userRole} />;
       default:
         return <Dashboard userEmail={userEmail} />;
     }
@@ -148,7 +155,7 @@ function App() {
     <ErrorBoundary>
       <Router>
         <AutoRedirect isLoggedIn={isLoggedIn} userRole={userRole} />
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
           <Navbar 
             isLoggedIn={isLoggedIn} 
             userRole={userRole} 

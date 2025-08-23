@@ -8,6 +8,29 @@ const emailService = require('../services/emailService');
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// Middleware pre autentifikáciu
+const authenticateToken = (req, res, next) => {
+  console.log('🔒 authenticateToken middleware spustený pre:', req.path);
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  console.log('🔑 Token:', token ? 'existuje' : 'neexistuje');
+
+  if (!token) {
+    console.log('❌ Žiadny token, vraciam 401');
+    return res.status(401).json({ error: 'Prístupový token je požadovaný' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      console.log('❌ Neplatný token, vraciam 403');
+      return res.status(403).json({ error: 'Neplatný token' });
+    }
+    console.log('✅ Token platný, pokračujem');
+    req.user = user;
+    next();
+  });
+};
+
 // Login
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -128,20 +151,26 @@ router.post('/create-user', (req, res) => {
   });
 });
 
-// Získanie všetkých používateľov
-router.get('/users', (req, res) => {
-  db.all('SELECT id, email, name, role, status, phone, created_at FROM users ORDER BY created_at DESC', (err, users) => {
+
+
+// Získanie všetkých účtovníkov
+router.get('/users/accountants', authenticateToken, (req, res) => {
+  console.log('📋 /users/accountants endpoint spustený');
+  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE role = "accountant" AND status = "active" ORDER BY name', [], (err, accountants) => {
     if (err) {
-      return res.status(500).json({ error: 'Chyba pri načítaní používateľov' });
+      console.log('❌ Chyba pri načítaní účtovníkov:', err);
+      return res.status(500).json({ error: 'Chyba pri načítaní účtovníkov' });
     }
 
-    res.json(users);
+    console.log('✅ Účtovníci nájdení:', accountants.length);
+    res.json(accountants);
   });
 });
 
 // Získanie používateľa podľa ID
 router.get('/users/:id', (req, res) => {
   const { id } = req.params;
+  console.log('🆔 /users/:id endpoint spustený s ID:', id);
   
   db.get('SELECT id, email, name, role, status, phone, created_at FROM users WHERE id = ?', [id], (err, user) => {
     if (err) {
@@ -356,7 +385,7 @@ router.post('/reset-password', (req, res) => {
 });
 
 // Získanie všetkých používateľov
-router.get('/users', (req, res) => {
+router.get('/users', authenticateToken, (req, res) => {
   db.all('SELECT id, email, name, role, status, created_at FROM users WHERE status = "active" ORDER BY name', [], (err, users) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri načítaní používateľov' });
@@ -367,5 +396,35 @@ router.get('/users', (req, res) => {
 });
 
 
+
+// Mazanie používateľa
+router.delete('/users/:id', (req, res) => {
+  const userId = req.params.id;
+
+  // Kontrola, či používateľ existuje
+  db.get('SELECT id, role FROM users WHERE id = ?', [userId], (err, user) => {
+    if (err) {
+      return res.status(500).json({ error: 'Databázová chyba' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'Používateľ nebol nájdený' });
+    }
+
+    // Zabrániť mazaniu admina
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'Nie je možné vymazať admina' });
+    }
+
+    // Mazanie používateľa
+    db.run('DELETE FROM users WHERE id = ?', [userId], function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Chyba pri mazaní používateľa' });
+      }
+
+      res.json({ message: 'Používateľ bol úspešne vymazaný' });
+    });
+  });
+});
 
 module.exports = router;

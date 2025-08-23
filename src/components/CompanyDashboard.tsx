@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DocumentTextIcon,
   CurrencyDollarIcon,
@@ -11,12 +11,16 @@ import {
   EnvelopeIcon,
   FolderIcon,
   CalendarIcon,
-  CloudIcon
+  CloudIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 import FileManager from './FileManager';
 import TaskModal, { Task, Employee } from './TaskModal';
 import MessagesList from './MessagesList';
+import MessageModal from './MessageModal';
 import DropboxIntegration from './DropboxIntegration';
+import HRDashboard from './HRDashboard';
+import PayrollPeriodsModal from './PayrollPeriodsModal';
 
 import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
@@ -34,14 +38,9 @@ interface CompanyDashboardProps {
 const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, userEmail, userRole = 'company' }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Simulované dáta pre stare dokumenty (historické - už sa nepoužívajú)
-  const oldDocuments = [
-    { id: 1, name: 'Výročná správa 2024', type: 'report', status: 'pending', date: '15.12.2024', priority: 'high' },
-    { id: 2, name: 'DPH priznanie Q4', type: 'tax', status: 'completed', date: '10.12.2024', priority: 'high' },
-    { id: 3, name: 'Zmluva s dodávateľom', type: 'contract', status: 'in_progress', date: '08.12.2024', priority: 'medium' },
-    { id: 4, name: 'Faktúra č. 2024/001', type: 'invoice', status: 'pending', date: '05.12.2024', priority: 'low' },
-    { id: 5, name: 'Účtovné doklady', type: 'accounting', status: 'completed', date: '01.12.2024', priority: 'medium' },
-  ];
+
+
+
 
   // Simulované zamestnanci firmy
   const [companyEmployees] = useState<Employee[]>([
@@ -62,6 +61,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
   // Načítavame skutočné správy cez MessagesList komponent
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [unreadCounts, setUnreadCounts] = useState({
+    receivedUnreadCount: 0,
+    sentUnreadCount: 0,
+    totalUnreadCount: 0
+  });
 
   // Súbory pre firmu - načítané z fileService
   const [files, setFiles] = useState<FileData[]>([]);
@@ -77,14 +81,38 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Funkcia na načítanie počtu neprečítaných správ
-  const loadUnreadMessagesCount = async () => {
+  // State pre MessageModal
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedAccountant, setSelectedAccountant] = useState<string>('');
+
+  // State pre PayrollPeriodsModal
+  const [showPayrollPeriodsModal, setShowPayrollPeriodsModal] = useState(false);
+
+  // Funkcia na načítanie počtu neprečítaných správ pre konkrétnu firmu
+  const loadUnreadMessagesCount = useCallback(async () => {
     try {
-      const unreadCount = await apiService.getUnreadCount(userEmail);
+      const unreadCount = await apiService.getCompanyUnreadCount(company.id);
       setUnreadMessagesCount(unreadCount);
     } catch (error) {
-      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+      console.error('Chyba pri načítaní počtu neprečítaných správ pre firmu:', error);
     }
+  }, [company.id]);
+
+  // Funkcia na načítanie rozlíšených počtov neprečítaných správ pre konkrétnu firmu
+  const loadUnreadCounts = useCallback(async () => {
+    try {
+      const counts = await apiService.getCompanyUnreadCounts(company.id);
+      setUnreadCounts(counts);
+      setUnreadMessagesCount(counts.totalUnreadCount);
+    } catch (error) {
+      console.error('Chyba pri načítaní rozlíšených počtov správ pre firmu:', error);
+    }
+  }, [company.id]);
+
+  // Funkcia na otvorenie modalu pre kontaktovanie účtovníka
+  const handleContactAccountant = (accountantEmail: string) => {
+    setSelectedAccountant(accountantEmail);
+    setShowMessageModal(true);
   };
 
 
@@ -291,7 +319,6 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     totalInvoices: invoices.length,
     unpaidInvoices: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').length,
     totalAmount: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').reduce((sum, i) => sum + i.amount, 0),
-    unreadMessages: unreadMessagesCount,
     totalFileSize: files.reduce((sum, f) => sum + f.file_size, 0),
   };
 
@@ -331,8 +358,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         console.log('CompanyDashboard: Konvertované úlohy:', convertedTasks);
         setTasks(convertedTasks);
 
-        // Načítanie počtu neprečítaných správ
-        await loadUnreadMessagesCount();
+        // Načítanie rozlíšených počtov neprečítaných správ
+        await loadUnreadCounts();
 
       } catch (error) {
         console.error('Chyba pri načítaní dát:', error);
@@ -344,7 +371,16 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     };
 
     loadData();
-  }, [company.id, userEmail]);
+  }, [company.id, loadUnreadMessagesCount, loadUnreadCounts]);
+
+  // Automatické aktualizácie počtu správ každých 30 sekúnd
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadUnreadCounts();
+    }, 30000); // 30 sekúnd
+
+    return () => clearInterval(interval);
+  }, [loadUnreadCounts]);
 
   const renderOverview = () => (
     <div className="space-y-6">
@@ -380,15 +416,15 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           </div>
         </button>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CurrencyDollarIcon className="h-8 w-8 text-yellow-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Faktúry</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.unpaidInvoices}</p>
-              <p className="text-sm text-gray-500">{stats.totalAmount} € celkovo</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Faktúry</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unpaidInvoices}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.totalAmount} € celkovo</p>
             </div>
           </div>
         </div>
@@ -403,29 +439,36 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Správy</p>
-              <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
-              <p className="text-sm text-gray-500">{stats.unreadMessages} neprečítaných</p>
+              <p className="text-2xl font-bold text-gray-900">{unreadCounts.totalUnreadCount}</p>
+              <div className="text-sm text-gray-500">
+                <div>Prijaté: {unreadCounts.receivedUnreadCount}</div>
+                <div>Odoslané: {unreadCounts.sentUnreadCount}</div>
+              </div>
               <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
         </button>
+
+
+
+
       </div>
 
       {/* Rýchle akcie */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <button 
-          onClick={() => setActiveTab('documents')}
+          onClick={() => setActiveTab('hr')}
           className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
         >
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <DocumentTextIcon className="h-8 w-8 text-blue-500" />
+              <UsersIcon className="h-8 w-8 text-orange-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Súbory</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalFiles}</p>
-              <p className="text-sm text-gray-500">Organizované v kategóriách</p>
-              <p className="text-xs text-blue-600 mt-1">Kliknite pre zobrazenie</p>
+              <p className="text-sm font-medium text-gray-600">HR, Personalistika a mzdy</p>
+              <p className="text-2xl font-bold text-gray-900">👥</p>
+              <p className="text-sm text-gray-500">Správa ľudských zdrojov</p>
+              <p className="text-xs text-orange-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
         </button>
@@ -460,6 +503,23 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <p className="text-2xl font-bold text-gray-900">{stats.totalFiles}</p>
               <p className="text-sm text-gray-500">{formatFileSize(stats.totalFileSize)} celkovo</p>
               <p className="text-xs text-indigo-600 mt-1">Kliknite pre zobrazenie</p>
+            </div>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setShowPayrollPeriodsModal(true)}
+          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <CalendarIcon className="h-8 w-8 text-purple-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Účtovné obdobie</p>
+              <p className="text-2xl font-bold text-gray-900">📅</p>
+              <p className="text-sm text-gray-500">Mzdové obdobia</p>
+              <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
         </button>
@@ -702,7 +762,10 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                         {accountant.lastLogin}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-primary-600 hover:text-primary-900">
+                        <button 
+                          onClick={() => handleContactAccountant(accountant.email)}
+                          className="text-primary-600 hover:text-primary-900"
+                        >
                           Kontaktovať
                         </button>
                       </td>
@@ -731,9 +794,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       userRole={userRole === 'company' ? 'user' : userRole}
       companyId={company.id}
       isAdmin={userRole === 'admin'}
-      onMessageAction={loadUnreadMessagesCount}
+      onMessageAction={loadUnreadCounts}
     />
   );
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -787,6 +852,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               { id: 'invoices', name: 'Faktúry', icon: CurrencyDollarIcon },
               { id: 'files', name: 'Súbory', icon: FolderIcon },
               { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
+              { id: 'hr', name: 'HR', icon: UsersIcon },
               { id: 'accountants', name: 'Účtovníci', icon: UserIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon },
             ].map((tab) => {
@@ -873,6 +939,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               </div>
             </div>
           )}
+          {activeTab === 'hr' && (
+            <HRDashboard companyId={company.id} />
+          )}
           {activeTab === 'accountants' && renderAccountants()}
           {activeTab === 'messages' && renderMessages()}
         </div>
@@ -891,6 +960,34 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           isAccountant={userRole === 'accountant'}
           userEmail={userEmail}
         />
+
+        {/* Message Modal */}
+        <MessageModal
+          isOpen={showMessageModal}
+          onClose={() => {
+            setShowMessageModal(false);
+            setSelectedAccountant('');
+          }}
+          onSend={() => {
+            setShowMessageModal(false);
+            setSelectedAccountant('');
+            loadUnreadCounts();
+          }}
+          senderEmail={userEmail}
+          userRole={userRole === 'company' ? 'user' : userRole}
+          companyId={company.id}
+          initialRecipient={selectedAccountant}
+        />
+
+        {/* Payroll Periods Modal */}
+        <PayrollPeriodsModal
+          isOpen={showPayrollPeriodsModal}
+          onClose={() => setShowPayrollPeriodsModal(false)}
+          companyId={company.id}
+          userEmail={userEmail}
+          userRole={userRole}
+        />
+
       </div>
     </div>
   );

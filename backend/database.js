@@ -16,7 +16,7 @@ const initDatabase = () => {
           email TEXT UNIQUE NOT NULL,
           password TEXT NOT NULL,
           name TEXT NOT NULL,
-          role TEXT NOT NULL CHECK(role IN ('admin', 'accountant', 'user')),
+          role TEXT NOT NULL CHECK(role IN ('admin', 'accountant', 'user', 'employee')),
           status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive')),
           phone TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -149,6 +149,84 @@ const initDatabase = () => {
         }
       });
 
+      // Pridanie termination_date stĺpca do employees tabuľky ak neexistuje
+      db.run(`
+        ALTER TABLE employees ADD COLUMN termination_date DATE
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri pridávaní termination_date stĺpca:', err);
+        }
+      });
+
+      // Pridanie termination_reason stĺpca do employees tabuľky ak neexistuje
+      db.run(`
+        ALTER TABLE employees ADD COLUMN termination_reason TEXT
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
+        }
+      });
+
+      // Pridanie personálnych údajov stĺpcov
+      const personalColumns = [
+        'birth_name TEXT',
+        'title_before TEXT',
+        'title_after TEXT',
+        'gender TEXT CHECK(gender IN ("muž", "žena"))',
+        'birth_date DATE',
+        'birth_number TEXT',
+        'birth_place TEXT',
+        'nationality TEXT',
+        'citizenship TEXT',
+        'education TEXT',
+        'marital_status TEXT',
+        'is_partner BOOLEAN DEFAULT 0',
+        'is_statutory BOOLEAN DEFAULT 0',
+        'employee_bonus BOOLEAN DEFAULT 0',
+        'bonus_months INTEGER DEFAULT 0',
+        'permanent_street TEXT',
+        'permanent_number TEXT',
+        'permanent_city TEXT',
+        'permanent_zip TEXT',
+        'permanent_country TEXT DEFAULT "Slovensko"',
+        'contact_street TEXT',
+        'contact_number TEXT',
+        'contact_city TEXT',
+        'contact_zip TEXT',
+        'contact_country TEXT DEFAULT "Slovensko"',
+        'is_foreigner BOOLEAN DEFAULT 0',
+        'foreigner_country TEXT',
+        'residence_permit_number TEXT',
+        'social_insurance_sr TEXT',
+        'social_insurance_foreign TEXT',
+        'health_insurance_sr TEXT',
+        'foreigner_without_permanent_residence BOOLEAN DEFAULT 0',
+        'tax_identification_number TEXT'
+      ];
+
+      // Pridanie dochádzkových stĺpcov do attendance tabuľky
+      const attendanceColumns = [
+        'attendance_type TEXT DEFAULT "manual" CHECK(attendance_type IN ("manual", "automatic"))'
+      ];
+
+      attendanceColumns.forEach(column => {
+        db.run(`ALTER TABLE attendance ADD COLUMN ${column}`, (err) => {
+          if (err && !err.message.includes('duplicate column name')) {
+            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+          }
+        });
+      });
+
+      personalColumns.forEach(column => {
+        db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
+          if (err && !err.message.includes('duplicate column name')) {
+            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+          }
+        });
+      });
+
       // Aktualizácia existujúcich firiem na status 'active'
       db.run(`
         UPDATE companies SET status = 'active' WHERE status IS NULL
@@ -212,7 +290,10 @@ const initDatabase = () => {
         VALUES 
           ('admin@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Admin', 'admin', 'active'),
           ('user@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Používateľ', 'user', 'active'),
-          ('accountant@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Účtovník', 'accountant', 'active')
+          ('accountant@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Účtovník', 'accountant', 'active'),
+          ('jan.novak@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Ján Novák', 'employee', 'active'),
+          ('maria.kovacova@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Mária Kováčová', 'employee', 'active'),
+          ('peter.svoboda@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Peter Svoboda', 'employee', 'active')
       `);
 
       // Vloženie predvoleného CMS obsahu
@@ -280,14 +361,12 @@ const initDatabase = () => {
         }
       });
 
-      // Vloženie demo správ
+      // Vloženie demo správ - len jedna správa
       db.run(`
         INSERT OR IGNORE INTO messages (
           sender_email, recipient_email, subject, content, company_id, message_type, created_at
         ) VALUES 
-          ('admin@portal.sk', 'user@portal.sk', 'Vitajte v portáli', 'Vítame vás v našom účtovníckom portáli! Ak máte otázky, neváhajte nás kontaktovať.', 1, 'welcome', CURRENT_TIMESTAMP),
-          ('accountant@portal.sk', 'user@portal.sk', 'Výročná správa pripravená', 'Výročná správa je pripravená na podpis. Potrebujeme vaše potvrdenie.', 1, 'report', CURRENT_TIMESTAMP),
-          ('user@portal.sk', 'accountant@portal.sk', 'Otázka k faktúre', 'Dobrý deň, mám otázku k faktúre č. 2024/001. Môžete mi prosím vysvetliť položku "Daňové poradenstvo"?', 1, 'question', CURRENT_TIMESTAMP)
+          ('admin@portal.sk', 'user@portal.sk', 'Vitajte v portáli', 'Vítame vás v našom účtovníckom portáli! Ak máte otázky, neváhajte nás kontaktovať.', 1, 'welcome', CURRENT_TIMESTAMP)
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo správ:', err);
@@ -296,15 +375,13 @@ const initDatabase = () => {
         }
       });
 
-      // Vloženie demo úloh (ak existujú firmy)
+      // Vloženie demo úloh - len jedna úloha
       db.run(`
         INSERT OR IGNORE INTO tasks (
           title, description, status, priority, assigned_to, 
           company_id, company_name, created_by, due_date, created_at
         ) VALUES 
-          ('Aktualizácia účtovníctva', 'Mesačná aktualizácia účtovníctva a kontrola dokladov', 'pending', 'medium', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-15', CURRENT_TIMESTAMP),
-          ('Daňové priznanie', 'Príprava daňového priznania za rok 2023', 'in_progress', 'high', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-03-31', CURRENT_TIMESTAMP),
-          ('Kontrola faktúr', 'Kontrola a spracovanie všetkých faktúr za január', 'completed', 'low', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-01', CURRENT_TIMESTAMP)
+          ('Aktualizácia účtovníctva', 'Mesačná aktualizácia účtovníctva a kontrola dokladov', 'pending', 'medium', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-15', CURRENT_TIMESTAMP)
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo úloh:', err);
@@ -313,10 +390,430 @@ const initDatabase = () => {
         }
       });
 
+      // HR a Dochádzkový systém - Tabuľka zamestnancov
+      db.run(`
+        CREATE TABLE IF NOT EXISTS employees (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          employee_id TEXT NOT NULL,
+          first_name TEXT NOT NULL,
+          last_name TEXT NOT NULL,
+          email TEXT UNIQUE NOT NULL,
+          phone TEXT,
+          position TEXT NOT NULL,
+          department TEXT,
+          hire_date DATE NOT NULL,
+          salary DECIMAL(10,2),
+          employment_type TEXT DEFAULT 'full_time' CHECK(employment_type IN ('full_time', 'part_time', 'contract', 'intern')),
+          status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'terminated', 'on_leave')),
+          termination_date DATE,
+          termination_reason TEXT,
+          manager_id INTEGER,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          FOREIGN KEY (manager_id) REFERENCES employees (id),
+          UNIQUE(company_id, employee_id)
+        )
+      `);
+
+      // Tabuľka dochádzky
+      db.run(`
+        CREATE TABLE IF NOT EXISTS attendance (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_id INTEGER NOT NULL,
+          company_id INTEGER NOT NULL,
+          date DATE NOT NULL,
+          check_in DATETIME,
+          check_out DATETIME,
+          total_hours DECIMAL(4,2),
+          break_minutes INTEGER DEFAULT 0,
+          status TEXT DEFAULT 'present' CHECK(status IN ('present', 'absent', 'late', 'early_leave', 'sick_leave', 'vacation', 'holiday')),
+          notes TEXT,
+          attendance_type TEXT DEFAULT 'manual' CHECK(attendance_type IN ('manual', 'automatic')),
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(employee_id, date)
+        )
+      `);
+
+      // Tabuľka dovoleniek
+      db.run(`
+        CREATE TABLE IF NOT EXISTS leave_requests (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_id INTEGER NOT NULL,
+          company_id INTEGER NOT NULL,
+          leave_type TEXT NOT NULL CHECK(leave_type IN ('vacation', 'sick_leave', 'personal_leave', 'maternity_leave', 'paternity_leave', 'unpaid_leave')),
+          start_date DATE NOT NULL,
+          end_date DATE NOT NULL,
+          total_days INTEGER NOT NULL,
+          reason TEXT,
+          status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected', 'cancelled')),
+          approved_by INTEGER,
+          approved_at DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          FOREIGN KEY (approved_by) REFERENCES employees (id)
+        )
+      `);
+
+      // Tabuľka pracovných zmien
+      db.run(`
+        CREATE TABLE IF NOT EXISTS work_shifts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          shift_name TEXT NOT NULL,
+          start_time TIME NOT NULL,
+          end_time TIME NOT NULL,
+          break_start TIME,
+          break_end TIME,
+          is_active BOOLEAN DEFAULT 1,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka pracovných pomerov s dochádzkovými nastaveniami
+      db.run(`
+        CREATE TABLE IF NOT EXISTS employment_relations (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_id INTEGER NOT NULL,
+          company_id INTEGER NOT NULL,
+          position TEXT NOT NULL,
+          employment_type TEXT DEFAULT 'full_time' CHECK(employment_type IN ('full_time', 'part_time', 'contract', 'intern')),
+          employment_start_date DATE NOT NULL,
+          employment_end_date DATE,
+          salary DECIMAL(10,2),
+          weekly_hours INTEGER DEFAULT 40,
+          attendance_mode TEXT DEFAULT 'manual' CHECK(attendance_mode IN ('manual', 'automatic')),
+          work_start_time TIME DEFAULT '08:00',
+          work_end_time TIME DEFAULT '16:00',
+          break_start_time TIME DEFAULT '12:00',
+          break_end_time TIME DEFAULT '12:30',
+          is_active BOOLEAN DEFAULT 1,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka mzdových období
+      db.run(`
+        CREATE TABLE IF NOT EXISTS payroll_periods (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          year INTEGER NOT NULL,
+          month INTEGER NOT NULL CHECK(month >= 1 AND month <= 12),
+          is_closed INTEGER DEFAULT 0,
+          closed_at DATETIME,
+          closed_by TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id, year, month)
+        )
+      `);
+
+      // Tabuľka priradení zmien k zamestnancom
+      db.run(`
+        CREATE TABLE IF NOT EXISTS employee_shifts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_id INTEGER NOT NULL,
+          shift_id INTEGER NOT NULL,
+          effective_date DATE NOT NULL,
+          end_date DATE,
+          is_active BOOLEAN DEFAULT 1,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (shift_id) REFERENCES work_shifts (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka HR udalostí
+      db.run(`
+        CREATE TABLE IF NOT EXISTS hr_events (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          employee_id INTEGER,
+          event_type TEXT NOT NULL CHECK(event_type IN ('hire', 'termination', 'promotion', 'salary_change', 'position_change', 'warning', 'recognition')),
+          title TEXT NOT NULL,
+          description TEXT,
+          event_date DATE NOT NULL,
+          created_by INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (created_by) REFERENCES employees (id)
+        )
+      `);
+
+      // Vloženie demo zamestnancov (ak existuje Demo Firma)
+      db.run(`
+        INSERT OR IGNORE INTO employees (
+          company_id, employee_id, first_name, last_name, email, phone, position, department, hire_date, salary, employment_type
+        ) VALUES 
+          (1, 'EMP001', 'Ján', 'Novák', 'jan.novak@demo.sk', '+421901234567', 'Manažér', 'Vedenie', '2023-01-15', 2500.00, 'full_time')
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo zamestnancov:', err);
+        } else {
+          console.log('✅ Demo zamestnanci pridaní úspešne');
+        }
+      });
+
+      // Vyčistenie nepriradených pracovných pomerov
+      db.run(`
+        DELETE FROM employment_relations 
+        WHERE employee_id NOT IN (SELECT id FROM employees)
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vyčistení nepriradených pracovných pomerov:', err);
+        } else {
+          console.log('✅ Nepriradené pracovné pomery vyčistené');
+        }
+      });
+
+      // Vloženie demo pracovných zmien - len jedna zmena
+      db.run(`
+        INSERT OR IGNORE INTO work_shifts (
+          company_id, shift_name, start_time, end_time, break_start, break_end
+        ) VALUES 
+          (1, 'Ranná zmena', '08:00', '16:00', '12:00', '12:30')
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo zmien:', err);
+        } else {
+          console.log('✅ Demo pracovné zmeny pridané úspešne');
+        }
+      });
+
+      // Vloženie demo pracovných pomerov - len jeden záznam
+      db.run(`
+        INSERT OR IGNORE INTO employment_relations (
+          employee_id, company_id, position, employment_type, employment_start_date, salary, weekly_hours, 
+          attendance_mode, work_start_time, work_end_time, break_start_time, break_end_time
+        ) VALUES 
+          (1, 1, 'Manažér', 'full_time', '2023-01-15', 2500.00, 40, 'automatic', '08:00', '16:00', '12:00', '12:30')
+      `, (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
+        } else {
+          console.log('✅ Demo pracovné pomery pridané úspešne');
+        }
+      });
+
+      // Tabuľka zmien personálnych údajov zamestnancov
+      db.run(`
+        CREATE TABLE IF NOT EXISTS employee_changes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_id INTEGER NOT NULL,
+          company_id INTEGER NOT NULL,
+          field_name TEXT NOT NULL,
+          current_value TEXT,
+          new_value TEXT NOT NULL,
+          reason TEXT NOT NULL,
+          status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected')),
+          approved_by INTEGER,
+          approved_at DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          FOREIGN KEY (approved_by) REFERENCES employees (id)
+        )
+      `);
+
+      // Vloženie demo dochádzky - len jeden záznam
+      const today = new Date().toISOString().split('T')[0];
+      
+      db.run(`
+        INSERT OR IGNORE INTO attendance (
+          employee_id, company_id, date, check_in, check_out, total_hours, status
+        ) VALUES 
+          (1, 1, ?, '08:05:00', '16:02:00', 7.95, 'present')
+      `, [today], (err) => {
+        if (err) {
+          console.error('Chyba pri vkladaní demo dochádzky:', err);
+        } else {
+          console.log('✅ Demo dochádzka pridaná úspešne');
+        }
+      });
+
+      // Funkcia na kontrolu či je deň víkend
+      const isWeekend = (date) => {
+        const day = date.getDay();
+        return day === 0 || day === 6; // 0 = nedeľa, 6 = sobota
+      };
+
+      // Funkcia na kontrolu či je deň sviatok (základné slovenské sviatky)
+      const isHoliday = (date) => {
+        const month = date.getMonth() + 1; // getMonth() vracia 0-11
+        const day = date.getDate();
+        
+        // Základné slovenské sviatky
+        const holidays = [
+          { month: 1, day: 1 },   // 1. január - Deň vzniku Slovenskej republiky
+          { month: 1, day: 6 },   // 6. január - Zjavenie Pána (Traja králi)
+          { month: 5, day: 1 },   // 1. máj - Sviatok práce
+          { month: 5, day: 8 },   // 8. máj - Deň víťazstva nad fašizmom
+          { month: 7, day: 5 },   // 5. júl - Sviatok svätého Cyrila a Metoda
+          { month: 8, day: 29 },  // 29. august - Výročie SNP
+          { month: 9, day: 1 },   // 1. september - Deň Ústavy Slovenskej republiky
+          { month: 9, day: 15 },  // 15. september - Sedembolestná Panna Mária
+          { month: 11, day: 1 },  // 1. november - Sviatok všetkých svätých
+          { month: 11, day: 17 }, // 17. november - Deň boja za slobodu a demokraciu
+          { month: 12, day: 24 }, // 24. december - Štedrý deň
+          { month: 12, day: 25 }, // 25. december - Prvý sviatok vianočný
+          { month: 12, day: 26 }  // 26. december - Druhý sviatok vianočný
+        ];
+        
+        return holidays.some(holiday => holiday.month === month && holiday.day === day);
+      };
+
+      // Funkcia na výpočet pracovných dní (bez víkendov a sviatkov)
+      const calculateWorkingDays = (startDate, endDate) => {
+        if (!startDate || !endDate) return 0;
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        let workingDays = 0;
+        const current = new Date(start);
+        
+        // Iterujeme cez každý deň v rozsahu
+        while (current <= end) {
+          // Ak nie je víkend a nie je sviatok, počítame ako pracovný deň
+          if (!isWeekend(current) && !isHoliday(current)) {
+            workingDays++;
+          }
+          current.setDate(current.getDate() + 1);
+        }
+        
+        return workingDays;
+      };
+
+      // Vloženie demo dovoleniek - len jedna dovolenka
+      const leaveRequests = [
+        { employee_id: 1, company_id: 1, leave_type: 'vacation', start_date: '2024-07-15', end_date: '2024-07-19', reason: 'Letná dovolenka', status: 'approved' }
+      ];
+
+      // Vložiť každú dovolenku s správnym počtom pracovných dní
+      leaveRequests.forEach(request => {
+        const workingDays = calculateWorkingDays(request.start_date, request.end_date);
+        db.run(`
+          INSERT OR IGNORE INTO leave_requests (
+            employee_id, company_id, leave_type, start_date, end_date, total_days, reason, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [request.employee_id, request.company_id, request.leave_type, request.start_date, request.end_date, workingDays, request.reason, request.status], (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo dovolenky:', err);
+          }
+        });
+      });
+
+      console.log('✅ Demo dovolenky pridané úspešne');
+
+      // Demo mzdové obdobia - vytvoriť pre všetky existujúce firmy
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      
+      // Najprv získame všetky firmy
+      db.all('SELECT id FROM companies', [], (err, companies) => {
+        if (err) {
+          console.error('Chyba pri získavaní firiem:', err);
+          return;
+        }
+        
+        // Vytvoriť mzdové obdobia pre roky 2023, 2024 a aktuálny rok + budúci mesiac
+        const years = [2023, 2024, currentYear];
+        
+        companies.forEach(company => {
+          years.forEach(year => {
+            // Pre aktuálny rok pridáme aj budúci mesiac
+            const maxMonth = (year === currentYear) ? Math.min(12, currentMonth + 1) : 12;
+            
+            for (let month = 1; month <= maxMonth; month++) {
+              let isClosed = false;
+              let closedAt = null;
+              let closedBy = null;
+              
+              if (year < currentYear) {
+                // Minulé roky sú úplne uzatvorené
+                isClosed = true;
+                closedAt = new Date(year, month - 1, 1).toISOString();
+                closedBy = 'admin@portal.sk';
+              } else if (year === currentYear) {
+                // Aktuálny rok - uzatvorené sú len minulé mesiace
+                isClosed = month < currentMonth;
+                if (isClosed) {
+                  closedAt = new Date(year, month - 1, 1).toISOString();
+                  closedBy = 'admin@portal.sk';
+                }
+              }
+              
+              db.run(`
+                INSERT OR IGNORE INTO payroll_periods (
+                  company_id, year, month, is_closed, closed_at, closed_by
+                ) VALUES (?, ?, ?, ?, ?, ?)
+              `, [
+                company.id, // company_id - každá firma má svoje obdobia
+                year,
+                month,
+                isClosed ? 1 : 0,
+                closedAt,
+                closedBy
+              ], (err) => {
+                if (err) {
+                  console.error('Chyba pri vkladaní demo mzdového obdobia:', err);
+                }
+              });
+            }
+          });
+        });
+        
+        console.log('✅ Demo mzdové obdobia pridané úspešne');
+      });
+
+      console.log('✅ Demo mzdové obdobia pridané úspešne');
+
       console.log('✅ Databáza inicializovaná úspešne');
       resolve();
     });
   });
 };
 
-module.exports = { db, initDatabase };
+// Export funkcií pre použitie v iných súboroch
+const isWeekend = (date) => {
+  const day = date.getDay();
+  return day === 0 || day === 6; // 0 = nedeľa, 6 = sobota
+};
+
+const isHoliday = (date) => {
+  const month = date.getMonth() + 1; // getMonth() vracia 0-11
+  const day = date.getDate();
+  
+  // Základné slovenské sviatky
+  const holidays = [
+    { month: 1, day: 1 },   // 1. január - Deň vzniku Slovenskej republiky
+    { month: 1, day: 6 },   // 6. január - Zjavenie Pána (Traja králi)
+    { month: 5, day: 1 },   // 1. máj - Sviatok práce
+    { month: 5, day: 8 },   // 8. máj - Deň víťazstva nad fašizmom
+    { month: 7, day: 5 },   // 5. júl - Sviatok svätého Cyrila a Metoda
+    { month: 8, day: 29 },  // 29. august - Výročie SNP
+    { month: 9, day: 1 },   // 1. september - Deň Ústavy Slovenskej republiky
+    { month: 9, day: 15 },  // 15. september - Sedembolestná Panna Mária
+    { month: 11, day: 1 },  // 1. november - Sviatok všetkých svätých
+    { month: 11, day: 17 }, // 17. november - Deň boja za slobodu a demokraciu
+    { month: 12, day: 24 }, // 24. december - Štedrý deň
+    { month: 12, day: 25 }, // 25. december - Prvý sviatok vianočný
+    { month: 12, day: 26 }  // 26. december - Druhý sviatok vianočný
+  ];
+  
+  return holidays.some(holiday => holiday.month === month && holiday.day === day);
+};
+
+module.exports = { db, initDatabase, isWeekend, isHoliday };

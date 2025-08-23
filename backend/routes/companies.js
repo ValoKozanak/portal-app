@@ -347,6 +347,49 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// Získanie účtovníkov firmy (už priradených)
+router.get('/:id/accountants', (req, res) => {
+  const { id } = req.params;
+
+  const query = `
+    SELECT ca.accountant_email, u.name, u.email, u.role, ca.assigned_at
+    FROM company_accountants ca
+    LEFT JOIN users u ON ca.accountant_email = u.email
+    WHERE ca.company_id = ?
+    ORDER BY ca.assigned_at DESC
+  `;
+
+  db.all(query, [id], (err, accountants) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní účtovníkov firmy' });
+    }
+
+    res.json(accountants);
+  });
+});
+
+// Získanie všetkých dostupných účtovníkov pre firmu
+router.get('/:id/available-accountants', (req, res) => {
+  const { id } = req.params;
+
+  const query = `
+    SELECT u.id, u.email, u.name, u.role, u.status,
+           CASE WHEN ca.company_id IS NOT NULL THEN 1 ELSE 0 END as is_assigned
+    FROM users u
+    LEFT JOIN company_accountants ca ON u.email = ca.accountant_email AND ca.company_id = ?
+    WHERE u.role = 'accountant' AND u.status = 'active'
+    ORDER BY u.name
+  `;
+
+  db.all(query, [id], (err, accountants) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní dostupných účtovníkov' });
+    }
+
+    res.json(accountants);
+  });
+});
+
 // Priradenie účtovníkov k firme
 router.post('/:id/assign-accountants', (req, res) => {
   const { id } = req.params;

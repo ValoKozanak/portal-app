@@ -4,13 +4,14 @@ import {
   PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/apiService';
+import { hrService } from '../services/hrService';
 
 interface MessageModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: () => void;
   senderEmail: string;
-  userRole?: 'admin' | 'user' | 'accountant';
+  userRole?: 'admin' | 'user' | 'accountant' | 'employee';
   companyId?: number;
   initialRecipient?: string;
   initialSubject?: string;
@@ -44,6 +45,11 @@ const MessageModal: React.FC<MessageModalProps> = ({
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(companyId);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
+
+  // Aktualizácia recipientEmail keď sa zmení initialRecipient
+  useEffect(() => {
+    setRecipientEmail(initialRecipient);
+  }, [initialRecipient]);
 
   // Načítanie firiem pre Admin a Accountant
   useEffect(() => {
@@ -84,20 +90,30 @@ const MessageModal: React.FC<MessageModalProps> = ({
         let filteredUsers = allUsers;
         
         if (userRole === 'user') {
-          // User môže poslať správu iba Admin a jemu priradeným Accountant
+          // User (firma) môže poslať správu Admin, priradeným Accountant a svojim zamestnancom
           const userCompanies = await apiService.getUserCompanies(senderEmail);
           const assignedAccountantEmails: string[] = [];
+          const employeeEmails: string[] = [];
           
-          // Extraktujeme všetkých priradených účtovníkov zo všetkých firiem používateľa
-          userCompanies.forEach(company => {
+          // Extraktujeme všetkých priradených účtovníkov a zamestnancov zo všetkých firiem používateľa
+          for (const company of userCompanies) {
             if (company.assignedToAccountants) {
               assignedAccountantEmails.push(...company.assignedToAccountants);
             }
-          });
+            
+            // Načítame zamestnancov pre každú firmu
+            try {
+              const employees = await hrService.getEmployees(company.id);
+              employeeEmails.push(...employees.map(emp => emp.email));
+            } catch (error) {
+              console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+            }
+          }
           
           filteredUsers = allUsers.filter(user => 
             user.role === 'admin' || 
-            (user.role === 'accountant' && assignedAccountantEmails.includes(user.email))
+            (user.role === 'accountant' && assignedAccountantEmails.includes(user.email)) ||
+            (user.role === 'employee' && employeeEmails.includes(user.email))
           );
         } else if (userRole === 'accountant') {
           // Accountant môže poslať správu iba Admin a priradeným User (z jeho firiem)
@@ -116,6 +132,21 @@ const MessageModal: React.FC<MessageModalProps> = ({
             user.role === 'admin' || 
             (user.role === 'user' && assignedUserEmails.includes(user.email))
           );
+        } else if (userRole === 'employee') {
+          // Employee môže poslať správu iba svojej firme (company owner)
+          if (companyId) {
+            const company = await apiService.getCompanyById(companyId);
+            if (company && company.owner_email) {
+              // Namiesto zobrazenia "User" zobrazíme konkrétnu firmu
+              const companyOwner = allUsers.find(user => user.email === company.owner_email);
+              if (companyOwner) {
+                filteredUsers = [{
+                  ...companyOwner,
+                  name: `${company.name} (${companyOwner.name})` // Zobrazíme názov firmy + meno vlastníka
+                }];
+              }
+            }
+          }
         }
         // Admin môže poslať správu všetkým
         
@@ -144,7 +175,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
     setError('');
 
     try {
-      await apiService.sendMessage({
+      console.log('Odosielam správu:', {
         sender_email: senderEmail,
         recipient_email: recipientEmail,
         subject: subject.trim(),
@@ -153,15 +184,30 @@ const MessageModal: React.FC<MessageModalProps> = ({
         message_type: messageType
       });
 
+      const response = await apiService.sendMessage({
+        sender_email: senderEmail,
+        recipient_email: recipientEmail,
+        subject: subject.trim(),
+        content: content.trim(),
+        company_id: selectedCompanyId,
+        message_type: messageType
+      });
+
+      console.log('Správa odoslaná úspešne:', response);
+
       // Reset formulára
       setRecipientEmail('');
       setSubject('');
       setContent('');
       setMessageType('general');
       
+      // Zobrazíme úspešnú správu
+      alert('Správa bola úspešne odoslaná!');
+      
       onSend();
       onClose();
     } catch (error) {
+      console.error('Chyba pri odosielaní správy:', error);
       setError(error instanceof Error ? error.message : 'Chyba pri odosielaní správy');
     } finally {
       setIsLoading(false);

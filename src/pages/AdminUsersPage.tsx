@@ -8,12 +8,22 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   EnvelopeIcon,
-  PhoneIcon
+  PhoneIcon,
+  BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import AssignCompanyModal from '../components/AssignCompanyModal';
+import AssignEmployeeCompanyModal from '../components/AssignEmployeeCompanyModal';
 import { apiService } from '../services/apiService';
+
+// Helper funkcia pre lokálne formátovanie dátumu
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 interface AdminUsersPageProps {
   onBack: () => void;
@@ -23,7 +33,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'accountant' | 'user';
+  role: 'admin' | 'accountant' | 'user' | 'employee';
   status: 'active' | 'inactive';
   phone?: string;
   lastLogin?: string;
@@ -36,28 +46,36 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
+  const [showAssignEmployeeCompanyModal, setShowAssignEmployeeCompanyModal] = useState(false);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
   const [selectedUserForAssign, setSelectedUserForAssign] = useState<User | null>(null);
+  const [selectedUserForEmployeeAssign, setSelectedUserForEmployeeAssign] = useState<User | null>(null);
+  const [companies, setCompanies] = useState<any[]>([]);
 
-  // Načítanie používateľov z API
+  // Načítanie používateľov a firiem z API
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const usersData = await apiService.getAllUsers();
+        const [usersData, companiesData] = await Promise.all([
+          apiService.getAllUsers(),
+          apiService.getAllCompanies()
+        ]);
+        
         const usersWithLastLogin = usersData.map(user => ({
           ...user,
           lastLogin: 'Nikdy'
         }));
         setUsers(usersWithLastLogin);
+        setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri načítaní používateľov:', error);
+        console.error('Chyba pri načítaní dát:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadUsers();
+    loadData();
   }, []);
 
   // Filtrovanie používateľov podľa vyhľadávania
@@ -81,6 +99,35 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
         lastLogin: 'Nikdy'
       };
       setUsers(prev => [...prev, newUser]);
+
+      // Ak je to zamestnanec, vytvor ho aj v tabuľke employees
+      if (userData.role === 'employee' && userData.companyId) {
+        try {
+          const hrService = (await import('../services/hrService')).hrService;
+          const employeeData = {
+            company_id: parseInt(userData.companyId),
+            employee_id: `EMP${Date.now()}`, // Generovanie unikátneho ID
+            first_name: userData.name.split(' ')[0] || userData.name,
+            last_name: userData.name.split(' ').slice(1).join(' ') || '',
+            email: userData.email,
+            phone: userData.phone || '',
+            position: 'Zamestnanec',
+            department: 'IT',
+            hire_date: formatDate(new Date()),
+            salary: 2500,
+            employment_type: 'full_time' as const,
+            status: 'active' as const,
+            manager_id: undefined
+          };
+          
+          await hrService.addEmployee(employeeData);
+          console.log('✅ Zamestnanec úspešne pridaný do HR systému');
+        } catch (hrError: any) {
+          console.error('Chyba pri pridávaní zamestnanca do HR systému:', hrError.message);
+          // Nezobrazujeme chybu používateľovi, pretože používateľ bol vytvorený úspešne
+        }
+      }
+
       setShowAddUserModal(false);
     } catch (error: any) {
       console.error('Chyba pri vytváraní používateľa:', error.message);
@@ -128,6 +175,62 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     setShowAssignCompanyModal(true);
   };
 
+  // Otvorenie modálu pre priradenie zamestnanca k firme
+  const handleOpenAssignEmployeeCompany = (user: User) => {
+    setSelectedUserForEmployeeAssign(user);
+    setShowAssignEmployeeCompanyModal(true);
+  };
+
+  // Priradenie zamestnanca k firme
+  const handleAssignEmployeeCompany = async (employeeId: number, companyId: number) => {
+    try {
+      const hrService = (await import('../services/hrService')).hrService;
+      const employee = users.find(u => u.id === employeeId);
+      
+      if (!employee) {
+        throw new Error('Zamestnanec nenájdený');
+      }
+
+      // Najprv skontrolujeme, či zamestnanec už existuje v HR systéme
+      try {
+        const existingEmployee = await hrService.findEmployeeByEmail(employee.email);
+        
+        // Ak existuje, aktualizujeme jeho company_id
+        await hrService.updateEmployeeCompany(existingEmployee.id, companyId);
+        console.log('✅ Zamestnanec úspešne presunutý do novej firmy');
+        alert('Zamestnanec bol úspešne presunutý do novej firmy!');
+      } catch (findError: any) {
+        // Ak zamestnanec neexistuje, vytvoríme ho
+        if (findError.message.includes('Zamestnanec nenájdený') || findError.message.includes('404')) {
+          const employeeData = {
+            company_id: companyId,
+            employee_id: `EMP${Date.now()}`, // Generovanie unikátneho ID
+            first_name: employee.name.split(' ')[0] || employee.name,
+            last_name: employee.name.split(' ').slice(1).join(' ') || '',
+            email: employee.email,
+            phone: employee.phone || '',
+            position: 'Zamestnanec',
+            department: 'IT',
+            hire_date: formatDate(new Date()),
+            salary: 2500,
+            employment_type: 'full_time' as const,
+            status: 'active' as const,
+            manager_id: undefined
+          };
+          
+          await hrService.addEmployee(employeeData);
+          console.log('✅ Zamestnanec úspešne vytvorený a priradený k firme');
+          alert('Zamestnanec bol úspešne vytvorený a priradený k firme!');
+        } else {
+          throw findError;
+        }
+      }
+    } catch (error: any) {
+      console.error('Chyba pri priradení zamestnanca k firme:', error.message);
+      alert(`Chyba pri priradení zamestnanca k firme: ${error.message}`);
+    }
+  };
+
   // Helper funkcie pre badge
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -151,16 +254,18 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     const colors = {
       admin: 'bg-red-100 text-red-800',
       accountant: 'bg-blue-100 text-blue-800',
-      user: 'bg-gray-100 text-gray-800'
+      employee: 'bg-purple-100 text-purple-800',
+      user: 'bg-green-100 text-green-800'
     };
     const labels = {
       admin: 'Admin',
       accountant: 'Účtovník',
+      employee: 'Zamestnanec',
       user: 'Používateľ'
     };
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[role as keyof typeof colors]}`}>
-        {labels[role as keyof typeof labels]}
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
+        {labels[role as keyof typeof labels] || role}
       </span>
     );
   };
@@ -302,6 +407,15 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                                 Priradiť firmy
                               </button>
                             )}
+                            {user.role === 'employee' && (
+                              <button
+                                onClick={() => handleOpenAssignEmployeeCompany(user)}
+                                className="text-purple-600 hover:text-purple-900 flex items-center"
+                              >
+                                <BuildingOfficeIcon className="h-4 w-4 mr-1" />
+                                Priradiť firmu
+                              </button>
+                            )}
                             <button
                               onClick={() => handleDeleteUser(user.id)}
                               className="text-red-600 hover:text-red-900 flex items-center"
@@ -356,7 +470,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           setShowEditUserModal(false);
           setSelectedUserForEdit(null);
         }}
-        onSave={(userData) => selectedUserForEdit && handleEditUser(selectedUserForEdit.id, userData)}
+        onSave={handleEditUser}
         user={selectedUserForEdit}
       />
 
@@ -372,6 +486,17 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           setShowAssignCompanyModal(false);
           setSelectedUserForAssign(null);
         }}
+      />
+
+      <AssignEmployeeCompanyModal
+        isOpen={showAssignEmployeeCompanyModal}
+        onClose={() => {
+          setShowAssignEmployeeCompanyModal(false);
+          setSelectedUserForEmployeeAssign(null);
+        }}
+        companies={companies}
+        employee={selectedUserForEmployeeAssign}
+        onAssign={handleAssignEmployeeCompany}
       />
     </div>
   );

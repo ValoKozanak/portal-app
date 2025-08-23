@@ -13,6 +13,7 @@ import { apiService } from '../services/apiService';
 
 interface AdminMessagesPageProps {
   onBack: () => void;
+  onMessageAction?: () => void;
 }
 
 interface Message {
@@ -30,7 +31,7 @@ interface Message {
   created_at: string;
 }
 
-const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack }) => {
+const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack, onMessageAction }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -95,16 +96,19 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack }) => {
   const handleToggleReadStatus = async (messageId: number, isRead: boolean) => {
     try {
       if (isRead) {
-        await apiService.markMessageAsUnread(messageId);
-      } else {
         await apiService.markMessageAsRead(messageId);
+      } else {
+        await apiService.markMessageAsUnread(messageId);
       }
       
       setMessages(prev => prev.map(msg => 
         msg.id === messageId 
-          ? { ...msg, read_at: isRead ? null : new Date().toISOString() }
+          ? { ...msg, read_at: isRead ? new Date().toISOString() : null }
           : msg
       ));
+      
+      // Aktualizujeme počty v Admin dashboarde
+      onMessageAction?.();
     } catch (error) {
       console.error('Chyba pri zmenení stavu správy:', error);
       alert('Chyba pri zmenení stavu správy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
@@ -118,6 +122,9 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack }) => {
     try {
       await apiService.deleteMessage(messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      
+      // Aktualizujeme počty v Admin dashboarde
+      onMessageAction?.();
     } catch (error) {
       console.error('Chyba pri mazaní správy:', error);
       alert('Chyba pri mazaní správy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));

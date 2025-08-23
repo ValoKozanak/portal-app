@@ -84,6 +84,13 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Informácia o many-to-many vzťahu */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Many-to-Many vzťah:</strong> Účtovník môže mať viacero firiem a firma môže mať viacero účtovníkov
+            </p>
+          </div>
+
           {/* Výber účtovníkov */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

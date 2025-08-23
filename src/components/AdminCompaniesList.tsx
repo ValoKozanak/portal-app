@@ -85,37 +85,37 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                     <BuildingOfficeIcon className={`h-8 w-8 ${company.status === 'active' ? 'text-primary-600' : 'text-gray-400'}`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
-                        <h4 className="text-lg font-medium text-gray-900 truncate">
+                        <h4 className="text-lg font-medium text-gray-900 dark:text-white truncate">
                           {company.name}
                         </h4>
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                           company.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                         }`}>
                           {company.status === 'active' ? 'Aktívna' : 'Neaktívna'}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                         <span>IČO: {company.ico}</span>
                         <span>OR: {company.business_registry || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3 text-sm text-gray-600">
+                  <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">
                     <p className="truncate">{company.address}</p>
                     <p className="truncate">Oprávnená osoba: {company.authorized_person}</p>
                   </div>
 
                   {/* Vlastník firmy */}
-                  <div className="mt-3 flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="mt-3 flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <UserIcon className="h-4 w-4" />
                     <span>Vlastník: {company.owner_email}</span>
                   </div>
 
                   {/* Kontaktné údaje */}
-                  <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     {company.contact_phone && (
                       <div className="flex items-center">
                         <PhoneIcon className="h-4 w-4 mr-1" />

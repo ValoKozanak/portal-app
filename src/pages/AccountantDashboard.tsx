@@ -24,6 +24,7 @@ import AccountantCompaniesPage from './AccountantCompaniesPage';
 import AccountantCalendarPage from './AccountantCalendarPage';
 import AccountantMessagesPage from './AccountantMessagesPage';
 
+
 interface AccountantDashboardProps {
   userEmail: string;
 }
@@ -38,6 +39,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
   const [showCompaniesPage, setShowCompaniesPage] = useState(false);
   const [showCalendarPage, setShowCalendarPage] = useState(false);
   const [showMessagesPage, setShowMessagesPage] = useState(false);
+
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [stats, setStats] = useState({
     documents: 0,
@@ -175,7 +177,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
       </div>
 
       {/* Štatistiky */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
 
 
         <button 
@@ -293,22 +295,11 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </div>
           </div>
         </button>
+
       </div>
-
-      
-
-
-
-
-
-
-
-      
-
-              
-      </div>
-    );
-  };
+    </div>
+  );
+};
 
 export default AccountantDashboard;
 

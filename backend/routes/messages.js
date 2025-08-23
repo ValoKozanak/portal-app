@@ -114,6 +114,32 @@ router.get('/company/:companyId', (req, res) => {
   });
 });
 
+// Získanie všetkých správ pre zamestnanca
+router.get('/employee/:employeeEmail', (req, res) => {
+  const { employeeEmail } = req.params;
+
+  const query = `
+    SELECT m.*, 
+           u1.name as sender_name,
+           u2.name as recipient_name,
+           c.name as company_name
+    FROM messages m
+    LEFT JOIN users u1 ON m.sender_email = u1.email
+    LEFT JOIN users u2 ON m.recipient_email = u2.email
+    LEFT JOIN companies c ON m.company_id = c.id
+    WHERE m.sender_email = ? OR m.recipient_email = ?
+    ORDER BY m.created_at DESC
+  `;
+
+  db.all(query, [employeeEmail, employeeEmail], (err, messages) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri načítaní správ' });
+    }
+
+    res.json(messages);
+  });
+});
+
 // Získanie všetkých správ (pre admin)
 router.get('/admin/all', (req, res) => {
   const query = `
@@ -231,6 +257,136 @@ router.get('/user/:userEmail/unread-count', (req, res) => {
     }
 
     res.json({ unreadCount: result.count });
+  });
+});
+
+// Získanie počtu neprečítaných správ pre konkrétnu firmu
+router.get('/company/:companyId/unread-count', (req, res) => {
+  const { companyId } = req.params;
+
+  const query = `
+    SELECT COUNT(*) as count
+    FROM messages m
+    WHERE m.company_id = ? AND m.read_at IS NULL
+  `;
+
+  db.get(query, [companyId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri získaní počtu neprečítaných správ pre firmu' });
+    }
+
+    res.json({ unreadCount: result.count });
+  });
+});
+
+// Získanie rozlíšeného počtu neprečítaných správ (prijaté vs čakajúce na odpoveď)
+router.get('/user/:userEmail/unread-counts', (req, res) => {
+  const { userEmail } = req.params;
+
+  // Počet prijatých neprečítaných správ (kde je používateľ príjemcom)
+  const receivedQuery = `
+    SELECT COUNT(*) as count
+    FROM messages m
+    LEFT JOIN companies c ON m.company_id = c.id
+    WHERE (m.recipient_email = ? OR c.owner_email = ?) AND m.read_at IS NULL
+  `;
+
+  // Počet odoslaných správ, ktoré príjemca ešte neprečítal (čakajúce na odpoveď)
+  const pendingQuery = `
+    SELECT COUNT(*) as count
+    FROM messages m
+    WHERE m.sender_email = ? AND m.read_at IS NULL AND m.recipient_email != ?
+  `;
+
+  db.get(receivedQuery, [userEmail, userEmail], (err, receivedResult) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri získaní počtu prijatých neprečítaných správ' });
+    }
+
+    db.get(pendingQuery, [userEmail, userEmail], (err, pendingResult) => {
+      if (err) {
+        return res.status(500).json({ error: 'Chyba pri získaní počtu správ čakajúcich na odpoveď' });
+      }
+
+      const receivedUnreadCount = receivedResult.count;
+      const pendingCount = pendingResult.count;
+      const totalUnreadCount = receivedUnreadCount + pendingCount;
+
+      res.json({ 
+        receivedUnreadCount, 
+        sentUnreadCount: pendingCount, // Zachovávame kompatibilitu s frontend
+        totalUnreadCount 
+      });
+    });
+  });
+});
+
+// Získanie rozlíšeného počtu neprečítaných správ pre konkrétnu firmu
+router.get('/company/:companyId/unread-counts', (req, res) => {
+  const { companyId } = req.params;
+
+  // Počet prijatých neprečítaných správ pre firmu
+  const receivedQuery = `
+    SELECT COUNT(*) as count
+    FROM messages m
+    WHERE m.company_id = ? AND m.read_at IS NULL
+  `;
+
+  db.get(receivedQuery, [companyId], (err, receivedResult) => {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri získaní počtu neprečítaných správ pre firmu' });
+    }
+
+    const receivedUnreadCount = receivedResult.count;
+    const totalUnreadCount = receivedUnreadCount;
+
+    res.json({ 
+      receivedUnreadCount, 
+      sentUnreadCount: 0, // Pre firmu nepočítame odoslané správy
+      totalUnreadCount 
+    });
+  });
+});
+
+// Označenie správy ako prečítaná
+router.patch('/:messageId/read', (req, res) => {
+  const { messageId } = req.params;
+
+  db.run(`
+    UPDATE messages 
+    SET read_at = CURRENT_TIMESTAMP 
+    WHERE id = ?
+  `, [messageId], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri označení správy ako prečítaná' });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Správa nebola nájdená' });
+    }
+
+    res.json({ message: 'Správa označená ako prečítaná' });
+  });
+});
+
+// Označenie správy ako neprečítaná
+router.patch('/:messageId/unread', (req, res) => {
+  const { messageId } = req.params;
+
+  db.run(`
+    UPDATE messages 
+    SET read_at = NULL 
+    WHERE id = ?
+  `, [messageId], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Chyba pri označení správy ako neprečítaná' });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Správa nebola nájdená' });
+    }
+
+    res.json({ message: 'Správa označená ako neprečítaná' });
   });
 });
 

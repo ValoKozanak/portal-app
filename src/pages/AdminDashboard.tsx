@@ -11,7 +11,8 @@ import {
   XMarkIcon,
   ShieldCheckIcon,
   CloudIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  CalendarIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/apiService';
 
@@ -22,6 +23,7 @@ const AdminTasksPage = React.lazy(() => import('./AdminTasksPage'));
 const AdminFilesPage = React.lazy(() => import('./AdminFilesPage'));
 const AdminDropboxPage = React.lazy(() => import('./AdminDropboxPage'));
 const AdminMessagesPage = React.lazy(() => import('./AdminMessagesPage'));
+
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
@@ -35,6 +37,12 @@ const AdminDashboard: React.FC = () => {
     companies: 0
   });
 
+  const [unreadCounts, setUnreadCounts] = useState({
+    receivedUnreadCount: 0,
+    sentUnreadCount: 0,
+    totalUnreadCount: 0
+  });
+
   // State pre full-screen stránky
   const [showUsersPage, setShowUsersPage] = useState(false);
   const [showCompaniesPage, setShowCompaniesPage] = useState(false);
@@ -43,11 +51,24 @@ const AdminDashboard: React.FC = () => {
   const [showDropboxPage, setShowDropboxPage] = useState(false);
   const [showMessagesPage, setShowMessagesPage] = useState(false);
 
+
+
   const [systemAlerts, setSystemAlerts] = useState([
     { id: 1, type: 'warning', message: 'Zálohovanie databázy sa nepodarilo', time: '1 hodinu' },
     { id: 2, type: 'info', message: 'Nová verzia systému je dostupná', time: '2 hodiny' },
     { id: 3, type: 'error', message: 'Kritická chyba v systéme', time: '30 minút' },
   ]);
+
+  // Načítanie neprečítaných správ pre admin
+  const loadUnreadCounts = async () => {
+    try {
+      // Pre admin používame admin@portal.sk ako default
+      const counts = await apiService.getUnreadCounts('admin@portal.sk');
+      setUnreadCounts(counts);
+    } catch (error) {
+      console.error('Chyba pri načítaní neprečítaných správ:', error);
+    }
+  };
 
   // Načítanie štatistík
   useEffect(() => {
@@ -71,6 +92,9 @@ const AdminDashboard: React.FC = () => {
           admins: usersData.filter(u => u.role === 'admin').length,
           reports: systemAlerts.length
         });
+
+        // Načítame aj neprečítané správy
+        await loadUnreadCounts();
       } catch (error) {
         console.error('Chyba pri načítaní štatistík:', error);
       }
@@ -101,6 +125,8 @@ const AdminDashboard: React.FC = () => {
       </React.Suspense>
     );
   }
+
+
 
   if (showCompaniesPage) {
     return (
@@ -137,7 +163,10 @@ const AdminDashboard: React.FC = () => {
   if (showMessagesPage) {
     return (
       <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
-        <AdminMessagesPage onBack={() => setShowMessagesPage(false)} />
+        <AdminMessagesPage 
+          onBack={() => setShowMessagesPage(false)} 
+          onMessageAction={loadUnreadCounts}
+        />
       </React.Suspense>
     );
   }
@@ -250,15 +279,28 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Správy</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.messages}</p>
-                <p className="text-xs text-gray-500 mt-1">Všetky správy</p>
+                <p className="text-2xl font-bold text-gray-900">{unreadCounts.totalUnreadCount}</p>
+                <div className="text-sm text-gray-500">
+                  <div>Prijaté: {unreadCounts.receivedUnreadCount}</div>
+                  <div>Čakajúce: {unreadCounts.sentUnreadCount}</div>
+                </div>
+                <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
               </div>
+              {unreadCounts.totalUnreadCount > 0 && (
+                <div className="ml-auto">
+                  <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    {unreadCounts.totalUnreadCount}
+                  </span>
+                </div>
+              )}
             </div>
           </button>
+
+
         </div>
 
         {/* Ďalšie informačné karty */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -297,6 +339,8 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </div>
+
+
         </div>
 
         {/* Systémové upozornenia */}
@@ -324,6 +368,8 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 };

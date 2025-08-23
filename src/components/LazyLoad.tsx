@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, ReactNode } from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
+import LoadingSpinner from './LoadingSpinner';
 
 interface LazyLoadProps {
   children: ReactNode;
@@ -68,6 +68,7 @@ const LazyLoad: React.FC<LazyLoadProps> = ({
 };
 
 export default React.memo(LazyLoad);
+
 
 
 

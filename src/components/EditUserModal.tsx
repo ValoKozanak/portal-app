@@ -18,7 +18,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
-    role: 'admin' | 'accountant' | 'user';
+    role: 'admin' | 'accountant' | 'user' | 'employee';
     status: 'active' | 'inactive';
     phone: string;
   }>({
@@ -142,10 +142,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   if (!isOpen || !user) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="sticky top-0 bg-white flex items-center justify-between p-6 border-b border-gray-200 z-10">
           <div className="flex items-center space-x-3">
             <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
               <UserIcon className="h-5 w-5 text-primary-600" />
@@ -224,6 +224,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 <option value="">Vyberte rolu</option>
                 <option value="user">Používateľ</option>
                 <option value="accountant">Účtovník (Moderátor)</option>
+                <option value="employee">Zamestnanec</option>
                 <option value="admin">Administrátor</option>
               </select>
               <ShieldCheckIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -356,7 +357,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           </div>
 
           {/* Tlačidlá */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="sticky bottom-0 bg-white flex justify-end space-x-3 pt-6 border-t border-gray-200 z-10">
             <button
               type="button"
               onClick={onClose}

@@ -13,6 +13,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import EditCompanyModal from '../components/EditCompanyModal';
+import AssignCompanyModal from '../components/AssignCompanyModal';
 import { apiService, Company } from '../services/apiService';
 
 // Lazy loading pre CompanyDashboard
@@ -31,26 +32,45 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
   const [showEditCompanyModal, setShowEditCompanyModal] = useState(false);
   const [selectedCompanyForEdit, setSelectedCompanyForEdit] = useState<Company | null>(null);
   const [selectedCompanyForDashboard, setSelectedCompanyForDashboard] = useState<Company | null>(null);
+  const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
+  const [allAccountants, setAllAccountants] = useState<any[]>([]);
 
-  // Načítanie firiem z API
+  // Načítanie firiem a účtovníkov z API
   useEffect(() => {
-    const loadCompanies = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
+        
+        // Najprv načítame firmy
         const companiesData = await apiService.getAllCompanies();
-        const activeCompanies = companiesData.filter(company => company.status === 'active');
+        console.log('Všetky firmy z API:', companiesData);
+        console.log('Statusy firiem:', companiesData.map(c => ({ name: c.name, status: c.status })));
+        
+        const activeCompanies = companiesData.filter(company => company.status === 'active' || !company.status || company.status === null);
         const inactiveCompaniesData = companiesData.filter(company => company.status === 'inactive');
+        
+        console.log('Aktívne firmy:', activeCompanies);
+        console.log('Neaktívne firmy:', inactiveCompaniesData);
         
         setAllCompanies(activeCompanies);
         setInactiveCompanies(inactiveCompaniesData);
+        
+        // Potom skúsime načítať účtovníkov (môže zlyhať)
+        try {
+          const accountantsData = await apiService.getAllAccountants();
+          setAllAccountants(accountantsData);
+        } catch (accountantsError) {
+          console.warn('Nepodarilo sa načítať účtovníkov:', accountantsError);
+          setAllAccountants([]);
+        }
       } catch (error) {
-        console.error('Chyba pri načítaní firiem:', error);
+        console.error('Chyba pri načítaní dát:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadCompanies();
+    loadData();
   }, []);
 
   // Filtrovanie firiem podľa vyhľadávania
@@ -109,6 +129,23 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
     } catch (error) {
       console.error('Chyba pri aktivácii firmy:', error);
       alert('Chyba pri aktivácii firmy');
+    }
+  };
+
+  // Priradenie účtovníkov k firme
+  const handleAssignAccountants = async (companyId: number, accountantEmails: string[]) => {
+    try {
+      await apiService.assignAccountantsToCompany(companyId, accountantEmails);
+      // Refresh companies data
+      const companiesData = await apiService.getAllCompanies();
+      const activeCompanies = companiesData.filter(company => company.status === 'active');
+      const inactiveCompaniesData = companiesData.filter(company => company.status === 'inactive');
+      
+      setAllCompanies(activeCompanies);
+      setInactiveCompanies(inactiveCompaniesData);
+    } catch (error) {
+      console.error('Chyba pri priradení účtovníkov:', error);
+      alert('Chyba pri priradení účtovníkov');
     }
   };
 
@@ -198,6 +235,13 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowAssignCompanyModal(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
+              >
+                <UserIcon className="h-4 w-4 mr-2" />
+                Priradiť účtovníkov
+              </button>
               <button
                 onClick={() => setShowInactiveCompanies(!showInactiveCompanies)}
                 className={`px-4 py-2 rounded-md flex items-center transition-colors ${
@@ -290,6 +334,14 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                             <UserIcon className="h-4 w-4 mr-2 mt-0.5" />
                             <span className="text-xs">{company.authorized_person}</span>
                           </div>
+                          {company.assignedToAccountants && company.assignedToAccountants.length > 0 && (
+                            <div className="flex items-start">
+                              <UserIcon className="h-4 w-4 mr-2 mt-0.5 text-green-600" />
+                              <span className="text-xs text-green-600">
+                                Účtovníci: {company.assignedToAccountants.length}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end space-y-2">
@@ -299,6 +351,16 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                     
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                       <div className="flex space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowAssignCompanyModal(true);
+                          }}
+                          className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center"
+                        >
+                          <UserIcon className="h-4 w-4 mr-1" />
+                          Priradiť účtovníkov
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -332,16 +394,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                             Aktivovať
                           </button>
                         )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCompany(company.id);
-                          }}
-                          className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
-                        >
-                          <TrashIcon className="h-4 w-4 mr-1" />
-                          Vymazať
-                        </button>
+
                       </div>
                     </div>
                   </div>
@@ -381,6 +434,14 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
         }}
         onSave={(companyId, companyData) => selectedCompanyForEdit && handleEditCompany(selectedCompanyForEdit.id, companyData)}
         company={selectedCompanyForEdit}
+      />
+      
+      <AssignCompanyModal
+        isOpen={showAssignCompanyModal}
+        onClose={() => setShowAssignCompanyModal(false)}
+        onAssign={handleAssignAccountants}
+        companies={[...allCompanies, ...inactiveCompanies]}
+        accountants={allAccountants}
       />
     </div>
   );

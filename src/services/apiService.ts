@@ -5,7 +5,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  role: 'admin' | 'accountant' | 'user';
+  role: 'admin' | 'accountant' | 'user' | 'employee';
   status: 'active' | 'inactive';
   phone?: string;
 }
@@ -99,6 +99,8 @@ class ApiService {
     const url = `${API_BASE_URL}${endpoint}`;
     const token = this.getToken();
 
+    console.log('🌐 API Request:', url, options);
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -110,17 +112,51 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
+      console.log('📡 API Response status:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ API Error response:', errorData);
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('✅ API Response data:', data);
+      return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('❌ API Error:', error);
       throw error;
     }
+  }
+
+  // Generic HTTP methods
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' });
+  }
+
+  async post<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async put<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async patch<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
   // Auth endpoints
@@ -146,14 +182,34 @@ class ApiService {
     status?: string;
     phone?: string;
   }) {
-    return this.request<{ message: string; userId: number; user: User }>('/auth/create-user', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
+    console.log('🚀 ApiService.createUser volané s dátami:', userData);
+    try {
+      const response = await this.request<{ message: string; userId: number; user: User }>('/auth/create-user', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      });
+      console.log('✅ ApiService.createUser úspešné:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ ApiService.createUser chyba:', error);
+      throw error;
+    }
   }
 
   async getAllUsers() {
-    return this.request<User[]>('/auth/users');
+    console.log('🔍 ApiService.getAllUsers volané');
+    try {
+      const users = await this.request<User[]>('/auth/users');
+      console.log('✅ ApiService.getAllUsers úspešné:', users);
+      return users;
+    } catch (error) {
+      console.error('❌ ApiService.getAllUsers chyba:', error);
+      throw error;
+    }
+  }
+
+  async getAllAccountants() {
+    return this.request<User[]>('/auth/users/accountants');
   }
 
   async getUserById(id: number) {
@@ -235,6 +291,14 @@ class ApiService {
     return this.request<Company[]>('/companies/inactive');
   }
 
+  async getAccountantsForCompany(companyId: number) {
+    return this.request<any[]>(`/companies/${companyId}/accountants`);
+  }
+
+  async getAvailableAccountantsForCompany(companyId: number) {
+    return this.request<any[]>(`/companies/${companyId}/available-accountants`);
+  }
+
   async assignAccountantsToCompany(companyId: number, accountantEmails: string[]) {
     return this.request<{ message: string }>(`/companies/${companyId}/assign-accountants`, {
       method: 'POST',
@@ -247,6 +311,10 @@ class ApiService {
   }
 
   async getAccountantCompanies(accountantEmail: string) {
+    return this.request<Company[]>(`/companies/accountant/${encodeURIComponent(accountantEmail)}`);
+  }
+
+  async getCompaniesForAccountant(accountantEmail: string) {
     return this.request<Company[]>(`/companies/accountant/${encodeURIComponent(accountantEmail)}`);
   }
 
@@ -403,6 +471,10 @@ class ApiService {
     return this.request<any[]>(`/messages/company/${companyId}`);
   }
 
+  async getEmployeeMessages(employeeEmail: string) {
+    return this.request<any[]>(`/messages/employee/${encodeURIComponent(employeeEmail)}`);
+  }
+
   async getAllMessages() {
     return this.request<any[]>('/messages/admin/all');
   }
@@ -442,6 +514,29 @@ class ApiService {
   async getUnreadCount(userEmail: string) {
     const response = await this.request<{ unreadCount: number }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-count`);
     return response.unreadCount;
+  }
+
+  async getUnreadCounts(userEmail: string) {
+    const response = await this.request<{ 
+      receivedUnreadCount: number; 
+      sentUnreadCount: number; 
+      totalUnreadCount: number 
+    }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-counts`);
+    return response;
+  }
+
+  async getCompanyUnreadCount(companyId: number) {
+    const response = await this.request<{ unreadCount: number }>(`/messages/company/${companyId}/unread-count`);
+    return response.unreadCount;
+  }
+
+  async getCompanyUnreadCounts(companyId: number) {
+    const response = await this.request<{ 
+      receivedUnreadCount: number; 
+      sentUnreadCount: number; 
+      totalUnreadCount: number 
+    }>(`/messages/company/${companyId}/unread-counts`);
+    return response;
   }
 
   async getConversation(user1: string, user2: string) {

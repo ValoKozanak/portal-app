@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { apiService } from '../services/apiService';
 
 interface User {
   id: number;
@@ -25,10 +26,28 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     confirmPassword: '',
     role: 'user',
     status: 'active',
-    phone: ''
+    phone: '',
+    companyId: ''
   });
+  const [companies, setCompanies] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Načítanie firiem
+  useEffect(() => {
+    const loadCompanies = async () => {
+      try {
+        const companiesData = await apiService.getAllCompanies();
+        setCompanies(companiesData);
+      } catch (error) {
+        console.error('Chyba pri načítaní firiem:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadCompanies();
+    }
+  }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -75,6 +94,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
       newErrors.phone = 'Neplatný formát telefónu';
     }
 
+    // Validácia firmy pre zamestnancov
+    if (formData.role === 'employee' && !formData.companyId) {
+      newErrors.companyId = 'Firma je povinná pre zamestnancov';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -99,7 +123,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
         confirmPassword: '', 
         role: 'user', 
         status: 'active', 
-        phone: '' 
+        phone: '',
+        companyId: ''
       });
       setErrors({});
       setIsLoading(false);
@@ -115,7 +140,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
       confirmPassword: '', 
       role: 'user', 
       status: 'active', 
-      phone: '' 
+      phone: '',
+      companyId: ''
     });
     setErrors({});
     onClose();
@@ -251,6 +277,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
               >
                 <option value="user">Používateľ</option>
                 <option value="accountant">Účtovník (Moderátor)</option>
+                <option value="employee">Zamestnanec</option>
                 <option value="moderator">Moderátor</option>
                 <option value="admin">Administrátor</option>
               </select>
@@ -271,6 +298,34 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 <option value="inactive">Neaktívny</option>
               </select>
             </div>
+
+            {/* Výber firmy pre zamestnancov */}
+            {formData.role === 'employee' && (
+              <div>
+                <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Firma *
+                </label>
+                <select
+                  id="companyId"
+                  name="companyId"
+                  value={formData.companyId}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.companyId ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Vyberte firmu</option>
+                  {companies.map(company => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.companyId && (
+                  <p className="mt-1 text-sm text-red-600">{errors.companyId}</p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex space-x-3">

@@ -13,6 +13,8 @@ const cmsRoutes = require('./routes/cms');
 const testRoutes = require('./routes/test');
 const messagesRoutes = require('./routes/messages');
 const dropboxRoutes = require('./routes/dropbox');
+const hrRoutes = require('./routes/hr');
+const payrollRoutes = require('./routes/payroll');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +37,8 @@ app.use('/api/documents', documentsRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/dropbox', dropboxRoutes);
+app.use('/api/hr', hrRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

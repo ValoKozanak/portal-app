@@ -72,18 +72,18 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
         {companies.map((company) => (
           <div
             key={company.id}
-            className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-600 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3">
-                    <BuildingOfficeIcon className="h-8 w-8 text-primary-600" />
+                    <BuildingOfficeIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-lg font-medium text-gray-900 truncate">
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white truncate">
                         {company.name}
                       </h4>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                         <span>IČO: {company.ico}</span>
                         <span>OR: {company.business_registry || 'N/A'}</span>
                       </div>
