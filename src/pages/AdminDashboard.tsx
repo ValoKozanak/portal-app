@@ -13,6 +13,9 @@ import {
   CloudIcon,
   EnvelopeIcon,
   CalendarIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  ServerIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/apiService';
 
@@ -23,6 +26,9 @@ const AdminTasksPage = React.lazy(() => import('./AdminTasksPage'));
 const AdminFilesPage = React.lazy(() => import('./AdminFilesPage'));
 const AdminDropboxPage = React.lazy(() => import('./AdminDropboxPage'));
 const AdminMessagesPage = React.lazy(() => import('./AdminMessagesPage'));
+const AdminSettingsPage = React.lazy(() => import('./AdminSettingsPage'));
+const AdminPohodaImportPage = React.lazy(() => import('./AdminPohodaImportPage'));
+const AdminPohodaExportPage = React.lazy(() => import('./AdminPohodaExportPage'));
 
 
 const AdminDashboard: React.FC = () => {
@@ -50,6 +56,9 @@ const AdminDashboard: React.FC = () => {
   const [showFilesPage, setShowFilesPage] = useState(false);
   const [showDropboxPage, setShowDropboxPage] = useState(false);
   const [showMessagesPage, setShowMessagesPage] = useState(false);
+  const [showSettingsPage, setShowSettingsPage] = useState(false);
+  const [showPohodaImportPage, setShowPohodaImportPage] = useState(false);
+  const [showPohodaExportPage, setShowPohodaExportPage] = useState(false);
 
 
 
@@ -167,6 +176,30 @@ const AdminDashboard: React.FC = () => {
           onBack={() => setShowMessagesPage(false)} 
           onMessageAction={loadUnreadCounts}
         />
+      </React.Suspense>
+    );
+  }
+
+  if (showSettingsPage) {
+    return (
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
+        <AdminSettingsPage onBack={() => setShowSettingsPage(false)} />
+      </React.Suspense>
+    );
+  }
+
+  if (showPohodaImportPage) {
+    return (
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
+        <AdminPohodaImportPage onBack={() => setShowPohodaImportPage(false)} />
+      </React.Suspense>
+    );
+  }
+
+  if (showPohodaExportPage) {
+    return (
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
+        <AdminPohodaExportPage onBack={() => setShowPohodaExportPage(false)} />
       </React.Suspense>
     );
   }
@@ -299,6 +332,41 @@ const AdminDashboard: React.FC = () => {
 
         </div>
 
+        {/* POHODA Import/Export karty */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <button
+            onClick={() => setShowPohodaImportPage(true)}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ArrowDownTrayIcon className="h-8 w-8 text-green-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">POHODA Import</p>
+                <p className="text-2xl font-bold text-gray-900">📥</p>
+                <p className="text-xs text-gray-500 mt-1">Import faktúr a dát</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setShowPohodaExportPage(true)}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ArrowUpTrayIcon className="h-8 w-8 text-blue-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">POHODA Export</p>
+                <p className="text-2xl font-bold text-gray-900">📤</p>
+                <p className="text-xs text-gray-500 mt-1">Export faktúr a dát</p>
+              </div>
+            </div>
+          </button>
+        </div>
+
         {/* Ďalšie informačné karty */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -327,18 +395,21 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <button
+            onClick={() => setShowSettingsPage(true)}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <CogIcon className="h-8 w-8 text-indigo-500" />
+                <ServerIcon className="h-8 w-8 text-indigo-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Nastavenia</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.settings}</p>
-                <p className="text-xs text-gray-500 mt-1">Konfigurácie</p>
+                <p className="text-sm font-medium text-gray-600">POHODA mServer</p>
+                <p className="text-2xl font-bold text-gray-900">⚙️</p>
+                <p className="text-xs text-gray-500 mt-1">Nastavenia mServer</p>
               </div>
             </div>
-          </div>
+          </button>
 
 
         </div>

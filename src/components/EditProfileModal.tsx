@@ -56,7 +56,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       newErrors.email = 'Neplatný formát emailu';
     }
 
-    if (formData.phone && !/^[\+]?[0-9\s\-\(\)]{9,}$/.test(formData.phone)) {
+    if (formData.phone && !/^[+]?[0-9\s\-()]{9,}$/.test(formData.phone)) {
       newErrors.phone = 'Neplatný formát telefónneho čísla';
     }
 

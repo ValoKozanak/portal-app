@@ -7,6 +7,7 @@ interface DropboxCompany {
   companyId: number;
   companyEmail: string;
   companyName: string;
+  companyICO: string;
   folderPath: string;
   shareLink: string;
   isShared: boolean;
@@ -125,6 +126,7 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
               isCompanyView={true}
               userRole="accountant"
               companyName={selectedCompany.companyName}
+              companyICO={selectedCompany.companyICO}
               onFileSelect={(file) => {
             
               }}

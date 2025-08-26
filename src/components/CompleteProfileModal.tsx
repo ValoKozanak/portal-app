@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { XMarkIcon, UserIcon, EnvelopeIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, UserIcon } from '@heroicons/react/24/outline';
 
 interface CompleteProfileModalProps {
   isOpen: boolean;

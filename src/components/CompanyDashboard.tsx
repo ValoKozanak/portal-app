@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  DocumentTextIcon,
   CurrencyDollarIcon,
   UserIcon,
   ChartBarIcon,
@@ -12,7 +11,11 @@ import {
   FolderIcon,
   CalendarIcon,
   CloudIcon,
-  UsersIcon
+  UsersIcon,
+  PencilIcon,
+  TrashIcon,
+  DocumentTextIcon,
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 import FileManager from './FileManager';
 import TaskModal, { Task, Employee } from './TaskModal';
@@ -21,9 +24,12 @@ import MessageModal from './MessageModal';
 import DropboxIntegration from './DropboxIntegration';
 import HRDashboard from './HRDashboard';
 import PayrollPeriodsModal from './PayrollPeriodsModal';
+// import AccountingDashboard from './AccountingDashboard'; // Už sa nepoužíva
 
 import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
+import { hrService } from '../services/hrService';
+import { accountingService } from '../services/accountingService';
 
 // Používame API typy, ale zachovávame kompatibilitu s existujúcimi komponentmi
 type Company = ApiCompany;
@@ -42,25 +48,15 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
 
 
-  // Simulované zamestnanci firmy
-  const [companyEmployees] = useState<Employee[]>([
-    { id: '1', name: 'Mgr. Jana Nováková', email: 'jana.novakova@firma.sk', role: 'Účtovníčka', department: 'Účtovníctvo' },
-    { id: '2', name: 'Ing. Peter Kováč', email: 'peter.kovac@firma.sk', role: 'Auditor', department: 'Audit' },
-    { id: '3', name: 'Mgr. Anna Svobodová', email: 'anna.svobodova@firma.sk', role: 'Personalistka', department: 'HR' },
-    { id: '4', name: 'Ing. Martin Horváth', email: 'martin.horvath@firma.sk', role: 'IT administrátor', department: 'IT' },
-    { id: '5', name: 'Mgr. Eva Králová', email: 'eva.kralova@firma.sk', role: 'Právnička', department: 'Právne oddelenie' },
-    { id: '6', name: 'Ing. Tomáš Veselý', email: 'tomas.vesely@firma.sk', role: 'Manažér operácií', department: 'Operácie' },
-  ]);
+  // Skutoční zamestnanci firmy z HR modulu
+  const [companyEmployees, setCompanyEmployees] = useState<Employee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
 
-  const [invoices] = useState([
-    { id: 1, number: '2024/001', amount: 1500, status: 'unpaid', dueDate: '31.12.2024', description: 'Účtovné služby - december 2024' },
-    { id: 2, number: '2024/002', amount: 800, status: 'paid', dueDate: '30.11.2024', description: 'Daňové poradenstvo' },
-    { id: 3, number: '2024/003', amount: 1200, status: 'overdue', dueDate: '15.11.2024', description: 'Audit účtovných dokladov' },
-    { id: 4, number: '2024/004', amount: 950, status: 'unpaid', dueDate: '15.01.2025', description: 'Právne poradenstvo' },
-  ]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(true);
 
   // Načítavame skutočné správy cez MessagesList komponent
-  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [, setUnreadMessagesCount] = useState(0);
   const [unreadCounts, setUnreadCounts] = useState({
     receivedUnreadCount: 0,
     sentUnreadCount: 0,
@@ -106,6 +102,30 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       setUnreadMessagesCount(counts.totalUnreadCount);
     } catch (error) {
       console.error('Chyba pri načítaní rozlíšených počtov správ pre firmu:', error);
+    }
+  }, [company.id]);
+
+  // Funkcia na načítanie zamestnancov firmy z HR modulu
+  const loadEmployees = useCallback(async () => {
+    try {
+      setLoadingEmployees(true);
+      const employees = await hrService.getEmployees(company.id);
+      
+      // Konvertujeme HR zamestnancov na formát potrebný pre TaskModal
+      const convertedEmployees: Employee[] = employees.map(emp => ({
+        id: emp.id.toString(),
+        name: `${emp.first_name} ${emp.last_name}`,
+        email: emp.email,
+        role: emp.position,
+        department: emp.department || 'Nešpecifikované'
+      }));
+      
+      setCompanyEmployees(convertedEmployees);
+    } catch (error) {
+      console.error('Chyba pri načítaní zamestnancov:', error);
+      setCompanyEmployees([]);
+    } finally {
+      setLoadingEmployees(false);
     }
   }, [company.id]);
 
@@ -317,8 +337,17 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     pendingTasks: tasks.filter(t => t.status === 'pending').length,
     completedTasks: tasks.filter(t => t.status === 'completed').length,
     totalInvoices: invoices.length,
-    unpaidInvoices: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').length,
-    totalAmount: invoices.filter(i => i.status === 'unpaid' || i.status === 'overdue').reduce((sum, i) => sum + i.amount, 0),
+    // Len nezaplatené faktúry od DIVIDENDA s.r.o.
+    unpaidInvoices: invoices.filter(i => {
+      const isUnpaid = (i.kc_likv && parseFloat(i.kc_likv) > 0) || i.status === 'unpaid' || i.status === 'overdue';
+      const isDividenda = i.supplier_name?.includes('DIVIDENDA') || i.supplier_name?.includes('36543039');
+      return isUnpaid && isDividenda;
+    }).length,
+    totalAmount: invoices.filter(i => {
+      const isUnpaid = (i.kc_likv && parseFloat(i.kc_likv) > 0) || i.status === 'unpaid' || i.status === 'overdue';
+      const isDividenda = i.supplier_name?.includes('DIVIDENDA') || i.supplier_name?.includes('36543039');
+      return isUnpaid && isDividenda;
+    }).reduce((sum, i) => sum + (parseFloat(i.kc_likv) || parseFloat(i.total_amount) || 0), 0),
     totalFileSize: files.reduce((sum, f) => sum + f.file_size, 0),
   };
 
@@ -330,16 +359,18 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       try {
         setLoadingFiles(true);
         setLoadingTasks(true);
-        
-        
+        setLoadingInvoices(true);
         
         // Načítanie súborov
         const companyFiles = await apiService.getCompanyFiles(company.id);
         setFiles(companyFiles);
         
         // Načítanie úloh
-
         const companyTasks = await apiService.getCompanyTasks(company.id);
+        
+        // Načítanie prijatých faktúr
+        const receivedInvoices = await accountingService.getReceivedInvoices(company.id, { limit: 1000 });
+        setInvoices(receivedInvoices);
         
         
         // Konvertujeme API Task na TaskModal Task
@@ -361,17 +392,21 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         // Načítanie rozlíšených počtov neprečítaných správ
         await loadUnreadCounts();
 
+        // Načítanie zamestnancov
+        await loadEmployees();
+
       } catch (error) {
         console.error('Chyba pri načítaní dát:', error);
         console.error('Error details:', error);
       } finally {
         setLoadingFiles(false);
         setLoadingTasks(false);
+        setLoadingInvoices(false);
       }
     };
 
     loadData();
-  }, [company.id, loadUnreadMessagesCount, loadUnreadCounts]);
+  }, [company.id, loadUnreadMessagesCount, loadUnreadCounts, loadEmployees]);
 
   // Automatické aktualizácie počtu správ každých 30 sekúnd
   useEffect(() => {
@@ -416,18 +451,22 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           </div>
         </button>
 
-        <div className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6">
+        <button 
+          onClick={() => window.location.href = '/accounting/received-invoices?filter=dividenda'}
+          className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+        >
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CurrencyDollarIcon className="h-8 w-8 text-yellow-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Faktúry</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Nezaplatené faktúry</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unpaidInvoices}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.totalAmount} € celkovo</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.totalAmount.toFixed(2)} € celkovo</p>
+              <p className="text-xs text-yellow-600 mt-1">DIVIDENDA s.r.o. - kliknite pre zobrazenie</p>
             </div>
           </div>
-        </div>
+        </button>
 
         <button 
           onClick={() => setActiveTab('messages')}
@@ -616,78 +655,13 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     );
   };
 
-  const renderInvoices = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-900">Faktúry</h2>
-        <div className="text-sm text-gray-500">
-          Celková suma nezaplatených: <span className="font-bold text-red-600">{stats.totalAmount} €</span>
-        </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Číslo faktúry
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Popis
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Suma
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Splatnosť
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Akcie
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {invoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{invoice.number}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{invoice.description}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{invoice.amount} €</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(invoice.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {invoice.dueDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                      {invoice.status === 'unpaid' && (
-                        <button className="text-green-600 hover:text-green-900">
-                          <CreditCardIcon className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+
+  const renderAccounting = () => {
+    // Navigácia na samostatnú stránku účtovníctva
+    window.location.href = '/accounting';
+    return null;
+  };
 
   const renderAccountants = () => (
     <div className="space-y-6">
@@ -799,7 +773,6 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   );
 
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -849,11 +822,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             {[
               { id: 'overview', name: 'Prehľad', icon: ChartBarIcon },
               { id: 'tasks', name: 'Úlohy', icon: ClipboardDocumentListIcon },
-              { id: 'invoices', name: 'Faktúry', icon: CurrencyDollarIcon },
               { id: 'files', name: 'Súbory', icon: FolderIcon },
               { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
               { id: 'hr', name: 'HR', icon: UsersIcon },
               { id: 'accountants', name: 'Účtovníci', icon: UserIcon },
+              { id: 'accounting', name: 'Účtovníctvo', icon: DocumentTextIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -879,7 +852,6 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         <div className="mb-6">
           {activeTab === 'overview' && renderOverview()}
           {activeTab === 'tasks' && renderTasks()}
-          {activeTab === 'invoices' && renderInvoices()}
           {activeTab === 'files' && (
             <div>
               {(() => {
@@ -931,6 +903,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                   isCompanyView={true}
                   userRole={userRole}
                   companyName={company.name}
+                  companyICO={company.ico}
                   onFileSelect={(file) => {
                     console.log('Selected Dropbox file:', file);
                     // Tu môžeme implementovať logiku pre import súboru z Dropbox
@@ -943,6 +916,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             <HRDashboard companyId={company.id} />
           )}
           {activeTab === 'accountants' && renderAccountants()}
+          {activeTab === 'accounting' && renderAccounting()}
           {activeTab === 'messages' && renderMessages()}
         </div>
 

@@ -247,7 +247,7 @@ class DropboxService {
   }
 
   // Získanie zoznamu súborov z priečinka
-  async listFiles(path: string = '', userEmail?: string): Promise<DropboxFile[]> {
+  async listFiles(path: string = '', ico?: string): Promise<DropboxFile[]> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
     }
@@ -256,14 +256,14 @@ class DropboxService {
       console.log('=== DROPBOX SERVICE DEBUG ===');
       console.log('DropboxService.listFiles - začiatok');
       console.log('DropboxService.listFiles - path:', path);
-      console.log('DropboxService.listFiles - userEmail:', userEmail);
+      console.log('DropboxService.listFiles - ico:', ico);
       console.log('DropboxService.listFiles - this.dbx exists:', !!this.dbx);
       
-      // Ak je zadaný userEmail, použijeme špecifickú cestu pre firmu
+      // Ak je zadaný ico, použijeme špecifickú cestu pre firmu
       let targetPath = path;
-      if (userEmail && !path.startsWith('/Portal/Companies/')) {
-        // Vytvoríme cestu pre firmu na základe emailu
-        const companyFolder = this.getCompanyFolderPath(userEmail);
+      if (ico && !path.startsWith('/Portal/Companies/')) {
+        // Vytvoríme cestu pre firmu na základe ico
+        const companyFolder = this.getCompanyFolderPath(ico);
         targetPath = companyFolder + (path ? '/' + path : '');
         console.log('DropboxService.listFiles - companyFolder:', companyFolder);
       }
@@ -298,31 +298,27 @@ class DropboxService {
     }
   }
 
-  // Generovanie cesty pre firmu na základe emailu
-  getCompanyFolderPath(userEmail: string): string {
-    const emailHash = this.hashEmail(userEmail);
-    return `/Portal/Companies/${emailHash}`;
+  // Generovanie cesty pre firmu na základe IČO
+  getCompanyFolderPath(ico: string): string {
+    const icoHash = this.hashICO(ico);
+    return `/Portal/Companies/${icoHash}`;
   }
 
-  // Jednoduchý hash emailu pre vytvorenie unikátnej cesty
-  hashEmail(email: string): string {
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      const char = email.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return Math.abs(hash).toString(36);
+  // Jednoduchý hash IČO pre vytvorenie unikátnej cesty
+  hashICO(ico: string): string {
+    // IČO je už unikátne, takže ho môžeme použiť priamo
+    // Len odstránime medzery a špeciálne znaky pre bezpečnosť
+    return ico.replace(/\s/g, '').replace(/[^a-zA-Z0-9]/g, '');
   }
 
   // Vytvorenie zdieľateľnej zložky pre firmu
-  async createCompanyFolder(userEmail: string): Promise<string> {
+  async createCompanyFolder(ico: string): Promise<string> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
     }
 
     try {
-      const companyPath = this.getCompanyFolderPath(userEmail);
+      const companyPath = this.getCompanyFolderPath(ico);
       
       // Vytvorenie priečinka
       const response = await this.dbx.filesCreateFolderV2({
@@ -338,13 +334,13 @@ class DropboxService {
   }
 
   // Získanie zdieľateľného linku pre firmu
-  async getCompanySharedLink(userEmail: string): Promise<string> {
+  async getCompanySharedLink(ico: string): Promise<string> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
     }
 
     try {
-      const companyPath = this.getCompanyFolderPath(userEmail);
+      const companyPath = this.getCompanyFolderPath(ico);
       return await this.getSharedLink(companyPath);
     } catch (error) {
       console.error('Error getting company shared link:', error);
@@ -353,7 +349,7 @@ class DropboxService {
   }
 
   // Nahrávanie súboru do Dropbox
-  async uploadFile(file: File, path: string, userEmail?: string, onProgress?: (progress: number) => void): Promise<DropboxUploadResult> {
+  async uploadFile(file: File, path: string, ico?: string, onProgress?: (progress: number) => void): Promise<DropboxUploadResult> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
     }
@@ -361,10 +357,10 @@ class DropboxService {
     try {
       const fileBuffer = await file.arrayBuffer();
       
-      // Ak je zadaný userEmail, použijeme špecifickú cestu pre firmu
+      // Ak je zadaný IČO, použijeme špecifickú cestu pre firmu
       let fullPath = path + '/' + file.name;
-      if (userEmail && !path.startsWith('/Portal/Companies/')) {
-        const companyFolder = this.getCompanyFolderPath(userEmail);
+      if (ico && !path.startsWith('/Portal/Companies/')) {
+        const companyFolder = this.getCompanyFolderPath(ico);
         fullPath = companyFolder + '/' + (path ? path + '/' : '') + file.name;
         console.log('DropboxService.uploadFile - companyFolder:', companyFolder);
       }

@@ -27,6 +27,7 @@ interface DropboxShareSettings {
   companyId: number;
   companyEmail: string;
   companyName: string;
+  companyICO: string;
   isShared: boolean;
   shareLink?: string;
   permissions: {
@@ -182,7 +183,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
           
           const settings: DropboxShareSettings[] = companies.map(company => {
             const dbSetting = data.settings.find((s: any) => s.companyId === company.id);
-            const folderPath = `/Portal/Companies/${dropboxService.hashEmail(company.owner_email)}`;
+            const folderPath = `/Portal/Companies/${dropboxService.hashICO(company.ico)}`;
             
             if (dbSetting) {
               // Použijeme nastavenia z databázy
@@ -190,6 +191,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                 companyId: company.id,
                 companyEmail: company.owner_email,
                 companyName: company.name,
+                companyICO: company.ico,
                 isShared: dbSetting.isShared,
                 permissions: dbSetting.permissions,
                 folderPath: dbSetting.folderPath || folderPath,
@@ -201,6 +203,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                 companyId: company.id,
                 companyEmail: company.owner_email,
                 companyName: company.name,
+                companyICO: company.ico,
                 isShared: false,
                 permissions: {
                   canView: true,
@@ -225,7 +228,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       const settings: DropboxShareSettings[] = [];
       
       for (const company of companies) {
-        const folderPath = `/Portal/Companies/${dropboxService.hashEmail(company.owner_email)}`;
+        const folderPath = `/Portal/Companies/${dropboxService.hashICO(company.ico)}`;
         
         try {
           // Skontrolujeme, či zložka existuje
@@ -270,6 +273,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             companyId: company.id,
             companyEmail: company.owner_email,
             companyName: company.name,
+            companyICO: company.ico,
             isShared: folderExists, // Ak zložka existuje, považujeme ju za zdieľanú
             permissions: permissions,
             shareLink: shareLink,
@@ -281,6 +285,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             companyId: company.id,
             companyEmail: company.owner_email,
             companyName: company.name,
+            companyICO: company.ico,
             isShared: false,
             permissions: {
               canView: true,
@@ -310,7 +315,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
     try {
       // Vytvoríme zložku
-      const folderPath = await dropboxService.createCompanyFolder(company.owner_email);
+      const folderPath = await dropboxService.createCompanyFolder(company.ico);
       
       // Automaticky nastavíme zdieľanie s predvolenými oprávneniami
       const defaultPermissions = {
@@ -332,6 +337,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             body: JSON.stringify({
               companyId: company.id,
               companyEmail: company.owner_email,
+              companyICO: company.ico,
               folderPath: folderPath,
               shareLink: shareLink,
               permissions: defaultPermissions
@@ -396,7 +402,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     if (!selectedCompany) return;
 
     try {
-      const folderPath = `/Portal/Companies/${dropboxService.hashEmail(selectedCompany.owner_email)}`;
+      const folderPath = `/Portal/Companies/${dropboxService.hashICO(selectedCompany.ico)}`;
       
       // Ak už existuje zdieľateľný link, najprv ho odvoláme
       const currentSetting = shareSettings.find(s => s.companyId === selectedCompany.id);

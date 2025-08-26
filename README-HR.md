@@ -59,15 +59,15 @@ npm start
 
 ### Admin
 - Email: `admin@portal.sk`
-- Heslo: `admin123`
+- Heslo: `[DEMO_HESLO]`
 
 ### Účtovník
 - Email: `accountant@portal.sk`
-- Heslo: `accountant123`
+- Heslo: `[DEMO_HESLO]`
 
 ### Zamestnanec
 - Email: `jozo@jozo.sk`
-- Heslo: `password123`
+- Heslo: `[DEMO_HESLO]`
 
 ## 📊 Databázové schémy
 

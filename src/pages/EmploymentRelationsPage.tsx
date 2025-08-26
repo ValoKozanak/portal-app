@@ -217,6 +217,15 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
                     Mzda
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Týždenné hodiny
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Dochádzka
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Pracovný čas
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -251,6 +260,17 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
                      </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {relation.salary ? `${relation.salary} €` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {relation.weekly_hours ? `${relation.weekly_hours} hodín` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
+                       relation.attendance_mode === 'manual' ? 'Manuálna' : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {relation.work_start_time && relation.work_end_time ? 
+                        `${relation.work_start_time} - ${relation.work_end_time}` : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(

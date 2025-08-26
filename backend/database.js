@@ -270,6 +270,7 @@ const initDatabase = () => {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           company_id INTEGER NOT NULL,
           company_email TEXT NOT NULL,
+          company_ico TEXT NOT NULL,
           folder_path TEXT NOT NULL,
           share_link TEXT,
           is_shared BOOLEAN DEFAULT 0,
@@ -283,6 +284,13 @@ const initDatabase = () => {
           UNIQUE(company_id)
         )
       `);
+
+      // Pridanie stĺpca company_ico ak neexistuje (migrácia)
+      db.run(`ALTER TABLE dropbox_settings ADD COLUMN company_ico TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri pridávaní stĺpca company_ico:', err);
+        }
+      });
 
       // Vloženie predvolených používateľov
       db.run(`
@@ -779,6 +787,250 @@ const initDatabase = () => {
       });
 
       console.log('✅ Demo mzdové obdobia pridané úspešne');
+
+      // ===== ÚČTOVNÍCTVO - NOVÉ TABUĽKY =====
+      
+      // Tabuľka nastavení účtovníctva pre firmy
+      db.run(`
+        CREATE TABLE IF NOT EXISTS accounting_settings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          pohoda_enabled BOOLEAN DEFAULT 0,
+          pohoda_url TEXT,
+          pohoda_username TEXT,
+          pohoda_password TEXT,
+          pohoda_ico TEXT,
+          pohoda_year TEXT,
+          auto_sync BOOLEAN DEFAULT 0,
+          sync_frequency TEXT DEFAULT 'daily' CHECK(sync_frequency IN ('hourly', 'daily', 'weekly', 'manual')),
+          last_sync DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id)
+        )
+      `);
+
+      // Tabuľka práv pre účtovníctvo
+      db.run(`
+        CREATE TABLE IF NOT EXISTS accounting_permissions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_email TEXT NOT NULL,
+          company_id INTEGER NOT NULL,
+          can_view_invoices BOOLEAN DEFAULT 0,
+          can_create_invoices BOOLEAN DEFAULT 0,
+          can_edit_invoices BOOLEAN DEFAULT 0,
+          can_delete_invoices BOOLEAN DEFAULT 0,
+          can_view_bank BOOLEAN DEFAULT 0,
+          can_edit_bank BOOLEAN DEFAULT 0,
+          can_view_cash BOOLEAN DEFAULT 0,
+          can_edit_cash BOOLEAN DEFAULT 0,
+          can_view_reports BOOLEAN DEFAULT 0,
+          can_export_data BOOLEAN DEFAULT 0,
+          can_manage_settings BOOLEAN DEFAULT 0,
+          granted_by TEXT NOT NULL,
+          granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(user_email, company_id)
+        )
+      `);
+
+      // Tabuľka vydaných faktúr
+      db.run(`
+        CREATE TABLE IF NOT EXISTS issued_invoices (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          invoice_number TEXT NOT NULL,
+          customer_name TEXT NOT NULL,
+          customer_ico TEXT,
+          customer_dic TEXT,
+          customer_address TEXT,
+          issue_date DATE NOT NULL,
+          due_date DATE NOT NULL,
+          total_amount DECIMAL(10,2) NOT NULL,
+          vat_amount DECIMAL(10,2) NOT NULL,
+          
+          -- MDB stĺpce - základy DPH
+          kc0 DECIMAL(10,2) DEFAULT 0,
+          kc1 DECIMAL(10,2) DEFAULT 0,
+          kc2 DECIMAL(10,2) DEFAULT 0,
+          kc3 DECIMAL(10,2) DEFAULT 0,
+          
+          -- MDB stĺpce - DPH
+          kc_dph1 DECIMAL(10,2) DEFAULT 0,
+          kc_dph2 DECIMAL(10,2) DEFAULT 0,
+          kc_dph3 DECIMAL(10,2) DEFAULT 0,
+          
+          -- MDB stĺpce - celkové sumy
+          kc_celkem DECIMAL(10,2) DEFAULT 0,
+          
+          -- MDB stĺpce - ďalšie informácie
+          var_sym TEXT,
+          s_text TEXT,
+          mdb_id INTEGER,
+          rel_tp_fak INTEGER,
+          datum DATE,
+          dat_splat DATE,
+          firma TEXT,
+          ico TEXT,
+          dic TEXT,
+          ulice TEXT,
+          psc TEXT,
+          obec TEXT,
+          mdb_cislo TEXT,
+          
+          -- MDB stĺpce - likvidácia a platby
+          kc_likv DECIMAL(10,2) DEFAULT 0,
+          kc_zuplat DECIMAL(10,2) DEFAULT 0,
+          dat_likv DATE,
+          
+          currency TEXT DEFAULT 'EUR',
+          status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'sent', 'paid', 'overdue', 'cancelled')),
+          pohoda_id TEXT,
+          notes TEXT,
+          created_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id, invoice_number)
+        )
+      `);
+
+      // Tabuľka položiek vydaných faktúr
+      db.run(`
+        CREATE TABLE IF NOT EXISTS issued_invoice_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          invoice_id INTEGER NOT NULL,
+          description TEXT NOT NULL,
+          quantity DECIMAL(10,2) NOT NULL,
+          unit_price DECIMAL(10,2) NOT NULL,
+          vat_rate DECIMAL(5,2) NOT NULL,
+          total_price DECIMAL(10,2) NOT NULL,
+          vat_amount DECIMAL(10,2) NOT NULL,
+          unit TEXT DEFAULT 'ks',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (invoice_id) REFERENCES issued_invoices (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka prijatých faktúr
+      db.run(`
+        CREATE TABLE IF NOT EXISTS received_invoices (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          invoice_number TEXT NOT NULL,
+          supplier_name TEXT NOT NULL,
+          supplier_ico TEXT,
+          supplier_dic TEXT,
+          supplier_address TEXT,
+          issue_date DATE NOT NULL,
+          due_date DATE NOT NULL,
+          total_amount DECIMAL(10,2) NOT NULL,
+          vat_amount DECIMAL(10,2) NOT NULL,
+          currency TEXT DEFAULT 'EUR',
+          status TEXT DEFAULT 'received' CHECK(status IN ('received', 'approved', 'paid', 'overdue', 'disputed')),
+          pohoda_id TEXT,
+          notes TEXT,
+          created_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id, invoice_number)
+        )
+      `);
+
+      // Tabuľka položiek prijatých faktúr
+      db.run(`
+        CREATE TABLE IF NOT EXISTS received_invoice_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          invoice_id INTEGER NOT NULL,
+          description TEXT NOT NULL,
+          quantity DECIMAL(10,2) NOT NULL,
+          unit_price DECIMAL(10,2) NOT NULL,
+          vat_rate DECIMAL(5,2) NOT NULL,
+          total_price DECIMAL(10,2) NOT NULL,
+          vat_amount DECIMAL(10,2) NOT NULL,
+          unit TEXT DEFAULT 'ks',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (invoice_id) REFERENCES received_invoices (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka bankových transakcií
+      db.run(`
+        CREATE TABLE IF NOT EXISTS bank_transactions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          transaction_date DATE NOT NULL,
+          description TEXT NOT NULL,
+          amount DECIMAL(10,2) NOT NULL,
+          currency TEXT DEFAULT 'EUR',
+          type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+          category TEXT,
+          bank_account TEXT,
+          reference TEXT,
+          pohoda_id TEXT,
+          notes TEXT,
+          created_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka pokladničných transakcií
+      db.run(`
+        CREATE TABLE IF NOT EXISTS cash_transactions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          transaction_date DATE NOT NULL,
+          description TEXT NOT NULL,
+          amount DECIMAL(10,2) NOT NULL,
+          currency TEXT DEFAULT 'EUR',
+          type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+          category TEXT,
+          receipt_number TEXT,
+          pohoda_id TEXT,
+          notes TEXT,
+          created_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
+      // Tabuľka kategórií pre účtovníctvo
+      db.run(`
+        CREATE TABLE IF NOT EXISTS accounting_categories (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+          description TEXT,
+          is_active BOOLEAN DEFAULT 1,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id, name, type)
+        )
+      `);
+
+      // Tabuľka synchronizácie s Pohoda
+      db.run(`
+        CREATE TABLE IF NOT EXISTS pohoda_sync_log (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          sync_type TEXT NOT NULL CHECK(sync_type IN ('invoices', 'bank', 'cash', 'full')),
+          status TEXT NOT NULL CHECK(status IN ('success', 'error', 'partial')),
+          records_processed INTEGER DEFAULT 0,
+          records_synced INTEGER DEFAULT 0,
+          error_message TEXT,
+          started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          completed_at DATETIME,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
+        )
+      `);
+
+
 
       console.log('✅ Databáza inicializovaná úspešne');
       resolve();

@@ -10,22 +10,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware pre autentifikáciu
 const authenticateToken = (req, res, next) => {
-  console.log('🔒 authenticateToken middleware spustený pre:', req.path);
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  console.log('🔑 Token:', token ? 'existuje' : 'neexistuje');
 
   if (!token) {
-    console.log('❌ Žiadny token, vraciam 401');
     return res.status(401).json({ error: 'Prístupový token je požadovaný' });
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      console.log('❌ Neplatný token, vraciam 403');
       return res.status(403).json({ error: 'Neplatný token' });
     }
-    console.log('✅ Token platný, pokračujem');
     req.user = user;
     next();
   });
@@ -155,14 +150,11 @@ router.post('/create-user', (req, res) => {
 
 // Získanie všetkých účtovníkov
 router.get('/users/accountants', authenticateToken, (req, res) => {
-  console.log('📋 /users/accountants endpoint spustený');
   db.all('SELECT id, email, name, role, status, created_at FROM users WHERE role = "accountant" AND status = "active" ORDER BY name', [], (err, accountants) => {
     if (err) {
-      console.log('❌ Chyba pri načítaní účtovníkov:', err);
       return res.status(500).json({ error: 'Chyba pri načítaní účtovníkov' });
     }
 
-    console.log('✅ Účtovníci nájdení:', accountants.length);
     res.json(accountants);
   });
 });
@@ -170,7 +162,6 @@ router.get('/users/accountants', authenticateToken, (req, res) => {
 // Získanie používateľa podľa ID
 router.get('/users/:id', (req, res) => {
   const { id } = req.params;
-  console.log('🆔 /users/:id endpoint spustený s ID:', id);
   
   db.get('SELECT id, email, name, role, status, phone, created_at FROM users WHERE id = ?', [id], (err, user) => {
     if (err) {
@@ -427,4 +418,4 @@ router.delete('/users/:id', (req, res) => {
   });
 });
 
-module.exports = router;
+module.exports = { router, authenticateToken };

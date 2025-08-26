@@ -4,7 +4,7 @@ const cors = require('cors');
 const { initDatabase } = require('./database');
 
 // Import routes
-const authRoutes = require('./routes/auth');
+const { router: authRoutes } = require('./routes/auth');
 const companiesRoutes = require('./routes/companies');
 const tasksRoutes = require('./routes/tasks');
 const filesRoutes = require('./routes/files');
@@ -15,6 +15,7 @@ const messagesRoutes = require('./routes/messages');
 const dropboxRoutes = require('./routes/dropbox');
 const hrRoutes = require('./routes/hr');
 const payrollRoutes = require('./routes/payroll');
+const accountingRoutes = require('./routes/accounting');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -39,6 +40,7 @@ app.use('/api/test', testRoutes);
 app.use('/api/dropbox', dropboxRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/accounting', accountingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -58,6 +60,28 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint nenájdený' });
 });
 
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM prijatý, zatvaram server...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT prijatý, zatvaram server...');
+  process.exit(0);
+});
+
+// Uncaught exception handler
+process.on('uncaughtException', (err) => {
+  console.error('💥 Nezachytená výnimka:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Nezachytená Promise rejection:', reason);
+  process.exit(1);
+});
+
 // Inicializácia databázy a spustenie servera
 initDatabase()
   .then(() => {
@@ -65,6 +89,7 @@ initDatabase()
       console.log(`🚀 Server beží na porte ${PORT}`);
       console.log(`📊 API dostupné na http://localhost:${PORT}/api`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`⏰ Spustený: ${new Date().toISOString()}`);
     });
   })
   .catch((err) => {

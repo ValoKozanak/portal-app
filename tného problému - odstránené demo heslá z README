@@ -1,0 +1,120 @@
+[33mcommit 3ffd6da72dc90c0148abb75d53c3f79578689ad9[m[33m ([m[1;31morigin/hr-version[m[33m)[m
+Author: ValoKozanak <kozanak@dividenda.sk>
+Date:   Sat Aug 23 21:34:33 2025 +0200
+
+    HR verzia: Implementované mzdy, dochádzka a správa zamestnancov
+    
+    - Pridané HR moduly: dochádzka, mzdy, zamestnanci
+    - Implementované automatické počítanie dochádzky
+    - Pridané mzdové obdobia a ich správa
+    - Rozšírené API pre HR funkcionality
+    - Pridané nové komponenty: HRDashboard, AttendanceTracker, PayrollPeriodsModal
+    - Opravené endpointy pre účtovníkov
+    - Pridané TypeScript typy pre HR moduly
+    - Implementované správa pracovných pomerov
+    - Pridané správa dovoleniek a PN
+    - Rozšírené dashboardy pre rôzne role používateľov
+
+.gitignore
+GOOGLE_CALENDAR_SETUP.md
+OPTIMIZATION_GUIDE.md
+add-employee.js
+backend/add-demo-users.js
+backend/add-employee.js
+backend/check-all-users.js
+backend/check-employee-company.js
+backend/check-employees.js
+backend/check-user.js
+backend/database.js
+backend/debug-db.js
+backend/fix-encoding.js
+backend/generate-password-hash.js
+backend/package-lock.json
+backend/package.json
+backend/routes/auth.js
+backend/routes/companies.js
+backend/routes/hr.js
+backend/routes/messages.js
+backend/routes/payroll.js
+backend/server.js
+backend/services/calendarService.js
+backend/simple-add-users.js
+backend/test-create-user.js
+backend/update-password.js
+client-portal/package-lock.json
+client-portal/package.json
+client-portal/prisma/schema.prisma
+client-portal/src/app/layout.tsx
+client-portal/src/app/page.tsx
+client-portal/src/components/auth/LoginForm.tsx
+client-portal/src/components/dashboard/Dashboard.tsx
+client-portal/src/components/navigation/Navbar.tsx
+client-portal/src/components/navigation/Sidebar.tsx
+client-portal/src/components/providers/AuthProvider.tsx
+client-portal/src/components/ui/LoadingSpinner.tsx
+client-portal/src/components/ui/button.tsx
+client-portal/src/components/ui/input.tsx
+client-portal/src/components/ui/toast.tsx
+client-portal/src/components/ui/toaster.tsx
+client-portal/src/hooks/use-toast.ts
+client-portal/src/lib/utils.ts
+client-portal/tailwind.config.ts
+craco.config.js
+package.json
+src/App.tsx
+src/components/AddUserModal.tsx
+src/components/AdminCompaniesList.tsx
+src/components/AdminDashboard/AdminDashboardCompanies.tsx
+src/components/AdminDashboard/AdminDashboardContainer.tsx
+src/components/AdminDashboard/AdminDashboardContainer.tsx.backup
+src/components/AdminDashboard/AdminDashboardContainer.tsx.broken
+src/components/AdminDashboard/AdminDashboardDocuments.tsx
+src/components/AdminDashboard/AdminDashboardOverview.tsx
+src/components/AdminDashboard/AdminDashboardSettings.tsx
+src/components/AdminDashboard/AdminDashboardTasks.tsx
+src/components/AdminDashboard/AdminDashboardUsers.tsx
+src/components/AssignCompanyModal.tsx
+src/components/AssignEmployeeCompanyModal.tsx
+src/components/AttendanceOverview.tsx
+src/components/AttendanceRecordModal.tsx
+src/components/AttendanceTracker.tsx
+src/components/CompaniesList.tsx
+src/components/CompanyDashboard.tsx
+src/components/DarkModeToggle.tsx
+src/components/DatePicker.tsx
+src/components/EditCompanyModal.tsx
+src/components/EditEmployeeModal.tsx
+src/components/EditUserModal.tsx
+src/components/EmployeeModal.tsx
+src/components/EmploymentRelationModal.tsx
+src/components/HRDashboard.tsx
+src/components/LazyLoad.tsx
+src/components/LeaveRequestModal.tsx
+src/components/LoadingSpinner.tsx
+src/components/LoginModal.tsx
+src/components/MessageModal.tsx
+src/components/MessagesList.tsx
+src/components/Navbar.tsx
+src/components/OptimizedTable.tsx
+src/components/PayrollPeriodsModal.tsx
+src/components/SearchInput.tsx
+src/hooks/useApi.ts
+src/hooks/useDarkMode.ts
+src/index.css
+src/pages/AccountantDashboard.tsx
+src/pages/AdminCompaniesPage.tsx
+src/pages/AdminDashboard.tsx
+src/pages/AdminMessagesPage.tsx
+src/pages/AdminUsersPage.tsx
+src/pages/AutomaticAttendancePage.tsx
+src/pages/Dashboard.tsx
+src/pages/EmployeeCardPage.tsx
+src/pages/EmployeeDashboard.tsx
+src/pages/EmploymentRelationsPage.tsx
+src/pages/UserEmployeesPage.tsx
+src/services/apiService.ts
+src/services/calendarService.ts
+src/services/hrService.ts
+src/services/payrollService.ts
+src/types/EmploymentRelation.ts
+tailwind.config.js

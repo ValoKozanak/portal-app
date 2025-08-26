@@ -21,6 +21,7 @@ interface DropboxIntegrationProps {
   companyEmail?: string; // Email firmy pre zobrazenie správneho folderu
   userRole?: 'admin' | 'accountant' | 'company'; // Role používateľa
   companyName?: string; // Názov firmy pre zobrazenie
+  companyICO?: string; // IČO firmy pre vytvorenie zložky
 }
 
 const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({ 
@@ -30,7 +31,8 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
   isCompanyView = false,
   onFileSelect,
   userRole = 'company',
-  companyName
+  companyName,
+  companyICO
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,11 +100,10 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
     try {
       console.log('=== DROPBOX INTEGRATION DEBUG ===');
       // Ak je company view, načítame iba súbory z firmy
-      if (isCompanyView && (companyEmail || userEmail)) {
-        const emailToUse = companyEmail || userEmail;
-        const companyFolder = dropboxService.getCompanyFolderPath(emailToUse!);
+      if (isCompanyView && companyICO) {
+        const companyFolder = dropboxService.getCompanyFolderPath(companyICO);
         
-        const fileList = await dropboxService.listFiles(companyFolder, emailToUse);
+        const fileList = await dropboxService.listFiles(companyFolder, companyICO);
         
         setFiles(fileList);
         setCurrentPath(companyFolder);
@@ -129,9 +130,9 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
     setUploadProgress(0);
 
     try {
-      const emailToUse = isCompanyView && companyEmail ? companyEmail : userEmail;
+      const icoToUse = isCompanyView && companyICO ? companyICO : undefined;
       
-      const result = await dropboxService.uploadFile(selectedFile, currentPath || '', emailToUse);
+      const result = await dropboxService.uploadFile(selectedFile, currentPath || '', icoToUse);
       
       // Pridanie nového súboru do zoznamu
       setFiles(prev => [...prev, {
@@ -202,15 +203,10 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
   };
 
   const handleCreateSharedLink = async () => {
-    if (!isAuthenticated || (!userEmail && !companyEmail)) return;
+    if (!isAuthenticated || !companyICO) return;
 
     try {
-      const emailToUse = isCompanyView && companyEmail ? companyEmail : userEmail;
-      if (!emailToUse) {
-        alert('Chýba email pre vytvorenie zdieľateľného linku');
-        return;
-      }
-      const sharedLink = await dropboxService.getCompanySharedLink(emailToUse);
+      const sharedLink = await dropboxService.getCompanySharedLink(companyICO);
       // Skopírovanie linku do clipboard
       navigator.clipboard.writeText(sharedLink);
       alert('Zdieľateľný link bol skopírovaný do clipboard!');

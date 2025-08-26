@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ClockIcon, 
   PlayIcon, 
   PauseIcon, 
   StopIcon,

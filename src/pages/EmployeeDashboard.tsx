@@ -598,6 +598,58 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           ))}
         </div>
       </div>
+
+      {/* Mzdové informácie */}
+      {employmentRelations.length > 0 && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Mzdové informácie</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {employmentRelations.map((relation) => (
+              <div key={relation.id} className="space-y-3">
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mzda</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.salary} €</p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {relation.attendance_mode === 'automatic' ? 'Automatická' : 
+                     relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                  </p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {relation.work_start_time && relation.work_end_time ? 
+                      `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
+                  </p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {relation.break_start_time && relation.break_end_time ? 
+                      `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
+                  </p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ úväzku</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {relation.employment_type === 'full_time' ? 'Plný úväzok' :
+                     relation.employment_type === 'part_time' ? 'Čiastočný úväzok' :
+                     relation.employment_type === 'contract' ? 'Zmluva' :
+                     relation.employment_type === 'intern' ? 'Stáž' :
+                     relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -1112,6 +1164,86 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                 <PencilIcon className="w-4 h-4" />
               </button>
             </div>
+
+            <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Partner</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_partner ? 'Áno' : 'Nie'}</p>
+              </div>
+              <button 
+                onClick={() => handleChangeRequest('is_partner')}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Štatutárny zástupca</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_statutory ? 'Áno' : 'Nie'}</p>
+              </div>
+              <button 
+                onClick={() => handleChangeRequest('is_statutory')}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zamestnanecký bonus</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.employee_bonus ? 'Áno' : 'Nie'}</p>
+              </div>
+              <button 
+                onClick={() => handleChangeRequest('employee_bonus')}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Počet mesiacov bonus</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.bonus_months || '0'} mesiacov</p>
+              </div>
+              <button 
+                onClick={() => handleChangeRequest('bonus_months')}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cudzinec</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_foreigner ? 'Áno' : 'Nie'}</p>
+              </div>
+              <button 
+                onClick={() => handleChangeRequest('is_foreigner')}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {employeeData.is_foreigner && (
+              <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Krajina cudzinca</label>
+                  <p className="text-gray-900 dark:text-white">{employeeData.foreigner_country || 'Nezadané'}</p>
+                </div>
+                <button 
+                  onClick={() => handleChangeRequest('foreigner_country')}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                >
+                  <PencilIcon className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1369,6 +1501,31 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                        relation.employment_type === 'contract' ? 'Zmluva' :
                        relation.employment_type === 'intern' ? 'Stáž' :
                        relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
+                    <p className="text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
+                       relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.work_start_time && relation.work_end_time ? 
+                        `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.break_start_time && relation.break_end_time ? 
+                        `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
                     </p>
                   </div>
                   <div>

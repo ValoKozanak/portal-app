@@ -29,9 +29,13 @@ router.get('/employees/:companyId', authenticateToken, (req, res) => {
   db.all(`
     SELECT e.*, 
            m.first_name as manager_first_name, 
-           m.last_name as manager_last_name
+           m.last_name as manager_last_name,
+           er.employment_start_date,
+           er.employment_end_date,
+           er.attendance_mode
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
+    LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
     WHERE e.company_id = ?
     ORDER BY e.last_name, e.first_name
   `, [companyId], (err, employees) => {
@@ -90,9 +94,13 @@ router.get('/employees/find/:email', authenticateToken, (req, res) => {
   db.get(`
     SELECT e.*, 
            m.first_name as manager_first_name, 
-           m.last_name as manager_last_name
+           m.last_name as manager_last_name,
+           er.employment_start_date,
+           er.employment_end_date,
+           er.attendance_mode
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
+    LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
     WHERE e.email = ?
   `, [email], (err, employee) => {
     if (err) {
@@ -1754,7 +1762,12 @@ router.get('/employees/missing-attendance/:companyId', authenticateToken, async 
           e.position,
           er.attendance_mode,
           er.employment_start_date,
-          er.employment_end_date
+          er.employment_end_date,
+          er.work_start_time,
+          er.work_end_time,
+          er.break_start_time,
+          er.break_end_time,
+          er.weekly_hours
         FROM employees e
         LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
         WHERE e.company_id = ? 
@@ -1873,7 +1886,14 @@ router.post('/attendance/record', authenticateToken, async (req, res) => {
 
     // Vypočítame celkové hodiny ak je zamestnanec prítomný
     let totalHours = 0;
+    let checkInISO = null;
+    let checkOutISO = null;
+    
     if (attendance_type === 'present' && start_time && end_time) {
+      // Konvertujeme časové údaje na ISO dátumy
+      checkInISO = new Date(`${date}T${start_time}`).toISOString();
+      checkOutISO = new Date(`${date}T${end_time}`).toISOString();
+      
       const start = new Date(`2000-01-01T${start_time}`);
       const end = new Date(`2000-01-01T${end_time}`);
       const diffMs = end.getTime() - start.getTime();
@@ -1895,7 +1915,7 @@ router.post('/attendance/record', authenticateToken, async (req, res) => {
           total_hours, break_minutes, status, notes, created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       `, [
-        employee_id, company_id, date, start_time, end_time,
+        employee_id, company_id, date, checkInISO, checkOutISO,
         totalHours, break_minutes, status, note
       ], function(err) {
         if (err) reject(err);

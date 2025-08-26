@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  DocumentTextIcon,
-  ClockIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
-  CurrencyDollarIcon,
-  UserGroupIcon,
-  ChartBarIcon,
-  BellIcon,
   BuildingOfficeIcon,
   ClipboardDocumentListIcon,
   FolderIcon,
   EnvelopeIcon,
   CalendarIcon,
   CloudIcon,
-  UserIcon
+  UserIcon,
+  CalculatorIcon
 } from '@heroicons/react/24/outline';
 import { Company, apiService } from '../services/apiService';
 import AccountantDropboxPage from './AccountantDropboxPage';
@@ -30,8 +25,9 @@ interface AccountantDashboardProps {
 }
 
 const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) => {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [, setLoadingCompanies] = useState(true);
 
   const [showDropboxPage, setShowDropboxPage] = useState(false);
   const [showTasksPage, setShowTasksPage] = useState(false);
@@ -292,6 +288,22 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               {unreadMessagesCount > 0 && (
                 <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} neprečítaných</p>
               )}
+            </div>
+          </div>
+        </button>
+
+        <button 
+           onClick={() => navigate('/accounting')}
+           className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <CalculatorIcon className="h-8 w-8 text-green-500" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Účtovníctvo</p>
+              <p className="text-2xl font-bold text-gray-900">∞</p>
+              <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
         </button>

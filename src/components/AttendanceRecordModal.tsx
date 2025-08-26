@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon, ClockIcon, CalendarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { hrService, Employee } from '../services/hrService';
+import { XMarkIcon, ClockIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { hrService } from '../services/hrService';
 
 interface AttendanceRecordModalProps {
   isOpen: boolean;
@@ -17,6 +17,11 @@ interface EmployeeWithMissingAttendance {
   position: string;
   attendance_mode: string;
   missing_dates: string[];
+  work_start_time?: string;
+  work_end_time?: string;
+  break_start_time?: string;
+  break_end_time?: string;
+  weekly_hours?: number;
 }
 
 const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
@@ -59,6 +64,22 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
     setSelectedEmployee(employee);
     if (employee.missing_dates.length > 0) {
       setSelectedDate(employee.missing_dates[0]);
+    }
+    
+    // Automaticky nastavíme pracovné časy podľa nastavení zamestnanca
+    if (employee.work_start_time) {
+      setStartTime(employee.work_start_time);
+    }
+    if (employee.work_end_time) {
+      setEndTime(employee.work_end_time);
+    }
+    
+    // Vypočítame prestávku v minútach
+    if (employee.break_start_time && employee.break_end_time) {
+      const breakStart = new Date(`2000-01-01T${employee.break_start_time}`);
+      const breakEnd = new Date(`2000-01-01T${employee.break_end_time}`);
+      const breakMinutes = Math.round((breakEnd.getTime() - breakStart.getTime()) / (1000 * 60));
+      setBreakMinutes(breakMinutes);
     }
   };
 

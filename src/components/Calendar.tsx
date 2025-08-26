@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Calendar from 'react-calendar';
-import { format, isSameDay, parseISO, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
+import { format, isSameDay, parseISO } from 'date-fns';
 import { sk } from 'date-fns/locale';
 import {
   CalendarIcon,
@@ -8,9 +8,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
   BuildingOfficeIcon,
   UserIcon,
   FunnelIcon,

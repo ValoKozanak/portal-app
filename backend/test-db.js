@@ -15,6 +15,7 @@ db.all('SELECT name FROM sqlite_master WHERE type="table" AND name="dropbox_sett
   const testData = {
     companyId: 1,
     companyEmail: 'test@test.com',
+    companyICO: '12345678',
     folderPath: '/test/path',
     shareLink: 'https://test.com',
     permissions: {
@@ -27,13 +28,14 @@ db.all('SELECT name FROM sqlite_master WHERE type="table" AND name="dropbox_sett
   
   const query = `
     INSERT OR REPLACE INTO dropbox_settings 
-    (company_id, company_email, folder_path, share_link, is_shared, can_view, can_edit, can_upload, can_delete, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    (company_id, company_email, company_ico, folder_path, share_link, is_shared, can_view, can_edit, can_upload, can_delete, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
   `;
   
   const params = [
     testData.companyId,
     testData.companyEmail,
+    testData.companyICO,
     testData.folderPath,
     testData.shareLink,
     1,

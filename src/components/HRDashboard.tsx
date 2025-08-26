@@ -8,7 +8,6 @@ import {
   CalendarIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon,
   DocumentTextIcon,
   BriefcaseIcon,
   ChartBarIcon
@@ -32,9 +31,30 @@ const formatDate = (date: Date): string => {
 };
 
 // Helper funkcia pre formátovanie času
-const formatTime = (timeString: string): string => {
+const formatTime = (timeString: string | null): string => {
   if (!timeString) return '-';
-  return timeString.substring(0, 5); // Zobraziť len HH:MM
+  
+  try {
+    // Ak je to už čas v formáte HH:MM, vráť ho
+    if (timeString.match(/^\d{2}:\d{2}$/)) {
+      return timeString;
+    }
+    
+    // Ak je to dátum, skús ho spracovať
+    const date = new Date(timeString);
+    if (isNaN(date.getTime())) {
+      return '-';
+    }
+    
+    return date.toLocaleTimeString('sk-SK', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  } catch (error) {
+    console.error('Chyba pri formátovaní času:', timeString, error);
+    return '-';
+  }
 };
 
 interface HRDashboardProps {
@@ -243,6 +263,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCreateAutomaticAttendance = async () => {
     try {
               const today = formatDate(new Date());
@@ -758,7 +779,16 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   Zamestnanec
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Pozícia
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Kontakt
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Dátum nástupu
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Typ dochádzky
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
@@ -781,11 +811,29 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {employee.position || 'N/A'}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm text-gray-900 dark:text-white">{employee.email}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">{employee.phone || 'Bez telefónu'}</div>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {employee.employment_start_date ? new Date(employee.employment_start_date).toLocaleDateString('sk-SK') : 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      employee.attendance_mode === 'automatic'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                        : employee.attendance_mode === 'manual'
+                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                        : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
+                    }`}>
+                      {employee.attendance_mode === 'automatic' ? 'Automatická' : 
+                       employee.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${

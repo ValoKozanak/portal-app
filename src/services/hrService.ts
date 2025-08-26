@@ -20,6 +20,11 @@ export interface Employee {
   manager_first_name?: string;
   manager_last_name?: string;
   
+  // Pracovné pomery
+  employment_start_date?: string;
+  employment_end_date?: string;
+  attendance_mode?: 'manual' | 'automatic';
+  
   // Personálne údaje
   birth_name?: string;
   title_before?: string;

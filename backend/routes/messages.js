@@ -102,10 +102,25 @@ router.get('/company/:companyId', (req, res) => {
     LEFT JOIN users u2 ON m.recipient_email = u2.email
     LEFT JOIN companies c ON m.company_id = c.id
     WHERE m.company_id = ?
+    AND (
+      -- Správy od Admin
+      u1.role = 'admin'
+      -- Správy od Accountant
+      OR u1.role = 'accountant'
+      -- Správy od zamestnancov vlastnej firmy
+      OR EXISTS (
+        SELECT 1 FROM employment_relations er 
+        WHERE er.employee_id = u1.id 
+        AND er.company_id = ?
+        AND er.is_active = 1
+      )
+      -- Správy od vlastnej firmy (company owner)
+      OR m.sender_email = (SELECT owner_email FROM companies WHERE id = ?)
+    )
     ORDER BY m.created_at DESC
   `;
 
-  db.all(query, [companyId], (err, messages) => {
+  db.all(query, [companyId, companyId, companyId], (err, messages) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri načítaní správ' });
     }
@@ -267,10 +282,27 @@ router.get('/company/:companyId/unread-count', (req, res) => {
   const query = `
     SELECT COUNT(*) as count
     FROM messages m
-    WHERE m.company_id = ? AND m.read_at IS NULL
+    LEFT JOIN users u1 ON m.sender_email = u1.email
+    WHERE m.company_id = ? 
+    AND m.read_at IS NULL
+    AND (
+      -- Správy od Admin
+      u1.role = 'admin'
+      -- Správy od Accountant
+      OR u1.role = 'accountant'
+      -- Správy od zamestnancov vlastnej firmy
+      OR EXISTS (
+        SELECT 1 FROM employment_relations er 
+        WHERE er.employee_id = u1.id 
+        AND er.company_id = ?
+        AND er.is_active = 1
+      )
+      -- Správy od vlastnej firmy (company owner)
+      OR m.sender_email = (SELECT owner_email FROM companies WHERE id = ?)
+    )
   `;
 
-  db.get(query, [companyId], (err, result) => {
+  db.get(query, [companyId, companyId, companyId], (err, result) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri získaní počtu neprečítaných správ pre firmu' });
     }
@@ -325,14 +357,31 @@ router.get('/user/:userEmail/unread-counts', (req, res) => {
 router.get('/company/:companyId/unread-counts', (req, res) => {
   const { companyId } = req.params;
 
-  // Počet prijatých neprečítaných správ pre firmu
+  // Počet prijatých neprečítaných správ pre firmu (len od autorizovaných odosielateľov)
   const receivedQuery = `
     SELECT COUNT(*) as count
     FROM messages m
-    WHERE m.company_id = ? AND m.read_at IS NULL
+    LEFT JOIN users u1 ON m.sender_email = u1.email
+    WHERE m.company_id = ? 
+    AND m.read_at IS NULL
+    AND (
+      -- Správy od Admin
+      u1.role = 'admin'
+      -- Správy od Accountant
+      OR u1.role = 'accountant'
+      -- Správy od zamestnancov vlastnej firmy
+      OR EXISTS (
+        SELECT 1 FROM employment_relations er 
+        WHERE er.employee_id = u1.id 
+        AND er.company_id = ?
+        AND er.is_active = 1
+      )
+      -- Správy od vlastnej firmy (company owner)
+      OR m.sender_email = (SELECT owner_email FROM companies WHERE id = ?)
+    )
   `;
 
-  db.get(receivedQuery, [companyId], (err, receivedResult) => {
+  db.get(receivedQuery, [companyId, companyId, companyId], (err, receivedResult) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri získaní počtu neprečítaných správ pre firmu' });
     }

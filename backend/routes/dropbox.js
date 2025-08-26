@@ -283,17 +283,18 @@ router.post('/admin/save-settings', async (req, res) => {
     console.log('=== SAVE SETTINGS ENDPOINT CALLED ===');
     console.log('Request body:', req.body);
     
-    const { companyId, companyEmail, folderPath, shareLink, permissions } = req.body;
+    const { companyId, companyEmail, companyICO, folderPath, shareLink, permissions } = req.body;
     
     console.log('Parsed parameters:', {
       companyId,
       companyEmail,
+      companyICO,
       folderPath,
       shareLink,
       permissions
     });
     
-    if (!companyId || !companyEmail || !folderPath || !permissions) {
+    if (!companyId || !companyEmail || !companyICO || !folderPath || !permissions) {
       console.error('Missing required parameters');
       return res.status(400).json({ error: 'Chýbajú povinné parametre' });
     }
@@ -303,13 +304,14 @@ router.post('/admin/save-settings', async (req, res) => {
     // Uloženie alebo aktualizácia nastavení
     const query = `
       INSERT OR REPLACE INTO dropbox_settings 
-      (company_id, company_email, folder_path, share_link, is_shared, can_view, can_edit, can_upload, can_delete, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      (company_id, company_email, company_ico, folder_path, share_link, is_shared, can_view, can_edit, can_upload, can_delete, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `;
     
     const params = [
       companyId,
       companyEmail,
+      companyICO,
       folderPath,
       shareLink || null,
       shareLink ? 1 : 0,
@@ -354,8 +356,10 @@ router.get('/admin/settings/:companyId', async (req, res) => {
     const { db } = require('../database');
     
     const query = `
-      SELECT * FROM dropbox_settings 
-      WHERE company_id = ?
+      SELECT ds.*, c.name as company_name, c.ico as company_ico 
+      FROM dropbox_settings ds
+      LEFT JOIN companies c ON ds.company_id = c.id
+      WHERE ds.company_id = ?
     `;
     
     db.get(query, [companyId], (err, row) => {
@@ -377,6 +381,8 @@ router.get('/admin/settings/:companyId', async (req, res) => {
           id: row.id,
           companyId: row.company_id,
           companyEmail: row.company_email,
+          companyName: row.company_name,
+          companyICO: row.company_ico,
           folderPath: row.folder_path,
           shareLink: row.share_link,
           isShared: row.is_shared === 1,
@@ -404,7 +410,7 @@ router.get('/admin/all-settings', async (req, res) => {
     const { db } = require('../database');
     
     const query = `
-      SELECT ds.*, c.name as company_name 
+      SELECT ds.*, c.name as company_name, c.ico as company_ico 
       FROM dropbox_settings ds
       LEFT JOIN companies c ON ds.company_id = c.id
       ORDER BY ds.updated_at DESC
@@ -421,6 +427,7 @@ router.get('/admin/all-settings', async (req, res) => {
         companyId: row.company_id,
         companyEmail: row.company_email,
         companyName: row.company_name,
+        companyICO: row.company_ico,
         folderPath: row.folder_path,
         shareLink: row.share_link,
         isShared: row.is_shared === 1,

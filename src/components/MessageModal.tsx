@@ -91,22 +91,39 @@ const MessageModal: React.FC<MessageModalProps> = ({
         
         if (userRole === 'user') {
           // User (firma) môže poslať správu Admin, priradeným Accountant a svojim zamestnancom
-          const userCompanies = await apiService.getUserCompanies(senderEmail);
           const assignedAccountantEmails: string[] = [];
           const employeeEmails: string[] = [];
           
-          // Extraktujeme všetkých priradených účtovníkov a zamestnancov zo všetkých firiem používateľa
-          for (const company of userCompanies) {
-            if (company.assignedToAccountants) {
-              assignedAccountantEmails.push(...company.assignedToAccountants);
-            }
-            
-            // Načítame zamestnancov pre každú firmu
+          // Ak máme companyId, načítame len zamestnancov z aktuálnej firmy
+          if (companyId) {
             try {
-              const employees = await hrService.getEmployees(company.id);
+              // Načítame zamestnancov len z aktuálnej firmy
+              const employees = await hrService.getEmployees(companyId);
               employeeEmails.push(...employees.map(emp => emp.email));
+              
+              // Načítame priradených účtovníkov pre aktuálnu firmu
+              const company = await apiService.getCompanyById(companyId);
+              if (company && company.assignedToAccountants) {
+                assignedAccountantEmails.push(...company.assignedToAccountants);
+              }
             } catch (error) {
-              console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+              console.error(`Chyba pri načítaní zamestnancov pre firmu ${companyId}:`, error);
+            }
+          } else {
+            // Fallback: načítame zamestnancov zo všetkých firiem používateľa
+            const userCompanies = await apiService.getUserCompanies(senderEmail);
+            
+            for (const company of userCompanies) {
+              if (company.assignedToAccountants) {
+                assignedAccountantEmails.push(...company.assignedToAccountants);
+              }
+              
+              try {
+                const employees = await hrService.getEmployees(company.id);
+                employeeEmails.push(...employees.map(emp => emp.email));
+              } catch (error) {
+                console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+              }
             }
           }
           
@@ -161,7 +178,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
     if (isOpen) {
       loadUsers();
     }
-  }, [isOpen, userRole, senderEmail]);
+  }, [isOpen, userRole, senderEmail, companyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

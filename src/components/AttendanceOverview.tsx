@@ -267,11 +267,30 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     });
   };
 
-  const formatTime = (timeString: string) => {
-    return new Date(timeString).toLocaleTimeString('sk-SK', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const formatTime = (timeString: string | null) => {
+    if (!timeString) return '-';
+    
+    try {
+      // Ak je to už čas v formáte HH:MM, vráť ho
+      if (timeString.match(/^\d{2}:\d{2}$/)) {
+        return timeString;
+      }
+      
+      // Ak je to dátum, skús ho spracovať
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) {
+        return '-';
+      }
+      
+      return date.toLocaleTimeString('sk-SK', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error('Chyba pri formátovaní času:', timeString, error);
+      return '-';
+    }
   };
 
   const [stats, setStats] = useState<any>(null);

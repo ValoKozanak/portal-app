@@ -1,6 +1,12 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
 // Typy pre API
+export interface ApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: any;
+}
 export interface User {
   id: number;
   email: string;
@@ -101,9 +107,12 @@ class ApiService {
 
     console.log('🌐 API Request:', url, options);
 
+    // Pre FormData nepoužívame Content-Type header
+    const isFormData = options.body instanceof FormData;
+    
     const config: RequestInit = {
       headers: {
-        'Content-Type': 'application/json',
+        ...(!isFormData && { 'Content-Type': 'application/json' }),
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
@@ -138,6 +147,16 @@ class ApiService {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Pre FormData nepoužívame Content-Type, necháme prehliadač nastaviť správny boundary
+      },
     });
   }
 

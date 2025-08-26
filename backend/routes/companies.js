@@ -240,6 +240,36 @@ router.post('/', (req, res) => {
         return res.status(500).json({ error: 'Chyba pri vytváraní firmy' });
       }
 
+      const companyId = this.lastID;
+
+      // Automatické vytvorenie zložky pre firmu
+      if (ico) {
+        const fs = require('fs');
+        const path = require('path');
+        const currentYear = new Date().getFullYear();
+        const zalohyDir = path.join(__dirname, '..', 'zalohy', currentYear.toString());
+        const folderName = `${ico}_${currentYear}`;
+        const folderPath = path.join(zalohyDir, folderName);
+        
+        try {
+          // Vytvorenie hlavného adresára ak neexistuje
+          if (!fs.existsSync(zalohyDir)) {
+            fs.mkdirSync(zalohyDir, { recursive: true });
+          }
+          
+          // Vytvorenie zložky pre firmu
+          if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true });
+            console.log(`✅ Vytvorená zložka pre firmu: ${folderName} (${name})`);
+          } else {
+            console.log(`ℹ️  Zložka už existuje: ${folderName} (${name})`);
+          }
+        } catch (folderError) {
+          console.error('Chyba pri vytváraní zložky:', folderError);
+          // Pokračujeme aj keď sa zložka nevytvorí
+        }
+      }
+
       // Poslanie notifikácie pre admina o novej firme
       db.get(`
         SELECT email, name FROM users WHERE role = 'admin' LIMIT 1
@@ -260,7 +290,7 @@ router.post('/', (req, res) => {
 
       res.json({ 
         message: 'Firma vytvorená úspešne', 
-        companyId: this.lastID 
+        companyId: companyId 
       });
     }
   );

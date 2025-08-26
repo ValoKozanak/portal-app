@@ -21,6 +21,14 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AccountantDashboard = React.lazy(() => import('./pages/AccountantDashboard'));
 const EmployeeDashboard = React.lazy(() => import('./pages/EmployeeDashboard'));
+const AccountingPage = React.lazy(() => import('./pages/AccountingPage'));
+const IssuedInvoicesPage = React.lazy(() => import('./components/IssuedInvoicesPage'));
+const ReceivedInvoicesPage = React.lazy(() => import('./pages/ReceivedInvoicesPage'));
+
+const CashPage = React.lazy(() => import('./pages/CashPage'));
+const BankPage = React.lazy(() => import('./pages/BankPage'));
+const DirectoryPage = React.lazy(() => import('./pages/DirectoryPage'));
+const InvoiceDetailPage = React.lazy(() => import('./pages/InvoiceDetailPage'));
 const DropboxCallback = React.lazy(() => import('./pages/DropboxCallback'));
 
 // Loading komponent pre Suspense
@@ -37,8 +45,12 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
 
   useEffect(() => {
     // Ak je používateľ prihlásený a nie je na dashboard stránke, presmeruj ho
-    // Ale nepresmerovávaj, ak je na dropbox-callback stránke
-    if (isLoggedIn && location.pathname !== '/dashboard' && location.pathname !== '/dropbox-callback') {
+    // Ale nepresmerovávaj, ak je na dropbox-callback stránke, accounting stránkach alebo detail faktúry
+    if (isLoggedIn && 
+        location.pathname !== '/dashboard' && 
+        location.pathname !== '/dropbox-callback' && 
+        !location.pathname.startsWith('/accounting') &&
+        !location.pathname.startsWith('/invoice/')) {
       navigate('/dashboard');
     }
   }, [isLoggedIn, userRole, navigate, location.pathname]);
@@ -173,6 +185,14 @@ function App() {
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={dashboardElement} />
+                <Route path="/accounting" element={<AccountingPage />} />
+                <Route path="/accounting/issued-invoices" element={<IssuedInvoicesPage />} />
+                            <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
+    
+            <Route path="/accounting/cash" element={<CashPage />} />
+            <Route path="/accounting/bank" element={<BankPage />} />
+            <Route path="/accounting/directory" element={<DirectoryPage />} />
+                <Route path="/invoice/:type/:id" element={<InvoiceDetailPage />} />
                 <Route path="/dropbox-callback" element={
                   (() => {
                 
