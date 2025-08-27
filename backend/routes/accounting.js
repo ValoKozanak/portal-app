@@ -120,6 +120,123 @@ router.get('/pud-summary/:companyId', authenticateToken, async (req, res) => {
   }
 });
 
+// Podrobná analýza nákladov a výnosov z pUD
+router.get('/financial-analysis/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  const { dateFrom, dateTo } = req.query;
+  
+  console.log('📊 Získavam podrobnú analýzu nákladov a výnosov pre company_id:', companyId);
+  console.log('🔍 Používateľ:', req.user.email);
+  console.log('📅 Filtre dátumov:', { dateFrom, dateTo });
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+    
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    
+    console.log('📁 Načítavam dáta z:', mdbPath);
+    
+    if (!fs.existsSync(mdbPath)) {
+      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    }
+    
+    // Import z MDB
+    const ADODB = require('node-adodb');
+    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+    
+    // Vytvorenie dátumových filtrov
+    let dateFilter = '';
+    if (dateFrom && dateTo) {
+      // Použijeme CDate() funkciu pre správne porovnanie dátumov
+      dateFilter = ` AND CDate(Datum) BETWEEN CDate('${dateFrom}') AND CDate('${dateTo}')`;
+      console.log('📅 Dátumové filtre:', { dateFrom, dateTo });
+    }
+    
+    // Analýza nákladov (účty začínajúce 5)
+    const expensesQuery = `
+      SELECT 
+        UMD as account,
+        SUM(Kc) as total_amount,
+        COUNT(*) as transaction_count
+      FROM pUD 
+      WHERE UMD LIKE '5%'${dateFilter}
+      GROUP BY UMD
+      ORDER BY UMD
+    `;
+    
+    // Analýza výnosov (účty začínajúce 6)
+    const revenueQuery = `
+      SELECT 
+        UD as account,
+        SUM(Kc) as total_amount,
+        COUNT(*) as transaction_count
+      FROM pUD 
+      WHERE UD LIKE '6%'${dateFilter}
+      GROUP BY UD
+      ORDER BY UD
+    `;
+    
+    // Celkové súčty
+    const totalExpensesQuery = `SELECT SUM(Kc) as total_expenses FROM pUD WHERE UMD LIKE '5%'${dateFilter}`;
+    const totalRevenueQuery = `SELECT SUM(Kc) as total_revenue FROM pUD WHERE UD LIKE '6%'${dateFilter}`;
+    
+    // Vykonanie queries
+    const expenses = await connection.query(expensesQuery);
+    const revenue = await connection.query(revenueQuery);
+    const totalExpenses = await connection.query(totalExpensesQuery);
+    const totalRevenue = await connection.query(totalRevenueQuery);
+    
+    // Výpočet zisku/straty
+    const totalExpensesAmount = totalExpenses[0]?.total_expenses || 0;
+    const totalRevenueAmount = totalRevenue[0]?.total_revenue || 0;
+    const profit = totalRevenueAmount - totalExpensesAmount;
+    
+    const analysis = {
+      expenses: {
+        total: totalExpensesAmount,
+        count: expenses.length,
+        details: expenses.map(item => ({
+          account: item.account,
+          amount: item.total_amount || 0,
+          count: item.transaction_count || 0
+        }))
+      },
+      revenue: {
+        total: totalRevenueAmount,
+        count: revenue.length,
+        details: revenue.map(item => ({
+          account: item.account,
+          amount: item.total_amount || 0,
+          count: item.transaction_count || 0
+        }))
+      },
+      profit: profit,
+      isProfit: profit >= 0,
+      filters: {
+        dateFrom: dateFrom || null,
+        dateTo: dateTo || null
+      }
+    };
+    
+    console.log('✅ Analýza nákladov a výnosov:', analysis);
+    res.json(analysis);
+    
+  } catch (error) {
+    console.error('Chyba pri získavaní analýzy nákladov a výnosov:', error);
+    res.status(500).json({ error: 'Chyba pri získavaní analýzy nákladov a výnosov' });
+  }
+});
+
 // 3. ŠTATISTIKY
 
 // Získanie štatistík účtovníctva

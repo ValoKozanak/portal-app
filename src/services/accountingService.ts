@@ -37,6 +37,33 @@ export interface AccountingPermissions {
   granted_at?: string;
 }
 
+export interface FinancialAnalysis {
+  expenses: {
+    total: number;
+    count: number;
+    details: Array<{
+      account: string;
+      amount: number;
+      count: number;
+    }>;
+  };
+  revenue: {
+    total: number;
+    count: number;
+    details: Array<{
+      account: string;
+      amount: number;
+      count: number;
+    }>;
+  };
+  profit: number;
+  isProfit: boolean;
+  filters?: {
+    dateFrom: string | null;
+    dateTo: string | null;
+  };
+}
+
 export interface InvoiceItem {
   id?: number;
   description: string;
@@ -376,6 +403,22 @@ export class AccountingService {
   async getPudSummary(companyId: number): Promise<{ total_kc: number; total_count: number }> {
     const response = await apiService.get(`/accounting/pud-summary/${companyId}`);
     return response as { total_kc: number; total_count: number };
+  }
+
+  // Získanie podrobnej analýzy nákladov a výnosov
+  async getFinancialAnalysis(companyId: number, dateFrom?: string, dateTo?: string): Promise<FinancialAnalysis> {
+    let url = `/accounting/financial-analysis/${companyId}`;
+    const params = new URLSearchParams();
+    
+    if (dateFrom) params.append('dateFrom', dateFrom);
+    if (dateTo) params.append('dateTo', dateTo);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await apiService.get(url);
+    return response as FinancialAnalysis;
   }
 
   // 8. ŠTATISTIKY

@@ -13,7 +13,8 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   accountingService, 
-  AccountingStats 
+  AccountingStats,
+  FinancialAnalysis
 } from '../services/accountingService';
 
 const AccountingPage: React.FC = () => {
@@ -22,7 +23,7 @@ const AccountingPage: React.FC = () => {
   const [companyId, setCompanyId] = useState(3); // Default company ID
   const [userEmail, setUserEmail] = useState('info@artprofit.sk'); // Default user email
   const [stats, setStats] = useState<AccountingStats | null>(null);
-  const [pudSummary, setPudSummary] = useState<{ total_kc: number; total_count: number } | null>(null);
+  const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -30,12 +31,12 @@ const AccountingPage: React.FC = () => {
       const statsData = await accountingService.getStats(companyId);
       setStats(statsData);
       
-      // Načítanie súhrnu pUD
+      // Načítanie finančnej analýzy pre zisk/stratu
       try {
-        const pudData = await accountingService.getPudSummary(companyId);
-        setPudSummary(pudData);
+        const analysisData = await accountingService.getFinancialAnalysis(companyId);
+        setFinancialAnalysis(analysisData);
       } catch (error) {
-        console.error('Chyba pri načítaní súhrnu pUD:', error);
+        console.error('Chyba pri načítaní finančnej analýzy:', error);
       }
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
@@ -110,18 +111,23 @@ const AccountingPage: React.FC = () => {
     {
       id: 'financial-results',
       name: 'Hospodárske výsledky',
-      description: 'Súčet Kc z pUD',
+      description: 'Výsledok hospodárenia',
       icon: ChartPieIcon,
       color: 'bg-red-500',
       hoverColor: 'hover:bg-red-600',
-      stats: pudSummary?.total_count || 0,
-      unpaidAmount: pudSummary?.total_kc || 0
+      stats: financialAnalysis?.profit || 0,
+      isProfit: financialAnalysis?.isProfit || false,
+      unpaidAmount: 0
     },
 
   ];
 
   const handleCardClick = (cardId: string) => {
-    navigate(`/accounting/${cardId}`);
+    if (cardId === 'financial-results') {
+      navigate(`/accounting/financial-analysis/${companyId}`);
+    } else {
+      navigate(`/accounting/${cardId}`);
+    }
   };
 
   if (loading) {
@@ -175,16 +181,25 @@ const AccountingPage: React.FC = () => {
                           Neuhradené: {formatCurrency(card.unpaidAmount)}
                         </p>
                       )}
-                      {card.id === 'financial-results' && card.unpaidAmount > 0 && (
-                        <p className="text-sm text-green-600 font-medium mt-1">
-                          Súčet Kc: {formatCurrency(card.unpaidAmount)}
-                        </p>
-                      )}
+
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{card.stats}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">položiek</p>
+                    {card.id === 'financial-results' ? (
+                      <>
+                        <p className={`text-2xl font-bold ${financialAnalysis?.isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                          {financialAnalysis?.isProfit ? '+' : '-'} {formatCurrency(Math.abs(financialAnalysis?.profit || 0))}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {financialAnalysis?.isProfit ? 'Zisk' : 'Strata'}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{card.stats}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">položiek</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

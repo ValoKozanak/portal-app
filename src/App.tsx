@@ -22,6 +22,7 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AccountantDashboard = React.lazy(() => import('./pages/AccountantDashboard'));
 const EmployeeDashboard = React.lazy(() => import('./pages/EmployeeDashboard'));
 const AccountingPage = React.lazy(() => import('./pages/AccountingPage'));
+const FinancialAnalysisPage = React.lazy(() => import('./pages/FinancialAnalysisPage'));
 const IssuedInvoicesPage = React.lazy(() => import('./components/IssuedInvoicesPage'));
 const ReceivedInvoicesPage = React.lazy(() => import('./pages/ReceivedInvoicesPage'));
 
@@ -186,8 +187,9 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={dashboardElement} />
                 <Route path="/accounting" element={<AccountingPage />} />
+                <Route path="/accounting/financial-analysis/:companyId" element={<FinancialAnalysisPage />} />
                 <Route path="/accounting/issued-invoices" element={<IssuedInvoicesPage />} />
-                            <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
+                <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
     
             <Route path="/accounting/cash" element={<CashPage />} />
             <Route path="/accounting/bank" element={<BankPage />} />
