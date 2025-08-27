@@ -43,6 +43,7 @@ export interface FinancialAnalysis {
     count: number;
     details: Array<{
       account: string;
+      account_name: string;
       amount: number;
       count: number;
     }>;
@@ -52,6 +53,7 @@ export interface FinancialAnalysis {
     count: number;
     details: Array<{
       account: string;
+      account_name: string;
       amount: number;
       count: number;
     }>;

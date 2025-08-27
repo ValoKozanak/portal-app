@@ -28,14 +28,14 @@ const COLORS = [
 const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
   // Príprava dát pre pie chart nákladov
   const expensesPieData = analysis.expenses.details.map((item, index) => ({
-    name: `Účet ${item.account}`,
+    name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
 
   // Príprava dát pre pie chart výnosov
   const revenuePieData = analysis.revenue.details.map((item, index) => ({
-    name: `Účet ${item.account}`,
+    name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
@@ -44,17 +44,17 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
   const comparisonData = [
     {
       name: 'Výnosy',
-      value: analysis.revenue.total,
+      value: Math.max(0, analysis.revenue.total),
       color: '#10B981'
     },
     {
       name: 'Náklady',
-      value: analysis.expenses.total,
+      value: Math.max(0, analysis.expenses.total),
       color: '#EF4444'
     },
     {
       name: analysis.isProfit ? 'Zisk' : 'Strata',
-      value: Math.abs(analysis.profit),
+      value: Math.max(0, Math.abs(analysis.profit)),
       color: analysis.isProfit ? '#10B981' : '#EF4444'
     }
   ];
@@ -64,8 +64,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5)
     .map((item, index) => ({
-      name: `Účet ${item.account}`,
-      value: item.amount,
+      name: item.account_name,
+      account: item.account,
+      value: Math.max(0, item.amount),
+      count: item.count,
       color: COLORS[index % COLORS.length]
     }));
 
@@ -73,22 +75,28 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5)
     .map((item, index) => ({
-      name: `Účet ${item.account}`,
-      value: item.amount,
+      name: item.account_name,
+      account: item.account,
+      value: Math.max(0, item.amount),
+      count: item.count,
       color: COLORS[index % COLORS.length]
     }));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{label}</p>
+          <p className="font-medium text-gray-900">{data.name}</p>
+          {data.account && (
+            <p className="text-sm text-gray-500">Účet: {data.account}</p>
+          )}
           <p className="text-sm text-gray-600">
             Suma: {formatCurrency(payload[0].value)}
           </p>
-          {payload[0].payload.count && (
+          {data.count && (
             <p className="text-sm text-gray-600">
-              Počet: {payload[0].payload.count}
+              Počet: {data.count}
             </p>
           )}
         </div>
@@ -108,7 +116,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
           <BarChart data={comparisonData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
-            <YAxis />
+            <YAxis domain={[0, 'auto']} />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value" fill="#8884d8">
               {comparisonData.map((entry, index) => (
@@ -119,76 +127,81 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Charts - Náklady a Výnosy */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Pie Chart Náklady */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Rozloženie nákladov (účty 5xx)
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-                             <Pie
-                 data={expensesPieData}
-                 cx="50%"
-                 cy="50%"
-                 labelLine={false}
-                 label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                 outerRadius={80}
-                 fill="#8884d8"
-                 dataKey="value"
-               >
-                {expensesPieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+             {/* Pie Charts - Výnosy a Náklady */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         {/* Pie Chart Výnosy */}
+         <div className="bg-white p-6 rounded-lg shadow">
+           <h3 className="text-lg font-medium text-gray-900 mb-4">
+             Rozloženie výnosov (účty 6xx)
+           </h3>
+                      <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                               <Pie
+                   data={revenuePieData}
+                   cx="50%"
+                   cy="50%"
+                   labelLine={false}
+                   outerRadius={120}
+                   fill="#8884d8"
+                   dataKey="value"
+                 >
+                  {revenuePieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+         </div>
 
-        {/* Pie Chart Výnosy */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Rozloženie výnosov (účty 6xx)
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-                             <Pie
-                 data={revenuePieData}
-                 cx="50%"
-                 cy="50%"
-                 labelLine={false}
-                 label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                 outerRadius={80}
-                 fill="#8884d8"
-                 dataKey="value"
-               >
-                {revenuePieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+         {/* Pie Chart Náklady */}
+         <div className="bg-white p-6 rounded-lg shadow">
+           <h3 className="text-lg font-medium text-gray-900 mb-4">
+             Rozloženie nákladov (účty 5xx)
+           </h3>
+                      <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                               <Pie
+                   data={expensesPieData}
+                   cx="50%"
+                   cy="50%"
+                   labelLine={false}
+                   outerRadius={120}
+                   fill="#8884d8"
+                   dataKey="value"
+                 >
+                  {expensesPieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+         </div>
+       </div>
 
-      {/* Top 5 Náklady a Výnosy */}
+      {/* Top 5 Výnosy a Náklady */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top 5 Náklady */}
+        {/* Top 5 Výnosy */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top 5 nákladov
+            Top 5 výnosov
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topExpenses} layout="horizontal">
+            <BarChart data={topRevenue}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={80} />
+              <XAxis 
+                dataKey="name" 
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                tick={{ fontSize: 11 }}
+                interval={0}
+              />
+              <YAxis domain={[0, 'auto']} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" fill="#EF4444">
-                {topExpenses.map((entry, index) => (
+              <Bar dataKey="value" fill="#10B981">
+                {topRevenue.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Bar>
@@ -196,19 +209,26 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
           </ResponsiveContainer>
         </div>
 
-        {/* Top 5 Výnosy */}
+        {/* Top 5 Náklady */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top 5 výnosov
+            Top 5 nákladov
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topRevenue} layout="horizontal">
+            <BarChart data={topExpenses}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={80} />
+              <XAxis 
+                dataKey="name" 
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                tick={{ fontSize: 11 }}
+                interval={0}
+              />
+              <YAxis domain={[0, 'auto']} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" fill="#10B981">
-                {topRevenue.map((entry, index) => (
+              <Bar dataKey="value" fill="#EF4444">
+                {topExpenses.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Bar>
