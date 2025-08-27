@@ -15,12 +15,26 @@ const FinancialAnalysisPage: React.FC = () => {
   const [dateTo, setDateTo] = useState<string>('');
   const [dateError, setDateError] = useState<string>('');
   const [refreshing, setRefreshing] = useState(false);
+  const [company, setCompany] = useState<any>(null);
 
   useEffect(() => {
     if (companyId) {
+      loadCompanyInfo();
       loadFinancialAnalysis();
     }
   }, [companyId]);
+
+  const loadCompanyInfo = async () => {
+    try {
+      const response = await fetch(`/api/companies/${companyId}`);
+      if (response.ok) {
+        const companyData = await response.json();
+        setCompany(companyData);
+      }
+    } catch (error) {
+      console.error('Chyba pri načítaní informácií o firme:', error);
+    }
+  };
 
   const loadFinancialAnalysis = async () => {
     // Validácia dátumov
@@ -118,9 +132,17 @@ const FinancialAnalysisPage: React.FC = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Analýza hospodárskych výsledkov
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Analýza hospodárskych výsledkov
+                </h1>
+                {/* Zobrazenie aktuálnej firmy */}
+                {company && (
+                  <div className="text-sm text-gray-600 mt-1">
+                    Firma: {company.name} (IČO: {company.ico})
+                  </div>
+                )}
+              </div>
               <button
                 onClick={loadFinancialAnalysis}
                 disabled={refreshing}

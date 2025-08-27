@@ -63,6 +63,24 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     }
   };
 
+  // Načítanie úloh účtovníka
+  const loadAccountantTasks = async () => {
+    try {
+      const accountantTasks = await apiService.getAccountantTasks(userEmail);
+      const pendingTasks = accountantTasks.filter(task => task.status === 'pending');
+      const completedTasks = accountantTasks.filter(task => task.status === 'completed');
+      
+      setStats(prev => ({
+        ...prev,
+        tasks: accountantTasks.length,
+        pending: pendingTasks.length,
+        completed: completedTasks.length,
+      }));
+    } catch (error) {
+      console.error('Chyba pri načítaní úloh účtovníka:', error);
+    }
+  };
+
   // Načítanie firiem priradených účtovníkovi
   useEffect(() => {
     const loadAccountantData = async () => {
@@ -78,6 +96,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
 
     loadAccountantData();
     loadUnreadMessagesCount();
+    loadAccountantTasks();
   }, [userEmail]);
 
   // Automatické aktualizácie počtu neprečítaných správ každých 30 sekúnd

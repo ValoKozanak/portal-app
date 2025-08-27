@@ -16,16 +16,24 @@ import {
   AccountingStats,
   FinancialAnalysis
 } from '../services/accountingService';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const AccountingPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [companyId, setCompanyId] = useState(3); // Default company ID
-  const [userEmail, setUserEmail] = useState('info@artprofit.sk'); // Default user email
+  const [companies, setCompanies] = useState<any[]>([]);
+  
+  // Používame useLocalStorage hook pre konzistentnosť s App.tsx
+  const [userEmail] = useLocalStorage('userEmail', '');
+  const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
+  const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
+  
   const [stats, setStats] = useState<AccountingStats | null>(null);
   const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis | null>(null);
 
   const loadData = useCallback(async () => {
+    if (!companyId) return;
+    
     try {
       setLoading(true);
       
@@ -45,8 +53,41 @@ const AccountingPage: React.FC = () => {
   }, [companyId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (userRole && userEmail) {
+      loadCompanies();
+    }
+  }, [userRole, userEmail]);
+
+  useEffect(() => {
+    if (companyId) {
+      loadData();
+    }
+  }, [companyId, loadData]);
+
+  const loadCompanies = async () => {
+    try {
+      let endpoint = '/api/companies';
+      
+      // Výber správneho endpointu podľa role
+      if (userRole === 'user') {
+        endpoint = `/api/companies/user/${userEmail}`;
+      } else if (userRole === 'accountant') {
+        endpoint = `/api/companies/accountant/${userEmail}`;
+      }
+      // Pre admin sa používa default endpoint '/api/companies'
+      
+      const response = await fetch(endpoint);
+      const companiesData = await response.json();
+      setCompanies(companiesData);
+      
+      // Automaticky nastavíme firmu podľa role, len ak nemáme companyId v localStorage
+      if (companiesData.length > 0 && !companyId) {
+        setCompanyId(companiesData[0].id);
+      }
+    } catch (error) {
+      console.error('Chyba pri načítaní firiem:', error);
+    }
+  };
 
   const formatCurrency = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined || isNaN(amount)) return '-';
@@ -125,7 +166,7 @@ const AccountingPage: React.FC = () => {
     if (cardId === 'financial-results') {
       navigate(`/accounting/financial-analysis/${companyId}`);
     } else {
-      navigate(`/accounting/${cardId}`);
+      navigate(`/accounting/${cardId}/${companyId}`);
     }
   };
 
@@ -148,9 +189,25 @@ const AccountingPage: React.FC = () => {
                 Späť na Dashboard
               </button>
             </div>
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Účtovníctvo</h1>
-            </div>
+                         <div className="flex items-center space-x-4">
+               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Účtovníctvo</h1>
+               
+                               {/* Pre Admin, Accountant a User - dropdown na výber firmy */}
+                {(userRole === 'admin' || userRole === 'accountant' || userRole === 'user') && companies.length > 0 ? (
+                  <select
+                    value={companyId || ''}
+                    onChange={(e) => setCompanyId(Number(e.target.value))}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Vyberte firmu</option>
+                    {companies.map(company => (
+                      <option key={company.id} value={company.id}>
+                        {company.name} (IČO: {company.ico})
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+             </div>
           </div>
         </div>
       </div>

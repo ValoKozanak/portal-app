@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { 
   EyeIcon, 
   PencilIcon, 
@@ -13,12 +13,19 @@ import {
 } from '@heroicons/react/24/outline';
 import { accountingService, ReceivedInvoice } from '../services/accountingService';
 import InvoiceSummary from '../components/InvoiceSummary';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ReceivedInvoicesPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [companyId, setCompanyId] = useState(3); // Default company ID
-  const [userEmail, setUserEmail] = useState('info@artprofit.sk'); // Default user email
+  const { companyId: urlCompanyId } = useParams<{ companyId: string }>();
+  const [companies, setCompanies] = useState<any[]>([]);
+  
+  // Používame useLocalStorage hook pre konzistentnosť s App.tsx
+  const [userEmail] = useLocalStorage('userEmail', '');
+  const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
+  const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
+  
   const [invoices, setInvoices] = useState<ReceivedInvoice[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<ReceivedInvoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,12 +58,53 @@ const ReceivedInvoicesPage: React.FC = () => {
   }, [location.search]);
 
   useEffect(() => {
-    loadInvoices();
-    // Automatické obnovenie faktúr z MDB pri načítaní stránky
-    handleRefreshInvoices();
+    if (userRole && userEmail) {
+      loadCompanies();
+    }
+  }, [userRole, userEmail]);
+
+  useEffect(() => {
+    if (urlCompanyId && !companyId) {
+      setCompanyId(Number(urlCompanyId));
+    }
+  }, [urlCompanyId, companyId]);
+
+  useEffect(() => {
+    if (companyId) {
+      loadInvoices();
+      // Automatické obnovenie faktúr z MDB pri načítaní stránky
+      handleRefreshInvoices();
+    }
   }, [companyId]);
 
+  const loadCompanies = async () => {
+    try {
+      let endpoint = '/api/companies';
+      
+      // Výber správneho endpointu podľa role
+      if (userRole === 'user') {
+        endpoint = `/api/companies/user/${userEmail}`;
+      } else if (userRole === 'accountant') {
+        endpoint = `/api/companies/accountant/${userEmail}`;
+      }
+      // Pre admin sa používa default endpoint '/api/companies'
+      
+      const response = await fetch(endpoint);
+      const companiesData = await response.json();
+      setCompanies(companiesData);
+      
+      // Automaticky nastavíme firmu podľa role, len ak nemáme companyId z URL ani localStorage
+      if (companiesData.length > 0 && !urlCompanyId && !companyId) {
+        setCompanyId(companiesData[0].id);
+      }
+    } catch (error) {
+      console.error('Chyba pri načítaní firiem:', error);
+    }
+  };
+
   const loadInvoices = async () => {
+    if (!companyId) return;
+    
     try {
       setLoading(true);
       const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
@@ -207,6 +255,8 @@ const ReceivedInvoicesPage: React.FC = () => {
   };
 
   const handleRefreshInvoices = async () => {
+    if (!companyId) return;
+    
     try {
       await accountingService.refreshReceivedInvoicesFromMdb(companyId);
       await loadInvoices();
@@ -237,9 +287,16 @@ const ReceivedInvoicesPage: React.FC = () => {
                 Späť na Účtovníctvo
               </button>
             </div>
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Prijaté faktúry</h1>
-            </div>
+                         <div className="flex items-center space-x-4">
+               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Prijaté faktúry</h1>
+               
+               {/* Zobrazenie aktuálnej firmy */}
+               {companies.length > 0 && companyId && (
+                 <div className="text-sm text-gray-600 dark:text-gray-400">
+                   Firma: {companies.find(c => c.id === companyId)?.name} (IČO: {companies.find(c => c.id === companyId)?.ico})
+                 </div>
+               )}
+             </div>
           </div>
         </div>
       </div>

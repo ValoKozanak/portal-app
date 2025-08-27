@@ -94,6 +94,8 @@ function App() {
     setUserRole(null);
     setUserEmail('');
     apiService.clearToken();
+    // Vyčistíme vybranú firmu pri odhlásení
+    localStorage.removeItem('selectedCompanyId');
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
   const handleFirstTimeLogin = useCallback((email: string) => {
@@ -188,7 +190,9 @@ function App() {
                 <Route path="/dashboard" element={dashboardElement} />
                 <Route path="/accounting" element={<AccountingPage />} />
                 <Route path="/accounting/financial-analysis/:companyId" element={<FinancialAnalysisPage />} />
+                <Route path="/accounting/issued-invoices/:companyId" element={<IssuedInvoicesPage />} />
                 <Route path="/accounting/issued-invoices" element={<IssuedInvoicesPage />} />
+                <Route path="/accounting/received-invoices/:companyId" element={<ReceivedInvoicesPage />} />
                 <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
     
             <Route path="/accounting/cash" element={<CashPage />} />

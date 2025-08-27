@@ -637,7 +637,7 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
         // Pripojenie k MDB
         const ADODB = require('node-adodb');
         const currentYear = new Date().getFullYear();
-        const mdbPath = `C:\\Users\\kozan\\Cursor\\backend\\zalohy\\${currentYear}\\${company.ico}_${currentYear}\\${company.ico}_${currentYear}.mdb`;
+        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
         
         console.log('📁 Obnovujem faktúry z:', mdbPath);
         
@@ -812,7 +812,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
         // Pripojenie k MDB
         const ADODB = require('node-adodb');
         const currentYear = new Date().getFullYear();
-        const mdbPath = `C:\\Users\\kozan\\Cursor\\backend\\zalohy\\${currentYear}\\${company.ico}_${currentYear}\\${company.ico}_${currentYear}.mdb`;
+        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
         
         console.log('📁 Obnovujem prijaté faktúry z:', mdbPath);
         
