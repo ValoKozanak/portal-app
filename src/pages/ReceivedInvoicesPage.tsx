@@ -52,6 +52,8 @@ const ReceivedInvoicesPage: React.FC = () => {
 
   useEffect(() => {
     loadInvoices();
+    // Automatické obnovenie faktúr z MDB pri načítaní stránky
+    handleRefreshInvoices();
   }, [companyId]);
 
   const loadInvoices = async () => {

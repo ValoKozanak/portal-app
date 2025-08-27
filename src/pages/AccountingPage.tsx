@@ -28,16 +28,15 @@ const AccountingPage: React.FC = () => {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const statsData = await accountingService.getStats(companyId);
-      setStats(statsData);
       
-      // Načítanie finančnej analýzy pre zisk/stratu
-      try {
-        const analysisData = await accountingService.getFinancialAnalysis(companyId);
-        setFinancialAnalysis(analysisData);
-      } catch (error) {
-        console.error('Chyba pri načítaní finančnej analýzy:', error);
-      }
+      // Paralelné načítanie štatistík a finančnej analýzy
+      const [statsData, analysisData] = await Promise.all([
+        accountingService.getStats(companyId),
+        accountingService.getFinancialAnalysis(companyId)
+      ]);
+      
+      setStats(statsData);
+      setFinancialAnalysis(analysisData);
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
     } finally {

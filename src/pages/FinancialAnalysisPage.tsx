@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { accountingService, FinancialAnalysis } from '../services/accountingService';
 import { formatCurrency } from '../utils/formatters';
 import FinancialCharts from '../components/charts/FinancialCharts';
@@ -14,6 +14,7 @@ const FinancialAnalysisPage: React.FC = () => {
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
   const [dateError, setDateError] = useState<string>('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (companyId) {
@@ -32,6 +33,7 @@ const FinancialAnalysisPage: React.FC = () => {
 
     try {
       setLoading(true);
+      setRefreshing(true);
       setError(null);
       const data = await accountingService.getFinancialAnalysis(
         parseInt(companyId!),
@@ -44,6 +46,7 @@ const FinancialAnalysisPage: React.FC = () => {
       setError('Chyba pri načítaní finančnej analýzy');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -114,10 +117,18 @@ const FinancialAnalysisPage: React.FC = () => {
                 Späť na účtovníctvo
               </button>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-gray-900">
                 Analýza hospodárskych výsledkov
               </h1>
+              <button
+                onClick={loadFinancialAnalysis}
+                disabled={refreshing}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                <ArrowPathIcon className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Obnoviť
+              </button>
             </div>
           </div>
           <p className="text-gray-600 mt-2">
