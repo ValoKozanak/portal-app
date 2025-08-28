@@ -350,30 +350,7 @@ export class AccountingService {
 
 
 
-  // 6. POKLADNIČNÉ TRANSAKCIA
 
-  async getCashTransactions(
-    companyId: number, 
-    filters?: {
-      type?: string;
-      date_from?: string;
-      date_to?: string;
-      limit?: number;
-      offset?: number;
-    }
-  ): Promise<CashTransaction[]> {
-    const params = new URLSearchParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined) {
-          params.append(key, value.toString());
-        }
-      });
-    }
-    
-    const response = await apiService.get(`/accounting/cash-transactions/${companyId}?${params}`);
-    return response as CashTransaction[];
-  }
 
 
 
@@ -822,6 +799,39 @@ export class AccountingService {
 
     const data = await response.json();
     console.log('🏦 Bankový transakčný endpoint response data:', data);
+
+    return data;
+  }
+
+  // 18. POKLADŇOVÉ TRANSAKCIE
+  async getCashTransactions(companyId: number, accountNumber: string): Promise<{
+    company: { id: number; name: string; ico: string; };
+    account: { accountNumber: string; accountName: string; bankName: string; };
+    transactions: Array<{
+      id: number; datum: string; popis: string; kredit: number; debet: number; zostatok: number; typ: 'kredit' | 'debet';
+    }>;
+    summary: {
+      totalCredit: number; totalDebit: number; currentBalance: number; transactionCount: number;
+    };
+  }> {
+    console.log('💰 Volám pokladňový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
+
+    const response = await fetch(`http://localhost:5000/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('💰 Pokladňový transakčný endpoint response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Chyba pri načítaní pokladňových transakcií');
+    }
+
+    const data = await response.json();
+    console.log('💰 Pokladňový transakčný endpoint response data:', data);
 
     return data;
   }

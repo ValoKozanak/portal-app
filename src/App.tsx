@@ -27,6 +27,7 @@ const IssuedInvoicesPage = React.lazy(() => import('./components/IssuedInvoicesP
 const ReceivedInvoicesPage = React.lazy(() => import('./pages/ReceivedInvoicesPage'));
 
 const CashPage = React.lazy(() => import('./pages/CashPage'));
+const CashTransactionsPage = React.lazy(() => import('./pages/CashTransactionsPage'));
 const BankPage = React.lazy(() => import('./pages/BankPage'));
 const BankTransactionsPage = React.lazy(() => import('./pages/BankTransactionsPage'));
 const DirectoryPage = React.lazy(() => import('./pages/DirectoryPage'));
@@ -197,11 +198,11 @@ function App() {
                 <Route path="/accounting/received-invoices/:companyId" element={<ReceivedInvoicesPage />} />
                 <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
                 <Route path="/accounting/vat-returns/:companyId" element={<VatReturnsPage />} />
-    
-            <Route path="/accounting/cash" element={<CashPage />} />
-            <Route path="/accounting/bank/:companyId" element={<BankPage />} />
-            <Route path="/accounting/bank/:companyId/transactions/:accountNumber" element={<BankTransactionsPage />} />
-            <Route path="/accounting/directory" element={<DirectoryPage />} />
+                <Route path="/accounting/cash/:companyId" element={<CashPage />} />
+                <Route path="/accounting/cash/:companyId/transactions/:accountNumber" element={<CashTransactionsPage />} />
+                <Route path="/accounting/bank/:companyId" element={<BankPage />} />
+                <Route path="/accounting/bank/:companyId/transactions/:accountNumber" element={<BankTransactionsPage />} />
+                <Route path="/accounting/directory" element={<DirectoryPage />} />
                 <Route path="/invoice/:type/:id" element={<InvoiceDetailPage />} />
                 <Route path="/dropbox-callback" element={
                   (() => {

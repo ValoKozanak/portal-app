@@ -17,7 +17,6 @@ import {
   accountingService, 
   IssuedInvoice, 
   ReceivedInvoice, 
-  CashTransaction, 
   AccountingStats 
 } from '../services/accountingService';
 
@@ -29,13 +28,12 @@ interface AccountingDashboardProps {
 const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, userEmail }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'issued-invoices' | 'received-invoices' | 'cash' | 'directory'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'issued-invoices' | 'received-invoices' | 'directory'>('overview');
   
   // Data states
   const [stats, setStats] = useState<AccountingStats | null>(null);
   const [issuedInvoices, setIssuedInvoices] = useState<IssuedInvoice[]>([]);
   const [receivedInvoices, setReceivedInvoices] = useState<ReceivedInvoice[]>([]);
-  const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>([]);
   const [directoryCompanies, setDirectoryCompanies] = useState<any[]>([]);
   const [directoryLoading, setDirectoryLoading] = useState(false);
 
@@ -53,19 +51,16 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
       const [
         statsData,
         issuedInvoicesData,
-        receivedInvoicesData,
-        cashTransactionsData
+        receivedInvoicesData
       ] = await Promise.all([
         accountingService.getStats(companyId),
         accountingService.getIssuedInvoices(companyId, { limit: 10 }),
-        accountingService.getReceivedInvoices(companyId, { limit: 10 }),
-        accountingService.getCashTransactions(companyId, { limit: 10 })
+        accountingService.getReceivedInvoices(companyId, { limit: 10 })
       ]);
       
       setStats(statsData);
       setIssuedInvoices(issuedInvoicesData);
       setReceivedInvoices(receivedInvoicesData);
-      setCashTransactions(cashTransactionsData);
       
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
@@ -326,83 +321,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
     </div>
   );
 
-  const renderCash = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Pokladničné transakcie</h2>
-                               {(
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Nová transakcia
-          </button>
-        )}
-      </div>
 
-      <div className="bg-white dark:bg-dark-800 shadow rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-dark-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Dátum
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Popis
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Typ
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Suma
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Kategória
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Akcie
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {cashTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {formatDate(transaction.transaction_date)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {transaction.description}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getTypeBadge(transaction.type)}
-                  </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                    transaction.type === 'income' 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {transaction.category || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                      <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
 
 
 
@@ -524,7 +443,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                { id: 'overview', name: 'Prehľad', icon: ChartBarIcon },
                { id: 'issued-invoices', name: 'Vydané faktúry', icon: DocumentTextIcon },
                { id: 'received-invoices', name: 'Prijaté faktúry', icon: ArrowDownIcon },
-               { id: 'cash', name: 'Pokladňa', icon: BanknotesIcon },
                { id: 'directory', name: 'Adresár', icon: BuildingOfficeIcon }
              ].map((tab) => (
               <button
@@ -534,8 +452,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                     navigate('/accounting/issued-invoices');
                   } else if (tab.id === 'received-invoices') {
                     navigate('/accounting/received-invoices');
-                  } else if (tab.id === 'cash') {
-                    navigate('/accounting/cash');
                   } else if (tab.id === 'directory') {
                     navigate('/accounting/directory');
                   } else {
@@ -560,7 +476,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
        <div className="mt-6">
          {activeTab === 'overview' && renderOverview()}
          {activeTab === 'received-invoices' && renderReceivedInvoices()}
-         {activeTab === 'cash' && renderCash()}
          {activeTab === 'directory' && renderDirectory()}
        </div>
 

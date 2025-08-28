@@ -1,116 +1,115 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
+import { useParams, useNavigate } from 'react-router-dom';
+import {
   ArrowLeftIcon,
+  BanknotesIcon,
   PlusIcon,
-  PencilIcon,
-  EyeIcon,
-  MagnifyingGlassIcon
+  MinusIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { accountingService, CashTransaction } from '../services/accountingService';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { accountingService } from '../services/accountingService';
+
+interface CashAccount {
+  id: number;
+  accountNumber: string;
+  accountName: string;
+  balance: number;
+  creditTotal: number;
+  debitTotal: number;
+  transactionCount: number;
+}
+
+interface CashData {
+  company: {
+    id: number;
+    name: string;
+    ico: string;
+  };
+  accounts: CashAccount[];
+  summary: {
+    totalBalance: number;
+    totalCredit: number;
+    totalDebit: number;
+    accountCount: number;
+  };
+  message?: string;
+}
 
 const CashPage: React.FC = () => {
+  const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
-  const [transactions, setTransactions] = useState<CashTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [companyId, setCompanyId] = useState(3);
+  const [error, setError] = useState<string | null>(null);
+  const [cashData, setCashData] = useState<CashData | null>(null);
+
+  const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
 
   useEffect(() => {
-    loadTransactions();
+    if (companyId) {
+      loadCashData();
+    }
   }, [companyId]);
 
-  const loadTransactions = async () => {
+  const loadCashData = async () => {
     try {
       setLoading(true);
-      const data = await accountingService.getCashTransactions(companyId, { limit: 100 });
-      setTransactions(data);
+      setError(null);
+
+      console.log('💰 Načítavam pokladňové dáta pre companyId:', companyId);
+
+      const data = await accountingService.getCashAccounts(Number(companyId));
+      console.log('💰 Pokladňové dáta načítané:', data);
+
+      setCashData(data);
     } catch (error) {
-      console.error('Chyba pri načítaní pokladničných transakcií:', error);
+      console.error('Chyba pri načítaní pokladňových dát:', error);
+      setError('Chyba pri načítaní pokladňových dát');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString || dateString === '') return '-';
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '-';
-      return date.toLocaleDateString('sk-SK');
-    } catch (error) {
-      return '-';
-    }
-  };
-
-  const formatCurrency = (amount: number | null | undefined) => {
-    if (amount === null || amount === undefined || isNaN(amount)) return '-';
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('sk-SK', {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
   };
 
-  const getTypeBadge = (type: string) => {
-    const typeConfig = {
-      income: { color: 'bg-green-100 text-green-800', text: 'Príjem' },
-      expense: { color: 'bg-red-100 text-red-800', text: 'Výdavok' },
-      transfer: { color: 'bg-blue-100 text-blue-800', text: 'Prevod' }
-    };
-
-    const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.income;
-    
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
-      </span>
-    );
-  };
-
-  const filteredTransactions = transactions.filter(transaction => 
-    transaction.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transaction.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleEditTransaction = (transaction: CashTransaction) => {
-    console.log('Editovať transakciu:', transaction);
-    // TODO: Implementovať editáciu transakcie
-    alert(`Editovať transakciu: ${transaction.description}`);
-  };
-
-  const handleDeleteTransaction = async (transaction: CashTransaction) => {
-    if (!window.confirm(`Naozaj chcete vymazať transakciu ${transaction.description}?`)) {
-      return;
-    }
-
-    if (!transaction.id) {
-      alert('Chyba: ID transakcie nie je definované');
-      return;
-    }
-
-    try {
-      await accountingService.deleteCashTransaction(transaction.id);
-      await loadTransactions();
-    } catch (error) {
-      console.error('Chyba pri mazaní transakcie:', error);
-      alert('Chyba pri mazaní transakcie');
-    }
-  };
-
-  const handleCreateTransaction = () => {
-    console.log('Vytvoriť novú transakciu');
-    // TODO: Implementovať vytvorenie transakcie
-    alert('Vytvoriť novú transakciu');
+  const handleRefresh = () => {
+    loadCashData();
   };
 
   if (loading) {
     return <LoadingSpinner />;
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Chyba
+                </h3>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
-      {/* Header s navigáciou späť */}
+      {/* Header */}
       <div className="bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -123,8 +122,16 @@ const CashPage: React.FC = () => {
                 Späť na Účtovníctvo
               </button>
             </div>
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Pokladňa</h1>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Pokladňa - {cashData?.company?.name}
+              </h1>
+              <button
+                onClick={handleRefresh}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Obnoviť
+              </button>
             </div>
           </div>
         </div>
@@ -132,114 +139,149 @@ const CashPage: React.FC = () => {
 
       {/* Hlavný obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Hlavička s vyhľadávaním a tlačidlami */}
-        <div className="bg-white dark:bg-dark-800 shadow rounded-lg mb-6">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Pokladničné transakcie</h2>
-                <div className="relative">
-                  <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Hľadať transakcie..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+        {cashData && cashData.accounts && cashData.accounts.length > 0 ? (
+          <>
+            {/* Súhrn */}
+            <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                Súhrn pokladní
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <BanknotesIcon className="h-8 w-8 text-blue-500" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Celkový zostatok</p>
+                      <p className={`text-2xl font-bold ${cashData.summary.totalBalance >= 0 ? 'text-blue-900 dark:text-blue-100' : 'text-red-600 dark:text-red-400'}`}>
+                        {formatCurrency(cashData.summary.totalBalance)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <PlusIcon className="h-8 w-8 text-green-500" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">Celkový kredit</p>
+                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                        {formatCurrency(cashData.summary.totalCredit)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <MinusIcon className="h-8 w-8 text-red-500" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-red-600 dark:text-red-400">Celkový debet</p>
+                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">
+                        {formatCurrency(cashData.summary.totalDebit)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <BanknotesIcon className="h-8 w-8 text-purple-500" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Počet pokladní</p>
+                      <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        {cashData.summary.accountCount}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleCreateTransaction}
-                  className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  <PlusIcon className="h-4 w-4 mr-1" />
-                  Nová transakcia
-                </button>
+            </div>
+
+            {/* Tabuľka pokladní */}
+            <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  Pokladne
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Číslo účtu
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Názov účtu
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Typ
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Kredit
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Debet
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Zostatok
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Akcie
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {cashData.accounts.map((account) => (
+                      <tr key={account.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                          {account.accountNumber}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {account.accountName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          Pokladňa
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
+                          {formatCurrency(account.creditTotal)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 dark:text-red-400">
+                          {formatCurrency(account.debitTotal)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`font-medium ${account.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {formatCurrency(account.balance)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <button
+                            onClick={() => navigate(`/accounting/cash/${companyId}/transactions/${account.accountNumber}`)}
+                            className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <EyeIcon className="h-4 w-4 mr-1" />
+                            Zobraziť
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : cashData ? (
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-6">
+            <div className="flex items-center">
+              <BanknotesIcon className="h-8 w-8 text-yellow-500" />
+              <div className="ml-3">
+                <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">
+                  Žiadne pokladne
+                </h3>
+                <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                  {cashData?.message || 'Firma nemá žiadne pokladne (211) v účtovníctve.'}
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Tabuľka transakcií */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-dark-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Dátum
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Popis
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Kategória
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Typ
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Suma
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Akcie
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                      Načítavam transakcie...
-                    </td>
-                  </tr>
-                ) : filteredTransactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                      Žiadne transakcie neboli nájdené
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTransactions.map((transaction) => (
-                    <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-dark-700">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                 {formatDate(transaction.transaction_date)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {transaction.description}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {transaction.category}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getTypeBadge(transaction.type)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {formatCurrency(transaction.amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handleEditTransaction(transaction)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                          >
-                            <EyeIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleEditTransaction(transaction)}
-                            className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );
