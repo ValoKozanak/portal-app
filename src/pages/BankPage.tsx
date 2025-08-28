@@ -5,7 +5,8 @@ import {
   BanknotesIcon,
   CurrencyEuroIcon,
   PlusIcon,
-  MinusIcon
+  MinusIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -216,16 +217,16 @@ const BankPage: React.FC = () => {
                         Banka
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Zostatok
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Kredit
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Debet
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Počet transakcií
+                        Zostatok
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Akcie
                       </th>
                     </tr>
                   </thead>
@@ -241,19 +242,25 @@ const BankPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {account.bankName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`font-medium ${account.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {formatCurrency(account.balance)}
-                          </span>
-                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
                           {formatCurrency(account.creditTotal)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 dark:text-red-400">
                           {formatCurrency(account.debitTotal)}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`font-medium ${account.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {formatCurrency(account.balance)}
+                          </span>
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          {account.transactionCount}
+                          <button
+                            onClick={() => navigate(`/accounting/bank/${companyId}/transactions/${account.accountNumber}`)}
+                            className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <EyeIcon className="h-4 w-4 mr-1" />
+                            Zobraziť
+                          </button>
                         </td>
                       </tr>
                     ))}

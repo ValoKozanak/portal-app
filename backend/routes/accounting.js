@@ -1378,4 +1378,208 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
   }
 });
 
+// 9. BANKOVÉ TRANSAKCIE
+
+// Získanie transakcií pre konkrétny bankový účet
+router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, async (req, res) => {
+  const { companyId, accountNumber } = req.params;
+  
+  console.log('🏦 Získavam transakcie pre company_id:', companyId, 'accountNumber:', accountNumber);
+  console.log('🔍 Používateľ:', req.user.email);
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+    
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    
+    console.log('📁 Načítavam transakcie z:', mdbPath);
+    
+    if (!fs.existsSync(mdbPath)) {
+      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    }
+
+    // Načítanie transakcií z MDB
+    console.log('🔧 Načítavam ADODB...');
+    const ADODB = require('node-adodb');
+    console.log('🔧 Vytváram connection string...');
+    const connectionString = `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`;
+    console.log('🔧 Connection string:', connectionString);
+    const connection = ADODB.open(connectionString);
+    console.log('🔧 Connection vytvorená');
+    
+    // Najprv získame informácie o účte z sUcet
+    const accountQuery = `
+      SELECT 
+        ID,
+        AUcet,
+        SText,
+        Banka
+      FROM sUcet 
+      WHERE SText = '${accountNumber}' OR AUcet = '${accountNumber}'
+    `;
+    
+    console.log('🔍 SQL query pre účet:', accountQuery);
+    
+    console.log('🔍 Vykonávam account query...');
+    const accountData = await connection.query(accountQuery);
+    console.log('🔍 Account query výsledok:', accountData);
+    
+    if (accountData.length === 0) {
+      console.log('❌ Účet nebol nájdený pre:', accountNumber);
+      return res.status(404).json({ error: 'Účet nebol nájdený' });
+    }
+    
+    const account = accountData[0];
+    const pudAccountNumber = account.AUcet || '221000'; // Pre výpočty v pUD používame účtovú osnovu
+    
+    console.log('🏦 Informácie o účte:', account);
+    console.log('🏦 Používam pUD číslo účtu:', pudAccountNumber);
+    
+    // Získanie transakcií z pUD tabuľky
+    const transactionsQuery = `
+      SELECT 
+        ID,
+        Datum,
+        Cislo,
+        SText,
+        Kc,
+        UMD,
+        UD,
+        Firma
+      FROM pUD 
+      WHERE UMD = '${pudAccountNumber}' OR UD = '${pudAccountNumber}'
+      ORDER BY Datum ASC
+    `;
+    
+    console.log('🔍 SQL query pre transakcie:', transactionsQuery);
+    
+    console.log('🔍 Vykonávam transactions query...');
+    const transactionsData = await connection.query(transactionsQuery);
+    console.log('🔍 Transactions query výsledok:', transactionsData);
+    
+    console.log('🏦 Nájdených transakcií:', transactionsData.length);
+    
+    // Spracovanie transakcií
+    const transactions = [];
+    let totalCredit = 0;
+    let totalDebit = 0;
+    
+    // Počiatočný stav účtu - ak je to prvý riadok k 1.1.2025, začneme s 0
+    // a prvý zostatok bude hodnota prvej transakcie
+    let runningBalance = 0;
+    let isFirstTransaction = true;
+    
+    console.log('💰 Začínam s počiatočným stavom: 0');
+    
+    for (const transaction of transactionsData) {
+      const isCredit = transaction.UMD === pudAccountNumber; // Ak je účet 221 na strane UMD, je to kredit
+      const amount = parseFloat(transaction.Kc) || 0;
+      
+      if (isFirstTransaction) {
+        // Prvá transakcia k 1.1.2025 - zostatok je hodnota transakcie
+        if (isCredit) {
+          runningBalance = amount;
+          totalCredit += amount;
+          transactions.push({
+            id: transaction.ID,
+            datum: transaction.Datum,
+            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
+            kredit: amount,
+            debet: 0,
+            zostatok: runningBalance,
+            typ: 'kredit',
+            firma: transaction.Firma || ''
+          });
+        } else {
+          runningBalance = -amount;
+          totalDebit += amount;
+          transactions.push({
+            id: transaction.ID,
+            datum: transaction.Datum,
+            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
+            kredit: 0,
+            debet: amount,
+            zostatok: runningBalance,
+            typ: 'debet',
+            firma: transaction.Firma || ''
+          });
+        }
+        isFirstTransaction = false;
+      } else {
+        // Ostatné transakcie - normálne sčítavanie/odčítavanie
+        if (isCredit) {
+          runningBalance += amount;
+          totalCredit += amount;
+          transactions.push({
+            id: transaction.ID,
+            datum: transaction.Datum,
+            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
+            kredit: amount,
+            debet: 0,
+            zostatok: runningBalance,
+            typ: 'kredit',
+            firma: transaction.Firma || ''
+          });
+        } else {
+          runningBalance -= amount;
+          totalDebit += amount;
+          transactions.push({
+            id: transaction.ID,
+            datum: transaction.Datum,
+            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
+            kredit: 0,
+            debet: amount,
+            zostatok: runningBalance,
+            typ: 'debet',
+            firma: transaction.Firma || ''
+          });
+        }
+      }
+    }
+    
+    const response = {
+      company: {
+        id: company.id,
+        name: company.name,
+        ico: company.ico
+      },
+      account: {
+        accountNumber: account.SText || account.AUcet,
+        accountName: account.SText || `Bankový účet ${account.AUcet}`,
+        bankName: account.Banka || 'Neznáma banka'
+      },
+      transactions: transactions,
+      summary: {
+        totalCredit: totalCredit,
+        totalDebit: totalDebit,
+        currentBalance: runningBalance,
+        transactionCount: transactions.length
+      }
+    };
+    
+    console.log('✅ Transakcie úspešne načítané');
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri načítaní transakcií:', error);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error message:', error.message);
+    res.status(500).json({ 
+      error: 'Chyba pri načítaní transakcií',
+      details: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 module.exports = router;

@@ -17,7 +17,6 @@ import {
   accountingService, 
   IssuedInvoice, 
   ReceivedInvoice, 
-  BankTransaction, 
   CashTransaction, 
   AccountingStats 
 } from '../services/accountingService';
@@ -30,13 +29,12 @@ interface AccountingDashboardProps {
 const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, userEmail }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'issued-invoices' | 'received-invoices' | 'cash' | 'bank' | 'directory'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'issued-invoices' | 'received-invoices' | 'cash' | 'directory'>('overview');
   
   // Data states
   const [stats, setStats] = useState<AccountingStats | null>(null);
   const [issuedInvoices, setIssuedInvoices] = useState<IssuedInvoice[]>([]);
   const [receivedInvoices, setReceivedInvoices] = useState<ReceivedInvoice[]>([]);
-  const [bankTransactions, setBankTransactions] = useState<BankTransaction[]>([]);
   const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>([]);
   const [directoryCompanies, setDirectoryCompanies] = useState<any[]>([]);
   const [directoryLoading, setDirectoryLoading] = useState(false);
@@ -52,25 +50,22 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
 
       
       // Načítanie všetkých dát paralelne
-             const [
-         statsData,
-         issuedInvoicesData,
-         receivedInvoicesData,
-         bankTransactionsData,
-         cashTransactionsData
-       ] = await Promise.all([
-         accountingService.getStats(companyId),
-         accountingService.getIssuedInvoices(companyId, { limit: 10 }),
-         accountingService.getReceivedInvoices(companyId, { limit: 10 }),
-         accountingService.getBankTransactions(companyId, { limit: 10 }),
-         accountingService.getCashTransactions(companyId, { limit: 10 })
-       ]);
+      const [
+        statsData,
+        issuedInvoicesData,
+        receivedInvoicesData,
+        cashTransactionsData
+      ] = await Promise.all([
+        accountingService.getStats(companyId),
+        accountingService.getIssuedInvoices(companyId, { limit: 10 }),
+        accountingService.getReceivedInvoices(companyId, { limit: 10 }),
+        accountingService.getCashTransactions(companyId, { limit: 10 })
+      ]);
       
-             setStats(statsData);
-       setIssuedInvoices(issuedInvoicesData);
-       setReceivedInvoices(receivedInvoicesData);
-       setBankTransactions(bankTransactionsData);
-       setCashTransactions(cashTransactionsData);
+      setStats(statsData);
+      setIssuedInvoices(issuedInvoicesData);
+      setReceivedInvoices(receivedInvoicesData);
+      setCashTransactions(cashTransactionsData);
       
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
@@ -250,43 +245,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
           </div>
         </div>
 
-        <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Najnovšie bankové transakcie</h3>
-          </div>
-          <div className="p-6">
-            {bankTransactions.length > 0 ? (
-              <div className="space-y-4">
-                {bankTransactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {transaction.description}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {formatDate(transaction.transaction_date)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-medium ${
-                        transaction.type === 'income' 
-                          ? 'text-green-600 dark:text-green-400' 
-                          : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                      </p>
-                      {getTypeBadge(transaction.type)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                Žiadne bankové transakcie
-              </p>
-            )}
-          </div>
-        </div>
+
       </div>
     </div>
   );
@@ -445,83 +404,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
     </div>
   );
 
-  const renderBank = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Bankové transakcie</h2>
-                 {(
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Nová transakcia
-          </button>
-        )}
-      </div>
 
-      <div className="bg-white dark:bg-dark-800 shadow rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-dark-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Dátum
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Popis
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Typ
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Suma
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Účet
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Akcie
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {bankTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {formatDate(transaction.transaction_date)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {transaction.description}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getTypeBadge(transaction.type)}
-                  </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                    transaction.type === 'income' 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {transaction.bank_account || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                      <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderDirectory = () => (
     <div className="space-y-6">
@@ -642,7 +525,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                { id: 'issued-invoices', name: 'Vydané faktúry', icon: DocumentTextIcon },
                { id: 'received-invoices', name: 'Prijaté faktúry', icon: ArrowDownIcon },
                { id: 'cash', name: 'Pokladňa', icon: BanknotesIcon },
-               { id: 'bank', name: 'Banka', icon: CreditCardIcon },
                { id: 'directory', name: 'Adresár', icon: BuildingOfficeIcon }
              ].map((tab) => (
               <button
@@ -654,8 +536,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                     navigate('/accounting/received-invoices');
                   } else if (tab.id === 'cash') {
                     navigate('/accounting/cash');
-                  } else if (tab.id === 'bank') {
-                    navigate('/accounting/bank');
                   } else if (tab.id === 'directory') {
                     navigate('/accounting/directory');
                   } else {
@@ -681,7 +561,6 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
          {activeTab === 'overview' && renderOverview()}
          {activeTab === 'received-invoices' && renderReceivedInvoices()}
          {activeTab === 'cash' && renderCash()}
-         {activeTab === 'bank' && renderBank()}
          {activeTab === 'directory' && renderDirectory()}
        </div>
 

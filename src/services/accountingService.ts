@@ -348,30 +348,7 @@ export class AccountingService {
     return response as ReceivedInvoice;
   }
 
-  // 5. BANKOVÉ TRANSAKCIA
 
-  async getBankTransactions(
-    companyId: number, 
-    filters?: {
-      type?: string;
-      date_from?: string;
-      date_to?: string;
-      limit?: number;
-      offset?: number;
-    }
-  ): Promise<BankTransaction[]> {
-    const params = new URLSearchParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined) {
-          params.append(key, value.toString());
-        }
-      });
-    }
-    
-    const response = await apiService.get(`/accounting/bank-transactions/${companyId}?${params}`);
-    return response as BankTransaction[];
-  }
 
   // 6. POKLADNIČNÉ TRANSAKCIA
 
@@ -814,6 +791,39 @@ export class AccountingService {
     }
     
     return await response.json();
+  }
+
+  // 17. BANKOVÉ TRANSAKCIE
+  async getBankTransactions(companyId: number, accountNumber: string): Promise<{
+    company: { id: number; name: string; ico: string; };
+    account: { accountNumber: string; accountName: string; bankName: string; };
+    transactions: Array<{
+      id: number; datum: string; popis: string; kredit: number; debet: number; zostatok: number; typ: 'kredit' | 'debet';
+    }>;
+    summary: {
+      totalCredit: number; totalDebit: number; currentBalance: number; transactionCount: number;
+    };
+  }> {
+    console.log('🏦 Volám bankový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
+
+    const response = await fetch(`http://localhost:5000/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('🏦 Bankový transakčný endpoint response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error('Chyba pri načítaní bankových transakcií');
+    }
+
+    const data = await response.json();
+    console.log('🏦 Bankový transakčný endpoint response data:', data);
+
+    return data;
   }
 }
 
