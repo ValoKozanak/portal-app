@@ -31,6 +31,7 @@ const AccountingPage: React.FC = () => {
   const [stats, setStats] = useState<AccountingStats | null>(null);
   const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis | null>(null);
   const [vatData, setVatData] = useState<any>(null);
+  const [bankData, setBankData] = useState<any>(null);
 
   const loadData = useCallback(async () => {
     if (!companyId) return;
@@ -38,16 +39,18 @@ const AccountingPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // Paralelné načítanie štatistík, finančnej analýzy a DPH dát
-      const [statsData, analysisData, vatData] = await Promise.all([
+      // Paralelné načítanie štatistík, finančnej analýzy, DPH dát a bankových dát
+      const [statsData, analysisData, vatData, bankData] = await Promise.all([
         accountingService.getStats(companyId),
         accountingService.getFinancialAnalysis(companyId),
-        accountingService.getVatReturns(companyId, new Date().getFullYear()).catch(() => null)
+        accountingService.getVatReturns(companyId, new Date().getFullYear()).catch(() => null),
+        accountingService.getBankAccounts(companyId).catch(() => null)
       ]);
       
       setStats(statsData);
       setFinancialAnalysis(analysisData);
       setVatData(vatData);
+      setBankData(bankData);
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
     } finally {
@@ -157,11 +160,12 @@ const AccountingPage: React.FC = () => {
     {
       id: 'bank',
       name: 'Banka',
-      description: 'Bankovné transakcie',
+      description: 'Celkový zostatok bankových účtov',
       icon: CreditCardIcon,
       color: 'bg-purple-500',
       hoverColor: 'hover:bg-purple-600',
-      stats: 0, // TODO: Implementovať počítanie bank transakcií
+      stats: bankData?.summary?.totalBalance || 0,
+      isBankBalance: true,
       unpaidAmount: 0
     },
     {
@@ -193,6 +197,8 @@ const AccountingPage: React.FC = () => {
   const handleCardClick = (cardId: string) => {
     if (cardId === 'financial-results') {
       navigate(`/accounting/financial-analysis/${companyId}`);
+    } else if (cardId === 'bank') {
+      navigate(`/accounting/bank/${companyId}`);
     } else {
       navigate(`/accounting/${cardId}/${companyId}`);
     }
@@ -285,6 +291,15 @@ const AccountingPage: React.FC = () => {
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {getLastVatPeriod().isPositive ? 'Odpočet' : 'Povinnosť'}
+                        </p>
+                      </>
+                    ) : card.id === 'bank' ? (
+                      <>
+                        <p className={`text-2xl font-bold ${(bankData?.summary?.totalBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(bankData?.summary?.totalBalance || 0)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Celkový zostatok
                         </p>
                       </>
                     ) : (

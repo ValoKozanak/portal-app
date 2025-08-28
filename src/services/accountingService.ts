@@ -727,6 +727,94 @@ export class AccountingService {
     
     return await response.json();
   }
+
+  // 15. BANKOVÉ ÚČTY
+
+  // Načítanie bankových účtov z MDB
+  async getBankAccounts(companyId: number): Promise<{
+    company: {
+      id: number;
+      name: string;
+      ico: string;
+    };
+    accounts: Array<{
+      id: number;
+      accountNumber: string;
+      accountName: string;
+      bankName: string;
+      balance: number;
+      creditTotal: number;
+      debitTotal: number;
+      transactionCount: number;
+    }>;
+    summary: {
+      totalBalance: number;
+      totalCredit: number;
+      totalDebit: number;
+      accountCount: number;
+    };
+  }> {
+    console.log('🏦 Volám bankový endpoint pre companyId:', companyId);
+    
+    const response = await fetch(`http://localhost:5000/api/accounting/bank-accounts/${companyId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('🏦 Bankový endpoint response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error('Chyba pri načítaní bankových účtov');
+    }
+    
+    const data = await response.json();
+    console.log('🏦 Bankový endpoint response data:', data);
+    
+    return data;
+  }
+
+  // 16. POKLADŇA
+
+  // Načítanie pokladňových účtov z MDB
+  async getCashAccounts(companyId: number): Promise<{
+    company: {
+      id: number;
+      name: string;
+      ico: string;
+    };
+    accounts: Array<{
+      id: number;
+      accountNumber: string;
+      accountName: string;
+      balance: number;
+      creditTotal: number;
+      debitTotal: number;
+      transactionCount: number;
+    }>;
+    summary: {
+      totalBalance: number;
+      totalCredit: number;
+      totalDebit: number;
+      accountCount: number;
+    };
+  }> {
+    const response = await fetch(`http://localhost:5000/api/accounting/cash-accounts/${companyId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Chyba pri načítaní pokladňových účtov');
+    }
+    
+    return await response.json();
+  }
 }
 
 export const accountingService = new AccountingService();

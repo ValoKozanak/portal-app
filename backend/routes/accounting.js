@@ -1060,4 +1060,322 @@ router.get('/vat-returns/:companyId', authenticateToken, async (req, res) => {
   }
 });
 
+// 7. BANKOVÉ ÚČTY
+
+// Získanie bankových účtov z MDB
+router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  
+  console.log('🏦 Získavam bankové účty pre company_id:', companyId);
+  console.log('🔍 Používateľ:', req.user.email);
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+    
+    console.log('🏢 Informácie o firme:', {
+      id: company.id,
+      name: company.name,
+      ico: company.ico
+    });
+    
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    
+    console.log('📁 Načítavam bankové dáta z:', mdbPath);
+    
+    if (!fs.existsSync(mdbPath)) {
+      console.log('❌ MDB súbor neexistuje:', mdbPath);
+      return res.status(404).json({ 
+        error: 'MDB súbor nebol nájdený',
+        details: {
+          companyId: companyId,
+          companyName: company.name,
+          companyIco: company.ico,
+          mdbPath: mdbPath
+        }
+      });
+    }
+
+    // Načítanie bankových účtov z MDB
+    const ADODB = require('node-adodb');
+    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+    
+    // Najprv skontrolujeme, či tabuľky existujú
+    try {
+      const tablesQuery = "SELECT Name FROM MSysObjects WHERE Type=1 AND Flags=0";
+      const tables = await connection.query(tablesQuery);
+      console.log('📋 Dostupné tabuľky:', tables.map(t => t.Name));
+    } catch (error) {
+      console.log('⚠️ Nepodarilo sa získať zoznam tabuliek:', error.message);
+    }
+    
+    // Získanie všetkých účtov z tabuľky sUcet a potom filtrovanie bankových účtov
+    const accountsQuery = `
+      SELECT 
+        ID,
+        AUcet,
+        SText,
+        Banka,
+        RelJeUcet
+      FROM sUcet 
+      ORDER BY AUcet
+    `;
+    
+    console.log('🔍 SQL query pre účty:', accountsQuery);
+    
+    const allAccountsData = await connection.query(accountsQuery);
+    
+    console.log('🏦 Nájdených účtov v sUcet (pred filtrovaním):', allAccountsData.length);
+    console.log('🏦 Všetky účty v sUcet:', allAccountsData);
+    
+    const accounts = [];
+    let totalBalance = 0;
+    let totalCredit = 0;
+    let totalDebit = 0;
+    
+    for (const account of allAccountsData) {
+      let accountNumber = account.AUcet;
+      let displayAccountNumber = account.SText; // Pre zobrazenie použijeme SText
+      
+      // Ak je SText prázdne, preskočíme tento účet úplne
+      if (!displayAccountNumber || displayAccountNumber === '') {
+        console.log(`🏦 Preskakujem účet s prázdnym SText: AUcet=${accountNumber}`);
+        continue;
+      }
+      
+      // Ak je RelJeUcet = 1, je to pokladňa, preskočíme
+      if (account.RelJeUcet === 1) {
+        console.log(`🏦 Preskakujem pokladňu (RelJeUcet=1): AUcet=${accountNumber}, SText=${displayAccountNumber}`);
+        continue;
+      }
+      
+      // Ak je AUcet prázdne, použijeme 221000 pre výpočty v pUD
+      if (!accountNumber || accountNumber === '') {
+        accountNumber = '221000'; // Pre výpočty v pUD
+        console.log(`🏦 AUcet je prázdne, používam 221000 pre pUD výpočty, zobrazenie: ${displayAccountNumber}`);
+      }
+      
+      // Filtrujeme iba bankové účty (221)
+      if (!accountNumber.startsWith('221')) {
+        continue; // Preskočíme tento účet, ak nie je 221
+      }
+      
+      const accountName = displayAccountNumber; // Používame SText, ktorý už vieme že nie je prázdny
+      const bankName = account.Banka || 'Neznáma banka';
+      
+      console.log(`🏦 Spracujem účet: ${accountNumber} (pUD), zobrazenie: ${displayAccountNumber}, názov: ${accountName}, banka: ${bankName}`);
+      
+      // Získanie kreditných pohybov (UMD) pre tento účet z pUD - používame účtovú osnovu
+      const creditQuery = `
+        SELECT 
+          SUM(pUD.Kc) as credit_total,
+          COUNT(*) as transaction_count
+        FROM pUD 
+        WHERE pUD.UMD = '${accountNumber}'
+      `;
+      
+      // Získanie debetných pohybov (UD) pre tento účet z pUD - používame účtovú osnovu
+      const debitQuery = `
+        SELECT 
+          SUM(pUD.Kc) as debit_total
+        FROM pUD 
+        WHERE pUD.UD = '${accountNumber}'
+      `;
+      
+      console.log(`🔍 SQL query pre kredit účtu ${accountNumber}:`, creditQuery);
+      console.log(`🔍 SQL query pre debet účtu ${accountNumber}:`, debitQuery);
+      
+      const creditData = await connection.query(creditQuery);
+      const debitData = await connection.query(debitQuery);
+      
+      console.log(`🔍 Kredit pre účet ${accountNumber}:`, creditData);
+      console.log(`🔍 Debet pre účet ${accountNumber}:`, debitData);
+      
+      const creditTotal = parseFloat(creditData[0]?.credit_total) || 0;
+      const debitTotal = parseFloat(debitData[0]?.debit_total) || 0;
+      const balance = creditTotal - debitTotal;
+      const transactionCount = parseInt(creditData[0]?.transaction_count) || 0;
+      
+      accounts.push({
+        id: account.ID || accounts.length + 1,
+        accountNumber: displayAccountNumber, // Zobrazujeme SText, ktorý už vieme že nie je prázdny
+        accountName: accountName,
+        bankName: bankName,
+        balance: balance,
+        creditTotal: creditTotal,
+        debitTotal: debitTotal,
+        transactionCount: transactionCount
+      });
+      
+      totalBalance += balance;
+      totalCredit += creditTotal;
+      totalDebit += debitTotal;
+    }
+    
+    const response = {
+      company: {
+        id: company.id,
+        name: company.name,
+        ico: company.ico
+      },
+      accounts: accounts,
+      summary: {
+        totalBalance: totalBalance,
+        totalCredit: totalCredit,
+        totalDebit: totalDebit,
+        accountCount: accounts.length
+      },
+      message: accounts.length === 0 ? 'Neboli nájdené žiadne bankové účty (221)' : undefined
+    };
+    
+    console.log('✅ Bankové dáta úspešne načítané');
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri načítaní bankových dát:', error);
+    res.status(500).json({ error: 'Chyba pri načítaní bankových dát' });
+  }
+});
+
+// 8. POKLADŇA
+
+// Získanie pokladňových účtov z MDB
+router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  
+  console.log('💰 Získavam pokladňové účty pre company_id:', companyId);
+  console.log('🔍 Používateľ:', req.user.email);
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+    
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    
+    console.log('📁 Načítavam pokladňové dáta z:', mdbPath);
+    
+    if (!fs.existsSync(mdbPath)) {
+      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    }
+
+    // Načítanie pokladňových účtov z MDB
+    const ADODB = require('node-adodb');
+    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+    
+    // Získanie pokladňových účtov z tabuľky sUcet (iba 211 - pokladňa)
+    const accountsQuery = `
+      SELECT 
+        ID,
+        AUcet,
+        SText
+      FROM sUcet 
+      WHERE AUcet LIKE '211%'
+      ORDER BY AUcet
+    `;
+    
+    console.log('🔍 SQL query pre pokladňové účty:', accountsQuery);
+    
+    const accountsData = await connection.query(accountsQuery);
+    
+    console.log('💰 Nájdených pokladňových účtov:', accountsData.length);
+    console.log('💰 Účty:', accountsData);
+    
+    // Spracovanie pokladňových účtov - použijeme rovnaký prístup ako pri banke
+    const accounts = [];
+    let totalBalance = 0;
+    let totalCredit = 0;
+    let totalDebit = 0;
+    
+    for (const account of accountsData) {
+      const accountNumber = account.AUcet; // Iba 211 účty
+      const accountName = account.SText || `Pokladňa ${accountNumber}`;
+      
+      // Získanie kreditných pohybov (UMD) pre tento účet z pUD
+      const creditQuery = `
+        SELECT 
+          SUM(pUD.Kc) as credit_total,
+          COUNT(*) as transaction_count
+        FROM pUD 
+        WHERE pUD.UMD = '${accountNumber}'
+      `;
+      
+      // Získanie debetných pohybov (UD) pre tento účet z pUD
+      const debitQuery = `
+        SELECT 
+          SUM(pUD.Kc) as debit_total
+        FROM pUD 
+        WHERE pUD.UD = '${accountNumber}'
+      `;
+      
+      console.log(`🔍 SQL query pre kredit pokladne ${accountNumber}:`, creditQuery);
+      console.log(`🔍 SQL query pre debet pokladne ${accountNumber}:`, debitQuery);
+      
+      const creditData = await connection.query(creditQuery);
+      const debitData = await connection.query(debitQuery);
+      
+      console.log(`🔍 Kredit pre pokladňu ${accountNumber}:`, creditData);
+      console.log(`🔍 Debet pre pokladňu ${accountNumber}:`, debitData);
+      
+      const creditTotal = parseFloat(creditData[0]?.credit_total) || 0;
+      const debitTotal = parseFloat(debitData[0]?.debit_total) || 0;
+      const balance = creditTotal - debitTotal;
+      const transactionCount = parseInt(creditData[0]?.transaction_count) || 0;
+      
+      accounts.push({
+        id: account.ID || accounts.length + 1,
+        accountNumber: accountNumber,
+        accountName: accountName,
+        balance: balance,
+        creditTotal: creditTotal,
+        debitTotal: debitTotal,
+        transactionCount: transactionCount
+      });
+      
+      totalBalance += balance;
+      totalCredit += creditTotal;
+      totalDebit += debitTotal;
+    }
+    
+    const response = {
+      company: {
+        id: company.id,
+        name: company.name,
+        ico: company.ico
+      },
+      accounts: accounts,
+      summary: {
+        totalBalance: totalBalance,
+        totalCredit: totalCredit,
+        totalDebit: totalDebit,
+        accountCount: accounts.length
+      }
+    };
+    
+    console.log('✅ Pokladňové dáta úspešne načítané');
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri načítaní pokladňových dát:', error);
+    res.status(500).json({ error: 'Chyba pri načítaní pokladňových dát' });
+  }
+});
+
 module.exports = router;

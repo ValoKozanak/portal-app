@@ -198,7 +198,7 @@ function App() {
                 <Route path="/accounting/vat-returns/:companyId" element={<VatReturnsPage />} />
     
             <Route path="/accounting/cash" element={<CashPage />} />
-            <Route path="/accounting/bank" element={<BankPage />} />
+            <Route path="/accounting/bank/:companyId" element={<BankPage />} />
             <Route path="/accounting/directory" element={<DirectoryPage />} />
                 <Route path="/invoice/:type/:id" element={<InvoiceDetailPage />} />
                 <Route path="/dropbox-callback" element={

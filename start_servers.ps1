@@ -22,7 +22,7 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host "    SERVERY SPUSTENE!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "Backend: http://localhost:5000" -ForegroundColor Cyan
-Write-Host "Frontend: http://localhost:3000" -ForegroundColor Cyan
+Write-Host "Frontend: tro kvôli tomu?http://localhost:3000" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Pre zastavenie zatvorte okna alebo stlacte Ctrl+C" -ForegroundColor Yellow
 Write-Host ""
