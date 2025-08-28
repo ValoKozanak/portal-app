@@ -146,8 +146,6 @@ router.post('/create-user', (req, res) => {
   });
 });
 
-
-
 // Získanie všetkých účtovníkov
 router.get('/users/accountants', authenticateToken, (req, res) => {
   db.all('SELECT id, email, name, role, status, created_at FROM users WHERE role = "accountant" AND status = "active" ORDER BY name', [], (err, accountants) => {
@@ -385,8 +383,6 @@ router.get('/users', authenticateToken, (req, res) => {
     res.json(users);
   });
 });
-
-
 
 // Mazanie používateľa
 router.delete('/users/:id', (req, res) => {

@@ -10,7 +10,7 @@ const tasksRoutes = require('./routes/tasks');
 const filesRoutes = require('./routes/files');
 const documentsRoutes = require('./routes/documents');
 const cmsRoutes = require('./routes/cms');
-const testRoutes = require('./routes/test');
+
 const messagesRoutes = require('./routes/messages');
 const dropboxRoutes = require('./routes/dropbox');
 const hrRoutes = require('./routes/hr');
@@ -36,7 +36,7 @@ app.use('/api/tasks', tasksRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/documents', documentsRoutes);
 app.use('/api/cms', cmsRoutes);
-app.use('/api/test', testRoutes);
+
 app.use('/api/dropbox', dropboxRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/payroll', payrollRoutes);

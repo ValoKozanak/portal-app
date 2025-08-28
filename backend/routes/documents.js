@@ -82,7 +82,6 @@ const storage = multer.diskStorage({
         originalName = buffer.toString('utf8');
       }
     } catch (error) {
-      console.log('Nepodarilo sa opraviť kódovanie názvu:', originalName);
     }
     
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -316,10 +315,6 @@ router.get('/preview/:documentId', (req, res) => {
     if (!fs.existsSync(document.file_path)) {
       return res.status(404).json({ error: 'Súbor neexistuje na disku' });
     }
-
-    console.log('Preview request for document ID:', documentId);
-    console.log('Document found:', document);
-
     // Nastavíme správne headers pre preview
     res.setHeader('Content-Type', document.file_type);
     res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(document.original_name)}`);

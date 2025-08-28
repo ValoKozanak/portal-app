@@ -75,13 +75,13 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 
   const handleViewInvoice = (invoice: IssuedInvoice) => {
     console.log('Zobraziť faktúru:', invoice);
-    // TODO: Implementovať zobrazenie detailu faktúry
+    
     alert(`Zobraziť faktúru: ${invoice.invoice_number}`);
   };
 
   const handleEditInvoice = (invoice: IssuedInvoice) => {
     console.log('Editovať faktúru:', invoice);
-    // TODO: Implementovať editáciu faktúry
+    
     alert(`Editovať faktúru: ${invoice.invoice_number}`);
   };
 
@@ -91,7 +91,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
     }
     
     try {
-      // TODO: Implementovať API volanie pre vymazanie
+      
       console.log('Vymazať faktúru:', invoice);
       alert(`Faktúra ${invoice.invoice_number} bola vymazaná`);
       await loadInvoices(); // Znovu načítať zoznam
@@ -103,13 +103,13 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 
   const handleCreateInvoice = () => {
     console.log('Vytvoriť novú faktúru');
-    // TODO: Implementovať vytvorenie novej faktúry
+    
     alert('Vytvoriť novú faktúru');
   };
 
   const handleExportInvoices = () => {
     console.log('Export faktúr');
-    // TODO: Implementovať export
+    
     alert('Export faktúr');
   };
 

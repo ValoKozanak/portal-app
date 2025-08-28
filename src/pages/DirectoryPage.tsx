@@ -57,7 +57,7 @@ const DirectoryPage: React.FC = () => {
 
   const handleEditCompany = (company: DirectoryCompany) => {
     console.log('Editovať firmu:', company);
-    // TODO: Implementovať editáciu firmy
+
     alert(`Editovať firmu: ${company.name}`);
   };
 
@@ -67,7 +67,7 @@ const DirectoryPage: React.FC = () => {
     }
 
     try {
-      // TODO: Implementovať mazanie firmy
+  
       await loadDirectory();
     } catch (error) {
       console.error('Chyba pri mazaní firmy:', error);
@@ -77,7 +77,7 @@ const DirectoryPage: React.FC = () => {
 
   const handleCreateCompany = () => {
     console.log('Vytvoriť novú firmu');
-    // TODO: Implementovať vytvorenie firmy
+
     alert('Vytvoriť novú firmu');
   };
 

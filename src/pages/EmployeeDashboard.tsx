@@ -126,7 +126,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         }
 
         // Načítanie pracovných pomerov (zatiaľ simulované)
-        // TODO: Implementovať API pre pracovné pomery
+    
         const mockEmploymentRelations: EmploymentRelation[] = [
           {
             id: 1,

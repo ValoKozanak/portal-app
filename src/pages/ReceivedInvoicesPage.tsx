@@ -213,7 +213,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 
   const handleEditInvoice = (invoice: ReceivedInvoice) => {
     console.log('Editovať faktúru:', invoice);
-    // TODO: Implementovať editáciu faktúry
+    
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -250,7 +250,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 
   const handleCreateInvoice = () => {
     console.log('Vytvoriť novú faktúru');
-    // TODO: Implementovať vytvorenie novej faktúry
+    
     alert('Vytvoriť novú faktúru');
   };
 
@@ -268,7 +268,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 
   const handleExportInvoices = () => {
     console.log('Exportovať faktúry');
-    // TODO: Implementovať export faktúr
+    
     alert('Exportovať faktúry');
   };
 

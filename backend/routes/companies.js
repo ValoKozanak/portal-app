@@ -53,7 +53,6 @@ router.get('/', (req, res) => {
   });
 });
 
-
 // Získanie firiem pre konkrétneho používateľa
 router.get('/user/:userEmail', (req, res) => {
   const { userEmail } = req.params;

@@ -115,7 +115,7 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
   const handleDeleteRelation = (relationId: number) => {
     if (window.confirm('Naozaj chcete vymazať tento pracovný pomer?')) {
       try {
-        // TODO: Implementovať API volanie pre vymazanie
+
         setEmploymentRelations(prev => prev.filter(r => r.id !== relationId));
       } catch (error) {
         console.error('Chyba pri vymazaní pracovného pomeru:', error);

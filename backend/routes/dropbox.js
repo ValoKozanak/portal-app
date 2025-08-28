@@ -280,20 +280,9 @@ router.get('/admin/shares', async (req, res) => {
 // POST /api/dropbox/admin/save-settings - Uloženie Dropbox nastavení do databázy
 router.post('/admin/save-settings', async (req, res) => {
   try {
-    console.log('=== SAVE SETTINGS ENDPOINT CALLED ===');
-    console.log('Request body:', req.body);
-    
+
     const { companyId, companyEmail, companyICO, folderPath, shareLink, permissions } = req.body;
-    
-    console.log('Parsed parameters:', {
-      companyId,
-      companyEmail,
-      companyICO,
-      folderPath,
-      shareLink,
-      permissions
-    });
-    
+
     if (!companyId || !companyEmail || !companyICO || !folderPath || !permissions) {
       console.error('Missing required parameters');
       return res.status(400).json({ error: 'Chýbajú povinné parametre' });
@@ -321,16 +310,12 @@ router.post('/admin/save-settings', async (req, res) => {
       permissions.canDelete ? 1 : 0
     ];
 
-    console.log('SQL Query:', query);
-    console.log('SQL Parameters:', params);
-
     db.run(query, params, function(err) {
       if (err) {
         console.error('Database error saving dropbox settings:', err);
         return res.status(500).json({ error: 'Chyba pri ukladaní nastavení' });
       }
-      
-      console.log('Settings saved successfully. Last ID:', this.lastID);
+
       res.json({
         success: true,
         message: 'Nastavenia boli úspešne uložené',

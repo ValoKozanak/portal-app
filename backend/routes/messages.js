@@ -5,8 +5,6 @@ const { db } = require('../database');
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-console.log('Messages routes loaded successfully!');
-
 // Middleware pre autentifikáciu
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];

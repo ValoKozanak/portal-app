@@ -378,8 +378,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo správ:', err);
-        } else {
-          console.log('✅ Demo správy pridané úspešne');
         }
       });
 
@@ -393,8 +391,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo úloh:', err);
-        } else {
-          console.log('✅ Demo úlohy pridané úspešne');
         }
       });
 
@@ -569,8 +565,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo zamestnancov:', err);
-        } else {
-          console.log('✅ Demo zamestnanci pridaní úspešne');
         }
       });
 
@@ -581,8 +575,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vyčistení nepriradených pracovných pomerov:', err);
-        } else {
-          console.log('✅ Nepriradené pracovné pomery vyčistené');
         }
       });
 
@@ -595,8 +587,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo zmien:', err);
-        } else {
-          console.log('✅ Demo pracovné zmeny pridané úspešne');
         }
       });
 
@@ -610,8 +600,6 @@ const initDatabase = () => {
       `, (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
-        } else {
-          console.log('✅ Demo pracovné pomery pridané úspešne');
         }
       });
 
@@ -646,8 +634,6 @@ const initDatabase = () => {
       `, [today], (err) => {
         if (err) {
           console.error('Chyba pri vkladaní demo dochádzky:', err);
-        } else {
-          console.log('✅ Demo dochádzka pridaná úspešne');
         }
       });
 
@@ -722,9 +708,6 @@ const initDatabase = () => {
           }
         });
       });
-
-      console.log('✅ Demo dovolenky pridané úspešne');
-
       // Demo mzdové obdobia - vytvoriť pre všetky existujúce firmy
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
@@ -783,10 +766,7 @@ const initDatabase = () => {
           });
         });
         
-        console.log('✅ Demo mzdové obdobia pridané úspešne');
-      });
-
-      console.log('✅ Demo mzdové obdobia pridané úspešne');
+        });
 
       // ===== ÚČTOVNÍCTVO - NOVÉ TABUĽKY =====
       
@@ -1030,9 +1010,6 @@ const initDatabase = () => {
         )
       `);
 
-
-
-      console.log('✅ Databáza inicializovaná úspešne');
       resolve();
     });
   });

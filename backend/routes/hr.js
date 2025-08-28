@@ -391,7 +391,6 @@ router.get('/leave-requests/:companyId', authenticateToken, (req, res) => {
 
 // Pomocné funkcie pre prácu s dátumami (zachované pre kompatibilitu)
 
-
 const calculateWorkingDays = (startDate, endDate) => {
   if (!startDate || !endDate) return 0;
   
@@ -410,8 +409,6 @@ const calculateWorkingDays = (startDate, endDate) => {
   
   return workingDays;
 };
-
-
 
 // Funkcia na kontrolu, či má zamestnanec dovolenku, PN alebo iný typ neprítomnosti
 const checkEmployeeAbsence = async (db, employeeId, date) => {
@@ -528,8 +525,6 @@ router.post('/leave-requests', authenticateToken, async (req, res) => {
   try {
     // Použiť CalendarService pre presný výpočet pracovných dní
     const calculatedWorkingDays = await calendarService.calculateWorkingDays(start_date, end_date);
-    
-    console.log(`📅 Dovolenka ${start_date} - ${end_date}: ${calculatedWorkingDays} pracovných dní`);
 
     db.run(`
       INSERT INTO leave_requests (

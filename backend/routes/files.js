@@ -55,7 +55,6 @@ const storage = multer.diskStorage({
         originalName = buffer.toString('utf8');
       }
     } catch (error) {
-      console.log('Nepodarilo sa opraviť kódovanie názvu:', originalName);
     }
     
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -151,7 +150,6 @@ router.post('/upload', upload.single('file'), (req, res) => {
       originalname = buffer.toString('utf8');
     }
   } catch (error) {
-    console.log('Nepodarilo sa opraviť kódovanie názvu:', originalname);
   }
 
   db.run(`
@@ -253,9 +251,6 @@ router.get('/download/:fileId', (req, res) => {
 // Náhľad súboru
 router.get('/:fileId/preview', (req, res) => {
   const { fileId } = req.params;
-  
-  console.log('Preview request for file ID:', fileId);
-
   db.get('SELECT * FROM files WHERE id = ?', [fileId], (err, file) => {
     if (err) {
       console.error('Database error:', err);
@@ -263,27 +258,13 @@ router.get('/:fileId/preview', (req, res) => {
     }
 
     if (!file) {
-      console.log('File not found in database for ID:', fileId);
       return res.status(404).json({ error: 'Súbor nebol nájdený' });
     }
-
-    console.log('File found:', {
-      id: file.id,
-      original_name: file.original_name,
-      file_type: file.file_type,
-      file_path: file.file_path
-    });
-
     if (!fs.existsSync(file.file_path)) {
-      console.log('File does not exist on disk:', file.file_path);
       return res.status(404).json({ error: 'Súbor neexistuje na disku' });
     }
-
-    console.log('File exists on disk, serving preview...');
-
     // Pre obrázky a PDF súbory môžeme poslať priamo
     if (file.file_type.startsWith('image/') || file.file_type === 'application/pdf') {
-      console.log('Serving as inline content with type:', file.file_type);
       res.setHeader('Content-Type', file.file_type);
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -292,7 +273,6 @@ router.get('/:fileId/preview', (req, res) => {
       res.setHeader('Content-Disposition', 'inline; filename="' + displayName + '"');
       fs.createReadStream(file.file_path).pipe(res);
     } else {
-      console.log('Serving as download for type:', file.file_type);
       // Pre ostatné súbory posielame download
       const downloadName = file.original_name || file.filename;
       res.download(file.file_path, downloadName);
