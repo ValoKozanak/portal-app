@@ -685,6 +685,48 @@ export class AccountingService {
     
     return await response.json();
   }
+
+  // 14. DPH PODANIA
+
+  // Načítanie DPH podaní z MDB
+  async getVatReturns(companyId: number, year?: number): Promise<{
+    company: {
+      id: number;
+      name: string;
+      ico: string;
+    };
+    year: number;
+    returns: Array<{
+      id: number;
+      rok: number;
+      mesiac: number;
+      povinnost: number;
+      odpočet: number;
+      odoslané: boolean;
+    }>;
+    summary: {
+      totalPovinnost: number;
+      totalOdpočet: number;
+      totalRozdiel: number;
+      odoslanéCount: number;
+      neodoslanéCount: number;
+    };
+  }> {
+    const yearParam = year || new Date().getFullYear();
+    const response = await fetch(`http://localhost:5000/api/accounting/vat-returns/${companyId}?year=${yearParam}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Chyba pri načítaní DPH podaní');
+    }
+    
+    return await response.json();
+  }
 }
 
 export const accountingService = new AccountingService();

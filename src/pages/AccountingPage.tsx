@@ -30,6 +30,7 @@ const AccountingPage: React.FC = () => {
   
   const [stats, setStats] = useState<AccountingStats | null>(null);
   const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis | null>(null);
+  const [vatData, setVatData] = useState<any>(null);
 
   const loadData = useCallback(async () => {
     if (!companyId) return;
@@ -37,14 +38,16 @@ const AccountingPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // Paralelné načítanie štatistík a finančnej analýzy
-      const [statsData, analysisData] = await Promise.all([
+      // Paralelné načítanie štatistík, finančnej analýzy a DPH dát
+      const [statsData, analysisData, vatData] = await Promise.all([
         accountingService.getStats(companyId),
-        accountingService.getFinancialAnalysis(companyId)
+        accountingService.getFinancialAnalysis(companyId),
+        accountingService.getVatReturns(companyId, new Date().getFullYear()).catch(() => null)
       ]);
       
       setStats(statsData);
       setFinancialAnalysis(analysisData);
+      setVatData(vatData);
     } catch (error) {
       console.error('Chyba pri načítaní účtovníckych dát:', error);
     } finally {
@@ -97,6 +100,29 @@ const AccountingPage: React.FC = () => {
     }).format(amount);
   };
 
+  // Funkcia na získanie posledného DPH obdobia s výsledkom
+  const getLastVatPeriod = () => {
+    if (!vatData || !vatData.returns || vatData.returns.length === 0) {
+      return { period: '-', result: 0, isPositive: false };
+    }
+    
+    // Zoradenie podľa mesiaca a výber posledného
+    const sortedReturns = [...vatData.returns].sort((a, b) => b.mesiac - a.mesiac);
+    const lastReturn = sortedReturns[0];
+    
+    const months = [
+      'Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún',
+      'Júl', 'August', 'September', 'Október', 'November', 'December'
+    ];
+    
+    const period = `${months[lastReturn.mesiac - 1]} ${lastReturn.rok}`;
+    const result = lastReturn.povinnost - lastReturn.odpočet;
+    // Zmenená logika: mínus = povinnosť (musí platiť), plus = odpočet (môže si odpočítať)
+    const isPositive = result < 0; // Negatívny výsledok znamená povinnosť
+    
+    return { period, result, isPositive };
+  };
+
   const accountingCards = [
     {
       id: 'issued-invoices',
@@ -139,13 +165,15 @@ const AccountingPage: React.FC = () => {
       unpaidAmount: 0
     },
     {
-      id: 'directory',
-      name: 'Adresár',
-      description: 'Správa firiem v adresári',
-      icon: BuildingOfficeIcon,
+      id: 'vat-returns',
+      name: 'DPH',
+      description: `Posledné obdobie: ${getLastVatPeriod().period}`,
+      icon: ChartBarIcon,
       color: 'bg-indigo-500',
       hoverColor: 'hover:bg-indigo-600',
-      stats: 0, // TODO: Implementovať počítanie firiem v adresári
+      stats: getLastVatPeriod().result,
+      isVatResult: true,
+      isPositive: getLastVatPeriod().isPositive,
       unpaidAmount: 0
     },
     {
@@ -248,6 +276,15 @@ const AccountingPage: React.FC = () => {
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {financialAnalysis?.isProfit ? 'Zisk' : 'Strata'}
+                        </p>
+                      </>
+                    ) : card.id === 'vat-returns' ? (
+                      <>
+                        <p className={`text-2xl font-bold ${getLastVatPeriod().isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                          {getLastVatPeriod().isPositive ? '+' : '-'} {formatCurrency(Math.abs(getLastVatPeriod().result))}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {getLastVatPeriod().isPositive ? 'Odpočet' : 'Povinnosť'}
                         </p>
                       </>
                     ) : (

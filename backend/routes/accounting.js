@@ -965,4 +965,99 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
   }
 });
 
+// 6. DPH PODANIA
+
+// Získanie DPH podaní z MDB
+router.get('/vat-returns/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  const { year } = req.query;
+  
+  console.log('📊 Získavam DPH podania pre company_id:', companyId, 'rok:', year);
+  console.log('🔍 Používateľ:', req.user.email);
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+    
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    
+    console.log('📁 Načítavam DPH dáta z:', mdbPath);
+    
+    if (!fs.existsSync(mdbPath)) {
+      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    }
+
+    // Načítanie DPH dát z MDB
+    const ADODB = require('node-adodb');
+    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+    
+    const selectedYear = year || new Date().getFullYear();
+    
+    const query = `
+      SELECT 
+        ID,
+        Rok,
+        RelObDPH,
+        KcDan,
+        KcOdpoc,
+        ElOdeslano
+      FROM DPH 
+      WHERE Rok = ${selectedYear}
+      ORDER BY RelObDPH ASC
+    `;
+    
+    console.log('🔍 SQL query:', query);
+    
+    const data = await connection.query(query);
+    
+    console.log('📊 Nájdených DPH záznamov:', data.length);
+    
+    // Spracovanie dát
+    const returns = data.map((row, index) => ({
+      id: index + 1,
+      rok: parseInt(row.Rok) || selectedYear,
+      mesiac: parseInt(row.RelObDPH) || 0,
+      povinnost: parseFloat(row.KcDan) || 0,
+      odpočet: parseFloat(row.KcOdpoc) || 0,
+      odoslané: row.ElOdeslano === true || row.ElOdeslano === 1 || row.ElOdeslano === 'True'
+    }));
+    
+    // Výpočet súhrnu
+    const summary = {
+      totalPovinnost: returns.reduce((sum, item) => sum + item.povinnost, 0),
+      totalOdpočet: returns.reduce((sum, item) => sum + item.odpočet, 0),
+      totalRozdiel: returns.reduce((sum, item) => sum + (item.povinnost - item.odpočet), 0),
+      odoslanéCount: returns.filter(item => item.odoslané).length,
+      neodoslanéCount: returns.filter(item => !item.odoslané).length
+    };
+    
+    const response = {
+      company: {
+        id: company.id,
+        name: company.name,
+        ico: company.ico
+      },
+      year: parseInt(selectedYear),
+      returns: returns,
+      summary: summary
+    };
+    
+    console.log('✅ DPH dáta úspešne načítané');
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri načítaní DPH dát:', error);
+    res.status(500).json({ error: 'Chyba pri načítaní DPH dát' });
+  }
+});
+
 module.exports = router;

@@ -29,6 +29,7 @@ const ReceivedInvoicesPage = React.lazy(() => import('./pages/ReceivedInvoicesPa
 const CashPage = React.lazy(() => import('./pages/CashPage'));
 const BankPage = React.lazy(() => import('./pages/BankPage'));
 const DirectoryPage = React.lazy(() => import('./pages/DirectoryPage'));
+const VatReturnsPage = React.lazy(() => import('./pages/VatReturnsPage'));
 const InvoiceDetailPage = React.lazy(() => import('./pages/InvoiceDetailPage'));
 const DropboxCallback = React.lazy(() => import('./pages/DropboxCallback'));
 
@@ -194,6 +195,7 @@ function App() {
                 <Route path="/accounting/issued-invoices" element={<IssuedInvoicesPage />} />
                 <Route path="/accounting/received-invoices/:companyId" element={<ReceivedInvoicesPage />} />
                 <Route path="/accounting/received-invoices" element={<ReceivedInvoicesPage />} />
+                <Route path="/accounting/vat-returns/:companyId" element={<VatReturnsPage />} />
     
             <Route path="/accounting/cash" element={<CashPage />} />
             <Route path="/accounting/bank" element={<BankPage />} />
