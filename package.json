@@ -1,11 +1,11 @@
 {
-  "name": "client-portal-backend",
+  "name": "client-portal",
   "version": "1.0.0",
-  "description": "Backend for Client Portal",
+  "description": "Client Portal Application",
   "main": "backend/server.js",
   "scripts": {
     "start": "cd backend && npm start",
-    "build": "cd backend && npm install",
+    "build": "cd src && npm install && npm run build",
     "dev": "cd backend && npm run dev"
   },
   "engines": {
@@ -19,7 +19,6 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "node-adodb": "^5.0.3",
     "dropbox": "^10.34.0",
     "fs-extra": "^11.3.1"
   }
