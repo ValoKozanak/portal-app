@@ -9,7 +9,11 @@ module.exports = {
           "stream": require.resolve("stream-browserify"),
           "buffer": require.resolve("buffer"),
           "util": require.resolve("util"),
-          "process": require.resolve("process/browser")
+          "process": require.resolve("process/browser"),
+          "timers": require.resolve("timers-browserify"),
+          "tty": require.resolve("tty-browserify"),
+          "vm": require.resolve("vm-browserify"),
+          "zlib": require.resolve("zlib")
         }
       }
     },
