@@ -224,7 +224,7 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
 
     res.json(analysis);
     
-  } catch (error) {
+        } catch (error) {
     console.error('Chyba pri získavaní analýzy nákladov a výnosov:', error);
     res.status(500).json({ error: 'Chyba pri získavaní analýzy nákladov a výnosov' });
   }
@@ -421,7 +421,7 @@ router.get('/stats/:companyId', authenticateToken, (req, res) => {
 router.get('/issued-invoices/:companyId', authenticateToken, (req, res) => {
   const { companyId } = req.params;
   const { status, date_from, date_to, limit = 50, offset = 0 } = req.query;
-
+  
   let query = `
     SELECT * FROM issued_invoices 
     WHERE company_id = ?
@@ -445,13 +445,13 @@ router.get('/issued-invoices/:companyId', authenticateToken, (req, res) => {
   
   query += ' ORDER BY issue_date DESC LIMIT ? OFFSET ?';
   params.push(parseInt(limit), parseInt(offset));
-
+  
   db.all(query, params, (err, invoices) => {
     if (err) {
       console.error('Chyba pri načítaní vydaných faktúr:', err);
       return res.status(500).json({ error: 'Chyba pri načítaní faktúr' });
     }
-
+    
     res.json(invoices);
   });
 });
@@ -747,7 +747,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
 
     // Najprv nájdeme firmu a jej IČO
     db.get("SELECT ico, name FROM companies WHERE id = ?", [companyId], async (err, company) => {
-      if (err) {
+    if (err) {
         console.error('Chyba pri hľadaní firmy:', err);
         return res.status(500).json({ error: 'Chyba pri načítaní firmy' });
       }
@@ -772,7 +772,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
         
         try {
                      const query = `
-             SELECT 
+          SELECT 
                ID,
                Cislo,
                Firma,
@@ -879,7 +879,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                    parseFloat(row.KcU) || 0,
                    row.DatLikv ? new Date(row.DatLikv).toISOString().split('T')[0] : null
               ], function(err) {
-                  if (err) {
+          if (err) {
                     console.error('Chyba pri vkladaní prijatej faktúry:', err);
                   } else {
           importedCount++;
@@ -888,28 +888,28 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                   
                   // Ak sme spracovali všetky faktúry, pošleme odpoveď
                   if (index === data.length - 1) {
-    res.json({ 
+          res.json({
       success: true, 
                       message: `Obnovenie prijatých faktúr dokončené. Importovaných ${importedCount} faktúr.`,
                       importedCount: importedCount,
                       totalCount: data.length
                     });
                   }
-                });
-              });
+        });
+      });
             })
             .catch(error => {
               console.error('Chyba pri čítaní MDB:', error);
               res.status(500).json({ error: 'Chyba pri čítaní MDB databázy' });
-            });
+    });
             
         } catch (error) {
           console.error('Chyba pri vytváraní pripojenia k MDB:', error);
           res.status(500).json({ error: 'Chyba pri pripojení k MDB databáze' });
         }
-      });
-    });
-    
+  });
+});
+
   } catch (error) {
     console.error('Chyba pri obnovení prijatých faktúr:', error);
     res.status(500).json({ error: 'Chyba pri obnovení prijatých faktúr' });
@@ -1011,11 +1011,11 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    
+                if (err) reject(err);
+                else resolve(row);
+              });
+            });
+          
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
@@ -1044,7 +1044,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
       const tablesQuery = "SELECT Name FROM MSysObjects WHERE Type=1 AND Flags=0";
       const tables = await connection.query(tablesQuery);
       console.log('📋 Dostupné tabuľky:', tables.map(t => t.Name));
-    } catch (error) {
+        } catch (error) {
 
     }
     
