@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://portal-app-backend-production.up.railway.app/api';
 
 // Typy pre API
 export interface ApiResponse {

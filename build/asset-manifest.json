@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/portal-app/static/css/main.4709b254.css",
-    "main.js": "/portal-app/static/js/main.ca687356.js",
+    "main.js": "/portal-app/static/js/main.6dbb1f7f.js",
     "static/js/573.8cc484d9.chunk.js": "/portal-app/static/js/573.8cc484d9.chunk.js",
     "static/js/998.15e79ca1.chunk.js": "/portal-app/static/js/998.15e79ca1.chunk.js",
     "static/js/164.99f7daa3.chunk.js": "/portal-app/static/js/164.99f7daa3.chunk.js",
@@ -50,7 +50,7 @@
     "static/js/249.c9b1205c.chunk.js": "/portal-app/static/js/249.c9b1205c.chunk.js",
     "index.html": "/portal-app/index.html",
     "main.4709b254.css.map": "/portal-app/static/css/main.4709b254.css.map",
-    "main.ca687356.js.map": "/portal-app/static/js/main.ca687356.js.map",
+    "main.6dbb1f7f.js.map": "/portal-app/static/js/main.6dbb1f7f.js.map",
     "573.8cc484d9.chunk.js.map": "/portal-app/static/js/573.8cc484d9.chunk.js.map",
     "998.15e79ca1.chunk.js.map": "/portal-app/static/js/998.15e79ca1.chunk.js.map",
     "164.99f7daa3.chunk.js.map": "/portal-app/static/js/164.99f7daa3.chunk.js.map",
@@ -100,6 +100,6 @@
   },
   "entrypoints": [
     "static/css/main.4709b254.css",
-    "static/js/main.ca687356.js"
+    "static/js/main.6dbb1f7f.js"
   ]
 }
