@@ -1,6 +1,8 @@
 {
-  "name": "portal-app",
-  "version": "0.1.0",
+  "name": "client-portal-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Client Portal",
+  "homepage": "https://valokozanak.github.io/portal-app",
   "private": true,
   "dependencies": {
     "@craco/craco": "^7.1.0",
