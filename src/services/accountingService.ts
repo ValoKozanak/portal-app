@@ -473,7 +473,7 @@ export class AccountingService {
     formData.append('xmlFile', file);
     
     // Používame fetch priamo pre FormData
-    const response = await fetch(`http://localhost:5000/api/accounting/upload-pohoda-xml/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/upload-pohoda-xml/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -490,7 +490,7 @@ export class AccountingService {
 
   // Export invoices to POHODA XML format
   async exportPohodaXml(companyId: number, dateFrom?: string, dateTo?: string): Promise<Blob> {
-    const response = await fetch(`http://localhost:5000/api/accounting/export-pohoda-xml/${companyId}?dateFrom=${dateFrom || ''}&dateTo=${dateTo || ''}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/export-pohoda-xml/${companyId}?dateFrom=${dateFrom || ''}&dateTo=${dateTo || ''}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -515,7 +515,7 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/refresh-invoices/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-invoices/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -537,7 +537,7 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/refresh-received-invoices/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-received-invoices/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -562,7 +562,7 @@ export class AccountingService {
     skippedCount: number;
     totalCount: number;
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/import-invoices/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/import-invoices/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -625,7 +625,7 @@ export class AccountingService {
     }>;
     total_count: number;
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/directory/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/directory/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -667,7 +667,7 @@ export class AccountingService {
     };
   }> {
     const yearParam = year || new Date().getFullYear();
-    const response = await fetch(`http://localhost:5000/api/accounting/vat-returns/${companyId}?year=${yearParam}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/vat-returns/${companyId}?year=${yearParam}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -710,7 +710,7 @@ export class AccountingService {
   }> {
     console.log('🏦 Volám bankový endpoint pre companyId:', companyId);
     
-    const response = await fetch(`http://localhost:5000/api/accounting/bank-accounts/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/bank-accounts/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -755,7 +755,7 @@ export class AccountingService {
       accountCount: number;
     };
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/cash-accounts/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/cash-accounts/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -783,7 +783,7 @@ export class AccountingService {
   }> {
     console.log('🏦 Volám bankový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const response = await fetch(`http://localhost:5000/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -816,7 +816,7 @@ export class AccountingService {
   }> {
     console.log('💰 Volám pokladňový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const response = await fetch(`http://localhost:5000/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
