@@ -63,19 +63,13 @@
     "@types/react-tooltip": "^4.5.1",
     "@types/react-table": "^7.7.19",
     "@types/react-paginate": "^7.1.4",
-    "@types/react-loading-skeleton": "^3.1.4",
     "@types/react-helmet": "^6.1.11",
     "@types/lodash": "^4.14.202",
     "@types/moment": "^2.13.0",
     "@types/numeral": "^2.0.5",
     "@types/react-select": "^5.2.0",
     "@types/react-datepicker": "^4.19.4",
-    "@types/react-dropzone": "^5.1.0",
-    "@types/react-tooltip": "^4.5.1",
-    "@types/react-table": "^7.7.19",
-    "@types/react-paginate": "^7.1.4",
-    "@types/react-loading-skeleton": "^3.1.4",
-    "@types/react-helmet": "^6.1.11"
+    "@types/react-dropzone": "^5.1.0"
   },
   "scripts": {
     "start": "craco start",
