@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CurrencyDollarIcon,
   UserIcon,
@@ -42,6 +43,7 @@ interface CompanyDashboardProps {
 }
 
 const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, userEmail, userRole = 'company' }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
 
