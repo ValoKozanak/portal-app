@@ -33,7 +33,7 @@ const DirectoryPage = React.lazy(() => import('./pages/DirectoryPage'));
 const VatReturnsPage = React.lazy(() => import('./pages/VatReturnsPage'));
 const InvoiceDetailPage = React.lazy(() => import('./pages/InvoiceDetailPage'));
 const DropboxCallback = React.lazy(() => import('./pages/DropboxCallback'));
-const TestAccounting = React.lazy(() => import('./components/TestAccounting'));
+
 
 // Loading komponent pre Suspense
 const PageLoader = () => (
@@ -211,7 +211,7 @@ function App() {
                     return <DropboxCallback />;
                   })()
                 } />
-                <Route path="/test-accounting" element={<TestAccounting />} />
+
               </Routes>
             </Suspense>
           </main>
