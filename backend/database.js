@@ -118,7 +118,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding status column to companies:', err);
         }
-      });
+    });
 
       // Pridanie reset_token stĺpcov do users tabuľky ak neexistujú
       db.run(`
@@ -128,7 +128,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding reset_token column to users:', err);
         }
-      });
+    });
 
       db.run(`
         ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME
@@ -137,7 +137,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding reset_token_expiry column to users:', err);
         }
-      });
+    });
 
       // Pridanie category stĺpca do files tabuľky ak neexistuje
       db.run(`
@@ -147,7 +147,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri pridávaní category stĺpca:', err);
         }
-      });
+    });
 
       // Poznámka: ALTER TABLE príkazy pre employees a attendance sa presunuli na koniec po CREATE TABLE príkazoch
 
@@ -158,7 +158,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri aktualizácii status firiem:', err);
         }
-      });
+    });
 
       // Tabuľka CMS obsahu
       db.run(`
@@ -214,7 +214,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri pridávaní stĺpca company_ico:', err);
         }
-      });
+    });
 
       // Vloženie predvolených používateľov
       db.run(`
@@ -265,7 +265,7 @@ const initDatabase = () => {
           INSERT OR IGNORE INTO cms_content (section, field, value, created_by)
           VALUES (?, ?, ?, ?)
         `, [section, field, value, created_by]);
-      });
+    });
 
       // Vloženie predvolenej verzie
       db.run(`
@@ -291,7 +291,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri vytváraní tabuľky messages:', err);
         }
-      });
+    });
 
       // Vloženie demo správ - len jedna správa
       db.run(`
@@ -303,7 +303,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo správ:', err);
         }
-      });
+    });
 
       // Vloženie demo úloh - len jedna úloha
       db.run(`
@@ -316,7 +316,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo úloh:', err);
         }
-      });
+    });
 
       // HR a Dochádzkový systém - Tabuľka zamestnancov
       db.run(`
@@ -490,7 +490,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo zamestnancov:', err);
         }
-      });
+    });
 
       // Vyčistenie nepriradených pracovných pomerov
       db.run(`
@@ -500,7 +500,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vyčistení nepriradených pracovných pomerov:', err);
         }
-      });
+    });
 
       // Vloženie demo pracovných zmien - len jedna zmena
       db.run(`
@@ -512,7 +512,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo zmien:', err);
         }
-      });
+    });
 
       // Vloženie demo pracovných pomerov - len jeden záznam
       db.run(`
@@ -525,7 +525,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
         }
-      });
+    });
 
       // Tabuľka zmien personálnych údajov zamestnancov
       db.run(`
@@ -559,7 +559,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo dochádzky:', err);
         }
-      });
+    });
 
       // Funkcia na kontrolu či je deň víkend
       const isWeekend = (date) => {
@@ -630,8 +630,8 @@ const initDatabase = () => {
           if (err) {
             console.error('Chyba pri vkladaní demo dovolenky:', err);
           }
-        });
       });
+    });
       // Demo mzdové obdobia - vytvoriť pre všetky existujúce firmy
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
@@ -685,12 +685,12 @@ const initDatabase = () => {
                 if (err) {
                   console.error('Chyba pri vkladaní demo mzdového obdobia:', err);
                 }
-              });
+            });
             }
-          });
         });
+      });
         
-        });
+      });
 
       // ===== ÚČTOVNÍCTVO - NOVÉ TABUĽKY =====
       
@@ -1038,8 +1038,8 @@ const initDatabase = () => {
            if (err && !err.message.includes('duplicate column name')) {
              console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
            }
-         });
        });
+     });
 
                // personalColumns.forEach(column => {
 //   db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
@@ -1082,8 +1082,8 @@ const initDatabase = () => {
             if (err && !err.message.includes('duplicate column name')) {
               console.error(`Chyba pri pridávaní stĺpca ${column} do issued_invoices:`, err);
             }
-          });
         });
+      });
 
         // Pridanie MDB stĺpcov do received_invoices ak neexistujú
         const receivedInvoiceMdbColumns = [
@@ -1118,9 +1118,9 @@ const initDatabase = () => {
             if (err && !err.message.includes('duplicate column name')) {
               console.error(`Chyba pri pridávaní stĺpca ${column} do received_invoices:`, err);
             }
-          });
         });
       });
+    });
     });
   });
 };
