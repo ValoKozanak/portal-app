@@ -659,7 +659,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
   const renderAccounting = () => {
     // Navigácia na samostatnú stránku účtovníctva
-    window.location.href = '/accounting';
+    navigate('/accounting');
     return null;
   };
 
