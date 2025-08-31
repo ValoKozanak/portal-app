@@ -817,31 +817,66 @@ const initDatabase = () => {
         )
       `);
 
-      // Tabuľka prijatých faktúr
-      db.run(`
-        CREATE TABLE IF NOT EXISTS received_invoices (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          company_id INTEGER NOT NULL,
-          invoice_number TEXT NOT NULL,
-          supplier_name TEXT NOT NULL,
-          supplier_ico TEXT,
-          supplier_dic TEXT,
-          supplier_address TEXT,
-          issue_date DATE NOT NULL,
-          due_date DATE NOT NULL,
-          total_amount DECIMAL(10,2) NOT NULL,
-          vat_amount DECIMAL(10,2) NOT NULL,
-          currency TEXT DEFAULT 'EUR',
-          status TEXT DEFAULT 'received' CHECK(status IN ('received', 'approved', 'paid', 'overdue', 'disputed')),
-          pohoda_id TEXT,
-          notes TEXT,
-          created_by TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
-          UNIQUE(company_id, invoice_number)
-        )
-      `);
+             // Tabuľka prijatých faktúr
+       db.run(`
+         CREATE TABLE IF NOT EXISTS received_invoices (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           company_id INTEGER NOT NULL,
+           invoice_number TEXT NOT NULL,
+           supplier_name TEXT NOT NULL,
+           supplier_ico TEXT,
+           supplier_dic TEXT,
+           supplier_address TEXT,
+           issue_date DATE NOT NULL,
+           due_date DATE NOT NULL,
+           total_amount DECIMAL(10,2) NOT NULL,
+           vat_amount DECIMAL(10,2) NOT NULL,
+           
+           -- MDB stĺpce - základy DPH
+           kc0 DECIMAL(10,2) DEFAULT 0,
+           kc1 DECIMAL(10,2) DEFAULT 0,
+           kc2 DECIMAL(10,2) DEFAULT 0,
+           kc3 DECIMAL(10,2) DEFAULT 0,
+           
+           -- MDB stĺpce - DPH
+           kc_dph1 DECIMAL(10,2) DEFAULT 0,
+           kc_dph2 DECIMAL(10,2) DEFAULT 0,
+           kc_dph3 DECIMAL(10,2) DEFAULT 0,
+           
+           -- MDB stĺpce - celkové sumy
+           kc_celkem DECIMAL(10,2) DEFAULT 0,
+           
+           -- MDB stĺpce - ďalšie informácie
+           var_sym TEXT,
+           s_text TEXT,
+           mdb_id INTEGER,
+           rel_tp_fak INTEGER,
+           datum DATE,
+           dat_splat DATE,
+           firma TEXT,
+           ico TEXT,
+           dic TEXT,
+           ulice TEXT,
+           psc TEXT,
+           obec TEXT,
+           mdb_cislo TEXT,
+           
+           -- MDB stĺpce - likvidácia a platby
+           kc_likv DECIMAL(10,2) DEFAULT 0,
+           kc_zuplat DECIMAL(10,2) DEFAULT 0,
+           dat_likv DATE,
+           
+           currency TEXT DEFAULT 'EUR',
+           status TEXT DEFAULT 'received' CHECK(status IN ('received', 'approved', 'paid', 'overdue', 'disputed')),
+           pohoda_id TEXT,
+           notes TEXT,
+           created_by TEXT NOT NULL,
+           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+           FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+           UNIQUE(company_id, invoice_number)
+         )
+       `);
 
       // Tabuľka položiek prijatých faktúr
       db.run(`
