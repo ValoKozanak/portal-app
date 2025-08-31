@@ -1122,7 +1122,8 @@ const initDatabase = () => {
         });
       });
     });
-  };
+  });
+};
 
 // Export funkcií pre použitie v iných súboroch
 const isWeekend = (date) => {
