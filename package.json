@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend for Client Portal",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@heroicons/react": "^2.0.18",
@@ -68,4 +69,3 @@
     "webpack-bundle-analyzer": "^4.9.1"
   }
 }
-
