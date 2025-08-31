@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // Vytvorenie databázy
-const dbPath = path.join(__dirname, 'portal.db');
+const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'databases', 'portal.db');
 const db = new sqlite3.Database(dbPath);
 
 // Inicializácia databázy
@@ -149,83 +149,7 @@ const initDatabase = () => {
         }
       });
 
-      // Pridanie termination_date stĺpca do employees tabuľky ak neexistuje
-      db.run(`
-        ALTER TABLE employees ADD COLUMN termination_date DATE
-      `, (err) => {
-        // Ignorujeme chybu ak stĺpec už existuje
-        if (err && !err.message.includes('duplicate column name')) {
-          console.error('Chyba pri pridávaní termination_date stĺpca:', err);
-        }
-      });
-
-      // Pridanie termination_reason stĺpca do employees tabuľky ak neexistuje
-      db.run(`
-        ALTER TABLE employees ADD COLUMN termination_reason TEXT
-      `, (err) => {
-        // Ignorujeme chybu ak stĺpec už existuje
-        if (err && !err.message.includes('duplicate column name')) {
-          console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
-        }
-      });
-
-      // Pridanie personálnych údajov stĺpcov
-      const personalColumns = [
-        'birth_name TEXT',
-        'title_before TEXT',
-        'title_after TEXT',
-        'gender TEXT CHECK(gender IN ("muž", "žena"))',
-        'birth_date DATE',
-        'birth_number TEXT',
-        'birth_place TEXT',
-        'nationality TEXT',
-        'citizenship TEXT',
-        'education TEXT',
-        'marital_status TEXT',
-        'is_partner BOOLEAN DEFAULT 0',
-        'is_statutory BOOLEAN DEFAULT 0',
-        'employee_bonus BOOLEAN DEFAULT 0',
-        'bonus_months INTEGER DEFAULT 0',
-        'permanent_street TEXT',
-        'permanent_number TEXT',
-        'permanent_city TEXT',
-        'permanent_zip TEXT',
-        'permanent_country TEXT DEFAULT "Slovensko"',
-        'contact_street TEXT',
-        'contact_number TEXT',
-        'contact_city TEXT',
-        'contact_zip TEXT',
-        'contact_country TEXT DEFAULT "Slovensko"',
-        'is_foreigner BOOLEAN DEFAULT 0',
-        'foreigner_country TEXT',
-        'residence_permit_number TEXT',
-        'social_insurance_sr TEXT',
-        'social_insurance_foreign TEXT',
-        'health_insurance_sr TEXT',
-        'foreigner_without_permanent_residence BOOLEAN DEFAULT 0',
-        'tax_identification_number TEXT'
-      ];
-
-      // Pridanie dochádzkových stĺpcov do attendance tabuľky
-      const attendanceColumns = [
-        'attendance_type TEXT DEFAULT "manual" CHECK(attendance_type IN ("manual", "automatic"))'
-      ];
-
-      attendanceColumns.forEach(column => {
-        db.run(`ALTER TABLE attendance ADD COLUMN ${column}`, (err) => {
-          if (err && !err.message.includes('duplicate column name')) {
-            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
-          }
-        });
-      });
-
-      personalColumns.forEach(column => {
-        db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
-          if (err && !err.message.includes('duplicate column name')) {
-            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
-          }
-        });
-      });
+      // Poznámka: ALTER TABLE príkazy pre employees a attendance sa presunuli na koniec po CREATE TABLE príkazoch
 
       // Aktualizácia existujúcich firiem na status 'active'
       db.run(`
@@ -1009,6 +933,86 @@ const initDatabase = () => {
           FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
         )
       `);
+
+      // ===== ALTER TABLE PRÍKAZY - PRESUNUTÉ NA KONIEC PO CREATE TABLE =====
+      
+      // Pridanie termination_date stĺpca do employees tabuľky ak neexistuje
+      db.run(`
+        ALTER TABLE employees ADD COLUMN termination_date DATE
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri pridávaní termination_date stĺpca:', err);
+        }
+      });
+
+      // Pridanie termination_reason stĺpca do employees tabuľky ak neexistuje
+      db.run(`
+        ALTER TABLE employees ADD COLUMN termination_reason TEXT
+      `, (err) => {
+        // Ignorujeme chybu ak stĺpec už existuje
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
+        }
+      });
+
+      // Pridanie personálnych údajov stĺpcov
+      const personalColumns = [
+        'birth_name TEXT',
+        'title_before TEXT',
+        'title_after TEXT',
+        'gender TEXT CHECK(gender IN ("muž", "žena"))',
+        'birth_date DATE',
+        'birth_number TEXT',
+        'birth_place TEXT',
+        'nationality TEXT',
+        'citizenship TEXT',
+        'education TEXT',
+        'marital_status TEXT',
+        'is_partner BOOLEAN DEFAULT 0',
+        'is_statutory BOOLEAN DEFAULT 0',
+        'employee_bonus BOOLEAN DEFAULT 0',
+        'bonus_months INTEGER DEFAULT 0',
+        'permanent_street TEXT',
+        'permanent_number TEXT',
+        'permanent_city TEXT',
+        'permanent_zip TEXT',
+        'permanent_country TEXT DEFAULT "Slovensko"',
+        'contact_street TEXT',
+        'contact_number TEXT',
+        'contact_city TEXT',
+        'contact_zip TEXT',
+        'contact_country TEXT DEFAULT "Slovensko"',
+        'is_foreigner BOOLEAN DEFAULT 0',
+        'foreigner_country TEXT',
+        'residence_permit_number TEXT',
+        'social_insurance_sr TEXT',
+        'social_insurance_foreign TEXT',
+        'health_insurance_sr TEXT',
+        'foreigner_without_permanent_residence BOOLEAN DEFAULT 0',
+        'tax_identification_number TEXT'
+      ];
+
+      // Pridanie dochádzkových stĺpcov do attendance tabuľky
+      const attendanceColumns = [
+        'attendance_type TEXT DEFAULT "manual" CHECK(attendance_type IN ("manual", "automatic"))'
+      ];
+
+      attendanceColumns.forEach(column => {
+        db.run(`ALTER TABLE attendance ADD COLUMN ${column}`, (err) => {
+          if (err && !err.message.includes('duplicate column name')) {
+            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+          }
+        });
+      });
+
+      personalColumns.forEach(column => {
+        db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
+          if (err && !err.message.includes('duplicate column name')) {
+            console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+          }
+        });
+      });
 
       resolve();
     });

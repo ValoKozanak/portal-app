@@ -63,6 +63,7 @@ jspm_packages/
 *.db
 *.sqlite
 *.sqlite3
+databases/
 
 # Uploaded files
 backend/uploads/
