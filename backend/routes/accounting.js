@@ -1871,4 +1871,71 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
   }
 });
 
+// TESTOVACÍ ENDPOINT PRE DROPBOX
+router.get('/test-dropbox/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  
+  try {
+    // Získanie informácií o firme
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!company) {
+      return res.status(404).json({ error: 'Firma nebola nájdená' });
+    }
+
+    const testResults = {
+      company: {
+        id: company.id,
+        name: company.name,
+        ico: company.ico
+      },
+      dropbox: {
+        isInitialized: dropboxService.isInitialized(),
+        accessToken: dropboxService.isInitialized() ? 'Nastavený' : 'Chýba',
+        testResults: {}
+      }
+    };
+
+    // Test Dropbox pripojenia
+    if (dropboxService.isInitialized()) {
+      try {
+        // Test 1: Kontrola existencie MDB súboru
+        const fileExists = await dropboxService.checkMDBFileExists(company.ico, '2025');
+        testResults.dropbox.testResults.fileExists = fileExists;
+        
+        if (fileExists) {
+          // Test 2: Stiahnutie MDB súboru
+          const tempFilePath = await dropboxService.getMDBFile(company.ico, '2025');
+          testResults.dropbox.testResults.downloadSuccess = true;
+          testResults.dropbox.testResults.tempFilePath = tempFilePath;
+          
+          // Vyčistenie dočasného súboru
+          dropboxService.cleanupTempFile(tempFilePath);
+        }
+        
+        // Test 3: Zoznam dostupných MDB súborov
+        const mdbFiles = await dropboxService.listMDBFiles();
+        testResults.dropbox.testResults.availableFiles = mdbFiles;
+        
+      } catch (error) {
+        testResults.dropbox.testResults.error = error.message;
+      }
+    }
+
+    res.json(testResults);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri testovaní Dropbox:', error);
+    res.status(500).json({ 
+      error: 'Chyba pri testovaní Dropbox',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
