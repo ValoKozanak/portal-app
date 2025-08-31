@@ -54,6 +54,7 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
         location.pathname !== '/dashboard' && 
         location.pathname !== '/dropbox-callback' && 
         !location.pathname.startsWith('/accounting') &&
+        !location.pathname.startsWith('/test-accounting') &&
         !location.pathname.startsWith('/invoice/')) {
       navigate('/dashboard');
     }
