@@ -94,16 +94,16 @@ router.get('/pud-summary/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
     }
     
-    // Import z MDB
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+    // Import z MDB - dočasne zakomentované pre Railway deployment
+    // const ADODB = require('node-adodb');
+    // const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
     
-    // Získanie súčtu Kc
-    const sumResult = await connection.query('SELECT SUM(Kc) as total_kc, COUNT(*) as total_count FROM pUD');
+    // Získanie súčtu Kc - placeholder dáta
+    // const sumResult = await connection.query('SELECT SUM(Kc) as total_kc, COUNT(*) as total_count FROM pUD');
     
     const summary = {
-      total_kc: sumResult[0].total_kc || 0,
-      total_count: sumResult[0].total_count || 0
+      total_kc: 0, // Placeholder - MDB funkcionalita dočasne nedostupná
+      total_count: 0 // Placeholder - MDB funkcionalita dočasne nedostupná
     };
 
     res.json(summary);
