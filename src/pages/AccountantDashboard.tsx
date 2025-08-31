@@ -312,7 +312,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         </button>
 
         <button 
-           onClick={() => navigate('/accounting')}
+           onClick={() => navigate('/#/accounting')}
            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
         >
           <div className="flex items-center">
