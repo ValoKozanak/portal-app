@@ -1013,11 +1013,10 @@ const initDatabase = () => {
 //     }
 //   });
 // });
-
-       resolve();
-    });
-  });
-};
+       });
+     });
+   });
+ };
 
 // Export funkcií pre použitie v iných súboroch
 const isWeekend = (date) => {
