@@ -62,11 +62,11 @@ const IssuedInvoicesPage: React.FC = () => {
 
   const loadCompanies = async () => {
     try {
-      let endpoint = '/api/companies';
+      let endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies`;
       
       // Výber správneho endpointu podľa role
       if (userRole === 'user') {
-        endpoint = `/api/companies/user/${userEmail}`;
+        endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies/user/${userEmail}`;
       } else if (userRole === 'accountant') {
         endpoint = `/api/companies/accountant/${userEmail}`;
       }
