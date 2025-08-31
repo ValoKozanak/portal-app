@@ -1041,16 +1041,88 @@ const initDatabase = () => {
          });
        });
 
-       // personalColumns.forEach(column => {
+               // personalColumns.forEach(column => {
 //   db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
 //     if (err && !err.message.includes('duplicate column name')) {
 //       console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
 //     }
 //   });
 // });
-     });
-   });
- };
+
+        // Pridanie MDB stĺpcov do issued_invoices ak neexistujú
+        const issuedInvoiceMdbColumns = [
+          'kc0 DECIMAL(10,2) DEFAULT 0',
+          'kc1 DECIMAL(10,2) DEFAULT 0',
+          'kc2 DECIMAL(10,2) DEFAULT 0',
+          'kc3 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph1 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph2 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph3 DECIMAL(10,2) DEFAULT 0',
+          'kc_celkem DECIMAL(10,2) DEFAULT 0',
+          'var_sym TEXT',
+          's_text TEXT',
+          'mdb_id INTEGER',
+          'rel_tp_fak INTEGER',
+          'datum DATE',
+          'dat_splat DATE',
+          'firma TEXT',
+          'ico TEXT',
+          'dic TEXT',
+          'ulice TEXT',
+          'psc TEXT',
+          'obec TEXT',
+          'mdb_cislo TEXT',
+          'kc_likv DECIMAL(10,2) DEFAULT 0',
+          'kc_zuplat DECIMAL(10,2) DEFAULT 0',
+          'dat_likv DATE'
+        ];
+
+        issuedInvoiceMdbColumns.forEach(column => {
+          db.run(`ALTER TABLE issued_invoices ADD COLUMN ${column}`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error(`Chyba pri pridávaní stĺpca ${column} do issued_invoices:`, err);
+            }
+          });
+        });
+
+        // Pridanie MDB stĺpcov do received_invoices ak neexistujú
+        const receivedInvoiceMdbColumns = [
+          'kc0 DECIMAL(10,2) DEFAULT 0',
+          'kc1 DECIMAL(10,2) DEFAULT 0',
+          'kc2 DECIMAL(10,2) DEFAULT 0',
+          'kc3 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph1 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph2 DECIMAL(10,2) DEFAULT 0',
+          'kc_dph3 DECIMAL(10,2) DEFAULT 0',
+          'kc_celkem DECIMAL(10,2) DEFAULT 0',
+          'var_sym TEXT',
+          's_text TEXT',
+          'mdb_id INTEGER',
+          'rel_tp_fak INTEGER',
+          'datum DATE',
+          'dat_splat DATE',
+          'firma TEXT',
+          'ico TEXT',
+          'dic TEXT',
+          'ulice TEXT',
+          'psc TEXT',
+          'obec TEXT',
+          'mdb_cislo TEXT',
+          'kc_likv DECIMAL(10,2) DEFAULT 0',
+          'kc_zuplat DECIMAL(10,2) DEFAULT 0',
+          'dat_likv DATE'
+        ];
+
+        receivedInvoiceMdbColumns.forEach(column => {
+          db.run(`ALTER TABLE received_invoices ADD COLUMN ${column}`, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+              console.error(`Chyba pri pridávaní stĺpca ${column} do received_invoices:`, err);
+            }
+          });
+        });
+      });
+    });
+  };
 
 // Export funkcií pre použitie v iných súboroch
 const isWeekend = (date) => {
