@@ -7,6 +7,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useDarkMode } from './hooks/useDarkMode';
 import { apiService } from './services/apiService';
+import Navbar from './components/Navbar';
 
 // Code splitting pre pages - lazy loading
 const Home = React.lazy(() => import('./pages/Home'));
