@@ -88,7 +88,7 @@ router.get('/pud-summary/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases', company.ico, 'pohoda.mdb');
+    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb`');
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
