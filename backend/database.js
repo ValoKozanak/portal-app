@@ -118,7 +118,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding status column to companies:', err);
         }
-    });
+      });
 
       // Pridanie reset_token stĺpcov do users tabuľky ak neexistujú
       db.run(`
@@ -128,7 +128,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding reset_token column to users:', err);
         }
-    });
+      });
 
       db.run(`
         ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME
@@ -137,7 +137,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Error adding reset_token_expiry column to users:', err);
         }
-    });
+      });
 
       // Pridanie category stĺpca do files tabuľky ak neexistuje
       db.run(`
@@ -147,7 +147,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri pridávaní category stĺpca:', err);
         }
-    });
+      });
 
       // Poznámka: ALTER TABLE príkazy pre employees a attendance sa presunuli na koniec po CREATE TABLE príkazoch
 
@@ -158,7 +158,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri aktualizácii status firiem:', err);
         }
-    });
+      });
 
       // Tabuľka CMS obsahu
       db.run(`
@@ -214,7 +214,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri pridávaní stĺpca company_ico:', err);
         }
-    });
+      });
 
       // Vloženie predvolených používateľov
       db.run(`
@@ -265,7 +265,7 @@ const initDatabase = () => {
           INSERT OR IGNORE INTO cms_content (section, field, value, created_by)
           VALUES (?, ?, ?, ?)
         `, [section, field, value, created_by]);
-    });
+      });
 
       // Vloženie predvolenej verzie
       db.run(`
@@ -291,7 +291,7 @@ const initDatabase = () => {
         if (err && !err.message.includes('duplicate column name')) {
           console.error('Chyba pri vytváraní tabuľky messages:', err);
         }
-    });
+      });
 
       // Vloženie demo správ - len jedna správa
       db.run(`
@@ -303,7 +303,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo správ:', err);
         }
-    });
+      });
 
       // Vloženie demo úloh - len jedna úloha
       db.run(`
@@ -316,7 +316,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo úloh:', err);
         }
-    });
+      });
 
       // HR a Dochádzkový systém - Tabuľka zamestnancov
       db.run(`
@@ -490,7 +490,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo zamestnancov:', err);
         }
-    });
+      });
 
       // Vyčistenie nepriradených pracovných pomerov
       db.run(`
@@ -500,7 +500,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vyčistení nepriradených pracovných pomerov:', err);
         }
-    });
+      });
 
       // Vloženie demo pracovných zmien - len jedna zmena
       db.run(`
@@ -512,7 +512,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo zmien:', err);
         }
-    });
+      });
 
       // Vloženie demo pracovných pomerov - len jeden záznam
       db.run(`
@@ -525,7 +525,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
         }
-    });
+      });
 
       // Tabuľka zmien personálnych údajov zamestnancov
       db.run(`
@@ -559,7 +559,7 @@ const initDatabase = () => {
         if (err) {
           console.error('Chyba pri vkladaní demo dochádzky:', err);
         }
-    });
+      });
 
       // Funkcia na kontrolu či je deň víkend
       const isWeekend = (date) => {
@@ -630,8 +630,8 @@ const initDatabase = () => {
           if (err) {
             console.error('Chyba pri vkladaní demo dovolenky:', err);
           }
+        });
       });
-    });
       // Demo mzdové obdobia - vytvoriť pre všetky existujúce firmy
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
@@ -685,12 +685,12 @@ const initDatabase = () => {
                 if (err) {
                   console.error('Chyba pri vkladaní demo mzdového obdobia:', err);
                 }
-            });
+              });
             }
+          });
         });
-      });
         
-      });
+        });
 
       // ===== ÚČTOVNÍCTVO - NOVÉ TABUĽKY =====
       
@@ -817,66 +817,31 @@ const initDatabase = () => {
         )
       `);
 
-             // Tabuľka prijatých faktúr
-       db.run(`
-         CREATE TABLE IF NOT EXISTS received_invoices (
-           id INTEGER PRIMARY KEY AUTOINCREMENT,
-           company_id INTEGER NOT NULL,
-           invoice_number TEXT NOT NULL,
-           supplier_name TEXT NOT NULL,
-           supplier_ico TEXT,
-           supplier_dic TEXT,
-           supplier_address TEXT,
-           issue_date DATE NOT NULL,
-           due_date DATE NOT NULL,
-           total_amount DECIMAL(10,2) NOT NULL,
-           vat_amount DECIMAL(10,2) NOT NULL,
-           
-           -- MDB stĺpce - základy DPH
-           kc0 DECIMAL(10,2) DEFAULT 0,
-           kc1 DECIMAL(10,2) DEFAULT 0,
-           kc2 DECIMAL(10,2) DEFAULT 0,
-           kc3 DECIMAL(10,2) DEFAULT 0,
-           
-           -- MDB stĺpce - DPH
-           kc_dph1 DECIMAL(10,2) DEFAULT 0,
-           kc_dph2 DECIMAL(10,2) DEFAULT 0,
-           kc_dph3 DECIMAL(10,2) DEFAULT 0,
-           
-           -- MDB stĺpce - celkové sumy
-           kc_celkem DECIMAL(10,2) DEFAULT 0,
-           
-           -- MDB stĺpce - ďalšie informácie
-           var_sym TEXT,
-           s_text TEXT,
-           mdb_id INTEGER,
-           rel_tp_fak INTEGER,
-           datum DATE,
-           dat_splat DATE,
-           firma TEXT,
-           ico TEXT,
-           dic TEXT,
-           ulice TEXT,
-           psc TEXT,
-           obec TEXT,
-           mdb_cislo TEXT,
-           
-           -- MDB stĺpce - likvidácia a platby
-           kc_likv DECIMAL(10,2) DEFAULT 0,
-           kc_zuplat DECIMAL(10,2) DEFAULT 0,
-           dat_likv DATE,
-           
-           currency TEXT DEFAULT 'EUR',
-           status TEXT DEFAULT 'received' CHECK(status IN ('received', 'approved', 'paid', 'overdue', 'disputed')),
-           pohoda_id TEXT,
-           notes TEXT,
-           created_by TEXT NOT NULL,
-           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-           FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
-           UNIQUE(company_id, invoice_number)
-         )
-       `);
+      // Tabuľka prijatých faktúr
+      db.run(`
+        CREATE TABLE IF NOT EXISTS received_invoices (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          company_id INTEGER NOT NULL,
+          invoice_number TEXT NOT NULL,
+          supplier_name TEXT NOT NULL,
+          supplier_ico TEXT,
+          supplier_dic TEXT,
+          supplier_address TEXT,
+          issue_date DATE NOT NULL,
+          due_date DATE NOT NULL,
+          total_amount DECIMAL(10,2) NOT NULL,
+          vat_amount DECIMAL(10,2) NOT NULL,
+          currency TEXT DEFAULT 'EUR',
+          status TEXT DEFAULT 'received' CHECK(status IN ('received', 'approved', 'paid', 'overdue', 'disputed')),
+          pohoda_id TEXT,
+          notes TEXT,
+          created_by TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE,
+          UNIQUE(company_id, invoice_number)
+        )
+      `);
 
       // Tabuľka položiek prijatých faktúr
       db.run(`
@@ -972,24 +937,24 @@ const initDatabase = () => {
              // ===== ALTER TABLE PRÍKAZY - SYNCHRONNÉ PO CREATE TABLE =====
        
        // Pridanie termination_date stĺpca do employees tabuľky ak neexistuje
-      // db.run(`
-//   ALTER TABLE employees ADD COLUMN termination_date DATE
-// `, (err) => {
-//   // Ignorujeme chybu ak stĺpec už existuje
-//   if (err && !err.message.includes('duplicate column name')) {
-//     console.error('Chyba pri pridávaní termination_date stĺpca:', err);
-//   }
-// });
+       db.run(`
+         ALTER TABLE employees ADD COLUMN termination_date DATE
+       `, (err) => {
+         // Ignorujeme chybu ak stĺpec už existuje
+         if (err && !err.message.includes('duplicate column name')) {
+           console.error('Chyba pri pridávaní termination_date stĺpca:', err);
+         }
+       });
 
        // Pridanie termination_reason stĺpca do employees tabuľky ak neexistuje
-       // db.run(`
-//   ALTER TABLE employees ADD COLUMN termination_reason TEXT
-// `, (err) => {
-//   // Ignorujeme chybu ak stĺpec už existuje
-//   if (err && !err.message.includes('duplicate column name')) {
-//     console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
-//   }
-// });
+       db.run(`
+         ALTER TABLE employees ADD COLUMN termination_reason TEXT
+       `, (err) => {
+         // Ignorujeme chybu ak stĺpec už existuje
+         if (err && !err.message.includes('duplicate column name')) {
+           console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
+         }
+       });
 
        // Pridanie personálnych údajov stĺpcov
        const personalColumns = [
@@ -1038,89 +1003,18 @@ const initDatabase = () => {
            if (err && !err.message.includes('duplicate column name')) {
              console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
            }
+         });
        });
-     });
 
-               // personalColumns.forEach(column => {
-//   db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
-//     if (err && !err.message.includes('duplicate column name')) {
-//       console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
-//     }
-//   });
-// });
+       personalColumns.forEach(column => {
+         db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
+           if (err && !err.message.includes('duplicate column name')) {
+             console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+           }
+         });
+       });
 
-        // Pridanie MDB stĺpcov do issued_invoices ak neexistujú
-        const issuedInvoiceMdbColumns = [
-          'kc0 DECIMAL(10,2) DEFAULT 0',
-          'kc1 DECIMAL(10,2) DEFAULT 0',
-          'kc2 DECIMAL(10,2) DEFAULT 0',
-          'kc3 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph1 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph2 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph3 DECIMAL(10,2) DEFAULT 0',
-          'kc_celkem DECIMAL(10,2) DEFAULT 0',
-          'var_sym TEXT',
-          's_text TEXT',
-          'mdb_id INTEGER',
-          'rel_tp_fak INTEGER',
-          'datum DATE',
-          'dat_splat DATE',
-          'firma TEXT',
-          'ico TEXT',
-          'dic TEXT',
-          'ulice TEXT',
-          'psc TEXT',
-          'obec TEXT',
-          'mdb_cislo TEXT',
-          'kc_likv DECIMAL(10,2) DEFAULT 0',
-          'kc_zuplat DECIMAL(10,2) DEFAULT 0',
-          'dat_likv DATE'
-        ];
-
-        issuedInvoiceMdbColumns.forEach(column => {
-          db.run(`ALTER TABLE issued_invoices ADD COLUMN ${column}`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-              console.error(`Chyba pri pridávaní stĺpca ${column} do issued_invoices:`, err);
-            }
-          });
-        });
-
-        // Pridanie MDB stĺpcov do received_invoices ak neexistujú
-        const receivedInvoiceMdbColumns = [
-          'kc0 DECIMAL(10,2) DEFAULT 0',
-          'kc1 DECIMAL(10,2) DEFAULT 0',
-          'kc2 DECIMAL(10,2) DEFAULT 0',
-          'kc3 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph1 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph2 DECIMAL(10,2) DEFAULT 0',
-          'kc_dph3 DECIMAL(10,2) DEFAULT 0',
-          'kc_celkem DECIMAL(10,2) DEFAULT 0',
-          'var_sym TEXT',
-          's_text TEXT',
-          'mdb_id INTEGER',
-          'rel_tp_fak INTEGER',
-          'datum DATE',
-          'dat_splat DATE',
-          'firma TEXT',
-          'ico TEXT',
-          'dic TEXT',
-          'ulice TEXT',
-          'psc TEXT',
-          'obec TEXT',
-          'mdb_cislo TEXT',
-          'kc_likv DECIMAL(10,2) DEFAULT 0',
-          'kc_zuplat DECIMAL(10,2) DEFAULT 0',
-          'dat_likv DATE'
-        ];
-
-        receivedInvoiceMdbColumns.forEach(column => {
-          db.run(`ALTER TABLE received_invoices ADD COLUMN ${column}`, (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-              console.error(`Chyba pri pridávaní stĺpca ${column} do received_invoices:`, err);
-            }
-          });
-        });
-      });
+       resolve();
     });
   });
 };
