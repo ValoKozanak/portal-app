@@ -88,7 +88,7 @@ router.get('/pud-summary/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb`');
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb`');
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -132,7 +132,7 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -248,7 +248,7 @@ router.get('/financial-analysis-test/:companyId', async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -989,7 +989,7 @@ router.get('/vat-returns/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1073,7 +1073,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
 
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
 
@@ -1238,7 +1238,7 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1360,7 +1360,7 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1540,7 +1540,7 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
 
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
 
     if (!fs.existsSync(mdbPath)) {
 
@@ -1688,7 +1688,7 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'databases", company.ico, `${company.ico}_2025.mdb``);
+    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb``);
     
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
