@@ -937,24 +937,24 @@ const initDatabase = () => {
              // ===== ALTER TABLE PRÍKAZY - SYNCHRONNÉ PO CREATE TABLE =====
        
        // Pridanie termination_date stĺpca do employees tabuľky ak neexistuje
-      // db.run(`
-//   ALTER TABLE employees ADD COLUMN termination_date DATE
-// `, (err) => {
-//   // Ignorujeme chybu ak stĺpec už existuje
-//   if (err && !err.message.includes('duplicate column name')) {
-//     console.error('Chyba pri pridávaní termination_date stĺpca:', err);
-//   }
-// });
+       db.run(`
+         ALTER TABLE employees ADD COLUMN termination_date DATE
+       `, (err) => {
+         // Ignorujeme chybu ak stĺpec už existuje
+         if (err && !err.message.includes('duplicate column name')) {
+           console.error('Chyba pri pridávaní termination_date stĺpca:', err);
+         }
+       });
 
        // Pridanie termination_reason stĺpca do employees tabuľky ak neexistuje
-       // db.run(`
-//   ALTER TABLE employees ADD COLUMN termination_reason TEXT
-// `, (err) => {
-//   // Ignorujeme chybu ak stĺpec už existuje
-//   if (err && !err.message.includes('duplicate column name')) {
-//     console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
-//   }
-// });
+       db.run(`
+         ALTER TABLE employees ADD COLUMN termination_reason TEXT
+       `, (err) => {
+         // Ignorujeme chybu ak stĺpec už existuje
+         if (err && !err.message.includes('duplicate column name')) {
+           console.error('Chyba pri pridávaní termination_reason stĺpca:', err);
+         }
+       });
 
        // Pridanie personálnych údajov stĺpcov
        const personalColumns = [
@@ -1006,13 +1006,13 @@ const initDatabase = () => {
          });
        });
 
-       // personalColumns.forEach(column => {
-//   db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
-//     if (err && !err.message.includes('duplicate column name')) {
-//       console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
-//     }
-//   });
-// });
+       personalColumns.forEach(column => {
+         db.run(`ALTER TABLE employees ADD COLUMN ${column}`, (err) => {
+           if (err && !err.message.includes('duplicate column name')) {
+             console.error(`Chyba pri pridávaní stĺpca ${column}:`, err);
+           }
+         });
+       });
 
        resolve();
     });
