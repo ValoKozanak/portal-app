@@ -16,7 +16,8 @@ import {
   PencilIcon,
   TrashIcon,
   DocumentTextIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  CalculatorIcon
 } from '@heroicons/react/24/outline';
 import FileManager from './FileManager';
 import TaskModal, { Task, Employee } from './TaskModal';
