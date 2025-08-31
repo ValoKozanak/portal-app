@@ -454,7 +454,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         </button>
 
         <button 
-          onClick={() => window.location.href = '/accounting/received-invoices?filter=dividenda'}
+          onClick={() => navigate('/accounting/received-invoices?filter=dividenda')}
           className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
         >
           <div className="flex items-center">
