@@ -1118,9 +1118,9 @@ const initDatabase = () => {
             if (err && !err.message.includes('duplicate column name')) {
               console.error(`Chyba pri pridávaní stĺpca ${column} do received_invoices:`, err);
             }
+          });
         });
       });
-    });
     });
   });
 };
