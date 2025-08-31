@@ -1082,8 +1082,8 @@ const initDatabase = () => {
             if (err && !err.message.includes('duplicate column name')) {
               console.error(`Chyba pri pridávaní stĺpca ${column} do issued_invoices:`, err);
             }
+          });
         });
-      });
 
         // Pridanie MDB stĺpcov do received_invoices ak neexistujú
         const receivedInvoiceMdbColumns = [
