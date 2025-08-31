@@ -755,7 +755,7 @@ export class AccountingService {
       accountCount: number;
     };
   }> {
-    const response = await fetch(`http://localhost:5000/api/accounting/cash-accounts/${companyId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/accounting/cash-accounts/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
