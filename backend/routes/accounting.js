@@ -348,6 +348,59 @@ router.get('/financial-analysis-test/:companyId', async (req, res) => {
 
 // 3. ŠTATISTIKY
 
+// 0. KONTROLA SÚBOROV (DEBUG)
+router.get('/check-files/:companyId', authenticateToken, (req, res) => {
+  const { companyId } = req.params;
+  const fs = require('fs');
+  const path = require('path');
+  
+  const fileChecks = {
+    databases: [],
+    zalohy: []
+  };
+  
+  // Kontrola databases adresára
+  const databasesPath = path.join(__dirname, '..', 'databases');
+  if (fs.existsSync(databasesPath)) {
+    try {
+      const files = fs.readdirSync(databasesPath);
+      fileChecks.databases = files;
+    } catch (err) {
+      fileChecks.databases = [`Error: ${err.message}`];
+    }
+  } else {
+    fileChecks.databases = ['Adresár neexistuje'];
+  }
+  
+  // Kontrola zalohy adresára
+  const zalohyPath = path.join(__dirname, '..', 'zalohy');
+  if (fs.existsSync(zalohyPath)) {
+    try {
+      const files = fs.readdirSync(zalohyPath);
+      fileChecks.zalohy = files;
+      
+      // Kontrola podadresárov
+      if (files.includes('2025')) {
+        const year2025Path = path.join(zalohyPath, '2025');
+        const year2025Files = fs.readdirSync(year2025Path);
+        fileChecks.zalohy_2025 = year2025Files;
+        
+        if (year2025Files.includes('77788897_2025')) {
+          const companyPath = path.join(year2025Path, '77788897_2025');
+          const companyFiles = fs.readdirSync(companyPath);
+          fileChecks.zalohy_2025_77788897 = companyFiles;
+        }
+      }
+    } catch (err) {
+      fileChecks.zalohy = [`Error: ${err.message}`];
+    }
+  } else {
+    fileChecks.zalohy = ['Adresár neexistuje'];
+  }
+  
+  res.json(fileChecks);
+});
+
 // Získanie štatistík účtovníctva
 router.get('/stats/:companyId', authenticateToken, (req, res) => {
   const { companyId } = req.params;
