@@ -495,7 +495,7 @@ router.get('/stats/:companyId', authenticateToken, (req, res) => {
       FROM received_invoices 
       WHERE company_id = ?${dateFilter}
     `, params, (err, receivedStats) => {
-      if (err) {
+    if (err) {
         console.error('Chyba pri načítaní štatistík prijatých faktúr:', err);
         return res.status(500).json({ error: 'Chyba pri načítaní štatistík' });
       }
@@ -984,7 +984,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                    parseFloat(row.KcU) || 0,
                    row.DatLikv ? new Date(row.DatLikv).toISOString().split('T')[0] : null
               ], function(err) {
-          if (err) {
+    if (err) {
                     console.error('Chyba pri vkladaní prijatej faktúry:', err);
                   } else {
           importedCount++;
@@ -1155,7 +1155,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
     
     // Získanie všetkých účtov z tabuľky sUcet a potom filtrovanie bankových účtov
     const accountsQuery = `
-      SELECT 
+          SELECT 
         ID,
         AUcet,
         SText,
@@ -1276,7 +1276,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
 // Získanie pokladňových účtov z MDB
 router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
   const { companyId } = req.params;
-
+  
   try {
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
@@ -1403,11 +1403,11 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    
+                if (err) reject(err);
+                else resolve(row);
+              });
+            });
+          
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
@@ -1509,7 +1509,7 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
           });
         }
         isFirstTransaction = false;
-      } else {
+          } else {
         // Ostatné transakcie - normálne sčítavanie/odčítavanie
         if (isCredit) {
           runningBalance += amount;
@@ -1562,8 +1562,8 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
     };
 
     res.json(response);
-    
-  } catch (error) {
+          
+        } catch (error) {
     console.error('❌ Chyba pri načítaní transakcií:', error);
     console.error('❌ Error stack:', error.stack);
     console.error('❌ Error message:', error.message);
@@ -1933,8 +1933,8 @@ router.get('/test-dropbox-public', async (req, res) => {
           testResults.dropbox.testResults.sampleFileExists = fileExists;
           testResults.dropbox.testResults.sampleCompanyIco = companyIco;
         }
-        
-      } catch (error) {
+    
+  } catch (error) {
         testResults.dropbox.testResults.error = error.message;
         testResults.dropbox.testResults.errorStack = error.stack;
       }
