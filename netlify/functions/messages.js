@@ -21,19 +21,43 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Company unread counts endpoint
+    if (httpMethod === 'GET' && path.includes('/api/messages/company/') && path.includes('/unread-counts')) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          "1": 0,
+          "2": 0
+        })
+      };
+    }
+
     // Messages endpoint
     if (httpMethod === 'GET' && path.includes('/api/messages')) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify([])
+        body: JSON.stringify([
+          {
+            id: 1,
+            sender_email: 'admin@portal.sk',
+            recipient_email: 'user@portal.sk',
+            subject: 'Test správa',
+            content: 'Toto je test správa',
+            company_id: 1,
+            message_type: 'notification',
+            is_read: false,
+            created_at: '2025-09-01T12:00:00Z'
+          }
+        ])
       };
     }
 
     return {
       statusCode: 404,
       headers,
-      body: JSON.stringify({ error: 'Endpoint nen?jden?' })
+      body: JSON.stringify({ error: 'Endpoint nenájdený' })
     };
 
   } catch (error) {
