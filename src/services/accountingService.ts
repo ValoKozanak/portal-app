@@ -515,10 +515,15 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
+    const dropboxToken = localStorage.getItem('dropbox_access_token');
+    if (!dropboxToken) {
+      throw new Error('Dropbox token nie je dostupný. Pripojte sa k Dropboxu.');
+    }
+    
     const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-invoices/${companyId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${dropboxToken}`,
         'Content-Type': 'application/json'
       }
     });
@@ -537,10 +542,15 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
+    const dropboxToken = localStorage.getItem('dropbox_access_token');
+    if (!dropboxToken) {
+      throw new Error('Dropbox token nie je dostupný. Pripojte sa k Dropboxu.');
+    }
+    
     const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-received-invoices/${companyId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${dropboxToken}`,
         'Content-Type': 'application/json'
       }
     });
