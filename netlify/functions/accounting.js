@@ -34,23 +34,18 @@ async function downloadMdbFromDropbox(companyICO, dbxClient = dbx) {
     
     console.log('🔍 Hľadám MDB súbor:', mdbPath);
     
-    // Skontrolujeme, či súbor existuje
+    // Získame metadata súboru namiesto sťahovania
     try {
-      await dbxClient.filesGetMetadata({ path: mdbPath });
+      const metadata = await dbxClient.filesGetMetadata({ path: mdbPath });
+      console.log('✅ MDB súbor nájdený:', mdbFileName);
+      return metadata.result; // Vrátime metadata namiesto fileBlob
     } catch (error) {
       console.log('❌ MDB súbor nebol nájdený:', mdbPath);
       return null;
     }
     
-    // Stiahneme súbor
-    const response = await dbxClient.filesDownload({ path: mdbPath });
-    const fileBlob = response.result.fileBlob;
-    
-    console.log('✅ MDB súbor úspešne stiahnutý:', mdbFileName);
-    return fileBlob;
-    
   } catch (error) {
-    console.error('❌ Chyba pri sťahovaní MDB súboru:', error);
+    console.error('❌ Chyba pri získavaní MDB súboru:', error);
     return null;
   }
 }
@@ -171,10 +166,10 @@ exports.handler = async (event, context) => {
       console.log('🔍 Dropbox Access Token:', process.env.DROPBOX_ACCESS_TOKEN ? 'EXISTUJE' : 'CHÝBA');
       console.log('📁 Očakávaná cesta:', getCompanyFolderPath(company.ico));
       
-      // Stiahnutie MDB súboru z Dropboxu s user tokenom
-      const mdbBlob = await downloadMdbFromDropbox(company.ico, userDbx);
+      // Získanie MDB súboru metadata z Dropboxu
+      const mdbMetadata = await downloadMdbFromDropbox(company.ico, userDbx);
       
-      if (!mdbBlob) {
+      if (!mdbMetadata) {
         return {
           statusCode: 404,
           headers,
@@ -190,8 +185,8 @@ exports.handler = async (event, context) => {
         };
       }
       
-      // Načítanie faktúr z MDB
-      const result = await extractInvoicesFromMdb(mdbBlob, companyId);
+      // Načítanie faktúr z MDB metadata
+      const result = await extractInvoicesFromMdb(mdbMetadata, companyId);
       
       return {
         statusCode: 200,
