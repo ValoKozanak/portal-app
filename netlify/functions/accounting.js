@@ -21,7 +21,8 @@ function hashICO(ico) {
 // Generovanie cesty pre firmu
 function getCompanyFolderPath(ico) {
   const icoHash = hashICO(ico);
-  return `/Portal/Companies/${icoHash}`;
+  // Používame existujúcu štruktúru: /Portal/Zalohy/2025/ICO_2025/ICO_2025.mdb
+  return `/Portal/Zalohy/2025/${icoHash}_2025`;
 }
 
 // Načítanie MDB súboru z Dropboxu
