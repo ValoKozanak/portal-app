@@ -1,7 +1,6 @@
-const axios = require('axios');
+﻿const axios = require('axios');
 
 exports.handler = async (event, context) => {
-  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -9,31 +8,16 @@ exports.handler = async (event, context) => {
   };
 
   try {
-    const { path } = event;
-
-    // Test endpoint
-    if (path === '/api/accounting/test-dropbox-token') {
-      const token = process.env.DROPBOX_ACCESS_TOKEN;
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          hasToken: !!token,
-          tokenLength: token ? token.length : 0,
-          tokenStart: token ? token.substring(0, 10) + '...' : 'none',
-          message: token ? 'Token je nastavený' : 'Token nie je nastavený'
-        })
-      };
-    }
-
-    // Simple test endpoint
-    if (path === '/api/accounting/simple-test') {
+    // Simple test endpoint - reaguje na všetky GET requests
+    if (event.httpMethod === 'GET') {
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           message: 'Accounting function funguje!',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          path: event.path,
+          method: event.httpMethod
         })
       };
     }
