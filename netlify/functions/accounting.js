@@ -26,7 +26,7 @@ function getCompanyFolderPath(ico) {
 }
 
 // Načítanie MDB súboru z Dropboxu
-async function downloadMdbFromDropbox(companyICO) {
+async function downloadMdbFromDropbox(companyICO, dbxClient = dbx) {
   try {
     const companyPath = getCompanyFolderPath(companyICO);
     const mdbFileName = `${companyICO}_2025.mdb`;
@@ -36,14 +36,14 @@ async function downloadMdbFromDropbox(companyICO) {
     
     // Skontrolujeme, či súbor existuje
     try {
-      await dbx.filesGetMetadata({ path: mdbPath });
+      await dbxClient.filesGetMetadata({ path: mdbPath });
     } catch (error) {
       console.log('❌ MDB súbor nebol nájdený:', mdbPath);
       return null;
     }
     
     // Stiahneme súbor
-    const response = await dbx.filesDownload({ path: mdbPath });
+    const response = await dbxClient.filesDownload({ path: mdbPath });
     const fileBlob = response.result.fileBlob;
     
     console.log('✅ MDB súbor úspešne stiahnutý:', mdbFileName);
@@ -115,6 +115,18 @@ exports.handler = async (event, context) => {
       
       console.log('🔄 Refresh invoices pre companyId:', companyId);
       
+      // Získanie tokenu z request headers
+      const authHeader = event.headers.authorization || event.headers.Authorization;
+      const dropboxToken = authHeader ? authHeader.replace('Bearer ', '') : process.env.DROPBOX_ACCESS_TOKEN;
+      
+      console.log('🔑 Používam Dropbox token:', dropboxToken ? 'EXISTUJE' : 'CHÝBA');
+      
+      // Vytvorenie Dropbox klienta s tokenom
+      const userDbx = new Dropbox({
+        accessToken: dropboxToken,
+        fetch: fetch
+      });
+      
       // Získanie informácií o firme z Supabase
       const { data: company, error: companyError } = await supabase
         .from('companies')
@@ -137,8 +149,8 @@ exports.handler = async (event, context) => {
       console.log('🔍 Dropbox Access Token:', process.env.DROPBOX_ACCESS_TOKEN ? 'EXISTUJE' : 'CHÝBA');
       console.log('📁 Očakávaná cesta:', getCompanyFolderPath(company.ico));
       
-      // Stiahnutie MDB súboru z Dropboxu
-      const mdbBlob = await downloadMdbFromDropbox(company.ico);
+      // Stiahnutie MDB súboru z Dropboxu s user tokenom
+      const mdbBlob = await downloadMdbFromDropbox(company.ico, userDbx);
       
       if (!mdbBlob) {
         return {
