@@ -173,6 +173,18 @@ exports.handler = async (event, context) => {
       console.log('🧪 Test Dropbox prístupu pre companyId:', companyId);
       console.log('🔑 Dropbox Access Token:', process.env.DROPBOX_ACCESS_TOKEN ? 'EXISTUJE' : 'CHÝBA');
       
+      // Získanie tokenu z request headers (ak je poslaný z frontendu)
+      const authHeader = event.headers.authorization || event.headers.Authorization;
+      const dropboxToken = authHeader ? authHeader.replace('Bearer ', '') : process.env.DROPBOX_ACCESS_TOKEN;
+      
+      console.log('🔑 Používam token:', dropboxToken ? 'EXISTUJE' : 'CHÝBA');
+      
+      // Vytvorenie Dropbox klienta s tokenom
+      const testDbx = new Dropbox({
+        accessToken: dropboxToken,
+        fetch: fetch
+      });
+      
       try {
         // Získanie informácií o firme z Supabase
         const { data: company, error: companyError } = await supabase
@@ -200,11 +212,11 @@ exports.handler = async (event, context) => {
         
         // Skúsime získať metadata zložky
         try {
-          const folderMetadata = await dbx.filesGetMetadata({ path: companyPath });
+          const folderMetadata = await testDbx.filesGetMetadata({ path: companyPath });
           console.log('✅ Zložka nájdená:', folderMetadata.result);
           
           // Skúsime získať zoznam súborov
-          const filesList = await dbx.filesListFolder({ path: companyPath });
+          const filesList = await testDbx.filesListFolder({ path: companyPath });
           console.log('📄 Súbory v zložke:', filesList.result.entries);
           
           return {
