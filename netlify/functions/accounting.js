@@ -21,6 +21,25 @@ exports.handler = async (event, context) => {
         };
       }
 
+      // Pre financial analysis endpoint vracame správnu štruktúru
+      if (path.includes('/financial-analysis')) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            total: 0,
+            income: 0,
+            expenses: 0,
+            profit: 0,
+            revenue: 0,
+            costs: 0,
+            margin: 0,
+            period: '2025',
+            currency: 'EUR'
+          })
+        };
+      }
+
       // Pre ostatné accounting endpointy vracame test objekt
       return {
         statusCode: 200,
