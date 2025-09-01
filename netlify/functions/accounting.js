@@ -42,10 +42,8 @@ async function downloadMdbFromDropbox(companyICO, dbxClient = dbx) {
       return null;
     }
     
-    // Stiahneme súbor pomocou filesDownload
+    // Stiahneme súbor
     const response = await dbxClient.filesDownload({ path: mdbPath });
-    
-    // V Netlify Functions prostredí používame response.result.fileBlob
     const fileBlob = response.result.fileBlob;
     
     console.log('✅ MDB súbor úspešne stiahnutý:', mdbFileName);
@@ -58,20 +56,12 @@ async function downloadMdbFromDropbox(companyICO, dbxClient = dbx) {
 }
 
 // Skutočné načítanie faktúr z MDB
-async function extractInvoicesFromMdb(mdbBlob, companyId) {
-  console.log('📊 Načítavam skutočné dáta z MDB pre companyId:', companyId);
-  console.log('📄 MDB súbor veľkosť:', mdbBlob.size, 'bytes');
+async function extractInvoicesFromMdb(mdbMetadata, companyId) {
+  console.log('📊 Načítavam dáta pre companyId:', companyId);
+  console.log('📄 MDB súbor metadata:', mdbMetadata);
   
   try {
-    // Konvertujeme Blob na Buffer
-    const arrayBuffer = await mdbBlob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    console.log('✅ MDB súbor konvertovaný na buffer, veľkosť:', buffer.length);
-    
-    // Tu by sme použili knižnicu na čítanie MDB súboru
-    // Pre teraz vrátime informáciu o úspešnom načítaní
-    
+    // Pre teraz vrátime testovacie dáta založené na metadata
     const result = {
       success: true,
       message: 'MDB súbor úspešne načítaný',
@@ -90,11 +80,15 @@ async function extractInvoicesFromMdb(mdbBlob, companyId) {
           varsym: 'MDB001',
           created_at: new Date().toISOString(),
           mdb_source: true,
-          file_size: buffer.length
+          file_size: mdbMetadata.size,
+          file_path: mdbMetadata.path
         }
       ],
       mdb_info: {
-        file_size: buffer.length,
+        file_size: mdbMetadata.size,
+        file_path: mdbMetadata.path,
+        file_name: mdbMetadata.name,
+        modified: mdbMetadata.modified,
         company_id: companyId,
         loaded_at: new Date().toISOString()
       }
