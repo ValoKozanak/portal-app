@@ -121,8 +121,19 @@ exports.handler = async (event, context) => {
     const { path, httpMethod } = event;
 
     // POST endpoint pre refresh invoices z MDB
-    if (httpMethod === 'POST' && (path.includes('/api/accounting/refresh-invoices') || path.includes('/api/accounting/refresh-received-invoices'))) {
-      const companyId = path.split('/').pop();
+    if (httpMethod === 'POST' && (path.includes('/api/accounting/refresh-invoices') || path.includes('/api/accounting/refresh-received-invoices') || path.includes('/api/accounting'))) {
+      // Získanie companyId z path alebo z body
+      let companyId = path.split('/').pop();
+      
+      // Ak je path len /api/accounting, skúsime získať companyId z body
+      if (path === '/api/accounting' && event.body) {
+        try {
+          const bodyData = JSON.parse(event.body);
+          companyId = bodyData.companyId || companyId;
+        } catch (error) {
+          console.log('❌ Chyba pri parsovaní body:', error);
+        }
+      }
       
       console.log('🔄 Refresh invoices pre companyId:', companyId);
       
