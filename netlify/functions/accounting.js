@@ -212,9 +212,31 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({
             total: 3800.50,
             income: 3800.50,
-            expenses: 0,
+            expenses: {
+              total: 0,
+              count: 0,
+              details: []
+            },
+            revenue: {
+              total: 3800.50,
+              count: 2,
+              details: [
+                {
+                  account: '601',
+                  account_name: 'Materiál',
+                  amount: 1500.00,
+                  count: 1
+                },
+                {
+                  account: '602',
+                  account_name: 'Energie',
+                  amount: 2300.50,
+                  count: 1
+                }
+              ]
+            },
             profit: 3800.50,
-            revenue: 3800.50,
+            isProfit: true,
             costs: 0,
             margin: 100,
             period: '2025',
