@@ -300,97 +300,148 @@ exports.handler = async (event, context) => {
 
     // GET endpointy pre faktúry
     if (httpMethod === 'GET' && path.includes('/api/accounting')) {
-      // Pre invoice endpoints vracame demo dáta
-      if (path.includes('/received-invoices') || path.includes('/issued-invoices')) {
-        const companyId = path.split('/').pop().split('?')[0];
+      const companyId = path.split('/').pop().split('?')[0];
+      
+      // Získanie tokenu z request headers (ak je poslaný z frontendu)
+      const authHeader = event.headers.authorization || event.headers.Authorization;
+      const dropboxToken = authHeader ? authHeader.replace('Bearer ', '') : process.env.DROPBOX_ACCESS_TOKEN;
+      
+      // Vytvorenie Dropbox klienta s tokenom
+      const dbxClient = new Dropbox({
+        accessToken: dropboxToken,
+        fetch: fetch
+      });
+      
+      try {
+        // Získanie informácií o firme z Supabase
+        const { data: company, error: companyError } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', companyId)
+          .single();
         
-        // Demo faktúry
-        const demoInvoices = [
-          {
-            id: 1,
-            invoice_number: 'F2025-001',
-            customer_name: 'Demo Zákazník 1',
-            amount: 1500.00,
-            currency: 'EUR',
-            issue_date: '2025-01-15',
-            due_date: '2025-02-15',
-            status: 'sent',
-            varsym: '2025001',
-            created_at: new Date().toISOString()
-          },
-          {
-            id: 2,
-            invoice_number: 'F2025-002',
-            customer_name: 'Demo Zákazník 2',
-            amount: 2300.50,
-            currency: 'EUR',
-            issue_date: '2025-01-20',
-            due_date: '2025-02-20',
-            status: 'paid',
-            varsym: '2025002',
-            created_at: new Date().toISOString()
-          }
-        ];
+        if (companyError || !company) {
+          return {
+            statusCode: 404,
+            headers,
+            body: JSON.stringify({ 
+              error: 'Firma nebola nájdená',
+              details: companyError?.message 
+            })
+          };
+        }
         
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify(demoInvoices)
-        };
-      }
+        console.log('🏢 Načítavam dáta pre firmu:', company.name, 'IČO:', company.ico);
+        
+        // Načítanie MDB súboru z Dropboxu
+        const mdbBlob = await downloadMdbFromDropbox(company.ico, dbxClient);
+        
+        if (!mdbBlob) {
+          return {
+            statusCode: 404,
+            headers,
+            body: JSON.stringify({ 
+              error: 'MDB súbor nebol nájdený',
+              company: company.name,
+              ico: company.ico
+            })
+          };
+        }
+        
+        // Extrakcia faktúr z MDB
+        const mdbData = await extractInvoicesFromMdb(mdbBlob, companyId);
+        
+        // Pre invoice endpoints vracame skutočné dáta z MDB
+        if (path.includes('/received-invoices') || path.includes('/issued-invoices')) {
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(mdbData.invoices)
+          };
+        }
 
-      // Pre financial analysis endpoint vracame správnu štruktúru
-      if (path.includes('/financial-analysis')) {
+        // Pre financial analysis endpoint vracame skutočné dáta z MDB
+        if (path.includes('/financial-analysis')) {
+          const totalAmount = mdbData.invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              total: totalAmount,
+              income: totalAmount,
+              expenses: {
+                total: 0,
+                count: 0,
+                details: []
+              },
+              revenue: {
+                total: totalAmount,
+                count: mdbData.invoices.length,
+                details: mdbData.invoices.map(invoice => ({
+                  account: '601',
+                  account_name: invoice.customer_name,
+                  amount: invoice.amount,
+                  count: 1
+                }))
+              },
+              profit: totalAmount,
+              isProfit: true,
+              costs: 0,
+              margin: 100,
+              period: '2025',
+              currency: 'EUR',
+              mdb_source: true,
+              imported_count: mdbData.importedCount
+            })
+          };
+        }
+
+        // Pre stats endpoint vracame skutočné dáta z MDB
+        if (path.includes('/stats')) {
+          const totalAmount = mdbData.invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              total_invoices: mdbData.invoices.length,
+              total_amount: totalAmount,
+              currency: 'EUR',
+              period: '2025',
+              mdb_source: true,
+              imported_count: mdbData.importedCount
+            })
+          };
+        }
+
+        // Pre ostatné accounting endpointy vracame informáciu o MDB dátach
         return {
           statusCode: 200,
           headers,
           body: JSON.stringify({
-            total: 3800.50,
-            income: 3800.50,
-            expenses: {
-              total: 0,
-              count: 0,
-              details: []
-            },
-            revenue: {
-              total: 3800.50,
-              count: 2,
-              details: [
-                {
-                  account: '601',
-                  account_name: 'Materiál',
-                  amount: 1500.00,
-                  count: 1
-                },
-                {
-                  account: '602',
-                  account_name: 'Energie',
-                  amount: 2300.50,
-                  count: 1
-                }
-              ]
-            },
-            profit: 3800.50,
-            isProfit: true,
-            costs: 0,
-            margin: 100,
-            period: '2025',
-            currency: 'EUR'
+            message: 'Accounting function funguje s MDB dátami!',
+            timestamp: new Date().toISOString(),
+            path: event.path,
+            method: event.httpMethod,
+            company: company.name,
+            ico: company.ico,
+            mdb_source: true,
+            imported_count: mdbData.importedCount
+          })
+        };
+        
+      } catch (error) {
+        console.error('❌ Chyba pri načítaní MDB dát:', error);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Chyba pri načítaní MDB dát',
+            details: error.message 
           })
         };
       }
-
-      // Pre ostatné accounting endpointy vracame test objekt
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          message: 'Accounting function funguje!',
-          timestamp: new Date().toISOString(),
-          path: event.path,
-          method: event.httpMethod
-        })
-      };
     }
 
     return {
