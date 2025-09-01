@@ -1,4 +1,4 @@
-﻿[build]
+[build]
   command = "npm run build"
   publish = "build"
   functions = "netlify/functions"
@@ -18,7 +18,7 @@
   to = "/static/:splat"
   status = 200
 
-# SPA redirect - všetko ostatné na index.html
+# SPA redirect - v?etko ostatn? na index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
