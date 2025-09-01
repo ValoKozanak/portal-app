@@ -10,17 +10,12 @@ exports.handler = async (event, context) => {
   try {
     const { path, httpMethod } = event;
 
-    // Test endpoint
+    // Companies endpoint - vracia array namiesto objektu
     if (httpMethod === 'GET' && path.includes('/api/companies')) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({
-          message: 'Companies function funguje!',
-          path: path,
-          method: httpMethod,
-          timestamp: new Date().toISOString()
-        })
+        body: JSON.stringify([]) // Pr?zdny array pre frontend
       };
     }
 
