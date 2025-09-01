@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://portal-app-production-85a7.up.railway.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'http://localhost:5000/api';
 
 // Typy pre API
 export interface ApiResponse {
