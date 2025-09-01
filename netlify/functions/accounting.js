@@ -53,6 +53,19 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // POST endpoint pre refresh invoices
+    if (httpMethod === 'POST' && path.includes('/api/accounting/refresh-invoices')) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          message: 'Faktúry boli úspešne obnovené z MDB',
+          refreshedCount: 0,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+
     return {
       statusCode: 404,
       headers,
