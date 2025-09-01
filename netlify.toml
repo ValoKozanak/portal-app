@@ -12,13 +12,23 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Static files
+# Static files - React chunks
 [[redirects]]
-  from = "/static/*"
-  to = "/static/:splat"
+  from = "/static/js/*"
+  to = "/static/js/:splat"
   status = 200
 
-# SPA redirect - v?etko ostatn? na index.html
+[[redirects]]
+  from = "/static/css/*"
+  to = "/static/css/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/static/media/*"
+  to = "/static/media/:splat"
+  status = 200
+
+# SPA redirect - všetko ostatné na index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
