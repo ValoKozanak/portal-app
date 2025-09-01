@@ -10,6 +10,27 @@ const dropboxService = require('../services/dropboxService');
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
+// JEDNODUCHÝ TEST ENDPOINT NA ZAČIATKU
+router.get('/simple-test', (req, res) => {
+  res.json({ 
+    message: "Accounting routes fungujú!", 
+    timestamp: new Date().toISOString() 
+  });
+});
+
+// DROPBOX TEST ENDPOINT NA ZAČIATKU  
+router.get('/dropbox-test-simple', async (req, res) => {
+  try {
+    res.json({
+      message: "Dropbox endpoint funguje!",
+      isInitialized: dropboxService.isInitialized(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
 async function getMDBFilePath(companyIco, year = '2025') {
   // Najprv skúsime Dropbox
