@@ -8,8 +8,20 @@ exports.handler = async (event, context) => {
   };
 
   try {
+    const { path, httpMethod } = event;
+
     // Simple test endpoint - reaguje na všetky GET requests
-    if (event.httpMethod === 'GET') {
+    if (httpMethod === 'GET' && path.includes('/api/accounting')) {
+      // Pre invoice endpoints vracame prázdny array
+      if (path.includes('/received-invoices') || path.includes('/issued-invoices')) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify([])
+        };
+      }
+
+      // Pre ostatné accounting endpointy vracame test objekt
       return {
         statusCode: 200,
         headers,
