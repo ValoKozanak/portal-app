@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend for Client Portal",
   "private": true,
-  "homepage": ".",
+  "homepage": "https://musical-stardust-faabdb.netlify.app",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@heroicons/react": "^2.0.18",
