@@ -42,8 +42,10 @@ async function downloadMdbFromDropbox(companyICO, dbxClient = dbx) {
       return null;
     }
     
-    // Stiahneme súbor
+    // Stiahneme súbor pomocou filesDownload
     const response = await dbxClient.filesDownload({ path: mdbPath });
+    
+    // V Netlify Functions prostredí používame response.result.fileBlob
     const fileBlob = response.result.fileBlob;
     
     console.log('✅ MDB súbor úspešne stiahnutý:', mdbFileName);
