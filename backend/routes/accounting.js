@@ -31,6 +31,17 @@ router.get('/dropbox-test-simple', async (req, res) => {
   }
 });
 
+// TEST DROPBOX TOKEN ENDPOINT
+router.get('/test-dropbox-token', (req, res) => {
+  const token = process.env.DROPBOX_ACCESS_TOKEN;
+  res.json({
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    tokenStart: token ? token.substring(0, 10) + '...' : 'none',
+    message: token ? "Token je nastavený" : "Token nie je nastavený"
+  });
+});
+
 // Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
 async function getMDBFilePath(companyIco, year = '2025') {
   // Najprv skúsime Dropbox
