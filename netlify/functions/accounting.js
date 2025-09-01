@@ -110,7 +110,7 @@ exports.handler = async (event, context) => {
     const { path, httpMethod } = event;
 
     // POST endpoint pre refresh invoices z MDB
-    if (httpMethod === 'POST' && path.includes('/api/accounting/refresh-invoices')) {
+    if (httpMethod === 'POST' && (path.includes('/api/accounting/refresh-invoices') || path.includes('/api/accounting/refresh-received-invoices'))) {
       const companyId = path.split('/').pop();
       
       console.log('🔄 Refresh invoices pre companyId:', companyId);
@@ -134,6 +134,8 @@ exports.handler = async (event, context) => {
       }
       
       console.log('🏢 Firma nájdená:', company.name, 'IČO:', company.ico);
+      console.log('🔍 Dropbox Access Token:', process.env.DROPBOX_ACCESS_TOKEN ? 'EXISTUJE' : 'CHÝBA');
+      console.log('📁 Očakávaná cesta:', getCompanyFolderPath(company.ico));
       
       // Stiahnutie MDB súboru z Dropboxu
       const mdbBlob = await downloadMdbFromDropbox(company.ico);
@@ -162,6 +164,99 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify(result)
       };
+    }
+
+    // Test endpoint pre Dropbox prístup
+    if (httpMethod === 'GET' && path.includes('/api/accounting/test-dropbox')) {
+      const companyId = path.split('/').pop();
+      
+      console.log('🧪 Test Dropbox prístupu pre companyId:', companyId);
+      console.log('🔑 Dropbox Access Token:', process.env.DROPBOX_ACCESS_TOKEN ? 'EXISTUJE' : 'CHÝBA');
+      
+      try {
+        // Získanie informácií o firme z Supabase
+        const { data: company, error: companyError } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', companyId)
+          .single();
+        
+        if (companyError || !company) {
+          return {
+            statusCode: 404,
+            headers,
+            body: JSON.stringify({ 
+              error: 'Firma nebola nájdená',
+              details: companyError?.message 
+            })
+          };
+        }
+        
+        console.log('🏢 Firma nájdená:', company.name, 'IČO:', company.ico);
+        
+        // Test Dropbox prístupu
+        const companyPath = getCompanyFolderPath(company.ico);
+        console.log('📁 Testujem cestu:', companyPath);
+        
+        // Skúsime získať metadata zložky
+        try {
+          const folderMetadata = await dbx.filesGetMetadata({ path: companyPath });
+          console.log('✅ Zložka nájdená:', folderMetadata.result);
+          
+          // Skúsime získať zoznam súborov
+          const filesList = await dbx.filesListFolder({ path: companyPath });
+          console.log('📄 Súbory v zložke:', filesList.result.entries);
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              success: true,
+              message: 'Dropbox prístup funguje!',
+              company: {
+                name: company.name,
+                ico: company.ico
+              },
+              dropboxPath: companyPath,
+              folderExists: true,
+              files: filesList.result.entries.map(file => ({
+                name: file.name,
+                path: file.path_display,
+                size: file.size
+              }))
+            })
+          };
+          
+        } catch (dropboxError) {
+          console.log('❌ Dropbox chyba:', dropboxError);
+          return {
+            statusCode: 404,
+            headers,
+            body: JSON.stringify({
+              success: false,
+              message: 'Dropbox zložka nebola nájdená',
+              company: {
+                name: company.name,
+                ico: company.ico
+              },
+              dropboxPath: companyPath,
+              error: dropboxError.message
+            })
+          };
+        }
+        
+      } catch (error) {
+        console.error('❌ Chyba v test Dropbox:', error);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: error.message,
+            stack: error.stack
+          })
+        };
+      }
     }
 
     // GET endpointy pre faktúry
