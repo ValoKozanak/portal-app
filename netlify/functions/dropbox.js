@@ -8,56 +8,26 @@ exports.handler = async (event, context) => {
   };
 
   try {
-    const { path } = event;
+    const { path, httpMethod } = event;
 
-    // Dropbox test endpoint
-    if (path === '/api/dropbox/test') {
-      const token = process.env.DROPBOX_ACCESS_TOKEN;
-
-      if (!token) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ error: 'Dropbox token nie je nastavený' })
-        };
-      }
-
-      // Test Dropbox API
-      try {
-        const response = await axios({
-          method: 'POST',
-          url: 'https://api.dropboxapi.com/2/users/get_current_account',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            success: true,
-            account: response.data,
-            message: 'Dropbox API funguje!'
-          })
-        };
-      } catch (error) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            error: 'Dropbox API chyba',
-            details: error.message
-          })
-        };
-      }
+    // Reaguje na v?etky /api/dropbox requests
+    if (httpMethod === 'GET' && path.includes('/api/dropbox')) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          message: 'Dropbox function funguje!',
+          path: path,
+          method: httpMethod,
+          timestamp: new Date().toISOString()
+        })
+      };
     }
 
     return {
       statusCode: 404,
       headers,
-      body: JSON.stringify({ error: 'Endpoint nenájdený' })
+      body: JSON.stringify({ error: 'Endpoint nen?jden?' })
     };
 
   } catch (error) {
