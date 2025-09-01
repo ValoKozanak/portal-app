@@ -27,8 +27,9 @@ exports.handler = async (event, context) => {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          "1": 0,
-          "2": 0
+          receivedUnreadCount: 0,
+          sentUnreadCount: 0,
+          totalUnreadCount: 0
         })
       };
     }
