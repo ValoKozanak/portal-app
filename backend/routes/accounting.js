@@ -3,139 +3,21 @@ const { Router } = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const cors = require('cors'); // Pridať cors
 const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
-const spacesService = require('../services/spacesService');
 
-// Multer konfigurácia pre upload súborov
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/x-msaccess' || file.originalname.endsWith('.mdb')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Len MDB súbory sú povolené'));
-    }
-  }
-});
+// CORS pre accounting routes - MUSÍ BYŤ PRED authenticateToken!
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-// ===== ÚČTOVNÍCTVO API ROUTES =====
-
-// ===== ADMIN MDB MANAGEMENT ENDPOINTS =====
-
-// Upload MDB súboru cez backend (rieši CORS problém)
-router.post('/admin/mdb/upload/:companyIco', authenticateToken, upload.single('mdbFile'), async (req, res) => {
-  try {
-    const { companyIco } = req.params;
-    const { year = '2025' } = req.body;
-    const file = req.file;
-    
-    if (!file) {
-      return res.status(400).json({ error: 'Žiadny súbor nebol nahraný' });
-    }
-    
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
-    }
-    
-    // Upload súboru do Spaces
-    const key = spacesService.getMdbKey(companyIco, year);
-    const fileBuffer = file.buffer;
-    
-    const uploadCommand = new PutObjectCommand({
-      Bucket: process.env.SPACES_BUCKET,
-      Key: key,
-      Body: fileBuffer,
-      ContentType: 'application/x-msaccess',
-      ACL: 'private',
-    });
-    
-    await spacesService.s3.send(uploadCommand);
-    
-    res.json({ 
-      success: true, 
-      message: `MDB súbor ${file.originalname} bol úspešne nahraný`,
-      key: key
-    });
-  } catch (error) {
-    console.error('Chyba pri upload MDB súboru:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Generovanie pre-signed URL pre upload MDB súboru (zachované pre kompatibilitu)
-router.post('/admin/mdb/upload-url/:companyIco', authenticateToken, async (req, res) => {
-  try {
-    const { companyIco } = req.params;
-    const { year = '2025' } = req.body;
-    
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
-    }
-    
-    const { url, key } = await spacesService.getPresignedUploadUrl(companyIco, year);
-    res.json({ uploadUrl: url, key });
-  } catch (error) {
-    console.error('Chyba pri generovaní upload URL:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Zoznam dostupných MDB súborov v Spaces
-router.get('/admin/mdb/files', authenticateToken, async (req, res) => {
-  try {
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
-    }
-    
-    const files = await spacesService.listMdbFiles();
-    res.json({ files });
-  } catch (error) {
-    console.error('Chyba pri načítaní MDB súborov:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Migrácia lokálnych MDB súborov do Spaces
-router.post('/admin/mdb/migrate-local', authenticateToken, async (req, res) => {
-  try {
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
-    }
-    
-    const result = await spacesService.migrateLocalMdbFiles();
-    res.json(result);
-  } catch (error) {
-    console.error('Chyba pri migrácii MDB súborov:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Test pripojenia k Spaces
-router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
-  try {
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
-    }
-    
-    const files = await spacesService.listMdbFiles();
-    res.json({ 
-      status: 'OK', 
-      message: 'Spaces pripojenie funguje',
-      filesCount: files.length 
-    });
-  } catch (error) {
-    console.error('Chyba pri teste Spaces:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+router.use(cors(corsOptions));
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
@@ -171,25 +53,14 @@ router.get('/test-dropbox-token', (req, res) => {
   });
 });
 
-// Helper funkcia na získanie MDB súboru (Spaces, Dropbox alebo lokálny fallback)
+// Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
 async function getMDBFilePath(companyIco, year = '2025') {
-  // Najprv skúsime DigitalOcean Spaces
-  if (spacesService.isInitialized()) {
-    try {
-      console.log(`🔍 Skúšam stiahnuť MDB súbor zo Spaces pre ${companyIco}_${year}`);
-      const tempFilePath = await spacesService.downloadMdbToTempFile(companyIco, year);
-      return { path: tempFilePath, isTemp: true, source: 'spaces' };
-    } catch (error) {
-      console.log(`⚠️ Spaces neúspešné, skúšam Dropbox: ${error.message}`);
-    }
-  }
-
-  // Fallback na Dropbox
+  // Najprv skúsime Dropbox
   if (dropboxService.isInitialized()) {
     try {
       console.log(`🔍 Skúšam stiahnuť MDB súbor z Dropbox pre ${companyIco}_${year}`);
       const tempFilePath = await dropboxService.getMDBFile(companyIco, year);
-      return { path: tempFilePath, isTemp: true, source: 'dropbox' };
+      return { path: tempFilePath, isTemp: true };
     } catch (error) {
       console.log(`⚠️ Dropbox neúspešný, skúšam lokálny súbor: ${error.message}`);
     }
@@ -198,10 +69,10 @@ async function getMDBFilePath(companyIco, year = '2025') {
   // Fallback na lokálny súbor
   const localPath = path.join(__dirname, '..', 'zalohy', year, `${companyIco}_${year}`, `${companyIco}_${year}.mdb`);
   if (fs.existsSync(localPath)) {
-    return { path: localPath, isTemp: false, source: 'local' };
+    return { path: localPath, isTemp: false };
   }
 
-  throw new Error('MDB súbor nebol nájdený v Spaces, Dropbox ani lokálne');
+  throw new Error('MDB súbor nebol nájdený ani v Dropbox ani lokálne');
 }
 
 // 1. NASTAVENIA ÚČTOVNÍCTVA
@@ -835,39 +706,20 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
       }
 
       // Vymazanie existujúcich faktúr
-      db.run("DELETE FROM issued_invoices WHERE company_id = ?", [companyId], async function(err) {
-        if (err) {
+      db.run("DELETE FROM issued_invoices WHERE company_id = ?", [companyId], function(err) {
+    if (err) {
           console.error('Chyba pri mazaní faktúr:', err);
           return res.status(500).json({ error: 'Chyba pri mazaní faktúr' });
         }
 
+        // Pripojenie k MDB
+        const ADODB = require('node-adodb');
+        const currentYear = new Date().getFullYear();
+        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
+
+        const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+        
         try {
-          // Použijeme Dropbox service namiesto lokálneho súboru
-          const DropboxBackendService = require('../services/dropboxService');
-          const dropboxService = new DropboxBackendService();
-          
-          if (!dropboxService.isInitialized()) {
-            return res.status(500).json({ error: 'Dropbox service nie je inicializovaný' });
-          }
-
-          // Stiahneme MDB z Dropbox
-          const mdbBuffer = await dropboxService.getMDBFile(company.ico);
-          
-          if (!mdbBuffer) {
-            return res.status(404).json({ error: 'MDB súbor nebol nájdený v Dropbox' });
-          }
-
-          // Uložíme MDB do dočasného súboru
-          const fs = require('fs');
-          const os = require('os');
-          const tempDir = os.tmpdir();
-          const tempMdbPath = path.join(tempDir, `${company.ico}_${new Date().getFullYear()}.mdb`);
-          
-          fs.writeFileSync(tempMdbPath, mdbBuffer);
-
-          // Pripojenie k MDB
-          const ADODB = require('node-adodb');
-          const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${tempMdbPath};`);
                      const query = `
              SELECT 
                ID,
@@ -973,15 +825,8 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
 
                   }
                   
-                  // Ak sme spracovali všetky faktúry, pošleme odpoveď a vyčistíme
+                  // Ak sme spracovali všetky faktúry, pošleme odpoveď
                   if (index === data.length - 1) {
-                    // Vymažeme dočasný MDB súbor
-                    try {
-                      fs.unlinkSync(tempMdbPath);
-                    } catch (unlinkErr) {
-                      console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-                    }
-                    
                     res.json({
                       success: true,
                       message: `Obnovenie dokončené. Importovaných ${importedCount} faktúr.`,
@@ -994,27 +839,11 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
             })
             .catch(error => {
               console.error('Chyba pri čítaní MDB:', error);
-              
-              // Vymažeme dočasný MDB súbor
-              try {
-                fs.unlinkSync(tempMdbPath);
-              } catch (unlinkErr) {
-                console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-              }
-              
               res.status(500).json({ error: 'Chyba pri čítaní MDB databázy' });
             });
             
         } catch (error) {
           console.error('Chyba pri vytváraní pripojenia k MDB:', error);
-          
-          // Vymažeme dočasný MDB súbor
-          try {
-            fs.unlinkSync(tempMdbPath);
-          } catch (unlinkErr) {
-            console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-          }
-          
           res.status(500).json({ error: 'Chyba pri pripojení k MDB databáze' });
         }
   });
@@ -1044,39 +873,20 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
       }
 
       // Vymazanie existujúcich prijatých faktúr
-      db.run("DELETE FROM received_invoices WHERE company_id = ?", [companyId], async function(err) {
+      db.run("DELETE FROM received_invoices WHERE company_id = ?", [companyId], function(err) {
         if (err) {
           console.error('Chyba pri mazaní prijatých faktúr:', err);
           return res.status(500).json({ error: 'Chyba pri mazaní prijatých faktúr' });
         }
 
+        // Pripojenie k MDB
+        const ADODB = require('node-adodb');
+        const currentYear = new Date().getFullYear();
+        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
+
+        const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
+        
         try {
-          // Použijeme Dropbox service namiesto lokálneho súboru
-          const DropboxBackendService = require('../services/dropboxService');
-          const dropboxService = new DropboxBackendService();
-          
-          if (!dropboxService.isInitialized()) {
-            return res.status(500).json({ error: 'Dropbox service nie je inicializovaný' });
-          }
-
-          // Stiahneme MDB z Dropbox
-          const mdbBuffer = await dropboxService.getMDBFile(company.ico);
-          
-          if (!mdbBuffer) {
-            return res.status(404).json({ error: 'MDB súbor nebol nájdený v Dropbox' });
-          }
-
-          // Uložíme MDB do dočasného súboru
-          const fs = require('fs');
-          const os = require('os');
-          const tempDir = os.tmpdir();
-          const tempMdbPath = path.join(tempDir, `${company.ico}_${new Date().getFullYear()}.mdb`);
-          
-          fs.writeFileSync(tempMdbPath, mdbBuffer);
-
-          // Pripojenie k MDB
-          const ADODB = require('node-adodb');
-          const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${tempMdbPath};`);
                      const query = `
           SELECT 
                ID,
@@ -1192,17 +1002,10 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
 
                   }
                   
-                  // Ak sme spracovali všetky faktúry, pošleme odpoveď a vyčistíme
+                  // Ak sme spracovali všetky faktúry, pošleme odpoveď
                   if (index === data.length - 1) {
-                    // Vymažeme dočasný MDB súbor
-                    try {
-                      fs.unlinkSync(tempMdbPath);
-                    } catch (unlinkErr) {
-                      console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-                    }
-                    
-                    res.json({
-                      success: true, 
+          res.json({
+      success: true, 
                       message: `Obnovenie prijatých faktúr dokončené. Importovaných ${importedCount} faktúr.`,
                       importedCount: importedCount,
                       totalCount: data.length
@@ -1213,27 +1016,11 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
             })
             .catch(error => {
               console.error('Chyba pri čítaní MDB:', error);
-              
-              // Vymažeme dočasný MDB súbor
-              try {
-                fs.unlinkSync(tempMdbPath);
-              } catch (unlinkErr) {
-                console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-              }
-              
               res.status(500).json({ error: 'Chyba pri čítaní MDB databázy' });
     });
             
         } catch (error) {
           console.error('Chyba pri vytváraní pripojenia k MDB:', error);
-          
-          // Vymažeme dočasný MDB súbor
-          try {
-            fs.unlinkSync(tempMdbPath);
-          } catch (unlinkErr) {
-            console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
-          }
-          
           res.status(500).json({ error: 'Chyba pri pripojení k MDB databáze' });
         }
   });
@@ -2173,126 +1960,6 @@ router.get('/test-dropbox-public', async (req, res) => {
       details: error.message,
       stack: error.stack
     });
-  }
-});
-
-// ===== DIGITALOCEAN SPACES ROUTES =====
-
-// ADMIN: Generovanie upload URL pre MDB súbor
-router.post('/admin/mdb/upload-url/:companyIco', authenticateToken, async (req, res) => {
-  try {
-    // Kontrola admin práv
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže generovať upload URL.' });
-    }
-
-    const { companyIco } = req.params;
-    const { year = '2025' } = req.body;
-
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
-    }
-
-    const { url, key } = await spacesService.getPresignedUploadUrl(companyIco, year);
-    
-    res.json({ 
-      uploadUrl: url, 
-      key: key,
-      expiresIn: '15 minút',
-      instructions: 'Použite túto URL na upload MDB súboru cez PUT request',
-      companyIco: companyIco,
-      year: year
-    });
-  } catch (error) {
-    console.error('Chyba pri generovaní upload URL:', error);
-    res.status(500).json({ error: 'Chyba pri generovaní upload URL' });
-  }
-});
-
-// ADMIN: Kontrola dostupných MDB súborov v Spaces
-router.get('/admin/mdb/files', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Prístup zamietnutý' });
-    }
-
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
-    }
-
-    const files = await spacesService.listMdbFiles();
-    res.json({ 
-      files: files.map(file => ({
-        key: file.Key,
-        size: file.Size,
-        lastModified: file.LastModified,
-        companyIco: file.Key.split('/')[3]?.split('_')[0] || 'Neznáme',
-        year: file.Key.split('/')[2] || 'Neznáme'
-      }))
-    });
-  } catch (error) {
-    console.error('Chyba pri získavaní zoznamu súborov:', error);
-    res.status(500).json({ error: 'Chyba pri získavaní zoznamu súborov' });
-  }
-});
-
-// ADMIN: Migrácia lokálnych MDB súborov do Spaces
-router.post('/admin/mdb/migrate-local', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Prístup zamietnutý' });
-    }
-
-    if (!spacesService.isInitialized()) {
-      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
-    }
-
-    const result = await spacesService.migrateLocalMdbFiles();
-    res.json({ 
-      message: 'Migrácia dokončená',
-      migrated: result.migrated,
-      errors: result.errors
-    });
-  } catch (error) {
-    console.error('Chyba pri migrácii:', error);
-    res.status(500).json({ error: 'Chyba pri migrácii' });
-  }
-});
-
-// ADMIN: Test Spaces pripojenia
-router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Prístup zamietnutý' });
-    }
-
-    const testResults = {
-      timestamp: new Date().toISOString(),
-      spaces: {
-        isInitialized: spacesService.isInitialized(),
-        bucket: process.env.SPACES_BUCKET,
-        region: process.env.SPACES_REGION,
-        endpoint: process.env.SPACES_ENDPOINT,
-        hasKey: !!process.env.SPACES_KEY,
-        hasSecret: !!process.env.SPACES_SECRET,
-        testResults: {}
-      }
-    };
-
-    if (spacesService.isInitialized()) {
-      try {
-        const files = await spacesService.listMdbFiles();
-        testResults.spaces.testResults.availableFiles = files.length;
-        testResults.spaces.testResults.listFilesSuccess = true;
-      } catch (error) {
-        testResults.spaces.testResults.error = error.message;
-      }
-    }
-
-    res.json(testResults);
-  } catch (error) {
-    console.error('Chyba pri testovaní Spaces:', error);
-    res.status(500).json({ error: 'Chyba pri testovaní Spaces' });
   }
 });
 

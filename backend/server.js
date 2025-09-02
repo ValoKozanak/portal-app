@@ -21,14 +21,27 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+// CORS MUSÍ BYŤ PRVÉ - pred všetkým ostatným!
 const corsOptions = {
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
 app.use(cors(corsOptions));
+// Preflight pre všetko
+app.options('*', cors(corsOptions));
+
+// ✅ Fix: OPTIONS okamžite pusti s CORS
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+// Potom ostatné middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 // Statické súbory pre uploady
 app.use('/uploads', express.static('uploads'));
 
