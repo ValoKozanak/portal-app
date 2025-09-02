@@ -12,6 +12,77 @@ const spacesService = require('../services/spacesService');
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
+// ===== ADMIN MDB MANAGEMENT ENDPOINTS =====
+
+// Generovanie pre-signed URL pre upload MDB súboru
+router.post('/admin/mdb/upload-url/:companyIco', authenticateToken, async (req, res) => {
+  try {
+    const { companyIco } = req.params;
+    const { year = '2025' } = req.body;
+    
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
+    }
+    
+    const { url, key } = await spacesService.getPresignedUploadUrl(companyIco, year);
+    res.json({ uploadUrl: url, key });
+  } catch (error) {
+    console.error('Chyba pri generovaní upload URL:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Zoznam dostupných MDB súborov v Spaces
+router.get('/admin/mdb/files', authenticateToken, async (req, res) => {
+  try {
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
+    }
+    
+    const files = await spacesService.listMdbFiles();
+    res.json({ files });
+  } catch (error) {
+    console.error('Chyba pri načítaní MDB súborov:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Migrácia lokálnych MDB súborov do Spaces
+router.post('/admin/mdb/migrate-local', authenticateToken, async (req, res) => {
+  try {
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
+    }
+    
+    const result = await spacesService.migrateLocalMdbFiles();
+    res.json(result);
+  } catch (error) {
+    console.error('Chyba pri migrácii MDB súborov:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test pripojenia k Spaces
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
+    }
+    
+    const files = await spacesService.listMdbFiles();
+    res.json({ 
+      status: 'OK', 
+      message: 'Spaces pripojenie funguje',
+      filesCount: files.length 
+    });
+  } catch (error) {
+    console.error('Chyba pri teste Spaces:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== ÚČTOVNÍCTVO API ROUTES =====
+
 // JEDNODUCHÝ TEST ENDPOINT NA ZAČIATKU
 router.get('/simple-test', (req, res) => {
   res.json({ 

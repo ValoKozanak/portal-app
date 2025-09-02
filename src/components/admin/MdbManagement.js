@@ -8,6 +8,25 @@ const MdbManagement = ({ onBack }) => {
   const [success, setSuccess] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedYear, setSelectedYear] = useState('2025');
+  const [companies, setCompanies] = useState([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+
+  // Získanie zoznamu firiem
+  const fetchCompanies = async () => {
+    try {
+      setLoadingCompanies(true);
+      const response = await axios.get('/api/companies', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      setCompanies(response.data || []);
+    } catch (error) {
+      setError('Chyba pri načítaní firiem: ' + error.message);
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
 
   // Získanie zoznamu MDB súborov
   const fetchFiles = async () => {
@@ -98,6 +117,7 @@ const MdbManagement = ({ onBack }) => {
   };
 
   useEffect(() => {
+    fetchCompanies();
     fetchFiles();
   }, []);
 
@@ -141,15 +161,24 @@ const MdbManagement = ({ onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  IČO firmy
+                  Firma
                 </label>
-                <input
-                  type="text"
+                <select
                   value={selectedCompany}
                   onChange={(e) => setSelectedCompany(e.target.value)}
-                  placeholder="Zadajte IČO firmy"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                  disabled={loadingCompanies}
+                >
+                  <option value="">-- Vyberte firmu --</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.ico}>
+                      {company.name} (IČO: {company.ico})
+                    </option>
+                  ))}
+                </select>
+                {loadingCompanies && (
+                  <p className="text-sm text-gray-500 mt-1">Načítavam firmy...</p>
+                )}
               </div>
 
               <div>
