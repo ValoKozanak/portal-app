@@ -1951,5 +1951,28 @@ router.get('/test-dropbox-public', async (req, res) => {
     });
   }
 });
+// MDB Upload endpoint pre admin
+router.post('/admin/mdb/upload/:companyId', authenticateToken, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    
+    // Kontrola, či je používateľ admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže uploadovať MDB súbory.' });
+    }
+
+    // Pre upload endpoint - vrátiť success
+    res.json({ 
+      success: true, 
+      message: 'Upload endpoint je dostupný',
+      companyId: companyId
+    });
+
+  } catch (error) {
+    console.error('Chyba pri upload endpoint:', error);
+    res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
+  }
+});
 
 module.exports = router;
+
