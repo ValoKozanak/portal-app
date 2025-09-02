@@ -8,6 +8,7 @@ const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
+const spacesService = require('../services/spacesService');
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
@@ -43,14 +44,25 @@ router.get('/test-dropbox-token', (req, res) => {
   });
 });
 
-// Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
+// Helper funkcia na získanie MDB súboru (Spaces, Dropbox alebo lokálny fallback)
 async function getMDBFilePath(companyIco, year = '2025') {
-  // Najprv skúsime Dropbox
+  // Najprv skúsime DigitalOcean Spaces
+  if (spacesService.isInitialized()) {
+    try {
+      console.log(`🔍 Skúšam stiahnuť MDB súbor zo Spaces pre ${companyIco}_${year}`);
+      const tempFilePath = await spacesService.downloadMdbToTempFile(companyIco, year);
+      return { path: tempFilePath, isTemp: true, source: 'spaces' };
+    } catch (error) {
+      console.log(`⚠️ Spaces neúspešné, skúšam Dropbox: ${error.message}`);
+    }
+  }
+
+  // Fallback na Dropbox
   if (dropboxService.isInitialized()) {
     try {
       console.log(`🔍 Skúšam stiahnuť MDB súbor z Dropbox pre ${companyIco}_${year}`);
       const tempFilePath = await dropboxService.getMDBFile(companyIco, year);
-      return { path: tempFilePath, isTemp: true };
+      return { path: tempFilePath, isTemp: true, source: 'dropbox' };
     } catch (error) {
       console.log(`⚠️ Dropbox neúspešný, skúšam lokálny súbor: ${error.message}`);
     }
@@ -59,10 +71,10 @@ async function getMDBFilePath(companyIco, year = '2025') {
   // Fallback na lokálny súbor
   const localPath = path.join(__dirname, '..', 'zalohy', year, `${companyIco}_${year}`, `${companyIco}_${year}.mdb`);
   if (fs.existsSync(localPath)) {
-    return { path: localPath, isTemp: false };
+    return { path: localPath, isTemp: false, source: 'local' };
   }
 
-  throw new Error('MDB súbor nebol nájdený ani v Dropbox ani lokálne');
+  throw new Error('MDB súbor nebol nájdený v Spaces, Dropbox ani lokálne');
 }
 
 // 1. NASTAVENIA ÚČTOVNÍCTVA
@@ -2034,6 +2046,126 @@ router.get('/test-dropbox-public', async (req, res) => {
       details: error.message,
       stack: error.stack
     });
+  }
+});
+
+// ===== DIGITALOCEAN SPACES ROUTES =====
+
+// ADMIN: Generovanie upload URL pre MDB súbor
+router.post('/admin/mdb/upload-url/:companyIco', authenticateToken, async (req, res) => {
+  try {
+    // Kontrola admin práv
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže generovať upload URL.' });
+    }
+
+    const { companyIco } = req.params;
+    const { year = '2025' } = req.body;
+
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
+    }
+
+    const { url, key } = await spacesService.getPresignedUploadUrl(companyIco, year);
+    
+    res.json({ 
+      uploadUrl: url, 
+      key: key,
+      expiresIn: '15 minút',
+      instructions: 'Použite túto URL na upload MDB súboru cez PUT request',
+      companyIco: companyIco,
+      year: year
+    });
+  } catch (error) {
+    console.error('Chyba pri generovaní upload URL:', error);
+    res.status(500).json({ error: 'Chyba pri generovaní upload URL' });
+  }
+});
+
+// ADMIN: Kontrola dostupných MDB súborov v Spaces
+router.get('/admin/mdb/files', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý' });
+    }
+
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
+    }
+
+    const files = await spacesService.listMdbFiles();
+    res.json({ 
+      files: files.map(file => ({
+        key: file.Key,
+        size: file.Size,
+        lastModified: file.LastModified,
+        companyIco: file.Key.split('/')[3]?.split('_')[0] || 'Neznáme',
+        year: file.Key.split('/')[2] || 'Neznáme'
+      }))
+    });
+  } catch (error) {
+    console.error('Chyba pri získavaní zoznamu súborov:', error);
+    res.status(500).json({ error: 'Chyba pri získavaní zoznamu súborov' });
+  }
+});
+
+// ADMIN: Migrácia lokálnych MDB súborov do Spaces
+router.post('/admin/mdb/migrate-local', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý' });
+    }
+
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je nakonfigurované' });
+    }
+
+    const result = await spacesService.migrateLocalMdbFiles();
+    res.json({ 
+      message: 'Migrácia dokončená',
+      migrated: result.migrated,
+      errors: result.errors
+    });
+  } catch (error) {
+    console.error('Chyba pri migrácii:', error);
+    res.status(500).json({ error: 'Chyba pri migrácii' });
+  }
+});
+
+// ADMIN: Test Spaces pripojenia
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý' });
+    }
+
+    const testResults = {
+      timestamp: new Date().toISOString(),
+      spaces: {
+        isInitialized: spacesService.isInitialized(),
+        bucket: process.env.SPACES_BUCKET,
+        region: process.env.SPACES_REGION,
+        endpoint: process.env.SPACES_ENDPOINT,
+        hasKey: !!process.env.SPACES_KEY,
+        hasSecret: !!process.env.SPACES_SECRET,
+        testResults: {}
+      }
+    };
+
+    if (spacesService.isInitialized()) {
+      try {
+        const files = await spacesService.listMdbFiles();
+        testResults.spaces.testResults.availableFiles = files.length;
+        testResults.spaces.testResults.listFilesSuccess = true;
+      } catch (error) {
+        testResults.spaces.testResults.error = error.message;
+      }
+    }
+
+    res.json(testResults);
+  } catch (error) {
+    console.error('Chyba pri testovaní Spaces:', error);
+    res.status(500).json({ error: 'Chyba pri testovaní Spaces' });
   }
 });
 
