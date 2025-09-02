@@ -3,6 +3,7 @@ const { Router } = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
@@ -695,20 +696,39 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
       }
 
       // Vymazanie existujúcich faktúr
-      db.run("DELETE FROM issued_invoices WHERE company_id = ?", [companyId], function(err) {
-    if (err) {
+      db.run("DELETE FROM issued_invoices WHERE company_id = ?", [companyId], async function(err) {
+        if (err) {
           console.error('Chyba pri mazaní faktúr:', err);
           return res.status(500).json({ error: 'Chyba pri mazaní faktúr' });
         }
 
-        // Pripojenie k MDB
-        const ADODB = require('node-adodb');
-        const currentYear = new Date().getFullYear();
-        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
-
-        const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-        
         try {
+          // Použijeme Dropbox service namiesto lokálneho súboru
+          const DropboxBackendService = require('../services/dropboxService');
+          const dropboxService = new DropboxBackendService();
+          
+          if (!dropboxService.isInitialized()) {
+            return res.status(500).json({ error: 'Dropbox service nie je inicializovaný' });
+          }
+
+          // Stiahneme MDB z Dropbox
+          const mdbBuffer = await dropboxService.getMDBFile(company.ico);
+          
+          if (!mdbBuffer) {
+            return res.status(404).json({ error: 'MDB súbor nebol nájdený v Dropbox' });
+          }
+
+          // Uložíme MDB do dočasného súboru
+          const fs = require('fs');
+          const os = require('os');
+          const tempDir = os.tmpdir();
+          const tempMdbPath = path.join(tempDir, `${company.ico}_${new Date().getFullYear()}.mdb`);
+          
+          fs.writeFileSync(tempMdbPath, mdbBuffer);
+
+          // Pripojenie k MDB
+          const ADODB = require('node-adodb');
+          const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${tempMdbPath};`);
                      const query = `
              SELECT 
                ID,
@@ -814,8 +834,15 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
 
                   }
                   
-                  // Ak sme spracovali všetky faktúry, pošleme odpoveď
+                  // Ak sme spracovali všetky faktúry, pošleme odpoveď a vyčistíme
                   if (index === data.length - 1) {
+                    // Vymažeme dočasný MDB súbor
+                    try {
+                      fs.unlinkSync(tempMdbPath);
+                    } catch (unlinkErr) {
+                      console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+                    }
+                    
                     res.json({
                       success: true,
                       message: `Obnovenie dokončené. Importovaných ${importedCount} faktúr.`,
@@ -828,11 +855,27 @@ router.post('/refresh-invoices/:companyId', authenticateToken, async (req, res) 
             })
             .catch(error => {
               console.error('Chyba pri čítaní MDB:', error);
+              
+              // Vymažeme dočasný MDB súbor
+              try {
+                fs.unlinkSync(tempMdbPath);
+              } catch (unlinkErr) {
+                console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+              }
+              
               res.status(500).json({ error: 'Chyba pri čítaní MDB databázy' });
             });
             
         } catch (error) {
           console.error('Chyba pri vytváraní pripojenia k MDB:', error);
+          
+          // Vymažeme dočasný MDB súbor
+          try {
+            fs.unlinkSync(tempMdbPath);
+          } catch (unlinkErr) {
+            console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+          }
+          
           res.status(500).json({ error: 'Chyba pri pripojení k MDB databáze' });
         }
   });
@@ -862,20 +905,39 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
       }
 
       // Vymazanie existujúcich prijatých faktúr
-      db.run("DELETE FROM received_invoices WHERE company_id = ?", [companyId], function(err) {
+      db.run("DELETE FROM received_invoices WHERE company_id = ?", [companyId], async function(err) {
         if (err) {
           console.error('Chyba pri mazaní prijatých faktúr:', err);
           return res.status(500).json({ error: 'Chyba pri mazaní prijatých faktúr' });
         }
 
-        // Pripojenie k MDB
-        const ADODB = require('node-adodb');
-        const currentYear = new Date().getFullYear();
-        const mdbPath = path.join(__dirname, '..', 'zalohy', currentYear.toString(), `${company.ico}_${currentYear}`, `${company.ico}_${currentYear}.mdb`);
-
-        const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-        
         try {
+          // Použijeme Dropbox service namiesto lokálneho súboru
+          const DropboxBackendService = require('../services/dropboxService');
+          const dropboxService = new DropboxBackendService();
+          
+          if (!dropboxService.isInitialized()) {
+            return res.status(500).json({ error: 'Dropbox service nie je inicializovaný' });
+          }
+
+          // Stiahneme MDB z Dropbox
+          const mdbBuffer = await dropboxService.getMDBFile(company.ico);
+          
+          if (!mdbBuffer) {
+            return res.status(404).json({ error: 'MDB súbor nebol nájdený v Dropbox' });
+          }
+
+          // Uložíme MDB do dočasného súboru
+          const fs = require('fs');
+          const os = require('os');
+          const tempDir = os.tmpdir();
+          const tempMdbPath = path.join(tempDir, `${company.ico}_${new Date().getFullYear()}.mdb`);
+          
+          fs.writeFileSync(tempMdbPath, mdbBuffer);
+
+          // Pripojenie k MDB
+          const ADODB = require('node-adodb');
+          const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${tempMdbPath};`);
                      const query = `
           SELECT 
                ID,
@@ -991,10 +1053,17 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
 
                   }
                   
-                  // Ak sme spracovali všetky faktúry, pošleme odpoveď
+                  // Ak sme spracovali všetky faktúry, pošleme odpoveď a vyčistíme
                   if (index === data.length - 1) {
-          res.json({
-      success: true, 
+                    // Vymažeme dočasný MDB súbor
+                    try {
+                      fs.unlinkSync(tempMdbPath);
+                    } catch (unlinkErr) {
+                      console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+                    }
+                    
+                    res.json({
+                      success: true, 
                       message: `Obnovenie prijatých faktúr dokončené. Importovaných ${importedCount} faktúr.`,
                       importedCount: importedCount,
                       totalCount: data.length
@@ -1005,11 +1074,27 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
             })
             .catch(error => {
               console.error('Chyba pri čítaní MDB:', error);
+              
+              // Vymažeme dočasný MDB súbor
+              try {
+                fs.unlinkSync(tempMdbPath);
+              } catch (unlinkErr) {
+                console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+              }
+              
               res.status(500).json({ error: 'Chyba pri čítaní MDB databázy' });
     });
             
         } catch (error) {
           console.error('Chyba pri vytváraní pripojenia k MDB:', error);
+          
+          // Vymažeme dočasný MDB súbor
+          try {
+            fs.unlinkSync(tempMdbPath);
+          } catch (unlinkErr) {
+            console.error('Chyba pri mazaní dočasného MDB súboru:', unlinkErr);
+          }
+          
           res.status(500).json({ error: 'Chyba pri pripojení k MDB databáze' });
         }
   });
