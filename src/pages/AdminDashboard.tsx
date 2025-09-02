@@ -29,6 +29,7 @@ const AdminMessagesPage = React.lazy(() => import('./AdminMessagesPage'));
 const AdminSettingsPage = React.lazy(() => import('./AdminSettingsPage'));
 const AdminPohodaImportPage = React.lazy(() => import('./AdminPohodaImportPage'));
 const AdminPohodaExportPage = React.lazy(() => import('./AdminPohodaExportPage'));
+const MdbManagement = React.lazy(() => import('../components/admin/MdbManagement'));
 
 
 const AdminDashboard: React.FC = () => {
@@ -59,6 +60,7 @@ const AdminDashboard: React.FC = () => {
   const [showSettingsPage, setShowSettingsPage] = useState(false);
   const [showPohodaImportPage, setShowPohodaImportPage] = useState(false);
   const [showPohodaExportPage, setShowPohodaExportPage] = useState(false);
+  const [showMdbManagement, setShowMdbManagement] = useState(false);
 
 
 
@@ -200,6 +202,14 @@ const AdminDashboard: React.FC = () => {
     return (
       <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
         <AdminPohodaExportPage onBack={() => setShowPohodaExportPage(false)} />
+      </React.Suspense>
+    );
+  }
+
+  if (showMdbManagement) {
+    return (
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Načítavam...</div>}>
+        <MdbManagement onBack={() => setShowMdbManagement(false)} />
       </React.Suspense>
     );
   }
@@ -362,6 +372,22 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">POHODA Export</p>
                 <p className="text-2xl font-bold text-gray-900">📤</p>
                 <p className="text-xs text-gray-500 mt-1">Export faktúr a dát</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setShowMdbManagement(true)}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left"
+          >
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ServerIcon className="h-8 w-8 text-orange-500" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">MDB Management</p>
+                <p className="text-2xl font-bold text-gray-900">🗄️</p>
+                <p className="text-xs text-gray-500 mt-1">DigitalOcean Spaces</p>
               </div>
             </div>
           </button>
