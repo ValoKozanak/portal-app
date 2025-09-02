@@ -51,23 +51,21 @@ const MdbManagement = ({ onBack }) => {
     setError(null);
 
     try {
-      // 1. Získaj upload URL
-      const { data: { uploadUrl } } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/upload-url/${selectedCompany}`,
-        { year: selectedYear },
+      // Upload súboru cez backend (rieši CORS problém)
+      const formData = new FormData();
+      formData.append('mdbFile', file);
+      formData.append('year', selectedYear);
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/upload/${selectedCompany}`,
+        formData,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
-
-      // 2. Upload súboru priamo do Spaces
-      await axios.put(uploadUrl, file, {
-        headers: {
-          'Content-Type': 'application/x-msaccess',
-        },
-      });
 
       setSuccess(`MDB súbor ${file.name} bol úspešne nahraný!`);
       fetchFiles(); // Refresh zoznamu

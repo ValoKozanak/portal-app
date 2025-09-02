@@ -4,17 +4,73 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
 const spacesService = require('../services/spacesService');
 
+// Multer konfigurácia pre upload súborov
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/x-msaccess' || file.originalname.endsWith('.mdb')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Len MDB súbory sú povolené'));
+    }
+  }
+});
+
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
 // ===== ADMIN MDB MANAGEMENT ENDPOINTS =====
 
-// Generovanie pre-signed URL pre upload MDB súboru
+// Upload MDB súboru cez backend (rieši CORS problém)
+router.post('/admin/mdb/upload/:companyIco', authenticateToken, upload.single('mdbFile'), async (req, res) => {
+  try {
+    const { companyIco } = req.params;
+    const { year = '2025' } = req.body;
+    const file = req.file;
+    
+    if (!file) {
+      return res.status(400).json({ error: 'Žiadny súbor nebol nahraný' });
+    }
+    
+    if (!spacesService.isInitialized()) {
+      return res.status(500).json({ error: 'DigitalOcean Spaces nie je inicializované' });
+    }
+    
+    // Upload súboru do Spaces
+    const key = spacesService.getMdbKey(companyIco, year);
+    const fileBuffer = file.buffer;
+    
+    const uploadCommand = new PutObjectCommand({
+      Bucket: process.env.SPACES_BUCKET,
+      Key: key,
+      Body: fileBuffer,
+      ContentType: 'application/x-msaccess',
+      ACL: 'private',
+    });
+    
+    await spacesService.s3.send(uploadCommand);
+    
+    res.json({ 
+      success: true, 
+      message: `MDB súbor ${file.originalname} bol úspešne nahraný`,
+      key: key
+    });
+  } catch (error) {
+    console.error('Chyba pri upload MDB súboru:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generovanie pre-signed URL pre upload MDB súboru (zachované pre kompatibilitu)
 router.post('/admin/mdb/upload-url/:companyIco', authenticateToken, async (req, res) => {
   try {
     const { companyIco } = req.params;

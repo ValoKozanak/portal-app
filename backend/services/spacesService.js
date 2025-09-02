@@ -34,7 +34,8 @@ class SpacesService {
       Bucket: this.bucket,
       Key: key,
       ContentType: 'application/x-msaccess',
-      ACL: 'private',
+      // NEpridávať ACL (default je private)
+      // NEpridávať ChecksumAlgorithm ani x-amz-* checksum
     });
     
     const url = await getSignedUrl(this.s3, command, { expiresIn: 900 }); // 15 min
@@ -136,7 +137,7 @@ class SpacesService {
                   Key: key,
                   Body: fileBuffer,
                   ContentType: 'application/x-msaccess',
-                  ACL: 'private',
+                  // NEpridávať ACL (default je private)
                 });
                 
                 await this.s3.send(uploadCommand);
