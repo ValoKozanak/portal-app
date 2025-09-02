@@ -15,7 +15,7 @@ const MdbManagement = ({ onBack }) => {
   const fetchCompanies = async () => {
     try {
       setLoadingCompanies(true);
-      const response = await axios.get('/api/companies', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -31,7 +31,7 @@ const MdbManagement = ({ onBack }) => {
   // Získanie zoznamu MDB súborov
   const fetchFiles = async () => {
     try {
-      const response = await axios.get('/api/accounting/admin/mdb/files', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/files`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -53,7 +53,7 @@ const MdbManagement = ({ onBack }) => {
     try {
       // 1. Získaj upload URL
       const { data: { uploadUrl } } = await axios.post(
-        `/api/accounting/admin/mdb/upload-url/${selectedCompany}`,
+        `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/upload-url/${selectedCompany}`,
         { year: selectedYear },
         {
           headers: {
@@ -83,7 +83,7 @@ const MdbManagement = ({ onBack }) => {
   const handleMigration = async () => {
     try {
       setError(null);
-      const response = await axios.post('/api/accounting/admin/mdb/migrate-local', {}, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/migrate-local`, {}, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -100,7 +100,7 @@ const MdbManagement = ({ onBack }) => {
   const testSpaces = async () => {
     try {
       setError(null);
-      const response = await axios.get('/api/accounting/admin/spaces/test', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/accounting/admin/spaces/test`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
