@@ -10,7 +10,10 @@ module.exports = {
           "buffer": require.resolve("buffer/"),
           "process": require.resolve("process/browser"),
           "stream": require.resolve("stream-browserify"),
-          "vm": false
+          "vm": false,
+          "path": false,
+          "os": false,
+          "fs": false
         }
       }
     },
@@ -21,6 +24,9 @@ module.exports = {
           process: 'process/browser',
         }),
       ]
+    },
+    alias: {
+      'process': 'process/browser'
     }
   },
   devServer: {
