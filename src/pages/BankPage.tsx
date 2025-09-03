@@ -21,6 +21,7 @@ interface BankAccount {
   creditTotal: number;
   debitTotal: number;
   transactionCount: number;
+  pudAccount?: string;
 }
 
 interface BankData {
@@ -255,7 +256,7 @@ const BankPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           <button
-                            onClick={() => navigate(`/accounting/bank/${companyId}/transactions/${account.accountNumber}`)}
+                            onClick={() => navigate(`/accounting/bank/${companyId}/transactions/${account.pudAccount || account.accountNumber}`)}
                             className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           >
                             <EyeIcon className="h-4 w-4 mr-1" />

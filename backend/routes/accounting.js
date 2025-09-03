@@ -71,6 +71,25 @@ function safeName(name) {
   return base;
 }
 
+// Helper: otvor MDB cez mdb-reader
+function openMdbReader(mdbPath) {
+  const MDBLib = require('mdb-reader');
+  const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
+  const buffer = fs.readFileSync(mdbPath);
+  return new MDBReader(buffer);
+}
+
+// Helper: nájdi tabuľku case-insensitive; ak má viac aliasov, ber prvý
+function findTableCaseInsensitive(dbReader, ...nameCandidates) {
+  const names = dbReader.getTableNames();
+  const lower = names.map(n => n.toLowerCase());
+  for (const candidate of nameCandidates) {
+    const idx = lower.indexOf(String(candidate).toLowerCase());
+    if (idx >= 0) return dbReader.getTable(names[idx]);
+  }
+  return null;
+}
+
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
 // JEDNODUCHÝ TEST ENDPOINT NA ZAČIATKU
@@ -105,26 +124,56 @@ router.get('/test-dropbox-token', (req, res) => {
   });
 });
 
-// Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
-async function getMDBFilePath(companyIco, year = '2025') {
-  // Najprv skúsime Dropbox
-  if (dropboxService.isInitialized()) {
-    try {
-      console.log(`🔍 Skúšam stiahnuť MDB súbor z Dropbox pre ${companyIco}_${year}`);
-      const tempFilePath = await dropboxService.getMDBFile(companyIco, year);
-      return { path: tempFilePath, isTemp: true };
-    } catch (error) {
-      console.log(`⚠️ Dropbox neúspešný, skúšam lokálny súbor: ${error.message}`);
+// Helper: nájdi najnovší lokálny MDB v uploads/mdb/<ICO>/ (názov ICO_ROK.mdb)
+function findLatestLocalMdb(companyIco, preferredYear) {
+  const ico = String(companyIco);
+  const rootDir = path.join(__dirname, '..', 'uploads', 'mdb', ico);
+  if (!fs.existsSync(rootDir)) {
+    return null;
+  }
+  // Ak je preferovaný rok, preferuj presný súbor
+  if (preferredYear) {
+    const exact = path.join(rootDir, `${ico}_${preferredYear}.mdb`);
+    if (fs.existsSync(exact)) return exact;
+  }
+  // Vyber najnovší .mdb podľa mtime
+  const entries = fs.readdirSync(rootDir, { withFileTypes: true });
+  const candidates = entries
+    .filter(e => e.isFile() && /\.mdb$/i.test(e.name) && e.name.toLowerCase().startsWith(`${ico.toLowerCase()}_`))
+    .map(e => {
+      const full = path.join(rootDir, e.name);
+      const st = fs.statSync(full);
+      return { full, mtime: st.mtime };
+    })
+    .sort((a, b) => b.mtime - a.mtime);
+  return candidates[0]?.full || null;
+}
+
+// Helper funkcia na získanie MDB súboru (lokálny uploads/mdb -> zalohy)
+async function getMDBFilePath(companyIco, year) {
+  // 1) Preferuj lokálne nahratý MDB v uploads/mdb/<ICO>/ICO_ROK.mdb
+  const localLatest = findLatestLocalMdb(companyIco, year);
+  if (localLatest && fs.existsSync(localLatest)) {
+    return { path: localLatest, isTemp: false };
+  }
+  // 2) Fallback: zalohy podľa daného roka, ak je zadaný
+  if (year) {
+    const localPath = path.join(__dirname, '..', 'zalohy', String(year), `${companyIco}_${year}`, `${companyIco}_${year}.mdb`);
+    if (fs.existsSync(localPath)) {
+      return { path: localPath, isTemp: false };
     }
   }
-
-  // Fallback na lokálny súbor
-  const localPath = path.join(__dirname, '..', 'zalohy', year, `${companyIco}_${year}`, `${companyIco}_${year}.mdb`);
-  if (fs.existsSync(localPath)) {
-    return { path: localPath, isTemp: false };
+  // 3) Fallback: pokus nájsť v zalohy najnovší rok (ak existuje štruktúra)
+  const zalohyRoot = path.join(__dirname, '..', 'zalohy');
+  if (fs.existsSync(zalohyRoot)) {
+    const years = fs.readdirSync(zalohyRoot).filter(d => /^(19|20)\d{2}$/.test(d));
+    const sortedYears = years.sort((a, b) => parseInt(b) - parseInt(a));
+    for (const y of sortedYears) {
+      const p = path.join(zalohyRoot, y, `${companyIco}_${y}`, `${companyIco}_${y}.mdb`);
+      if (fs.existsSync(p)) return { path: p, isTemp: false };
+    }
   }
-
-  throw new Error('MDB súbor nebol nájdený ani v Dropbox ani lokálne');
+  throw new Error('MDB súbor nebol nájdený');
 }
 
 // 1. NASTAVENIA ÚČTOVNÍCTVA
@@ -206,22 +255,35 @@ router.get('/pud-summary/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbFileInfo = await getMDBFilePath(company.ico, '2025');
+    const mdbFileInfo = await getMDBFilePath(company.ico, undefined);
     const mdbPath = mdbFileInfo.path;
-    
-    // Import z MDB - dočasne zakomentované pre Railway deployment
-    // const ADODB = require('node-adodb');
-    // const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    // Získanie súčtu Kc - placeholder dáta
-    // const sumResult = await connection.query('SELECT SUM(Kc) as total_kc, COUNT(*) as total_count FROM pUD');
-    
-    const summary = {
-      total_kc: 0, // Placeholder - MDB funkcionalita dočasne nedostupná
-      total_count: 0 // Placeholder - MDB funkcionalita dočasne nedostupná
-    };
 
-    res.json(summary);
+    // Čítanie MDB cez mdb-reader
+    const MDBLib = require('mdb-reader');
+    const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
+    const buffer = fs.readFileSync(mdbPath);
+    const dbReader = new MDBReader(buffer);
+
+    // Tabuľka pUD – názov sa môže líšiť (pUD / PUD / pud)
+    const tableName = dbReader.getTableNames().find(t => t.toLowerCase() === 'pud');
+    if (!tableName) {
+      return res.json({ total_kc: 0, total_count: 0 });
+    }
+    const pudTable = dbReader.getTable(tableName);
+    const rows = pudTable.getData({ rowOffset: 0 });
+
+    // Stĺpce: Kc – suma; filter priamo v JS
+    let total_kc = 0;
+    let total_count = 0;
+    for (const row of rows) {
+      const val = Number(row.Kc || row.kc || 0);
+      if (!Number.isNaN(val)) {
+        total_kc += val;
+      }
+      total_count += 1;
+    }
+
+    res.json({ total_kc, total_count });
     
   } catch (error) {
     console.error('Chyba pri získavaní súhrnu pUD:', error);
@@ -247,97 +309,87 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
 
-    if (!fs.existsSync(mdbPath)) {
-      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    const mdb = openMdbReader(mdbPath);
+    const pud = findTableCaseInsensitive(mdb, 'pUD', 'pud', 'PUD');
+    const pos = findTableCaseInsensitive(mdb, 'pOS', 'pos', 'POS');
+    if (!pud) {
+      return res.json({ expenses: { total: 0, count: 0, details: [] }, revenue: { total: 0, count: 0, details: [] }, profit: 0, isProfit: true, filters: { dateFrom: dateFrom || null, dateTo: dateTo || null } });
     }
-    
-    // Import z MDB
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    // Vytvorenie dátumových filtrov
-    let dateFilter = '';
-    if (dateFrom && dateTo) {
-      // Použijeme CDate() funkciu pre správne porovnanie dátumov
-      dateFilter = ` AND CDate(Datum) BETWEEN CDate('${dateFrom}') AND CDate('${dateTo}')`;
 
+    const rows = pud.getData({ rowOffset: 0 });
+    const posRows = pos ? pos.getData({ rowOffset: 0 }) : [];
+    const accountNameBy = new Map();
+    for (const r of posRows) {
+      const acc = r.Ucet || r.ucet || r.AUcet || r.auct || r.UMD || r.UD;
+      if (acc) accountNameBy.set(String(acc), r.Nazev || r.nazev || r.SText || r.stext || '');
     }
-    
-    // Analýza nákladov (účty začínajúce 5)
-    const expensesQuery = `
-      SELECT 
-        pUD.UMD as account,
-        pOS.Nazev as account_name,
-        SUM(pUD.Kc) as total_amount,
-        COUNT(*) as transaction_count
-      FROM pUD 
-      LEFT JOIN pOS ON pUD.UMD = pOS.Ucet
-      WHERE pUD.UMD LIKE '5%'${dateFilter}
-      GROUP BY pUD.UMD, pOS.Nazev
-      ORDER BY pUD.UMD
-    `;
-    
-    // Analýza výnosov (účty začínajúce 6)
-    const revenueQuery = `
-      SELECT 
-        pUD.UD as account,
-        pOS.Nazev as account_name,
-        SUM(pUD.Kc) as total_amount,
-        COUNT(*) as transaction_count
-      FROM pUD 
-      LEFT JOIN pOS ON pUD.UD = pOS.Ucet
-      WHERE pUD.UD LIKE '6%'${dateFilter}
-      GROUP BY pUD.UD, pOS.Nazev
-      ORDER BY pUD.UD
-    `;
-    
-    // Celkové súčty
-    const totalExpensesQuery = `SELECT SUM(Kc) as total_expenses FROM pUD WHERE UMD LIKE '5%'${dateFilter}`;
-    const totalRevenueQuery = `SELECT SUM(Kc) as total_revenue FROM pUD WHERE UD LIKE '6%'${dateFilter}`;
-    
-    // Vykonanie queries
-    const expenses = await connection.query(expensesQuery);
-    const revenue = await connection.query(revenueQuery);
-    const totalExpenses = await connection.query(totalExpensesQuery);
-    const totalRevenue = await connection.query(totalRevenueQuery);
-    
-    // Výpočet zisku/straty
-    const totalExpensesAmount = totalExpenses[0]?.total_expenses || 0;
-    const totalRevenueAmount = totalRevenue[0]?.total_revenue || 0;
-    const profit = totalRevenueAmount - totalExpensesAmount;
-    
-    const analysis = {
-      expenses: {
-        total: totalExpensesAmount,
-        count: expenses.length,
-        details: expenses.map(item => ({
-          account: item.account,
-          account_name: item.account_name || `${item.account} (názov nenájdený)`,
-          amount: item.total_amount || 0,
-          count: item.transaction_count || 0
-        }))
-      },
-      revenue: {
-        total: totalRevenueAmount,
-        count: revenue.length,
-        details: revenue.map(item => ({
-          account: item.account,
-          account_name: item.account_name || `${item.account} (názov nenájdený)`,
-          amount: item.total_amount || 0,
-          count: item.transaction_count || 0
-        }))
-      },
-      profit: profit,
-      isProfit: profit >= 0,
-      filters: {
-        dateFrom: dateFrom || null,
-        dateTo: dateTo || null
-      }
+
+    const inRange = (d) => {
+      if (!dateFrom && !dateTo) return true;
+      if (!d) return false;
+      const ds = new Date(d);
+      if (Number.isNaN(ds.getTime())) return false;
+      if (dateFrom && ds < new Date(dateFrom)) return false;
+      if (dateTo && ds > new Date(dateTo)) return false;
+      return true;
     };
 
-    res.json(analysis);
+    const expMap = new Map();
+    const revMap = new Map();
+    let totalExpensesAmount = 0;
+    let totalRevenueAmount = 0;
+
+    for (const r of rows) {
+      const kc = Number(r.Kc || r.kc || 0);
+      const datum = r.Datum || r.datum;
+      if (!inRange(datum)) continue;
+
+      const umd = String(r.UMD || r.umd || '');
+      const ud = String(r.UD || r.ud || '');
+
+      if (umd.startsWith('5')) {
+        const prev = expMap.get(umd) || { total_amount: 0, transaction_count: 0 };
+        prev.total_amount += kc;
+        prev.transaction_count += 1;
+        expMap.set(umd, prev);
+        totalExpensesAmount += kc;
+      }
+
+      if (ud.startsWith('6')) {
+        const prev = revMap.get(ud) || { total_amount: 0, transaction_count: 0 };
+        prev.total_amount += kc;
+        prev.transaction_count += 1;
+        revMap.set(ud, prev);
+        totalRevenueAmount += kc;
+      }
+    }
+
+    const expensesDetails = Array.from(expMap.entries()).map(([account, v]) => ({
+      account,
+      account_name: accountNameBy.get(account) || `${account} (názov nenájdený)`,
+      amount: v.total_amount,
+      count: v.transaction_count
+    })).sort((a,b)=>a.account.localeCompare(b.account));
+
+    const revenueDetails = Array.from(revMap.entries()).map(([account, v]) => ({
+      account,
+      account_name: accountNameBy.get(account) || `${account} (názov nenájdený)`,
+      amount: v.total_amount,
+      count: v.transaction_count
+    })).sort((a,b)=>a.account.localeCompare(b.account));
+
+    const profit = totalRevenueAmount - totalExpensesAmount;
+
+    res.json({
+      expenses: { total: totalExpensesAmount, count: expensesDetails.length, details: expensesDetails },
+      revenue: { total: totalRevenueAmount, count: revenueDetails.length, details: revenueDetails },
+      profit,
+      isProfit: profit >= 0,
+      filters: { dateFrom: dateFrom || null, dateTo: dateTo || null }
+    });
     
         } catch (error) {
     console.error('Chyba pri získavaní analýzy nákladov a výnosov:', error);
@@ -517,111 +569,102 @@ router.get('/check-files/:companyId', authenticateToken, (req, res) => {
 });
 
 // Získanie štatistík účtovníctva
-router.get('/stats/:companyId', authenticateToken, (req, res) => {
+router.get('/stats/:companyId', authenticateToken, async (req, res) => {
   const { companyId } = req.params;
   const { date_from, date_to } = req.query;
-
-  let dateFilter = '';
-  let params = [companyId];
-  
-  if (date_from && date_to) {
-    dateFilter = ' AND issue_date BETWEEN ? AND ?';
-    params.push(date_from, date_to);
-  }
-  
-  // Štatistiky vydaných faktúr
-  db.get(`
-    SELECT 
-      COUNT(*) as total_issued,
-      SUM(total_amount) as total_issued_amount,
-      SUM(vat_amount) as total_issued_vat,
-      COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_issued,
-      SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END) as paid_issued_amount,
-      SUM(CASE WHEN kc_likv > 0 THEN kc_likv ELSE 0 END) as unpaid_amount
-    FROM issued_invoices 
-    WHERE company_id = ?${dateFilter}
-  `, params, (err, issuedStats) => {
-    if (err) {
-      console.error('Chyba pri načítaní štatistík vydaných faktúr:', err);
-      return res.status(500).json({ error: 'Chyba pri načítaní štatistík' });
-    }
-    
-    // Štatistiky prijatých faktúr
-    db.get(`
-      SELECT 
-        COUNT(*) as total_received,
-        SUM(total_amount) as total_received_amount,
-        SUM(vat_amount) as total_received_vat,
-        COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_received,
-        SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END) as paid_received_amount,
-        SUM(CASE WHEN kc_likv > 0 THEN kc_likv ELSE 0 END) as unpaid_amount
-      FROM received_invoices 
-      WHERE company_id = ?${dateFilter}
-    `, params, (err, receivedStats) => {
-    if (err) {
-        console.error('Chyba pri načítaní štatistík prijatých faktúr:', err);
-        return res.status(500).json({ error: 'Chyba pri načítaní štatistík' });
-      }
-      
-      const stats = {
-        issued_invoices: {
-          total_count: issuedStats.total_issued || 0,
-          total_amount: issuedStats.total_issued_amount || 0,
-          paid_amount: issuedStats.paid_issued_amount || 0,
-          overdue_amount: issuedStats.unpaid_amount || 0
-        },
-        received_invoices: {
-          total_count: receivedStats.total_received || 0,
-          total_amount: receivedStats.total_received_amount || 0,
-          paid_amount: receivedStats.paid_received_amount || 0,
-          overdue_amount: receivedStats.unpaid_amount || 0
-        }
-      };
-      
-      res.json(stats);
+  try {
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err); else resolve(row);
+      });
     });
-  });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const fa = findTableCaseInsensitive(mdb, 'FA', 'fa');
+    if (!fa) return res.json({ issued_invoices: { total_count: 0, total_amount: 0, paid_amount: 0, overdue_amount: 0 }, received_invoices: { total_count: 0, total_amount: 0, paid_amount: 0, overdue_amount: 0 } });
+
+    const rows = fa.getData({ rowOffset: 0 });
+    const inRange = (d) => {
+      if (!date_from && !date_to) return true; if (!d) return false; const dt=new Date(d); if(Number.isNaN(dt.getTime())) return false; if(date_from && dt<new Date(date_from)) return false; if(date_to && dt>new Date(date_to)) return false; return true;
+    };
+
+    const issued = rows.filter(r => Number(r.RelTpFak || r.reltpfak || 0) === 1 && inRange(r.Datum || r.datum));
+    const received = rows.filter(r => Number(r.RelTpFak || r.reltpfak || 0) === 11 && inRange(r.Datum || r.datum));
+
+    const sum = (arr, sel) => arr.reduce((s, r) => s + Number(sel(r) || 0), 0);
+
+    const issuedTotal = sum(issued, r => r.KcCelkem || r.kccelkem || r.Kc || r.kc);
+    const issuedPaid = sum(issued, r => r.KcLikv || r.kclikv);
+    const receivedTotal = sum(received, r => r.KcCelkem || r.kccelkem || r.Kc || r.kc);
+    const receivedPaid = sum(received, r => r.KcLikv || r.kclikv);
+
+    res.json({
+      issued_invoices: {
+        total_count: issued.length,
+        total_amount: issuedTotal,
+        paid_amount: issuedPaid,
+        overdue_amount: Math.max(issuedTotal - issuedPaid, 0)
+      },
+      received_invoices: {
+        total_count: received.length,
+        total_amount: receivedTotal,
+        paid_amount: receivedPaid,
+        overdue_amount: Math.max(receivedTotal - receivedPaid, 0)
+      }
+    });
+  } catch (error) {
+    console.error('Chyba pri načítaní štatistík (MDB):', error);
+    res.status(500).json({ error: 'Chyba pri načítaní štatistík' });
+  }
 });
 
 // 4. VYDANÉ FAKTÚRY
 
 // Získanie vydaných faktúr
-router.get('/issued-invoices/:companyId', authenticateToken, (req, res) => {
+router.get('/issued-invoices/:companyId', authenticateToken, async (req, res) => {
   const { companyId } = req.params;
-  const { status, date_from, date_to, limit = 50, offset = 0 } = req.query;
-  
-  let query = `
-    SELECT * FROM issued_invoices 
-    WHERE company_id = ?
-  `;
-  let params = [companyId];
-  
-  if (status) {
-    query += ' AND status = ?';
-    params.push(status);
+  const { date_from, date_to, limit = 100, offset = 0 } = req.query;
+  try {
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err); else resolve(row);
+      });
+    });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const fa = findTableCaseInsensitive(mdb, 'FA', 'fa');
+    if (!fa) return res.json([]);
+    const rows = fa.getData({ rowOffset: 0 });
+    const relIssued = 1; // vydané
+    const filtered = rows.filter(r => (Number(r.RelTpFak || r.reltpfak || 0) === relIssued));
+    const inRange = (d) => {
+      if (!date_from && !date_to) return true; if (!d) return false; const dt=new Date(d); if(Number.isNaN(dt.getTime())) return false; if(date_from && dt<new Date(date_from)) return false; if(date_to && dt>new Date(date_to)) return false; return true;
+    };
+    const mapped = filtered
+      .filter(r => inRange(r.Datum || r.datum))
+      .map(r => ({
+        invoice_number: r.Cislo || r.cislo || '',
+        customer_name: r.Firma || r.firma || '',
+        customer_ico: r.ICO || r.ico || '',
+        issue_date: r.Datum || r.datum || null,
+        due_date: r.DatSplat || r.datsplat || null,
+        total_amount: Number(r.KcCelkem || r.kccelkem || r.Kc || r.kc || 0),
+        vat_amount: Number((r.KcDPH1||0)+(r.KcDPH2||0)+(r.KcDPH3||0)),
+        var_sym: r.VarSym || r.varsym || '',
+        s_text: r.SText || r.stext || ''
+      }))
+      .sort((a,b)=> new Date(b.issue_date||0) - new Date(a.issue_date||0))
+      .slice(parseInt(offset), parseInt(offset)+parseInt(limit));
+    res.json(mapped);
+  } catch (error) {
+    console.error('Chyba pri načítaní vydaných faktúr (MDB):', error);
+    res.status(500).json({ error: 'Chyba pri načítaní faktúr' });
   }
-  
-  if (date_from) {
-    query += ' AND issue_date >= ?';
-    params.push(date_from);
-  }
-  
-  if (date_to) {
-    query += ' AND issue_date <= ?';
-    params.push(date_to);
-  }
-  
-  query += ' ORDER BY issue_date DESC LIMIT ? OFFSET ?';
-  params.push(parseInt(limit), parseInt(offset));
-  
-  db.all(query, params, (err, invoices) => {
-    if (err) {
-      console.error('Chyba pri načítaní vydaných faktúr:', err);
-      return res.status(500).json({ error: 'Chyba pri načítaní faktúr' });
-    }
-    
-    res.json(invoices);
-  });
 });
 
 // Vytvorenie novej vydanej faktúry
@@ -700,42 +743,45 @@ router.post('/issued-invoices/:companyId', authenticateToken, (req, res) => {
 // 4. PRIJATÉ FAKTÚRY
 
 // Získanie prijatých faktúr
-router.get('/received-invoices/:companyId', authenticateToken, (req, res) => {
+router.get('/received-invoices/:companyId', authenticateToken, async (req, res) => {
   const { companyId } = req.params;
-  const { status, date_from, date_to, limit = 50, offset = 0 } = req.query;
-  
-  let query = `
-    SELECT * FROM received_invoices 
-    WHERE company_id = ?
-  `;
-  let params = [companyId];
-  
-  if (status) {
-    query += ' AND status = ?';
-    params.push(status);
+  const { date_from, date_to, limit = 100, offset = 0 } = req.query;
+  try {
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
+        if (err) reject(err); else resolve(row);
+      });
+    });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const fa = findTableCaseInsensitive(mdb, 'FA', 'fa');
+    if (!fa) return res.json([]);
+    const rows = fa.getData({ rowOffset: 0 });
+    const relReceived = 11; // prijaté
+    const filtered = rows.filter(r => (Number(r.RelTpFak || r.reltpfak || 0) === relReceived));
+    const inRange = (d) => { if (!date_from && !date_to) return true; if (!d) return false; const dt=new Date(d); if(Number.isNaN(dt.getTime())) return false; if(date_from && dt<new Date(date_from)) return false; if(date_to && dt>new Date(date_to)) return false; return true; };
+    const mapped = filtered
+      .filter(r => inRange(r.Datum || r.datum))
+      .map(r => ({
+        invoice_number: r.Cislo || r.cislo || '',
+        supplier_name: r.Firma || r.firma || '',
+        supplier_ico: r.ICO || r.ico || '',
+        issue_date: r.Datum || r.datum || null,
+        due_date: r.DatSplat || r.datsplat || null,
+        total_amount: Number(r.KcCelkem || r.kccelkem || r.Kc || r.kc || 0),
+        vat_amount: Number((r.KcDPH1||0)+(r.KcDPH2||0)+(r.KcDPH3||0)),
+        var_sym: r.VarSym || r.varsym || '',
+        s_text: r.SText || r.stext || ''
+      }))
+      .sort((a,b)=> new Date(b.issue_date||0) - new Date(a.issue_date||0))
+      .slice(parseInt(offset), parseInt(offset)+parseInt(limit));
+    res.json(mapped);
+  } catch (error) {
+    console.error('Chyba pri načítaní prijatých faktúr (MDB):', error);
+    res.status(500).json({ error: 'Chyba pri načítaní faktúr' });
   }
-  
-  if (date_from) {
-    query += ' AND issue_date >= ?';
-    params.push(date_from);
-  }
-  
-  if (date_to) {
-    query += ' AND issue_date <= ?';
-    params.push(date_to);
-  }
-  
-  query += ' ORDER BY issue_date DESC LIMIT ? OFFSET ?';
-  params.push(parseInt(limit), parseInt(offset));
-  
-  db.all(query, params, (err, invoices) => {
-    if (err) {
-      console.error('Chyba pri načítaní prijatých faktúr:', err);
-      return res.status(500).json({ error: 'Chyba pri načítaní faktúr' });
-    }
-    
-    res.json(invoices);
-  });
 });
 
 // 5. OBNOVENIE FAKTÚR Z MDB
@@ -1104,42 +1150,27 @@ router.get('/vat-returns/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const dphTable = findTableCaseInsensitive(mdb, 'DPH', 'dph');
+    const selectedYear = parseInt(year) || new Date().getFullYear();
 
-    if (!fs.existsSync(mdbPath)) {
-      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    let returns = [];
+    if (dphTable) {
+      const rows = dphTable.getData({ rowOffset: 0 });
+      returns = rows
+        .filter(r => parseInt(r.Rok || r.rok) === selectedYear)
+        .sort((a,b)=> (parseInt(a.RelObDPH||a.relobdph||0)) - (parseInt(b.RelObDPH||b.relobdph||0)))
+        .map((row, index) => ({
+          id: index + 1,
+          rok: parseInt(row.Rok || row.rok) || selectedYear,
+          mesiac: parseInt(row.RelObDPH || row.relobdph || 0) || 0,
+          povinnost: Number(row.KcDan || row.kcdan || 0),
+          odpočet: Number(row.KcOdpoc || row.kcodpoc || 0),
+          odoslané: (row.ElOdeslano ?? row.elodeslano) === true || (row.ElOdeslano ?? row.elodeslano) === 1 || (row.ElOdeslano ?? row.elodeslano) === 'True'
+        }));
     }
-
-    // Načítanie DPH dát z MDB
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    const selectedYear = year || new Date().getFullYear();
-    
-    const query = `
-      SELECT 
-        ID,
-        Rok,
-        RelObDPH,
-        KcDan,
-        KcOdpoc,
-        ElOdeslano
-      FROM DPH 
-      WHERE Rok = ${selectedYear}
-      ORDER BY RelObDPH ASC
-    `;
-
-    const data = await connection.query(query);
-
-    // Spracovanie dát
-    const returns = data.map((row, index) => ({
-      id: index + 1,
-      rok: parseInt(row.Rok) || selectedYear,
-      mesiac: parseInt(row.RelObDPH) || 0,
-      povinnost: parseFloat(row.KcDan) || 0,
-      odpočet: parseFloat(row.KcOdpoc) || 0,
-      odoslané: row.ElOdeslano === true || row.ElOdeslano === 1 || row.ElOdeslano === 'True'
-    }));
     
     // Výpočet súhrnu
     const summary = {
@@ -1188,145 +1219,29 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
 
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
-
-    if (!fs.existsSync(mdbPath)) {
-
-      return res.status(404).json({ 
-        error: 'MDB súbor nebol nájdený',
-        details: {
-          companyId: companyId,
-          companyName: company.name,
-          companyIco: company.ico,
-          mdbPath: mdbPath
-        }
-      });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const sUcet = findTableCaseInsensitive(mdb, 'sUcet', 'sUCET', 'SUCET', 'sucet');
+    const pUD = findTableCaseInsensitive(mdb, 'pUD', 'PUD', 'pud');
+    if (!sUcet || !pUD) {
+      return res.json({ company: { id: company.id, name: company.name, ico: company.ico }, accounts: [], summary: { totalBalance: 0, totalCredit: 0, totalDebit: 0, accountCount: 0 }, message: 'Tabuľky sUcet/pUD neboli nájdené' });
     }
-
-    // Načítanie bankových účtov z MDB
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    // Najprv skontrolujeme, či tabuľky existujú
-    try {
-      const tablesQuery = "SELECT Name FROM MSysObjects WHERE Type=1 AND Flags=0";
-      const tables = await connection.query(tablesQuery);
-      console.log('📋 Dostupné tabuľky:', tables.map(t => t.Name));
-        } catch (error) {
-
-    }
-    
-    // Získanie všetkých účtov z tabuľky sUcet a potom filtrovanie bankových účtov
-    const accountsQuery = `
-          SELECT 
-        ID,
-        AUcet,
-        SText,
-        Banka,
-        RelJeUcet
-      FROM sUcet 
-      ORDER BY AUcet
-    `;
-
-    const allAccountsData = await connection.query(accountsQuery);
-    
-    console.log('🏦 Nájdených účtov v sUcet (pred filtrovaním):', allAccountsData.length);
-
+    const accountRows = sUcet.getData({ rowOffset: 0 });
+    const pudRows = pUD.getData({ rowOffset: 0 });
+    const byUMD = new Map();
+    const byUD = new Map();
+    for (const r of pudRows) { const kc=Number(r.Kc||r.kc||0); const umd=String(r.UMD||r.umd||''); const ud=String(r.UD||r.ud||''); if(umd) byUMD.set(umd,(byUMD.get(umd)||0)+kc); if(ud) byUD.set(ud,(byUD.get(ud)||0)+kc); }
     const accounts = [];
-    let totalBalance = 0;
-    let totalCredit = 0;
-    let totalDebit = 0;
-    
-    for (const account of allAccountsData) {
-      let accountNumber = account.AUcet;
-      let displayAccountNumber = account.SText; // Pre zobrazenie použijeme SText
-      
-      // Ak je SText prázdne, preskočíme tento účet úplne
-      if (!displayAccountNumber || displayAccountNumber === '') {
-
-        continue;
-      }
-      
-      // Ak je RelJeUcet = 1, je to pokladňa, preskočíme
-      if (account.RelJeUcet === 1) {
-        console.log(`🏦 Preskakujem pokladňu (RelJeUcet=1): AUcet=${accountNumber}, SText=${displayAccountNumber}`);
-        continue;
-      }
-      
-      // Ak je AUcet prázdne, použijeme 221000 pre výpočty v pUD
-      if (!accountNumber || accountNumber === '') {
-        accountNumber = '221000'; // Pre výpočty v pUD
-
-      }
-      
-      // Filtrujeme iba bankové účty (221)
-      if (!accountNumber.startsWith('221')) {
-        continue; // Preskočíme tento účet, ak nie je 221
-      }
-      
-      const accountName = displayAccountNumber; // Používame SText, ktorý už vieme že nie je prázdny
-      const bankName = account.Banka || 'Neznáma banka';
-      
-      console.log(`🏦 Spracujem účet: ${accountNumber} (pUD), zobrazenie: ${displayAccountNumber}, názov: ${accountName}, banka: ${bankName}`);
-      
-      // Získanie kreditných pohybov (UMD) pre tento účet z pUD - používame účtovú osnovu
-      const creditQuery = `
-        SELECT 
-          SUM(pUD.Kc) as credit_total,
-          COUNT(*) as transaction_count
-        FROM pUD 
-        WHERE pUD.UMD = '${accountNumber}'
-      `;
-      
-      // Získanie debetných pohybov (UD) pre tento účet z pUD - používame účtovú osnovu
-      const debitQuery = `
-        SELECT 
-          SUM(pUD.Kc) as debit_total
-        FROM pUD 
-        WHERE pUD.UD = '${accountNumber}'
-      `;
-
-      const creditData = await connection.query(creditQuery);
-      const debitData = await connection.query(debitQuery);
-
-      const creditTotal = parseFloat(creditData[0]?.credit_total) || 0;
-      const debitTotal = parseFloat(debitData[0]?.debit_total) || 0;
-      const balance = creditTotal - debitTotal;
-      const transactionCount = parseInt(creditData[0]?.transaction_count) || 0;
-      
-      accounts.push({
-        id: account.ID || accounts.length + 1,
-        accountNumber: displayAccountNumber, // Zobrazujeme SText, ktorý už vieme že nie je prázdny
-        accountName: accountName,
-        bankName: bankName,
-        balance: balance,
-        creditTotal: creditTotal,
-        debitTotal: debitTotal,
-        transactionCount: transactionCount
-      });
-      
-      totalBalance += balance;
-      totalCredit += creditTotal;
-      totalDebit += debitTotal;
+    let totalBalance=0,totalCredit=0,totalDebit=0;
+    for (const a of accountRows) {
+      let num=String(a.AUcet||a.aucet||''); const name=a.SText||a.stext||''; const rel=Number(a.RelJeUcet||a.reljeucet||0); const bank=a.Banka||a.banka||'Neznáma banka';
+      if(!name) continue; if(rel===1) continue; if(!num) num='221000'; if(!num.startsWith('221')) continue;
+      const creditTotal=Number(byUMD.get(num)||0); const debitTotal=Number(byUD.get(num)||0); const balance=creditTotal-debitTotal;
+      accounts.push({ id:a.ID||accounts.length+1, accountNumber:name, accountName:name, bankName:bank, balance, creditTotal, debitTotal, transactionCount:undefined, pudAccount:num });
+      totalBalance+=balance; totalCredit+=creditTotal; totalDebit+=debitTotal;
     }
-    
-    const response = {
-      company: {
-        id: company.id,
-        name: company.name,
-        ico: company.ico
-      },
-      accounts: accounts,
-      summary: {
-        totalBalance: totalBalance,
-        totalCredit: totalCredit,
-        totalDebit: totalDebit,
-        accountCount: accounts.length
-      },
-      message: accounts.length === 0 ? 'Neboli nájdené žiadne bankové účty (221)' : undefined
-    };
-
-    res.json(response);
+    res.json({ company:{ id:company.id, name:company.name, ico:company.ico }, accounts, summary:{ totalBalance, totalCredit, totalDebit, accountCount:accounts.length }, message: accounts.length===0?'Neboli nájdené žiadne bankové účty (221)':undefined });
     
   } catch (error) {
     console.error('❌ Chyba pri načítaní bankových dát:', error);
@@ -1353,102 +1268,31 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
-
-    if (!fs.existsSync(mdbPath)) {
-      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const sUcet = findTableCaseInsensitive(mdb, 'sUcet', 'sUCET', 'SUCET', 'sucet');
+    const pUD = findTableCaseInsensitive(mdb, 'pUD', 'PUD', 'pud');
+    if (!sUcet || !pUD) {
+      return res.json({ company: { id: company.id, name: company.name, ico: company.ico }, accounts: [], summary: { totalBalance: 0, totalCredit: 0, totalDebit: 0, accountCount: 0 } });
     }
-
-    // Načítanie pokladňových účtov z MDB
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    // Získanie pokladňových účtov z tabuľky sUcet (iba 211 - pokladňa)
-    const accountsQuery = `
-      SELECT 
-        ID,
-        AUcet,
-        SText
-      FROM sUcet 
-      WHERE AUcet LIKE '211%'
-      ORDER BY AUcet
-    `;
-
-    const accountsData = await connection.query(accountsQuery);
-
-    // Spracovanie pokladňových účtov - použijeme rovnaký prístup ako pri banke
+    const accountRows = sUcet.getData({ rowOffset: 0 }).filter(a => String(a.AUcet || a.aucet || '').startsWith('211'));
+    const pudRows = pUD.getData({ rowOffset: 0 });
+    const byUMD = new Map();
+    const byUD = new Map();
+    for (const r of pudRows) { const kc=Number(r.Kc||r.kc||0); const umd=String(r.UMD||r.umd||''); const ud=String(r.UD||r.ud||''); if(umd) byUMD.set(umd,(byUMD.get(umd)||0)+kc); if(ud) byUD.set(ud,(byUD.get(ud)||0)+kc); }
     const accounts = [];
-    let totalBalance = 0;
-    let totalCredit = 0;
-    let totalDebit = 0;
-    
-    for (const account of accountsData) {
-      const accountNumber = account.AUcet; // Iba 211 účty
-      
-      // Ak je účet 211000 alebo prázdne pole, zobrazíme "Hlavná pokladňa"
-      let accountName;
-      if (accountNumber === '211000' || !account.SText || account.SText === '') {
-        accountName = 'Hlavná pokladňa';
-      } else {
-        accountName = account.SText;
-      }
-      
-      // Získanie kreditných pohybov (UMD) pre tento účet z pUD
-      const creditQuery = `
-        SELECT 
-          SUM(pUD.Kc) as credit_total,
-          COUNT(*) as transaction_count
-        FROM pUD 
-        WHERE pUD.UMD = '${accountNumber}'
-      `;
-      
-      // Získanie debetných pohybov (UD) pre tento účet z pUD
-      const debitQuery = `
-        SELECT 
-          SUM(pUD.Kc) as debit_total
-        FROM pUD 
-        WHERE pUD.UD = '${accountNumber}'
-      `;
-
-      const creditData = await connection.query(creditQuery);
-      const debitData = await connection.query(debitQuery);
-
-      const creditTotal = parseFloat(creditData[0]?.credit_total) || 0;
-      const debitTotal = parseFloat(debitData[0]?.debit_total) || 0;
+    let totalBalance = 0, totalCredit = 0, totalDebit = 0;
+    for (const a of accountRows) {
+      const num = String(a.AUcet || a.aucet || '211000');
+      const accountName = (num === '211000' || !a.SText) ? 'Hlavná pokladňa' : (a.SText || a.stext);
+      const creditTotal = Number(byUMD.get(num) || 0);
+      const debitTotal = Number(byUD.get(num) || 0);
       const balance = creditTotal - debitTotal;
-      const transactionCount = parseInt(creditData[0]?.transaction_count) || 0;
-      
-      accounts.push({
-        id: account.ID || accounts.length + 1,
-        accountNumber: accountNumber,
-        accountName: accountName,
-        balance: balance,
-        creditTotal: creditTotal,
-        debitTotal: debitTotal,
-        transactionCount: transactionCount
-      });
-      
-      totalBalance += balance;
-      totalCredit += creditTotal;
-      totalDebit += debitTotal;
+      accounts.push({ id: a.ID || accounts.length + 1, accountNumber: num, accountName, balance, creditTotal, debitTotal, transactionCount: undefined });
+      totalBalance += balance; totalCredit += creditTotal; totalDebit += debitTotal;
     }
-    
-    const response = {
-      company: {
-        id: company.id,
-        name: company.name,
-        ico: company.ico
-      },
-      accounts: accounts,
-      summary: {
-        totalBalance: totalBalance,
-        totalCredit: totalCredit,
-        totalDebit: totalDebit,
-        accountCount: accounts.length
-      }
-    };
-
-    res.json(response);
+    res.json({ company: { id: company.id, name: company.name, ico: company.ico }, accounts, summary: { totalBalance, totalCredit, totalDebit, accountCount: accounts.length } });
     
   } catch (error) {
     console.error('❌ Chyba pri načítaní pokladňových dát:', error);
@@ -1475,156 +1319,55 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
-
-    if (!fs.existsSync(mdbPath)) {
-      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const sUcet = findTableCaseInsensitive(mdb, 'sUcet', 'sUCET', 'SUCET', 'sucet');
+    const pUD = findTableCaseInsensitive(mdb, 'pUD', 'PUD', 'pud');
+    if (!pUD) {
+      return res.json({ company: { id: company.id, name: company.name, ico: company.ico }, account: { accountNumber, accountName: accountNumber, bankName: 'Neznáma banka' }, transactions: [], summary: { totalCredit: 0, totalDebit: 0, currentBalance: 0, transactionCount: 0 } });
     }
+    const sUcetRows = sUcet ? sUcet.getData({ rowOffset: 0 }) : [];
+    // Očakávame, že param je AUcet (napr. 221000). Ak by prišiel SText, nájdeme ho a použijeme jeho AUcet.
+    let pudAccountNumber = accountNumber;
+    const matched = sUcetRows.find(a => String(a.AUcet || a.aucet || '') === accountNumber || String(a.SText || a.stext || '') === accountNumber);
+    if (matched) pudAccountNumber = String(matched.AUcet || matched.aucet || accountNumber);
 
-    // Načítanie transakcií z MDB
+    const rows = pUD.getData({ rowOffset: 0 }).filter(r => String(r.UMD || r.umd || '') === pudAccountNumber || String(r.UD || r.ud || '') === pudAccountNumber);
+    rows.sort((a,b)=> new Date(a.Datum || a.datum || 0) - new Date(b.Datum || b.datum || 0));
 
-    const ADODB = require('node-adodb');
-
-    const connectionString = `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`;
-
-    const connection = ADODB.open(connectionString);
-
-    // Najprv získame informácie o účte z sUcet
-    const accountQuery = `
-      SELECT 
-        ID,
-        AUcet,
-        SText,
-        Banka
-      FROM sUcet 
-      WHERE SText = '${accountNumber}' OR AUcet = '${accountNumber}'
-    `;
-
-    const accountData = await connection.query(accountQuery);
-
-    if (accountData.length === 0) {
-
-      return res.status(404).json({ error: 'Účet nebol nájdený' });
-    }
-    
-    const account = accountData[0];
-    const pudAccountNumber = account.AUcet || '221000'; // Pre výpočty v pUD používame účtovú osnovu
-
-    // Získanie transakcií z pUD tabuľky
-    const transactionsQuery = `
-      SELECT 
-        ID,
-        Datum,
-        Cislo,
-        SText,
-        Kc,
-        UMD,
-        UD,
-        Firma
-      FROM pUD 
-      WHERE UMD = '${pudAccountNumber}' OR UD = '${pudAccountNumber}'
-      ORDER BY Datum ASC
-    `;
-
-    const transactionsData = await connection.query(transactionsQuery);
-
-    // Spracovanie transakcií
     const transactions = [];
     let totalCredit = 0;
     let totalDebit = 0;
-    
-    // Počiatočný stav účtu - ak je to prvý riadok k 1.1.2025, začneme s 0
-    // a prvý zostatok bude hodnota prvej transakcie
     let runningBalance = 0;
-    let isFirstTransaction = true;
-
-    for (const transaction of transactionsData) {
-      const isCredit = transaction.UMD === pudAccountNumber; // Ak je účet 221 na strane UMD, je to kredit
-      const amount = parseFloat(transaction.Kc) || 0;
-      
-      if (isFirstTransaction) {
-        // Prvá transakcia k 1.1.2025 - zostatok je hodnota transakcie
-        if (isCredit) {
-          runningBalance = amount;
-          totalCredit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: amount,
-            debet: 0,
-            zostatok: runningBalance,
-            typ: 'kredit',
-            firma: transaction.Firma || ''
-          });
-        } else {
-          runningBalance = -amount;
-          totalDebit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: 0,
-            debet: amount,
-            zostatok: runningBalance,
-            typ: 'debet',
-            firma: transaction.Firma || ''
-          });
-        }
-        isFirstTransaction = false;
-          } else {
-        // Ostatné transakcie - normálne sčítavanie/odčítavanie
-        if (isCredit) {
-          runningBalance += amount;
-          totalCredit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: amount,
-            debet: 0,
-            zostatok: runningBalance,
-            typ: 'kredit',
-            firma: transaction.Firma || ''
-          });
-        } else {
-          runningBalance -= amount;
-          totalDebit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: 0,
-            debet: amount,
-            zostatok: runningBalance,
-            typ: 'debet',
-            firma: transaction.Firma || ''
-          });
-        }
-      }
+    for (const r of rows) {
+      const isCredit = String(r.UMD || r.umd || '') === pudAccountNumber;
+      const amount = Number(r.Kc || r.kc || 0);
+      if (isCredit) { runningBalance += amount; totalCredit += amount; }
+      else { runningBalance -= amount; totalDebit += amount; }
+      transactions.push({
+        id: r.ID,
+        datum: r.Datum || r.datum || null,
+        popis: r.SText || r.stext || (r.Cislo ? `Transakcia ${r.Cislo}` : 'Transakcia'),
+        kredit: isCredit ? amount : 0,
+        debet: isCredit ? 0 : amount,
+        zostatok: runningBalance,
+        typ: isCredit ? 'kredit' : 'debet',
+        firma: r.Firma || r.firma || ''
+      });
     }
-    
-    const response = {
-      company: {
-        id: company.id,
-        name: company.name,
-        ico: company.ico
-      },
-      account: {
-        accountNumber: account.SText || account.AUcet,
-        accountName: account.SText || `Bankový účet ${account.AUcet}`,
-        bankName: account.Banka || 'Neznáma banka'
-      },
-      transactions: transactions,
-      summary: {
-        totalCredit: totalCredit,
-        totalDebit: totalDebit,
-        currentBalance: runningBalance,
-        transactionCount: transactions.length
-      }
-    };
 
-    res.json(response);
+    res.json({
+      company: { id: company.id, name: company.name, ico: company.ico },
+      account: {
+        accountNumber: matched ? (matched.SText || matched.AUcet) : accountNumber,
+        accountName: matched ? (matched.SText || `Bankový účet ${matched.AUcet}`) : accountNumber,
+        bankName: matched ? (matched.Banka || 'Neznáma banka') : 'Neznáma banka',
+        pudAccount: pudAccountNumber
+      },
+      transactions,
+      summary: { totalCredit, totalDebit, currentBalance: runningBalance, transactionCount: transactions.length }
+    });
           
         } catch (error) {
     console.error('❌ Chyba pri načítaní transakcií:', error);
@@ -1803,156 +1546,34 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
-    
-    if (!fs.existsSync(mdbPath)) {
-      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    const mdbInfo = await getMDBFilePath(company.ico, undefined);
+    const mdbPath = mdbInfo.path;
+    const mdb = openMdbReader(mdbPath);
+    const sUcet = findTableCaseInsensitive(mdb, 'sUcet', 'sUCET', 'SUCET', 'sucet');
+    const pUD = findTableCaseInsensitive(mdb, 'pUD', 'PUD', 'pud');
+    if (!pUD) {
+      return res.json({ company: { id: company.id, name: company.name, ico: company.ico }, account: { accountNumber, accountName: accountNumber, bankName: 'Pokladňa' }, transactions: [], summary: { totalCredit: 0, totalDebit: 0, currentBalance: 0, transactionCount: 0 } });
     }
+    const sRows = sUcet ? sUcet.getData({ rowOffset: 0 }) : [];
+    let pudAccountNumber = accountNumber;
+    const matched = sRows.find(a => String(a.AUcet || a.aucet || '') === accountNumber || String(a.SText || a.stext || '') === accountNumber);
+    if (matched) pudAccountNumber = String(matched.AUcet || matched.aucet || accountNumber);
+    if (!pudAccountNumber || pudAccountNumber === '') pudAccountNumber = '211000';
 
-    const ADODB = require('node-adodb');
-    const connection = ADODB.open(`Provider=Microsoft.Jet.OLEDB.4.0;Data Source=${mdbPath};`);
-    
-    // Najprv nájdeme účet v sUcet
-    const accountQuery = `
-      SELECT 
-        ID,
-        AUcet,
-        SText,
-        Banka,
-        RelJeUcet
-      FROM sUcet 
-      WHERE SText = '${accountNumber}' OR AUcet = '${accountNumber}'
-    `;
+    const rows = pUD.getData({ rowOffset: 0 }).filter(r => String(r.UMD || r.umd || '') === pudAccountNumber || String(r.UD || r.ud || '') === pudAccountNumber);
+    rows.sort((a,b)=> new Date(a.Datum || a.datum || 0) - new Date(b.Datum || b.datum || 0));
 
-    const accountData = await connection.query(accountQuery);
-    
-    if (accountData.length === 0) {
-      return res.status(404).json({ error: 'Pokladňa nebola nájdená' });
-    }
-    
-    const account = accountData[0];
-
-    // Určíme účtovú osnovu pre pUD query
-    let pudAccountNumber = account.AUcet;
-    if (!pudAccountNumber || pudAccountNumber === '') {
-      pudAccountNumber = '211000'; // Predvolená hodnota pre pokladňu
-    }
-
-    // Získanie transakcií z pUD
-    const transactionsQuery = `
-      SELECT 
-        ID,
-        Datum,
-        Cislo,
-        SText,
-        Kc,
-        UMD,
-        UD,
-        Firma
-      FROM pUD 
-      WHERE UMD = '${pudAccountNumber}' OR UD = '${pudAccountNumber}'
-      ORDER BY Datum ASC
-    `;
-
-    const transactionsData = await connection.query(transactionsQuery);
-
-    // Spracovanie transakcií
     const transactions = [];
-    let totalCredit = 0;
-    let totalDebit = 0;
-    
-    // Počiatočný stav účtu - ak je to prvý riadok k 1.1.2025, začneme s 0
-    // a prvý zostatok bude hodnota prvej transakcie
-    let runningBalance = 0;
-    let isFirstTransaction = true;
-
-    for (const transaction of transactionsData) {
-      const isCredit = transaction.UMD === pudAccountNumber; // Ak je účet 211 na strane UMD, je to kredit
-      const amount = parseFloat(transaction.Kc) || 0;
-      
-      if (isFirstTransaction) {
-        // Prvá transakcia k 1.1.2025 - zostatok je hodnota transakcie
-        if (isCredit) {
-          runningBalance = amount;
-          totalCredit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: amount,
-            debet: 0,
-            zostatok: runningBalance,
-            typ: 'kredit',
-            firma: transaction.Firma || ''
-          });
-        } else {
-          runningBalance = -amount;
-          totalDebit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: 0,
-            debet: amount,
-            zostatok: runningBalance,
-            typ: 'debet',
-            firma: transaction.Firma || ''
-          });
-        }
-        isFirstTransaction = false;
-      } else {
-        // Ostatné transakcie - normálne sčítavanie/odčítavanie
-        if (isCredit) {
-          runningBalance += amount;
-          totalCredit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: amount,
-            debet: 0,
-            zostatok: runningBalance,
-            typ: 'kredit',
-            firma: transaction.Firma || ''
-          });
-        } else {
-          runningBalance -= amount;
-          totalDebit += amount;
-          transactions.push({
-            id: transaction.ID,
-            datum: transaction.Datum,
-            popis: transaction.SText || `Transakcia ${transaction.Cislo || ''}`,
-            kredit: 0,
-            debet: amount,
-            zostatok: runningBalance,
-            typ: 'debet',
-            firma: transaction.Firma || ''
-          });
-        }
-      }
+    let totalCredit = 0, totalDebit = 0, runningBalance = 0;
+    for (const r of rows) {
+      const isCredit = String(r.UMD || r.umd || '') === pudAccountNumber;
+      const amount = Number(r.Kc || r.kc || 0);
+      if (isCredit) { runningBalance += amount; totalCredit += amount; }
+      else { runningBalance -= amount; totalDebit += amount; }
+      transactions.push({ id: r.ID, datum: r.Datum || r.datum || null, popis: r.SText || r.stext || (r.Cislo ? `Transakcia ${r.Cislo}` : 'Transakcia'), kredit: isCredit ? amount : 0, debet: isCredit ? 0 : amount, zostatok: runningBalance, typ: isCredit ? 'kredit' : 'debet', firma: r.Firma || r.firma || '' });
     }
-    
-    const response = {
-      company: {
-        id: company.id,
-        name: company.name,
-        ico: company.ico
-      },
-      account: {
-        accountNumber: account.SText || account.AUcet,
-        accountName: (account.AUcet === '211000' || !account.SText || account.SText === '') ? 'Hlavná pokladňa' : account.SText,
-        bankName: account.Banka || 'Pokladňa'
-      },
-      transactions: transactions,
-      summary: {
-        totalCredit: totalCredit,
-        totalDebit: totalDebit,
-        currentBalance: runningBalance,
-        transactionCount: transactions.length
-      }
-    };
 
-    res.json(response);
+    res.json({ company: { id: company.id, name: company.name, ico: company.ico }, account: { accountNumber: matched ? (matched.SText || matched.AUcet) : accountNumber, accountName: matched ? ((matched.AUcet === '211000' || !matched.SText) ? 'Hlavná pokladňa' : matched.SText) : accountNumber, bankName: matched ? (matched.Banka || 'Pokladňa') : 'Pokladňa', pudAccount: pudAccountNumber }, transactions, summary: { totalCredit, totalDebit, currentBalance: runningBalance, transactionCount: transactions.length } });
     
   } catch (error) {
     console.error('❌ Chyba pri načítaní transakcií pokladne:', error);

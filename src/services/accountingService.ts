@@ -793,7 +793,8 @@ export class AccountingService {
   }> {
     console.log('🏦 Volám bankový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const response = await fetch(`http://localhost:5000/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
+    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const response = await fetch(`${base}/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -826,7 +827,8 @@ export class AccountingService {
   }> {
     console.log('💰 Volám pokladňový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const response = await fetch(`http://localhost:5000/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
+    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const response = await fetch(`${base}/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
