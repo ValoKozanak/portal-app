@@ -1752,8 +1752,29 @@ router.get('/test-dropbox-public', async (req, res) => {
     res.status(500).json({
       error: 'Chyba pri testovaní Dropbox',
       details: error.message,
-      stack: error.stack
+      stack: error.stack});
+    console.error('Chyba pri upload endpoint:', error);
+    res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
+  }
+});
+// Test Spaces endpoint
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    // Kontrola, či je používateľ admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže testovať Spaces.' });
+    }
+
+    // Pre test endpoint - vrátiť success
+    res.json({ 
+      success: true, 
+      message: 'Spaces test endpoint je dostupný',
+      timestamp: new Date().toISOString()
     });
+
+  } catch (error) {
+    console.error('Chyba pri Spaces test:', error);
+    res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
   }
 });
 
