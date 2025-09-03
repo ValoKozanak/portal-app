@@ -415,3 +415,9 @@ router.delete('/users/:id', (req, res) => {
 });
 
 module.exports = { router, authenticateToken };
+
+/** ---- canonical exports (keep at end of file) ---- */
+if (typeof module !== 'undefined') {
+  module.exports = router;
+  module.exports.authenticateToken = authenticateToken;
+}

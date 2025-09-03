@@ -87,3 +87,8 @@ backend/uploads/
 
 
 
+
+# local debug helpers (do not commit)
+backend/detect-*.js
+backend/test-mounts.js
+backend/server.js.bak.*
