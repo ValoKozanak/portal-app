@@ -1,6 +1,10 @@
 const express = require('express');
 const { Router } = require('express');
 const multer = require('multer');
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 } // 500 MB
+});
 const path = require('path');
 const fs = require('fs');
 const router = Router();
@@ -1947,32 +1951,69 @@ router.get('/test-dropbox-public', async (req, res) => {
     res.status(500).json({ 
       error: 'Chyba pri testovaní Dropbox',
       details: error.message,
-      stack: error.stack
-    });
-  }
-});
-// MDB Upload endpoint pre admin
-router.post('/admin/mdb/upload/:companyId', authenticateToken, async (req, res) => {
-  try {
-    const { companyId } = req.params;
-    
-    // Kontrola, či je používateľ admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže uploadovať MDB súbory.' });
-    }
-
-    // Pre upload endpoint - vrátiť success
-    res.json({ 
-      success: true, 
-      message: 'Upload endpoint je dostupný',
-      companyId: companyId
-    });
-
-  } catch (error) {
+      stack: error.stack});
     console.error('Chyba pri upload endpoint:', error);
     res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
   }
 });
+// Test Spaces endpoint
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    // Kontrola, či je používateľ admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Prístup zamietnutý. Len admin môže testovať Spaces.' });
+    }
 
+    // Pre test endpoint - vrátiť success
+    res.json({ 
+      success: true, 
+      message: 'Spaces test endpoint je dostupný',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Chyba pri Spaces test:', error);
+    res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
+  }
+});
+
+/**
+ * Admin MDB upload
+ * - multer.memoryStorage()
+ * - uloží do /var/www/html/portal-app/uploads
+ * - vyžaduje rolu admin
+ * Ponechané poradie: upload -> authenticateToken
+ */
+router.post("/admin/mdb/upload/:companyId", upload.single("file"), authenticateToken, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ error: "Prístup zamietnutý. Len admin môže uploadovať MDB súbory." });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "Súbor nie je priložený" });
+    }
+
+    const outDir = "/var/www/html/portal-app/uploads";
+    const savedName = `${Date.now()}_${req.file.originalname}`;
+    const outPath = `${outDir}/${savedName}`;
+
+    await fs.promises.mkdir(outDir, { recursive: true });
+    await fs.promises.writeFile(outPath, req.file.buffer);
+
+    return res.json({
+      success: true,
+      message: "MDB súbor bol úspešne nahraný",
+      filename: req.file.originalname,
+      savedAs: savedName,
+      size: req.file.size,
+      companyId
+    });
+  } catch (error) {
+    console.error("Chyba pri upload endpoint:", error);
+    return res.status(500).json({ error: "Chyba pri spracovaní požiadavky" });
+  }
+});
 module.exports = router;
-
