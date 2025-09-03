@@ -31,12 +31,21 @@ const MdbManagement = ({ onBack }) => {
   // Získanie zoznamu MDB súborov
   const fetchFiles = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/files`, {
+      const baseUrl = process.env.REACT_APP_API_URL;
+      const url = selectedCompany
+        ? `${baseUrl}/api/accounting/admin/mdb/files/${selectedCompany}`
+        : `${baseUrl}/api/accounting/admin/mdb/files`;
+      const response = await axios.get(url, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      setFiles(response.data.files || []);
+      const items = (response.data?.files || []).map(f => ({
+        name: f.name || f.key || '',
+        size: typeof f.size === 'number' ? f.size : 0,
+        mtime: f.mtime || f.lastModified || null,
+      }));
+      setFiles(items);
     } catch (error) {
       setError('Chyba pri načítaní súborov: ' + error.message);
     }
@@ -53,7 +62,7 @@ const MdbManagement = ({ onBack }) => {
     try {
       // Upload súboru cez backend (rieši CORS problém)
       const formData = new FormData();
-      formData.append('mdbFile', file);
+      formData.append('file', file);
       formData.append('year', selectedYear);
 
       const response = await axios.post(
@@ -74,6 +83,47 @@ const MdbManagement = ({ onBack }) => {
       setError('Upload zlyhal: ' + error.message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  // Stiahnutie súboru
+  const handleDownload = async (fileName) => {
+    try {
+      if (!selectedCompany) {
+        return setError('Vyber firmu pre stiahnutie súboru');
+      }
+      const url = `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/download/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      const response = await axios.get(url, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        responseType: 'blob'
+      });
+      const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      setError('Stiahnutie zlyhalo: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
+  // Zmazanie súboru
+  const handleDelete = async (fileName) => {
+    try {
+      if (!selectedCompany) {
+        return setError('Vyber firmu pre zmazanie súboru');
+      }
+      const url = `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/file/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      await axios.delete(url, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSuccess(`MDB súbor ${fileName} bol odstránený`);
+      fetchFiles();
+    } catch (error) {
+      setError('Zmazanie zlyhalo: ' + (error.response?.data?.error || error.message));
     }
   };
 
@@ -116,8 +166,11 @@ const MdbManagement = ({ onBack }) => {
 
   useEffect(() => {
     fetchCompanies();
-    fetchFiles();
   }, []);
+
+  useEffect(() => {
+    fetchFiles();
+  }, [selectedCompany]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -229,7 +282,7 @@ const MdbManagement = ({ onBack }) => {
 
           {/* Zoznam dostupných MDB súborov */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4">Dostupné MDB súbory</h3>
+            <h3 className="text-lg font-semibold mb-4">Dostupné MDB súbory {selectedCompany ? `(IČO ${selectedCompany})` : ''}</h3>
 
             <div className="mb-4">
               <button
@@ -250,22 +303,33 @@ const MdbManagement = ({ onBack }) => {
                       <th className="px-4 py-2 border border-gray-200 text-left">Názov súboru</th>
                       <th className="px-4 py-2 border border-gray-200 text-left">Veľkosť</th>
                       <th className="px-4 py-2 border border-gray-200 text-left">Dátum úpravy</th>
-                      <th className="px-4 py-2 border border-gray-200 text-left">IČO firmy</th>
-                      <th className="px-4 py-2 border border-gray-200 text-left">Rok</th>
+                      <th className="px-4 py-2 border border-gray-200 text-left">Akcie</th>
                     </tr>
                   </thead>
                   <tbody>
                     {files.map((file, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border border-gray-200">{file.key}</td>
+                        <td className="px-4 py-2 border border-gray-200">{file.name}</td>
+                        <td className="px-4 py-2 border border-gray-200">{file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'N/A'}</td>
+                        <td className="px-4 py-2 border border-gray-200">{file.mtime ? new Date(file.mtime).toLocaleString('sk-SK') : 'N/A'}</td>
                         <td className="px-4 py-2 border border-gray-200">
-                          {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'N/A'}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDownload(file.name)}
+                              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                              disabled={!selectedCompany}
+                            >
+                              Stiahnuť
+                            </button>
+                            <button
+                              onClick={() => handleDelete(file.name)}
+                              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                              disabled={!selectedCompany}
+                            >
+                              Zmazať
+                            </button>
+                          </div>
                         </td>
-                        <td className="px-4 py-2 border border-gray-200">
-                          {file.lastModified ? new Date(file.lastModified).toLocaleDateString('sk-SK') : 'N/A'}
-                        </td>
-                        <td className="px-4 py-2 border border-gray-200">{file.companyIco}</td>
-                        <td className="px-4 py-2 border border-gray-200">{file.year}</td>
                       </tr>
                     ))}
                   </tbody>

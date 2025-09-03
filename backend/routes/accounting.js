@@ -1,16 +1,75 @@
 const express = require('express');
 const { Router } = require('express');
 const multer = require('multer');
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 500 * 1024 * 1024 } // 500 MB
-});
 const path = require('path');
 const fs = require('fs');
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      try {
+        const dest = ensureCompanyDir(req.params.companyId);
+        cb(null, dest);
+      } catch (e) {
+        cb(e);
+      }
+    },
+    filename: (req, file, cb) => {
+      const companyId = String(req.params.companyId || 'unknown');
+      const ts = Date.now();
+      const safe = path.basename(file.originalname).replace(/\s+/g, '_');
+      cb(null, `${companyId}_${ts}_${safe}`);
+    }
+  }),
+  limits: { fileSize: 500 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!/\.mdb$/i.test(file.originalname)) {
+      const err = new Error('Only .mdb allowed');
+      err.status = 400;
+      return cb(err);
+    }
+    cb(null, true);
+  }
+});
 const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
+
+// Helper: admin kontrola
+function ensureAdmin(req, res, next) {
+  try {
+    if (req.user && (req.user.role === 'admin' || req.user.isAdmin === true)) {
+      return next();
+    }
+    return res.status(403).json({ error: 'Forbidden' });
+  } catch (e) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+}
+
+// Helper: zabezpečenie adresára firmy pre MDB uploady
+function ensureCompanyDir(companyId) {
+  const id = String(companyId);
+  if (!/^\d+$/.test(id)) {
+    const err = new Error('Invalid companyId');
+    err.status = 400;
+    throw err;
+  }
+  const base = path.join(__dirname, '..', 'uploads', 'mdb', id);
+  fs.mkdirSync(base, { recursive: true });
+  return base;
+}
+
+// Helper: bezpečný názov súboru
+function safeName(name) {
+  const base = path.basename(String(name || ''));
+  if (!base || base === '.' || base === '..') {
+    const err = new Error('Invalid filename');
+    err.status = 400;
+    throw err;
+  }
+  return base;
+}
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
 
@@ -1977,39 +2036,144 @@ router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
   }
 });
 
+// Admin: výpis dostupných MDB/ACCDB súborov (lokálne)
+router.get('/admin/mdb/files', authenticateToken, ensureAdmin, async (req, res) => {
+  try {
+    const roots = [
+      path.resolve(__dirname, '..', 'uploads'),
+      path.resolve(__dirname, '..', 'zalohy'),
+      path.resolve(__dirname, '..', '..', 'uploads')
+    ];
+
+    const allowedExtensions = new Set(['.mdb', '.accdb']);
+    const filesFound = [];
+
+    for (const rootDir of roots) {
+      if (!fs.existsSync(rootDir)) continue;
+      const entries = fs.readdirSync(rootDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isFile()) continue;
+        const ext = path.extname(entry.name).toLowerCase();
+        if (!allowedExtensions.has(ext)) continue;
+        const fullPath = path.join(rootDir, entry.name);
+        const stats = fs.statSync(fullPath);
+        filesFound.push({
+          name: entry.name,
+          dir: rootDir,
+          path: fullPath,
+          size: stats.size,
+          mtime: stats.mtime
+        });
+      }
+    }
+
+    filesFound.sort((a, b) => b.mtime - a.mtime);
+    res.json({ count: filesFound.length, files: filesFound });
+  } catch (err) {
+    console.error('LIST MDB ERR:', err);
+    res.status(500).json({ error: 'Failed to list MDB files' });
+  }
+});
+
+// Per-company listing
+router.get('/admin/mdb/files/:companyId', authenticateToken, ensureAdmin, (req, res, next) => {
+  try {
+    const dir = ensureCompanyDir(req.params.companyId);
+    if (!fs.existsSync(dir)) return res.json({ count: 0, files: [] });
+    const files = fs.readdirSync(dir)
+      .filter(f => /\.mdb$/i.test(f))
+      .map(f => {
+        const full = path.join(dir, f);
+        const st = fs.statSync(full);
+        return { name: f, size: st.size, mtime: st.mtime, path: full };
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+    res.json({ count: files.length, files });
+  } catch (e) { next(e); }
+});
+
+// Download file
+router.get('/admin/mdb/download/:companyId/:filename', authenticateToken, ensureAdmin, (req, res, next) => {
+  try {
+    const dir = ensureCompanyDir(req.params.companyId);
+    const file = safeName(req.params.filename);
+    if (!/\.mdb$/i.test(file)) {
+      const err = new Error('Only .mdb files are allowed');
+      err.status = 400; throw err;
+    }
+    const full = path.join(dir, file);
+    if (!fs.existsSync(full)) {
+      const err = new Error('File not found');
+      err.status = 404; throw err;
+    }
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${file}"`);
+    res.setHeader('X-Accel-Buffering', 'no');
+    const stream = fs.createReadStream(full);
+    stream.on('error', next);
+    stream.pipe(res);
+  } catch (e) { next(e); }
+});
+
+// Delete file
+router.delete('/admin/mdb/file/:companyId/:filename', authenticateToken, ensureAdmin, (req, res, next) => {
+  try {
+    const dir = ensureCompanyDir(req.params.companyId);
+    const file = safeName(req.params.filename);
+    if (!/\.mdb$/i.test(file)) {
+      const err = new Error('Only .mdb files are allowed');
+      err.status = 400; throw err;
+    }
+    const full = path.join(dir, file);
+    if (!fs.existsSync(full)) {
+      const err = new Error('File not found');
+      err.status = 404; throw err;
+    }
+    fs.unlinkSync(full);
+    res.json({ success: true, message: 'MDB súbor bol odstránený', filename: file });
+  } catch (e) { next(e); }
+});
+
+// HEAD exist
+router.head('/admin/mdb/file/:companyId/:filename', authenticateToken, ensureAdmin, (req, res, next) => {
+  try {
+    const dir = ensureCompanyDir(req.params.companyId);
+    const file = safeName(req.params.filename);
+    const full = path.join(dir, file);
+    if (!fs.existsSync(full)) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (e) { next(e); }
+});
+
+// Scoped error handler for /admin/mdb
+router.use('/admin/mdb', (err, req, res, next) => {
+  console.error('📦 MDB upload error:', err && err.message, err && err.stack);
+  const status = err && err.status ? err.status : 500;
+  res.status(status).json({ error: (err && err.message) || 'Upload failed' });
+});
+
 module.exports = router;
 
-router.post("/admin/mdb/upload/:companyId", upload.single("file"), authenticateToken, async (req, res) => {
+router.post("/admin/mdb/upload/:companyId", authenticateToken, ensureAdmin, upload.single("file"), async (req, res) => {
   try {
     const { companyId } = req.params;
-    
-    if (req.user.role !== "admin") {
-      return res.status(400).json({ error: "Prístup zamietnutý. Len admin môže uploadovať MDB súbory." });
-    }
 
     if (!req.file) {
-    const out = `/var/www/html/portal-app/uploads/${Date.now()}_${req.file.originalname}`;
-    await fs.promises.writeFile(out, req.file.buffer);
-      return res.status(400).json({ error: "Súbor nie je priložený" });
-    }
-
-    const mdbReader = require("mdb-reader");
-
-    // Uložiť súbor na disk
-    const uploadDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+      return res.status(400).json({ error: "Súbor nie je priložený alebo pole sa nevolá 'file'" });
     }
     
-    res.json({
+    return res.json({
       success: true,
       message: "MDB súbor bol úspešne nahraný",
       filename: req.file.originalname,
-      size: req.file.size
+      storedAs: req.file.filename,
+      size: req.file.size,
+      companyId
     });
 
   } catch (error) {
     console.error("Chyba pri upload endpoint:", error);
-    res.status(500).json({ error: "Chyba pri spracovaní požiadavky" });
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Chyba pri spracovaní požiadavky" });
   }
 });
