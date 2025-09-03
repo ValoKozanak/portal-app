@@ -8,6 +8,7 @@ const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
+const spacesService = require('../services/spacesService');
 
 // CORS pre accounting routes - MUSÍ BYŤ PRED authenticateToken!
 const corsOptions = {
@@ -51,6 +52,63 @@ router.get('/test-dropbox-token', (req, res) => {
     tokenStart: token ? token.substring(0, 10) + '...' : 'none',
     message: token ? "Token je nastavený" : "Token nie je nastavený"
   });
+});
+
+// TEST SPACES CONNECTION ENDPOINT
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    // Kontrola admin prístupov
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: 'Prístup zamietnutý. Len admin môže testovať Spaces pripojenie.' 
+      });
+    }
+
+    const testResults = {
+      timestamp: new Date().toISOString(),
+      spaces: {
+        isInitialized: spacesService.isInitialized(),
+        config: {
+          hasEndpoint: !!process.env.SPACES_ENDPOINT,
+          hasBucket: !!process.env.SPACES_BUCKET,
+          hasKey: !!process.env.SPACES_KEY,
+          hasSecret: !!process.env.SPACES_SECRET,
+          endpoint: process.env.SPACES_ENDPOINT || 'CHÝBA',
+          bucket: process.env.SPACES_BUCKET || 'CHÝBA',
+          region: process.env.SPACES_REGION || 'CHÝBA'
+        }
+      }
+    };
+
+    // Test základný Spaces pripojenie
+    if (spacesService.isInitialized()) {
+      try {
+        // Test 1: Zoznam MDB súborov
+        const mdbFiles = await spacesService.listMdbFiles();
+        testResults.spaces.availableFiles = mdbFiles.length;
+        testResults.spaces.testResults = {
+          listFilesSuccess: true,
+          filesList: mdbFiles.slice(0, 5) // Prvých 5 súborov
+        };
+      } catch (error) {
+        testResults.spaces.testResults = {
+          listFilesSuccess: false,
+          error: error.message
+        };
+      }
+    } else {
+      testResults.spaces.error = 'DigitalOcean Spaces nie je nakonfigurované';
+    }
+
+    res.json(testResults);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri testovaní Spaces:', error);
+    res.status(500).json({ 
+      error: 'Chyba pri testovaní Spaces pripojenia',
+      details: error.message 
+    });
+  }
 });
 
 // Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)

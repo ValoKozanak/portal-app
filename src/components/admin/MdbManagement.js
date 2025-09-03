@@ -104,13 +104,13 @@ const MdbManagement = ({ onBack }) => {
         }
       });
 
-      if (response.data.spaces.isInitialized) {
-        setSuccess('DigitalOcean Spaces funguje správne!');
+      if (response.data.spaces && response.data.spaces.isInitialized) {
+        setSuccess(`DigitalOcean Spaces funguje správne! Nájdených ${response.data.spaces.availableFiles || 0} MDB súborov.`);
       } else {
-        setError('DigitalOcean Spaces nie je nakonfigurované');
+        setError(response.data.spaces?.error || 'DigitalOcean Spaces nie je nakonfigurované');
       }
     } catch (error) {
-      setError('Test Spaces zlyhal: ' + error.message);
+      setError('Test Spaces zlyhal: ' + (error.response?.data?.error || error.message));
     }
   };
 
