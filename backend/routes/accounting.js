@@ -597,22 +597,24 @@ router.get('/stats/:companyId', authenticateToken, async (req, res) => {
     const sum = (arr, sel) => arr.reduce((s, r) => s + Number(sel(r) || 0), 0);
 
     const issuedTotal = sum(issued, r => r.KcCelkem || r.kccelkem || r.Kc || r.kc);
-    const issuedPaid = sum(issued, r => r.KcLikv || r.kclikv);
+    const issuedPaid = sum(issued, r => r.KcU || r.kcu || 0);
+    const issuedUnpaid = sum(issued, r => r.KcLikv || r.kclikv || 0);
     const receivedTotal = sum(received, r => r.KcCelkem || r.kccelkem || r.Kc || r.kc);
-    const receivedPaid = sum(received, r => r.KcLikv || r.kclikv);
+    const receivedPaid = sum(received, r => r.KcU || r.kcu || 0);
+    const receivedUnpaid = sum(received, r => r.KcLikv || r.kclikv || 0);
 
     res.json({
       issued_invoices: {
         total_count: issued.length,
         total_amount: issuedTotal,
         paid_amount: issuedPaid,
-        overdue_amount: Math.max(issuedTotal - issuedPaid, 0)
+        overdue_amount: issuedUnpaid
       },
       received_invoices: {
         total_count: received.length,
         total_amount: receivedTotal,
         paid_amount: receivedPaid,
-        overdue_amount: Math.max(receivedTotal - receivedPaid, 0)
+        overdue_amount: receivedUnpaid
       }
     });
   } catch (error) {

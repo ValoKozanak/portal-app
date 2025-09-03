@@ -515,24 +515,13 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
-    const dropboxToken = localStorage.getItem('dropbox_access_token');
-    if (!dropboxToken) {
-      throw new Error('Dropbox token nie je dostupný. Pripojte sa k Dropboxu.');
-    }
-    
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-invoices/${companyId}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${dropboxToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Chyba pri obnovení faktúr z MDB');
-    }
-    
-    return await response.json();
+    // Už čítame faktúry priamo z MDB na backende – žiadny refresh/netreba Dropbox.
+    return {
+      success: true,
+      message: 'Faktúry sa načítavajú priamo z MDB. Obnovenie nie je potrebné.',
+      importedCount: 0,
+      totalCount: 0
+    };
   }
 
   // Obnovenie prijatých faktúr z MDB
@@ -542,24 +531,13 @@ export class AccountingService {
     importedCount: number;
     totalCount: number;
   }> {
-    const dropboxToken = localStorage.getItem('dropbox_access_token');
-    if (!dropboxToken) {
-      throw new Error('Dropbox token nie je dostupný. Pripojte sa k Dropboxu.');
-    }
-    
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/refresh-received-invoices/${companyId}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${dropboxToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Chyba pri obnovení prijatých faktúr z MDB');
-    }
-    
-    return await response.json();
+    // Už čítame faktúry priamo z MDB na backende – žiadny refresh/netreba Dropbox.
+    return {
+      success: true,
+      message: 'Prijaté faktúry sa načítavajú priamo z MDB. Obnovenie nie je potrebné.',
+      importedCount: 0,
+      totalCount: 0
+    };
   }
 
   // 12. IMPORT FAKTÚR Z MDB
