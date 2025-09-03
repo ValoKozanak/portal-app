@@ -1778,11 +1778,8 @@ router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 // ===== 12. MDB UPLOAD (admin) — FIXNUTÁ VERZIA =====
 
->>>>>>> c1121708cef02ff7db224c2c0a05fe050e800679
 /**
  * Admin MDB upload
  * - multer.memoryStorage()
@@ -1790,40 +1787,6 @@ router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
  * - vyžaduje rolu admin
  * Ponechané poradie: upload -> authenticateToken
  */
-<<<<<<< HEAD
-router.post("/admin/mdb/upload/:companyId", upload.single("file"), authenticateToken, async (req, res) => {
-  try {
-    const { companyId } = req.params;
-
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ error: "Prístup zamietnutý. Len admin môže uploadovať MDB súbory." });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({ error: "Súbor nie je priložený" });
-    }
-
-    const outDir = "/var/www/html/portal-app/uploads";
-    const savedName = `${Date.now()}_${req.file.originalname}`;
-    const outPath = `${outDir}/${savedName}`;
-
-    await fs.promises.mkdir(outDir, { recursive: true });
-    await fs.promises.writeFile(outPath, req.file.buffer);
-
-    return res.json({
-      success: true,
-      message: "MDB súbor bol úspešne nahraný",
-      filename: req.file.originalname,
-      savedAs: savedName,
-      size: req.file.size,
-      companyId
-    });
-  } catch (error) {
-    console.error("Chyba pri upload endpoint:", error);
-    return res.status(500).json({ error: "Chyba pri spracovaní požiadavky" });
-  }
-});
-=======
 router.post(
   '/admin/mdb/upload/:companyId',
   upload.single('file'),
@@ -1864,5 +1827,4 @@ router.post(
   }
 );
 
->>>>>>> c1121708cef02ff7db224c2c0a05fe050e800679
 module.exports = router;
