@@ -18,6 +18,7 @@ import {
   ServerIcon,
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/apiService';
+import { taskService } from '../services/taskService';
 
 // Lazy loading pre nové stránky
 const AdminUsersPage = React.lazy(() => import('./AdminUsersPage'));
@@ -88,7 +89,7 @@ const AdminDashboard: React.FC = () => {
         const [usersData, companiesData, tasksData, filesData, messagesData] = await Promise.all([
           apiService.getAllUsers(),
           apiService.getAllCompanies(),
-          apiService.getAllTasks(),
+          taskService.getAllTasks(),
           apiService.getAllFiles(),
           apiService.getAllMessages()
         ]);

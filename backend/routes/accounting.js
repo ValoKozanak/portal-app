@@ -657,7 +657,10 @@ router.get('/issued-invoices/:companyId', authenticateToken, async (req, res) =>
         due_date: r.DatSplat || r.datsplat || null,
         total_amount: Number(r.KcCelkem || r.kccelkem || r.Kc || r.kc || 0),
         vat_amount: Number((r.KcDPH1||0)+(r.KcDPH2||0)+(r.KcDPH3||0)),
+        kc_likv: Number(r.KcLikv || r.kclikv || 0),
+        doplatok: Number(r.KcLikv || r.kclikv || 0),
         var_sym: r.VarSym || r.varsym || '',
+        varsym: r.VarSym || r.varsym || '',
         s_text: r.SText || r.stext || ''
       }))
       .sort((a,b)=> new Date(b.issue_date||0) - new Date(a.issue_date||0))
@@ -774,7 +777,10 @@ router.get('/received-invoices/:companyId', authenticateToken, async (req, res) 
         due_date: r.DatSplat || r.datsplat || null,
         total_amount: Number(r.KcCelkem || r.kccelkem || r.Kc || r.kc || 0),
         vat_amount: Number((r.KcDPH1||0)+(r.KcDPH2||0)+(r.KcDPH3||0)),
+        kc_likv: Number(r.KcLikv || r.kclikv || 0),
+        doplatok: Number(r.KcLikv || r.kclikv || 0),
         var_sym: r.VarSym || r.varsym || '',
+        varsym: r.VarSym || r.varsym || '',
         s_text: r.SText || r.stext || ''
       }))
       .sort((a,b)=> new Date(b.issue_date||0) - new Date(a.issue_date||0))

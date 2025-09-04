@@ -3,12 +3,113 @@ const { Router } = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors'); // Pridať cors
 const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
+const spacesService = require('../services/spacesService');
+
+// CORS pre accounting routes - MUSÍ BYŤ PRED authenticateToken!
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+router.use(cors(corsOptions));
 
 // ===== ÚČTOVNÍCTVO API ROUTES =====
+
+// JEDNODUCHÝ TEST ENDPOINT NA ZAČIATKU
+router.get('/simple-test', (req, res) => {
+  res.json({ 
+    message: "Accounting routes fungujú!", 
+    timestamp: new Date().toISOString() 
+  });
+});
+
+// DROPBOX TEST ENDPOINT NA ZAČIATKU  
+router.get('/dropbox-test-simple', async (req, res) => {
+  try {
+    res.json({
+      message: "Dropbox endpoint funguje!",
+      isInitialized: dropboxService.isInitialized(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// TEST DROPBOX TOKEN ENDPOINT
+router.get('/test-dropbox-token', (req, res) => {
+  const token = process.env.DROPBOX_ACCESS_TOKEN;
+  res.json({
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    tokenStart: token ? token.substring(0, 10) + '...' : 'none',
+    message: token ? "Token je nastavený" : "Token nie je nastavený"
+  });
+});
+
+// TEST SPACES CONNECTION ENDPOINT
+router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
+  try {
+    // Kontrola admin prístupov
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: 'Prístup zamietnutý. Len admin môže testovať Spaces pripojenie.' 
+      });
+    }
+
+    const testResults = {
+      timestamp: new Date().toISOString(),
+      spaces: {
+        isInitialized: spacesService.isInitialized(),
+        config: {
+          hasEndpoint: !!process.env.SPACES_ENDPOINT,
+          hasBucket: !!process.env.SPACES_BUCKET,
+          hasKey: !!process.env.SPACES_KEY,
+          hasSecret: !!process.env.SPACES_SECRET,
+          endpoint: process.env.SPACES_ENDPOINT || 'CHÝBA',
+          bucket: process.env.SPACES_BUCKET || 'CHÝBA',
+          region: process.env.SPACES_REGION || 'CHÝBA'
+        }
+      }
+    };
+
+    // Test základný Spaces pripojenie
+    if (spacesService.isInitialized()) {
+      try {
+        // Test 1: Zoznam MDB súborov
+        const mdbFiles = await spacesService.listMdbFiles();
+        testResults.spaces.availableFiles = mdbFiles.length;
+        testResults.spaces.testResults = {
+          listFilesSuccess: true,
+          filesList: mdbFiles.slice(0, 5) // Prvých 5 súborov
+        };
+      } catch (error) {
+        testResults.spaces.testResults = {
+          listFilesSuccess: false,
+          error: error.message
+        };
+      }
+    } else {
+      testResults.spaces.error = 'DigitalOcean Spaces nie je nakonfigurované';
+    }
+
+    res.json(testResults);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri testovaní Spaces:', error);
+    res.status(500).json({ 
+      error: 'Chyba pri testovaní Spaces pripojenia',
+      details: error.message 
+    });
+  }
+});
 
 // Helper funkcia na získanie MDB súboru (lokálny alebo z Dropbox)
 async function getMDBFilePath(companyIco, year = '2025') {
@@ -463,7 +564,7 @@ router.get('/stats/:companyId', authenticateToken, (req, res) => {
       FROM received_invoices 
       WHERE company_id = ?${dateFilter}
     `, params, (err, receivedStats) => {
-      if (err) {
+    if (err) {
         console.error('Chyba pri načítaní štatistík prijatých faktúr:', err);
         return res.status(500).json({ error: 'Chyba pri načítaní štatistík' });
       }
@@ -952,7 +1053,7 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                    parseFloat(row.KcU) || 0,
                    row.DatLikv ? new Date(row.DatLikv).toISOString().split('T')[0] : null
               ], function(err) {
-          if (err) {
+    if (err) {
                     console.error('Chyba pri vkladaní prijatej faktúry:', err);
                   } else {
           importedCount++;
@@ -1123,7 +1224,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
     
     // Získanie všetkých účtov z tabuľky sUcet a potom filtrovanie bankových účtov
     const accountsQuery = `
-      SELECT 
+          SELECT 
         ID,
         AUcet,
         SText,
@@ -1244,7 +1345,7 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
 // Získanie pokladňových účtov z MDB
 router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
   const { companyId } = req.params;
-
+  
   try {
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
@@ -1258,7 +1359,7 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1371,16 +1472,16 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    
+                if (err) reject(err);
+                else resolve(row);
+              });
+            });
+          
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
 
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1477,7 +1578,7 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
           });
         }
         isFirstTransaction = false;
-      } else {
+          } else {
         // Ostatné transakcie - normálne sčítavanie/odčítavanie
         if (isCredit) {
           runningBalance += amount;
@@ -1530,8 +1631,8 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
     };
 
     res.json(response);
-    
-  } catch (error) {
+          
+        } catch (error) {
     console.error('❌ Chyba pri načítaní transakcií:', error);
     console.error('❌ Error stack:', error.stack);
     console.error('❌ Error message:', error.message);
@@ -1560,7 +1661,7 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
 
-    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
 
     if (!fs.existsSync(mdbPath)) {
 
@@ -1708,7 +1809,7 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
     
-    const mdbPath = path.join(__dirname, '..', 'zalohy", "2025", `${company.ico}_2025`, `${company.ico}_2025.mdb`);
+    const mdbPath = path.join(__dirname, '..', 'zalohy', '2025', `${company.ico}_2025`, `${company.ico}_2025.mdb`);
     
     if (!fs.existsSync(mdbPath)) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
@@ -1865,6 +1966,55 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
     console.error('❌ Error message:', error.message);
     res.status(500).json({ 
       error: 'Chyba pri načítaní transakcií pokladne',
+      details: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// TESTOVACÍ ENDPOINT PRE DROPBOX BEZ AUTENTIFIKÁCIE
+router.get('/test-dropbox-public', async (req, res) => {
+  try {
+    const testResults = {
+      timestamp: new Date().toISOString(),
+      dropbox: {
+        isInitialized: dropboxService.isInitialized(),
+        accessToken: dropboxService.isInitialized() ? 'Nastavený' : 'Chýba',
+        testResults: {}
+      }
+    };
+
+    // Test Dropbox pripojenia
+    if (dropboxService.isInitialized()) {
+      try {
+        // Test 1: Zoznam dostupných MDB súborov
+        const mdbFiles = await dropboxService.listMDBFiles();
+        testResults.dropbox.testResults.availableFiles = mdbFiles;
+        testResults.dropbox.testResults.listFilesSuccess = true;
+        
+        // Test 2: Kontrola existencie konkrétneho MDB súboru (ak existujú súbory)
+        if (mdbFiles && mdbFiles.length > 0) {
+          const firstFile = mdbFiles[0];
+          const fileName = firstFile.name;
+          const companyIco = fileName.split('_')[0]; // Predpokladáme formát ICO_ROK.mdb
+          
+          const fileExists = await dropboxService.checkMDBFileExists(companyIco, '2025');
+          testResults.dropbox.testResults.sampleFileExists = fileExists;
+          testResults.dropbox.testResults.sampleCompanyIco = companyIco;
+        }
+    
+  } catch (error) {
+        testResults.dropbox.testResults.error = error.message;
+        testResults.dropbox.testResults.errorStack = error.stack;
+      }
+    }
+
+    res.json(testResults);
+    
+  } catch (error) {
+    console.error('❌ Chyba pri testovaní Dropbox:', error);
+    res.status(500).json({ 
+      error: 'Chyba pri testovaní Dropbox',
       details: error.message,
       stack: error.stack
     });
