@@ -597,7 +597,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       )}
 
       {/* AttendanceTracker len pre manuálny režim */}
-      {(!attendanceSettings || attendanceSettings.attendance_mode === 'manual') && (
+      {!!selectedCompany && (!attendanceSettings || attendanceSettings.attendance_mode === 'manual') && (
         <AttendanceTracker
           companyId={selectedCompany.id}
           employeeId={employeeData.id}
@@ -607,12 +607,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       )}
 
       {/* Prehľad dochádzky */}
-      <AttendanceOverview
-        companyId={selectedCompany.id}
-        employeeId={employeeData.id}
-        employeeName={`${employeeData.first_name} ${employeeData.last_name}`}
-        isCompanyView={false}
-      />
+      {!!selectedCompany && (
+        <AttendanceOverview
+          companyId={selectedCompany.id}
+          employeeId={employeeData.id}
+          employeeName={`${employeeData.first_name} ${employeeData.last_name}`}
+          isCompanyView={false}
+        />
+      )}
     </div>
   );
 
