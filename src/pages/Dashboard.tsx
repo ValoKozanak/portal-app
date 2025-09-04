@@ -194,6 +194,21 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     loadCompanies();
   }, [userEmail]);
 
+  // Po načítaní firiem automaticky otvoríme dashboard vybranej firmy (ak je uložená v localStorage)
+  useEffect(() => {
+    try {
+      const savedId = localStorage.getItem('selectedCompanyId');
+      if (savedId && companies.length > 0 && !selectedCompany) {
+        const company = companies.find(c => c.id === Number(savedId));
+        if (company) {
+          setSelectedCompany(company);
+        }
+      }
+    } catch (e) {
+      // ignorovať chybu pri localStorage
+    }
+  }, [companies, selectedCompany]);
+
   const handleSaveProfile = (updatedProfile: any) => {
     setUserProfile(updatedProfile);
     console.log('Profil bol aktualizovaný:', updatedProfile);
