@@ -166,8 +166,38 @@ class TaskServiceImpl implements TaskService {
 
 export const taskService = new TaskServiceImpl();
 
-// Inicializácia pri načítaní aplikácie
+// Jednorazové odstránenie demo úloh a vypnutie automatického seedovania
 if (typeof window !== 'undefined') {
-  taskService.initializeDefaultTasks();
+  try {
+    const cleanupFlagKey = 'tasks_demo_cleanup_done';
+    const alreadyCleaned = localStorage.getItem(cleanupFlagKey) === 'true';
+    if (!alreadyCleaned) {
+      const stored = localStorage.getItem('allTasks');
+      if (stored) {
+        const tasks: Task[] = JSON.parse(stored);
+        const demoTitles = new Set([
+          'Dokončiť výročnú správu 2024',
+          'Overiť DPH priznanie Q4',
+          'Aktualizovať firemné údaje'
+        ]);
+        const filtered = tasks.filter(t => !(
+          demoTitles.has(t.title) &&
+          t.companyName === 'Test Firma s.r.o.' &&
+          t.createdBy === 'Admin'
+        ));
+        if (filtered.length !== tasks.length) {
+          localStorage.setItem('allTasks', JSON.stringify(filtered));
+        }
+      }
+      localStorage.setItem(cleanupFlagKey, 'true');
+    }
+  } catch (e) {
+    // ignore cleanup errors
+  }
+
+  // Seed predvolených úloh len ak je explicitne povolené cez env premennú
+  if (process.env.REACT_APP_ENABLE_DEMO_DATA === 'true') {
+    taskService.initializeDefaultTasks();
+  }
 }
 
