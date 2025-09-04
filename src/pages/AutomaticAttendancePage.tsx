@@ -43,6 +43,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>('month');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [periodHint, setPeriodHint] = useState<string>('');
   const [results, setResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
 
@@ -91,14 +92,15 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
     switch (selectedPeriod) {
       case 'month':
         start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Posledný deň mesiaca
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Posledný deň mesiaca (pred úpravou)
         break;
       case 'year':
         start = new Date(now.getFullYear(), 0, 1);
-        end = new Date(now.getFullYear(), 11, 31); // 31. december tohto roku
+        end = new Date(now.getFullYear(), 11, 31); // 31. december tohto roku (pred úpravou)
         break;
       case 'custom':
         // Použije aktuálne hodnoty startDate a endDate
+        setPeriodHint('');
         return;
       default:
         start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -112,6 +114,21 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     };
+
+    // Koncový dátum nesmie presiahnuť včerajší deň
+    const yesterday = new Date(now);
+    yesterday.setHours(0, 0, 0, 0);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const originalEnd = new Date(end);
+    originalEnd.setHours(0, 0, 0, 0);
+
+    if (originalEnd.getTime() > yesterday.getTime()) {
+      end = new Date(yesterday);
+      setPeriodHint('Koncový dátum bol upravený na včerajší deň, aby sa vyhli dnešku/future.');
+    } else {
+      setPeriodHint('');
+    }
 
     setStartDate(formatDate(start));
     setEndDate(formatDate(end));
@@ -411,6 +428,9 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   <strong>Obdobie:</strong> {startDate} až {endDate}
                 </p>
+                {periodHint && (
+                  <p className="text-xs mt-1 text-yellow-700 dark:text-yellow-300">{periodHint}</p>
+                )}
               </div>
             </div>
           </div>
