@@ -249,6 +249,83 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     loadData();
   };
 
+  const getTodayString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const quickCheckIn = async (employee: Employee) => {
+    try {
+      const date = getTodayString();
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const startTime = `${hh}:${mm}:00`;
+
+      await hrService.addAttendance({
+        employee_id: employee.id,
+        company_id: companyId,
+        date,
+        check_in: `${date}T${startTime}`,
+        check_out: null as any,
+        total_hours: 0,
+        break_minutes: 0,
+        status: 'present',
+        notes: 'Rýchly príchod'
+      } as any);
+
+      await refreshAttendanceData();
+    } catch (error) {
+      console.error('Chyba pri rýchlom príchode:', error);
+      alert('Chyba pri rýchlom príchode');
+    }
+  };
+
+  const quickCheckOut = async (employee: Employee) => {
+    try {
+      const date = getTodayString();
+      // Zistiť dnešný záznam dochádzky pre zamestnanca
+      const records = await hrService.getAttendance(companyId, employee.id, date, date);
+      const todayRecord = Array.isArray(records) ? records[0] : null;
+      if (!todayRecord || !todayRecord.check_in) {
+        alert('Najprv je potrebné zaznamenať príchod.');
+        return;
+      }
+
+      const checkInISO = todayRecord.check_in;
+      const now = new Date();
+      const checkInDate = new Date(checkInISO);
+      const diffMs = now.getTime() - checkInDate.getTime();
+      const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
+      const breakMinutes = 0; // voliteľne upraviť podľa politiky firmy
+      const totalHours = Math.max(0, diffHours - breakMinutes / 60);
+
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const endTime = `${hh}:${mm}:00`;
+
+      await hrService.addAttendance({
+        employee_id: employee.id,
+        company_id: companyId,
+        date,
+        check_in: checkInISO,
+        check_out: `${date}T${endTime}`,
+        total_hours: Math.round(totalHours * 100) / 100,
+        break_minutes: breakMinutes,
+        status: 'present',
+        notes: 'Rýchly odchod'
+      } as any);
+
+      await refreshAttendanceData();
+    } catch (error) {
+      console.error('Chyba pri rýchlom odchode:', error);
+      alert('Chyba pri rýchlom odchode');
+    }
+  };
+
   const handleApproveLeaveRequest = async (requestId: number) => {
     try {
       await hrService.updateLeaveRequestStatus(requestId, 'approved', 1); // TODO: použiť skutočné ID schvaľovateľa
@@ -940,6 +1017,20 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       >
                         <PencilIcon className="w-4 h-4 mr-1" />
                         Upraviť
+                      </button>
+                      <button 
+                        onClick={() => quickCheckIn(employee)}
+                        className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                        title="Rýchly príchod (teraz)"
+                      >
+                        Príchod
+                      </button>
+                      <button 
+                        onClick={() => quickCheckOut(employee)}
+                        className="text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
+                        title="Rýchly odchod (teraz)"
+                      >
+                        Odchod
                       </button>
                       <button 
                         onClick={() => handleOpenPersonalCard(employee)}
