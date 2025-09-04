@@ -71,10 +71,10 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
       // Načítanie firiem a hľadanie zamestnanca vo všetkých firmách
       const companiesData: Company[] = await apiService.getAllCompanies();
-      setCompanies(companiesData);
 
       let foundEmployee: Employee | null = null;
       let foundCompany: Company | null = null;
+      const matchedCompanies: Company[] = [];
 
       // Hľadanie zamestnanca vo všetkých firmách
       for (const company of companiesData) {
@@ -83,13 +83,23 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           const currentEmployee = employees.find(emp => emp.email === userEmail);
           
           if (currentEmployee) {
-            foundEmployee = currentEmployee;
-            foundCompany = company;
-            break;
+            // Nastav prvý nájdený ako primárny
+            if (!foundEmployee) {
+              foundEmployee = currentEmployee;
+              foundCompany = company;
+            }
+            matchedCompanies.push(company);
           }
         } catch (error) {
           console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
         }
+      }
+
+      // Pre zamestnanca zobraz len firmy, kde má väzbu; pre admin/accountant/user nechaj všetky
+      if (userRole === 'employee') {
+        setCompanies(matchedCompanies);
+      } else {
+        setCompanies(companiesData);
       }
 
       if (foundEmployee && foundCompany) {
