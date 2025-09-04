@@ -850,7 +850,14 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    if (tab.id === 'accounting') {
+                      try { localStorage.setItem('selectedCompanyId', String(company.id)); } catch (e) {}
+                      navigate('/accounting');
+                    } else {
+                      setActiveTab(tab.id);
+                    }
+                  }}
                   className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeTab === tab.id
                       ? 'border-primary-500 text-primary-600'
