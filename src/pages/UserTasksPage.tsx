@@ -28,6 +28,8 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [taskFilter, setTaskFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Načítanie úloh používateľa
   useEffect(() => {
@@ -160,6 +162,55 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
     }
   };
 
+  // Filtrovanie a hromadné akcie
+  const filteredTasks = tasks.filter(task => {
+    if (taskFilter === 'all') return true;
+    if (taskFilter === 'pending') return task.status === 'pending';
+    if (taskFilter === 'in_progress') return task.status === 'in_progress';
+    if (taskFilter === 'completed') return task.status === 'completed';
+    if (taskFilter === 'cancelled') return task.status === 'cancelled';
+    return true;
+  });
+
+  const toggleSelect = (taskId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId); else next.add(taskId);
+      return next;
+    });
+  };
+
+  const isSelected = (taskId: string) => selectedIds.has(taskId);
+  const selectAllVisible = () => setSelectedIds(new Set(filteredTasks.map(t => t.id)));
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatusChange = async (newStatus: Task['status']) => {
+    if (selectedIds.size === 0) return;
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => 
+        apiService.updateTask(parseInt(id), { status: newStatus })
+      ));
+      setTasks(prev => prev.map(t => selectedIds.has(t.id) ? { ...t, status: newStatus } : t));
+      clearSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnej zmene stavu úloh:', error);
+      alert('Chyba pri hromadnej zmene stavu úloh');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Naozaj chcete vymazať ${selectedIds.size} vybraných úloh?`)) return;
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => apiService.deleteTask(parseInt(id))));
+      setTasks(prev => prev.filter(t => !selectedIds.has(t.id)));
+      clearSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnom mazaní úloh:', error);
+      alert('Chyba pri hromadnom mazaní úloh');
+    }
+  };
+
   // Helper funkcie pre úlohy
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -241,8 +292,32 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
                 <h2 className="text-lg font-semibold text-gray-900">Zoznam úloh</h2>
                 <p className="text-sm text-gray-600 mt-1">
                   Celkovo {tasks.length} úloh • {tasks.filter(t => t.status === 'pending').length} čakajúcich
+                  {filteredTasks.length !== tasks.length && (
+                    <span className="ml-2 text-primary-600">(Zobrazené: {filteredTasks.length})</span>
+                  )}
                 </p>
               </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">Vybrané: {selectedIds.size}</span>
+                <button onClick={selectAllVisible} className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">Vybrať zobrazené</button>
+                <button onClick={clearSelection} className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">Zrušiť výber</button>
+                <div className="hidden md:flex items-center space-x-1">
+                  <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>Čakajúce</button>
+                  <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovaní</button>
+                  <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokončené</button>
+                  <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>Zrušené</button>
+                  <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Vymazať vybrané</button>
+                </div>
+              </div>
+            </div>
+            {/* Filter stavov */}
+            <div className="mt-3 flex items-center space-x-2">
+              <span className="text-sm font-medium text-gray-700">Filter:</span>
+              <button onClick={() => setTaskFilter('all')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='all'?'bg-primary-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Všetky ({tasks.length})</button>
+              <button onClick={() => setTaskFilter('pending')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='pending'?'bg-yellow-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Čakajúce ({tasks.filter(t=>t.status==='pending').length})</button>
+              <button onClick={() => setTaskFilter('in_progress')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='in_progress'?'bg-blue-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>V spracovaní ({tasks.filter(t=>t.status==='in_progress').length})</button>
+              <button onClick={() => setTaskFilter('completed')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='completed'?'bg-green-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Dokončené ({tasks.filter(t=>t.status==='completed').length})</button>
+              <button onClick={() => setTaskFilter('cancelled')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='cancelled'?'bg-gray-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Zrušené ({tasks.filter(t=>t.status==='cancelled').length})</button>
             </div>
           </div>
           
@@ -252,12 +327,23 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
               </div>
-            ) : tasks.length > 0 ? (
+            ) : filteredTasks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tasks.map((task) => (
+                {filteredTasks.map((task) => (
                   <div key={task.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow border border-gray-200">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
+                        <div className="mb-2">
+                          <label className="inline-flex items-center space-x-2 text-sm text-gray-600">
+                            <input 
+                              type="checkbox" 
+                              className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                              checked={isSelected(task.id)}
+                              onChange={() => toggleSelect(task.id)}
+                            />
+                            <span>Vybrať</span>
+                          </label>
+                        </div>
                         <h3 className="text-lg font-medium text-gray-900 mb-1">{task.title}</h3>
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</p>
                         <div className="flex items-center text-sm text-gray-500 mb-2">

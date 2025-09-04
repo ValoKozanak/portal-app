@@ -15,6 +15,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskFilter, setTaskFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadAccountantData();
@@ -196,6 +197,52 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
     return true;
   });
 
+  // Výber úloh
+  const toggleSelect = (taskId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId); else next.add(taskId);
+      return next;
+    });
+  };
+
+  const isSelected = (taskId: string) => selectedIds.has(taskId);
+
+  const selectAllVisible = () => {
+    setSelectedIds(new Set(filteredTasks.map(t => t.id)));
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatusChange = async (newStatus: Task['status']) => {
+    if (selectedIds.size === 0) return;
+    try {
+      // Update na backende
+      await Promise.all(Array.from(selectedIds).map(id => 
+        apiService.updateTask(parseInt(id), { status: newStatus })
+      ));
+      // Update v stave
+      setAssignedTasks(prev => prev.map(task => selectedIds.has(task.id) ? { ...task, status: newStatus } : task));
+      clearSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnej zmene stavu úloh:', error);
+      alert('Chyba pri hromadnej zmene stavu úloh');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Naozaj chcete vymazať ${selectedIds.size} vybraných úloh?`)) return;
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => apiService.deleteTask(parseInt(id))));
+      setAssignedTasks(prev => prev.filter(task => !selectedIds.has(task.id)));
+      clearSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnom mazaní úloh:', error);
+      alert('Chyba pri hromadnom mazaní úloh');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -236,18 +283,40 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Správa úloh</h2>
             </div>
-            <button
-              onClick={handleAddTask}
-              disabled={companies.length === 0}
-              className={`px-4 py-2 rounded-md flex items-center ${
-                companies.length === 0 
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                  : 'bg-primary-600 text-white hover:bg-primary-700'
-              }`}
-            >
-              <CogIcon className="h-5 w-5 mr-2" />
-              {companies.length === 0 ? 'Žiadne firmy' : 'Pridať úlohu'}
-            </button>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">Vybrané: {selectedIds.size}</span>
+              <button
+                onClick={selectAllVisible}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50"
+              >
+                Vybrať zobrazené
+              </button>
+              <button
+                onClick={clearSelection}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50"
+              >
+                Zrušiť výber
+              </button>
+              <div className="hidden md:flex items-center space-x-1">
+                <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>Čakajúce</button>
+                <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovaní</button>
+                <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokončené</button>
+                <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>Zrušené</button>
+                <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Vymazať vybrané</button>
+              </div>
+              <button
+                onClick={handleAddTask}
+                disabled={companies.length === 0}
+                className={`px-4 py-2 rounded-md flex items-center ${
+                  companies.length === 0 
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                    : 'bg-primary-600 text-white hover:bg-primary-700'
+                }`}
+              >
+                <CogIcon className="h-5 w-5 mr-2" />
+                {companies.length === 0 ? 'Žiadne firmy' : 'Pridať úlohu'}
+              </button>
+            </div>
           </div>
 
           {/* Task Filter */}
@@ -321,6 +390,17 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                   <div key={task.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
+                        <div className="mb-2">
+                          <label className="inline-flex items-center space-x-2 text-sm text-gray-600">
+                            <input 
+                              type="checkbox" 
+                              className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                              checked={isSelected(task.id)}
+                              onChange={() => toggleSelect(task.id)}
+                            />
+                            <span>Vybrať</span>
+                          </label>
+                        </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
                         <p className="text-sm text-gray-600 mb-3">{task.description}</p>
                         
