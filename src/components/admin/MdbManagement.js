@@ -127,22 +127,7 @@ const MdbManagement = ({ onBack }) => {
     }
   };
 
-  // Migrácia z Dropbox
-  const handleMigration = async () => {
-    try {
-      setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/migrate-local`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      setSuccess(`Migrácia dokončená: ${response.data.migrated} súborov migrovaných`);
-      fetchFiles(); // Refresh zoznamu
-    } catch (error) {
-      setError('Migrácia zlyhala: ' + error.message);
-    }
-  };
+  // Migrácia z Dropbox (odstránené – nepoužíva sa)
 
   // Test Spaces pripojenia
   const testSpaces = async () => {
@@ -266,19 +251,7 @@ const MdbManagement = ({ onBack }) => {
             )}
           </div>
 
-          {/* Migrácia z Dropbox */}
-          <div className="mb-8 p-4 border border-gray-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Migrácia z Dropbox</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Migrujte existujúce MDB súbory z Dropbox do DigitalOcean Spaces
-            </p>
-            <button
-              onClick={handleMigration}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Spustiť migráciu
-            </button>
-          </div>
+          {/* Migrácia z Dropbox – odstránené */}
 
           {/* Zoznam dostupných MDB súborov */}
           <div className="mb-8">
@@ -386,8 +359,7 @@ const MdbManagement = ({ onBack }) => {
               <li>Testujte Spaces pripojenie</li>
               <li>Vyberte IČO firmy a rok pre upload</li>
               <li>Nahrajte MDB súbor (.mdb)</li>
-              <li>Súbor sa automaticky nahraje do DigitalOcean Spaces</li>
-              <li>Migrujte existujúce súbory z Dropbox</li>
+              <li>Súbor sa automaticky nahrá do DigitalOcean Spaces</li>
             </ol>
           </div>
         </div>
