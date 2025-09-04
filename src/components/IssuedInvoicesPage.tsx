@@ -263,14 +263,14 @@ const IssuedInvoicesPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
           {/* Horná časť - Sumár faktúr */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200" style={{ height: '200px', overflow: 'hidden' }}>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
             <div className="p-4">
               <InvoiceSummary invoices={filteredInvoices} type="issued" />
             </div>
           </div>
 
           {/* Spodná časť - Zoznam faktúr */}
-          <div className="bg-white overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 400px)', maxHeight: '700px' }}>
+          <div className="bg-white overflow-hidden flex flex-col flex-1">
             {/* Hlavička zoznamu */}
             <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
               <div className="flex items-center justify-between">
@@ -414,7 +414,7 @@ const IssuedInvoicesPage: React.FC = () => {
             )}
 
             {/* Tabuľka faktúr */}
-            <div className="overflow-x-auto overflow-y-auto" style={{ height: 'calc(100vh - 500px)', maxHeight: '600px' }}>
+            <div className="flex-1 overflow-x-auto overflow-y-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
