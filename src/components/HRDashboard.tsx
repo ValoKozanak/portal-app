@@ -170,6 +170,81 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     loadData();
   }, [loadData]);
 
+  // Automaticky označiť prítomného zamestnanca s automatickou dochádzkou v aktuálny deň
+  useEffect(() => {
+    const autoCheckInAutomaticToday = async () => {
+      try {
+        // Získať zoznam zamestnancov s automatickou dochádzkou (obsahuje pracovné časy)
+        const automaticEmployees = await hrService.getEmployeesWithAutomaticAttendance(companyId);
+
+        const now = new Date();
+        const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+        const minutesNow = now.getHours() * 60 + now.getMinutes();
+
+        const toMinutes = (t?: string) => {
+          if (!t) return null;
+          const [h, m] = t.split(':');
+          const hh = parseInt(h || '0', 10);
+          const mm = parseInt(m || '0', 10);
+          return hh * 60 + mm;
+        };
+
+        for (const emp of automaticEmployees) {
+          const status = employeesAttendanceStatus.find(e => e.id === emp.id);
+          // Preskočiť ak už má status prítomný/mešká alebo je víkend/sviatok
+          if (status && (status.status_type === 'present' || status.status_type === 'late' || status.is_weekend || status.is_holiday)) {
+            continue;
+          }
+
+          const startM = toMinutes(emp.work_start_time);
+          const endM = toMinutes(emp.work_end_time);
+          if (startM == null || endM == null) continue;
+
+          // Mimo pracovného času neoznačovať
+          if (minutesNow < startM || minutesNow > endM) continue;
+
+          const flagKey = `auto_checked_in_${emp.id}_${todayStr}`;
+          if (localStorage.getItem(flagKey) === 'true') continue;
+
+          // Overiť, či už dnes nemá záznam
+          const records = await hrService.getAttendance(companyId, emp.id, todayStr, todayStr);
+          if (Array.isArray(records) && records.length > 0) {
+            localStorage.setItem(flagKey, 'true');
+            continue;
+          }
+
+          // Zaznamenať rýchly príchod teraz
+          const hh = String(now.getHours()).padStart(2, '0');
+          const mm = String(now.getMinutes()).padStart(2, '0');
+          await hrService.recordAttendance({
+            employee_id: emp.id,
+            company_id: companyId,
+            date: todayStr,
+            attendance_type: 'present',
+            start_time: `${hh}:${mm}:00`,
+            end_time: null as any,
+            break_minutes: 0,
+            note: 'Automatický príchod (v rámci pracovných hodín)',
+            recorded_by: 'system'
+          });
+
+          localStorage.setItem(flagKey, 'true');
+        }
+
+        // Po automatickom príchode obnoviť dnešné prehľady
+        await refreshAttendanceData();
+      } catch (e) {
+        // Ticho ignorovať – nech to neblokuje UI
+        console.warn('Auto check-in skipped:', e);
+      }
+    };
+
+    // Spustiť len keď máme načítané dnešné statusy
+    if (employeesAttendanceStatus && employeesAttendanceStatus.length >= 0) {
+      autoCheckInAutomaticToday();
+    }
+  }, [companyId, employeesAttendanceStatus, refreshAttendanceData]);
+
   // Automatické aktualizácie dochádzkových dát každých 30 sekúnd
   useEffect(() => {
     const interval = setInterval(() => {
