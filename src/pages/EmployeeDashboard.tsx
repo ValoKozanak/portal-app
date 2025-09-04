@@ -562,6 +562,18 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                      relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
                   </p>
                 </div>
+                <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Aktuálne</label>
+                  <p className="text-gray-900 dark:text-white">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      relation.status === 'active' 
+                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                        : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                    }`}>
+                      {relation.status === 'active' ? 'Aktívny' : 'Neaktívny'}
+                    </span>
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -776,7 +788,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Aktuálne</label>
                     <p className="text-gray-900 dark:text-white">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         relation.status === 'active' 
