@@ -75,6 +75,9 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'employees' | 'attendance' | 'leave' | 'employee-cards' | 'employment-relations' | 'attendance-overview'>('overview');
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [employeeFilter, setEmployeeFilter] = useState<'all' | 'active' | 'inactive' | 'terminated' | 'on_leave'>('all');
+  const [employeeSearch, setEmployeeSearch] = useState('');
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<Set<number>>(new Set());
   const [showLeaveRequestModal, setShowLeaveRequestModal] = useState(false);
   const [selectedEmployeeForLeave, setSelectedEmployeeForLeave] = useState<Employee | null>(null);
   const [showAttendanceRecordModal, setShowAttendanceRecordModal] = useState(false);
@@ -189,6 +192,51 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
   const handleOpenPersonalCard = (employee: Employee) => {
     setSelectedEmployee(employee);
     setActiveTab('employee-cards');
+  };
+  // Filtrovanie a výber zamestnancov
+  const filteredEmployees = employees.filter(e => {
+    const byStatus = employeeFilter === 'all' ? true : e.status === employeeFilter;
+    const term = employeeSearch.trim().toLowerCase();
+    const bySearch = term === '' || [
+      e.first_name, e.last_name, e.email, e.position, e.employee_id
+    ].filter(Boolean).some(v => String(v).toLowerCase().includes(term));
+    return byStatus && bySearch;
+  });
+
+  const toggleEmployeeSelect = (id: number) => {
+    setSelectedEmployeeIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllVisibleEmployees = () => setSelectedEmployeeIds(new Set(filteredEmployees.map(e => e.id)));
+  const clearEmployeesSelection = () => setSelectedEmployeeIds(new Set());
+
+  const handleBulkEmployeeStatus = async (newStatus: Employee['status']) => {
+    if (selectedEmployeeIds.size === 0) return;
+    try {
+      await Promise.all(Array.from(selectedEmployeeIds).map(id => hrService.updateEmployee(id, { status: newStatus })));
+      setEmployees(prev => prev.map(e => selectedEmployeeIds.has(e.id) ? { ...e, status: newStatus } : e));
+      clearEmployeesSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnej zmene statusu zamestnancov:', error);
+      alert('Chyba pri hromadnej zmene statusu zamestnancov');
+    }
+  };
+
+  const handleBulkEmployeeDelete = async () => {
+    if (selectedEmployeeIds.size === 0) return;
+    if (!window.confirm(`Naozaj chcete vymazať ${selectedEmployeeIds.size} vybraných zamestnancov?`)) return;
+    try {
+      await Promise.all(Array.from(selectedEmployeeIds).map(id => hrService.deleteEmployee(id)));
+      setEmployees(prev => prev.filter(e => !selectedEmployeeIds.has(e.id)));
+      clearEmployeesSelection();
+    } catch (error) {
+      console.error('Chyba pri hromadnom mazaní zamestnancov:', error);
+      alert('Chyba pri hromadnom mazaní zamestnancov');
+    }
   };
 
   const handleEmployeeSuccess = () => {
@@ -740,13 +788,25 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Zamestnanci</h2>
-        <button 
-          onClick={handleAddEmployee}
-          className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          Pridať zamestnanca
-        </button>
+        <div className="flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-1">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Vybrané: {selectedEmployeeIds.size}</span>
+            <button onClick={selectAllVisibleEmployees} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">Vybrať zobrazené</button>
+            <button onClick={clearEmployeesSelection} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">Zrušiť výber</button>
+            <button onClick={() => handleBulkEmployeeStatus('active')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Aktívny</button>
+            <button onClick={() => handleBulkEmployeeStatus('inactive')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>Neaktívny</button>
+            <button onClick={() => handleBulkEmployeeStatus('terminated')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Ukončený</button>
+            <button onClick={() => handleBulkEmployeeStatus('on_leave')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>Na dovolenke</button>
+            <button onClick={handleBulkEmployeeDelete} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-700 text-white hover:bg-red-800'}`}>Vymazať vybraných</button>
+          </div>
+          <button 
+            onClick={handleAddEmployee}
+            className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Pridať zamestnanca
+          </button>
+        </div>
       </div>
 
       {/* Informačný box */}
@@ -771,10 +831,32 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
       </div>
 
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600 flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
+            <button onClick={() => setEmployeeFilter('all')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='all'?'bg-blue-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Všetci ({employees.length})</button>
+            <button onClick={() => setEmployeeFilter('active')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='active'?'bg-green-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Aktívni ({employees.filter(e=>e.status==='active').length})</button>
+            <button onClick={() => setEmployeeFilter('inactive')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='inactive'?'bg-gray-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Neaktívni ({employees.filter(e=>e.status==='inactive').length})</button>
+            <button onClick={() => setEmployeeFilter('terminated')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='terminated'?'bg-red-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Ukončení ({employees.filter(e=>e.status==='terminated').length})</button>
+            <button onClick={() => setEmployeeFilter('on_leave')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='on_leave'?'bg-yellow-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Na dovolenke ({employees.filter(e=>e.status==='on_leave').length})</button>
+          </div>
+          <div className="mt-3 md:mt-0">
+            <input
+              type="text"
+              value={employeeSearch}
+              onChange={(e) => setEmployeeSearch(e.target.value)}
+              placeholder="Hľadať meno, email, pozíciu, ID..."
+              className="w-full md:w-80 px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
             <thead className="bg-gray-50 dark:bg-dark-700">
               <tr>
+                <th className="px-6 py-3">
+                  <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" onChange={(e)=>{ if(e.target.checked){ selectAllVisibleEmployees(); } else { clearEmployeesSelection(); }}} />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Zamestnanec
                 </th>
@@ -799,8 +881,11 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-600">
-              {employees.map((employee) => (
+              {filteredEmployees.map((employee) => (
                 <tr key={employee.id} className="hover:bg-gray-50 dark:hover:bg-dark-700">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked={selectedEmployeeIds.has(employee.id)} onChange={()=>toggleEmployeeSelect(employee.id)} />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-white">

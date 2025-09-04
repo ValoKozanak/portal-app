@@ -223,6 +223,21 @@ router.put('/employees/:id', authenticateToken, (req, res) => {
   });
 });
 
+// Vymazanie zamestnanca
+router.delete('/employees/:id', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM employees WHERE id = ?', [id], function(err) {
+    if (err) {
+      console.error('Chyba pri mazaní zamestnanca:', err);
+      return res.status(500).json({ error: 'Chyba pri mazaní zamestnanca' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Zamestnanec nenájdený' });
+    }
+    res.json({ message: 'Zamestnanec vymazaný' });
+  });
+});
+
 // Aktualizácia company_id zamestnanca
 router.put('/employees/:id/company', authenticateToken, (req, res) => {
   const { id } = req.params;

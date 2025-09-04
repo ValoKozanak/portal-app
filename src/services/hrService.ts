@@ -192,6 +192,10 @@ class HRService {
     return apiService.put(`/hr/employees/${id}`, employeeData);
   }
 
+  async deleteEmployee(id: number): Promise<{ message: string }> {
+    return apiService.delete(`/hr/employees/${id}`);
+  }
+
   // Dochádzka
   async getAttendance(companyId: number, employeeId?: number, startDate?: string, endDate?: string): Promise<Attendance[]> {
     let url = `/hr/attendance/${companyId}`;
