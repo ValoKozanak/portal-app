@@ -22,6 +22,26 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Pomocná kontrola oprávnení pre úpravu dochádzky (admin | priradený účtovník | majiteľ firmy)
+async function canEditAttendance(db, user, companyId) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+
+  return await new Promise((resolve) => {
+    // Skontrolovať, či je používateľ majiteľ firmy
+    db.get(`SELECT 1 FROM companies WHERE id = ? AND owner_email = ?`, [companyId, user.email], (err, ownerRow) => {
+      if (!err && ownerRow) {
+        resolve(true);
+        return;
+      }
+      // Skontrolovať, či je používateľ priradený účtovník k firme
+      db.get(`SELECT 1 FROM company_accountants WHERE company_id = ? AND accountant_email = ?`, [companyId, user.email], (err2, accRow) => {
+        if (!err2 && accRow) resolve(true); else resolve(false);
+      });
+    });
+  });
+}
+
 // Získanie všetkých zamestnancov firmy
 router.get('/employees/:companyId', authenticateToken, (req, res) => {
   const { companyId } = req.params;
@@ -1941,6 +1961,107 @@ router.post('/attendance/record', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Chyba pri zaznamenávaní dochádzky:', error);
     res.status(500).json({ error: 'Chyba pri zaznamenávaní dochádzky' });
+  }
+});
+
+// Upsert/úprava dochádzky pre konkrétny deň (len admin/accountant/majiteľ firmy)
+router.put('/attendance/day', authenticateToken, async (req, res) => {
+  const {
+    employee_id,
+    company_id,
+    date,
+    attendance_type, // 'present' | 'absent' | 'leave' | 'sick_leave'
+    start_time,
+    end_time,
+    break_minutes = 0,
+    note
+  } = req.body;
+
+  try {
+    if (!employee_id || !company_id || !date || !attendance_type) {
+      return res.status(400).json({ error: 'Chýbajú povinné údaje' });
+    }
+
+    // Oprávnenia
+    const allowed = await canEditAttendance(db, req.user, company_id);
+    if (!allowed) {
+      return res.status(403).json({ error: 'Nemáte oprávnenie na úpravu dochádzky' });
+    }
+
+    // Uzatvorené mzdové obdobie
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const payroll = await new Promise((resolve, reject) => {
+      db.get(`SELECT is_closed FROM payroll_periods WHERE company_id = ? AND year = ? AND month = ?`, [company_id, year, month], (err, row) => {
+        if (err) reject(err); else resolve(row);
+      });
+    });
+    if (payroll && payroll.is_closed === 1) {
+      return res.status(400).json({ error: `Mzdové obdobie ${month}/${year} je uzatvorené. Úprava nie je povolená.` });
+    }
+
+    // Prepočty
+    let totalHours = 0;
+    let checkInISO = null;
+    let checkOutISO = null;
+    const normalizedBreak = Number(break_minutes) || 0;
+    if (attendance_type === 'present' && start_time && end_time) {
+      checkInISO = new Date(`${date}T${start_time.length === 5 ? start_time + ':00' : start_time}`).toISOString();
+      checkOutISO = new Date(`${date}T${end_time.length === 5 ? end_time + ':00' : end_time}`).toISOString();
+      const start = new Date(`2000-01-01T${start_time}`);
+      const end = new Date(`2000-01-01T${end_time}`);
+      const diffMs = end.getTime() - start.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+      totalHours = Math.max(0, diffHours - (normalizedBreak / 60));
+    }
+
+    // Mapovanie typu na status
+    let status = 'present';
+    if (attendance_type === 'absent') status = 'absent';
+    else if (attendance_type === 'leave') status = 'vacation';
+    else if (attendance_type === 'sick_leave') status = 'sick_leave';
+
+    // Upsert: ak existuje záznam pre deň, update, inak insert
+    const existing = await new Promise((resolve, reject) => {
+      db.get(`SELECT id FROM attendance WHERE employee_id = ? AND company_id = ? AND date = ?`, [employee_id, company_id, date], (err, row) => {
+        if (err) reject(err); else resolve(row);
+      });
+    });
+
+    if (existing) {
+      await new Promise((resolve, reject) => {
+        db.run(`
+          UPDATE attendance SET 
+            check_in = ?,
+            check_out = ?,
+            total_hours = ?,
+            break_minutes = ?,
+            status = ?,
+            notes = ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `, [checkInISO, checkOutISO, totalHours, normalizedBreak, status, note || null, existing.id], function(err) {
+          if (err) reject(err); else resolve();
+        });
+      });
+      return res.json({ id: existing.id, message: 'Dochádzka upravená' });
+    } else {
+      const inserted = await new Promise((resolve, reject) => {
+        db.run(`
+          INSERT INTO attendance (
+            employee_id, company_id, date, check_in, check_out,
+            total_hours, break_minutes, status, notes, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `, [employee_id, company_id, date, checkInISO, checkOutISO, totalHours, normalizedBreak, status, note || null], function(err) {
+          if (err) reject(err); else resolve({ id: this.lastID });
+        });
+      });
+      return res.json({ id: inserted.id, message: 'Dochádzka vytvorená' });
+    }
+  } catch (error) {
+    console.error('Chyba pri upserte dochádzky:', error);
+    return res.status(500).json({ error: 'Chyba pri ukladaní dochádzky' });
   }
 });
 

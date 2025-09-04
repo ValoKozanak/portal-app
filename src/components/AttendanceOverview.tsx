@@ -35,6 +35,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [showAllEmployees, setShowAllEmployees] = useState<boolean>(false);
+  const [holidays, setHolidays] = useState<{ date: string; title: string }[]>([]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editDay, setEditDay] = useState<{ date: string; status: 'present' | 'absent' | 'vacation' | 'sick_leave'; start_time?: string; end_time?: string; break_minutes?: number; note?: string } | null>(null);
+  const userRoleRaw = typeof window !== 'undefined' ? window.localStorage.getItem('userRole') : null;
+  const userRole = (() => { try { return userRoleRaw ? JSON.parse(userRoleRaw) : null; } catch { return userRoleRaw; } })() as 'admin' | 'accountant' | 'user' | 'employee' | null;
+  const canEdit = userRole === 'admin' || userRole === 'accountant' || userRole === 'user';
 
   const periodOptions: PeriodOption[] = [
     { value: 'week', label: 'Tento týždeň' },
@@ -49,6 +55,20 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     }
     updateDateRange();
   }, [selectedPeriod, isCompanyView]);
+
+  useEffect(() => {
+    const loadCalendar = async () => {
+      try {
+        if (!startDate) return;
+        const year = new Date(startDate).getFullYear();
+        const calendar = await CalendarService.getWorkCalendar(year);
+        setHolidays(calendar.holidays || []);
+      } catch (e) {
+        setHolidays([]);
+      }
+    };
+    loadCalendar();
+  }, [startDate]);
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -66,6 +86,58 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     } catch (error) {
       console.error('Chyba pri načítaní zamestnancov:', error);
     }
+  };
+
+  const getDatesInRange = (start: string, end: string): string[] => {
+    const result: string[] = [];
+    const s = new Date(start);
+    const e = new Date(end);
+    const cur = new Date(s);
+    while (cur <= e) {
+      const y = cur.getFullYear();
+      const m = String(cur.getMonth() + 1).padStart(2, '0');
+      const d = String(cur.getDate()).padStart(2, '0');
+      result.push(`${y}-${m}-${d}`);
+      cur.setDate(cur.getDate() + 1);
+    }
+    return result;
+  };
+
+  const isHolidayLocal = (dateStr: string) => holidays.some(h => h.date === dateStr);
+  const isWeekendLocal = (dateStr: string) => {
+    const dt = new Date(dateStr);
+    const day = dt.getDay();
+    return day === 0 || day === 6;
+  };
+
+  const buildDisplayRows = (): Array<Attendance & { synthetic?: boolean }> => {
+    if (!startDate || !endDate) return [];
+    const mapByDate = new Map<string, Attendance>();
+    attendance.forEach(a => { mapByDate.set(a.date, a); });
+    const dates = getDatesInRange(startDate, endDate);
+    return dates.map(dateStr => {
+      const existing = mapByDate.get(dateStr);
+      if (existing) return existing;
+      const status: Attendance['status'] = isHolidayLocal(dateStr) || isWeekendLocal(dateStr) ? 'holiday' : 'absent';
+      return {
+        id: -1,
+        employee_id: (employeeId || selectedEmployee || 0) as number,
+        company_id: companyId,
+        date: dateStr,
+        check_in: undefined,
+        check_out: undefined,
+        total_hours: undefined,
+        break_minutes: 0,
+        status,
+        notes: status === 'holiday' ? 'Pracovný pokoj' : undefined,
+        first_name: '',
+        last_name: '',
+        employee_id_code: '',
+        created_at: '',
+        updated_at: '',
+        synthetic: true
+      } as any;
+    });
   };
 
   const updateDateRange = () => {
@@ -544,23 +616,26 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
               </th>
+              {!showAllEmployees && canEdit && (
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Akcie</th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-600">
             {loading ? (
               <tr>
-                <td colSpan={showAllEmployees ? 7 : 6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   Načítavam...
                 </td>
               </tr>
-            ) : attendance.length === 0 ? (
+            ) : (!showAllEmployees && (buildDisplayRows().length === 0)) || (showAllEmployees && attendance.length === 0) ? (
               <tr>
-                <td colSpan={showAllEmployees ? 7 : 6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   Žiadne záznamy dochádzky pre vybrané obdobie
                 </td>
               </tr>
             ) : (
-              attendance.map((att) => (
+              (showAllEmployees ? attendance : buildDisplayRows()).map((att) => (
                 <tr key={att.id} className="hover:bg-gray-50 dark:hover:bg-dark-700">
                   {showAllEmployees && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -598,17 +673,113 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                         : att.status === 'late'
                         ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                        : att.status === 'holiday'
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                     }`}>
                       {hrService.getAttendanceStatusLabel(att.status)}
                     </span>
                   </td>
+                  {!showAllEmployees && canEdit && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 dark:text-blue-400">
+                      <button
+                        onClick={() => {
+                          setEditDay({
+                            date: att.date,
+                            status: att.status === 'holiday' ? 'absent' : (att.status as any),
+                            start_time: att.check_in ? formatTime(att.check_in) + (formatTime(att.check_in).length === 5 ? ':00' : '') : undefined,
+                            end_time: att.check_out ? formatTime(att.check_out) + (formatTime(att.check_out).length === 5 ? ':00' : '') : undefined,
+                            break_minutes: att.break_minutes || 0,
+                            note: att.notes || ''
+                          });
+                          setEditModalOpen(true);
+                        }}
+                        className="hover:underline"
+                      >
+                        Upraviť
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      {editModalOpen && editDay && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-dark-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Upraviť deň {new Date(editDay.date).toLocaleDateString('sk-SK')}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stav</label>
+                <select
+                  value={editDay.status}
+                  onChange={(e) => setEditDay(prev => prev ? { ...prev, status: e.target.value as any } : prev)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                >
+                  <option value="present">Prítomný</option>
+                  <option value="absent">Neprítomný</option>
+                  <option value="vacation">Dovolenka</option>
+                  <option value="sick_leave">PN</option>
+                </select>
+              </div>
+              {editDay.status === 'present' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Príchod</label>
+                    <input type="time" value={(editDay.start_time || '').slice(0,5)} onChange={(e)=> setEditDay(prev => prev ? { ...prev, start_time: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Odchod</label>
+                    <input type="time" value={(editDay.end_time || '').slice(0,5)} onChange={(e)=> setEditDay(prev => prev ? { ...prev, end_time: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prestávka (min)</label>
+                    <input type="number" min={0} value={editDay.break_minutes || 0} onChange={(e)=> setEditDay(prev => prev ? { ...prev, break_minutes: Number(e.target.value) } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
+                  </div>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Poznámka</label>
+                <input type="text" value={editDay.note || ''} onChange={(e)=> setEditDay(prev => prev ? { ...prev, note: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
+              </div>
+              <div className="flex justify-end space-x-3 pt-2">
+                <button onClick={()=>{ setEditModalOpen(false); setEditDay(null); }} className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-700">Zrušiť</button>
+                <button
+                  onClick={async ()=>{
+                    if (!editDay) return;
+                    try {
+                      const attendance_type = editDay.status === 'vacation' ? 'leave' : (editDay.status as any);
+                      const targetEmployeeId = employeeId || selectedEmployee;
+                      if (!targetEmployeeId) return;
+                      await hrService.updateAttendanceDay({
+                        employee_id: targetEmployeeId,
+                        company_id: companyId,
+                        date: editDay.date,
+                        attendance_type,
+                        start_time: editDay.status === 'present' ? (editDay.start_time ? `${editDay.start_time}:00` : null) : null,
+                        end_time: editDay.status === 'present' ? (editDay.end_time ? `${editDay.end_time}:00` : null) : null,
+                        break_minutes: editDay.status === 'present' ? (editDay.break_minutes || 0) : 0,
+                        note: editDay.note || ''
+                      });
+                      setEditModalOpen(false);
+                      setEditDay(null);
+                      await loadAttendance();
+                    } catch (e: any) {
+                      alert(e?.message || 'Chyba pri ukladaní dochádzky');
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
+                >
+                  Uložiť
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -428,6 +428,20 @@ class HRService {
     return apiService.post('/hr/attendance', attendanceData);
   }
 
+  // Úprava/vytvorenie dochádzky pre konkrétny deň (s kontrolou oprávnení na serveri)
+  async updateAttendanceDay(payload: {
+    employee_id: number;
+    company_id: number;
+    date: string; // YYYY-MM-DD
+    attendance_type: 'present' | 'absent' | 'leave' | 'sick_leave';
+    start_time?: string | null; // HH:MM alebo HH:MM:SS
+    end_time?: string | null;   // HH:MM alebo HH:MM:SS
+    break_minutes?: number;
+    note?: string;
+  }): Promise<{ id: number; message: string }> {
+    return apiService.put('/hr/attendance/day', payload);
+  }
+
   // Pracovné pomery
   async getEmploymentRelations(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employment-relations/${companyId}`);
