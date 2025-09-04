@@ -129,25 +129,7 @@ const MdbManagement = ({ onBack }) => {
 
   // Migrácia z Dropbox (odstránené – nepoužíva sa)
 
-  // Test Spaces pripojenia
-  const testSpaces = async () => {
-    try {
-      setError(null);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/accounting/admin/spaces/test`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.data.spaces && response.data.spaces.isInitialized) {
-        setSuccess(`DigitalOcean Spaces funguje správne! Nájdených ${response.data.spaces.availableFiles || 0} MDB súborov.`);
-      } else {
-        setError(response.data.spaces?.error || 'DigitalOcean Spaces nie je nakonfigurované');
-      }
-    } catch (error) {
-      setError('Test Spaces zlyhal: ' + (error.response?.data?.error || error.message));
-    }
-  };
+  // Test Spaces pripojenia – odstránené (nepotrebné)
 
   useEffect(() => {
     fetchCompanies();
@@ -178,17 +160,8 @@ const MdbManagement = ({ onBack }) => {
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-6">MDB Management (DigitalOcean Spaces)</h2>
-
-          {/* Test Spaces */}
-          <div className="mb-6">
-            <button
-              onClick={testSpaces}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Test Spaces Pripojenia
-            </button>
-          </div>
+          <h2 className="text-2xl font-bold mb-6">MDB Management</h2>
+          {/* Test Spaces – odstránené */}
 
           {/* Upload nového MDB súboru */}
           <div className="mb-8 p-4 border border-gray-200 rounded-lg">
@@ -356,10 +329,9 @@ const MdbManagement = ({ onBack }) => {
           <div className="mt-8 bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-800 mb-2">Ako to funguje:</h4>
             <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
-              <li>Testujte Spaces pripojenie</li>
               <li>Vyberte IČO firmy a rok pre upload</li>
               <li>Nahrajte MDB súbor (.mdb)</li>
-              <li>Súbor sa automaticky nahrá do DigitalOcean Spaces</li>
+              <li>Súbor sa automaticky uloží na server</li>
             </ol>
           </div>
         </div>
