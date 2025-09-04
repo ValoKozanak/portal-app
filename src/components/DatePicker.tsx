@@ -206,7 +206,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                     ${!day.isCurrentMonth ? 'opacity-30' : ''}
                     relative
                   `}
-                                     title={day.holidayName ? `Sviatok: ${day.holidayName}` : (day.isWeekend ? 'Víkend' : undefined)}
+                                     title={day.holidayName ? `Pracovné voľno: ${day.holidayName}` : (day.isWeekend ? 'Víkend' : undefined)}
                 >
                   {day.date.getDate()}
 

@@ -352,7 +352,7 @@ class HRService {
       'early_leave': 'Predčasný odchod',
       'sick_leave': 'PN',
       'vacation': 'Dovolenka',
-      'holiday': 'Sviatok'
+      'holiday': 'Pracovné voľno'
     };
     return statuses[status as keyof typeof statuses] || status;
   }
