@@ -1920,9 +1920,9 @@ router.post('/attendance/record', authenticateToken, async (req, res) => {
     let checkOutISO = null;
     
     if (attendance_type === 'present' && start_time && end_time) {
-      // Konvertujeme časové údaje na ISO dátumy
-      checkInISO = new Date(`${date}T${start_time}`).toISOString();
-      checkOutISO = new Date(`${date}T${end_time}`).toISOString();
+      // Ukladáme lokálny čas bez konverzie do UTC
+      checkInISO = `${date}T${start_time.length === 5 ? start_time + ':00' : start_time}`;
+      checkOutISO = `${date}T${end_time.length === 5 ? end_time + ':00' : end_time}`;
       
       const start = new Date(`2000-01-01T${start_time}`);
       const end = new Date(`2000-01-01T${end_time}`);
@@ -2007,8 +2007,9 @@ router.put('/attendance/day', authenticateToken, async (req, res) => {
     let checkOutISO = null;
     const normalizedBreak = Number(break_minutes) || 0;
     if (attendance_type === 'present' && start_time && end_time) {
-      checkInISO = new Date(`${date}T${start_time.length === 5 ? start_time + ':00' : start_time}`).toISOString();
-      checkOutISO = new Date(`${date}T${end_time.length === 5 ? end_time + ':00' : end_time}`).toISOString();
+      // Ukladáme lokálny čas bez konverzie do UTC
+      checkInISO = `${date}T${start_time.length === 5 ? start_time + ':00' : start_time}`;
+      checkOutISO = `${date}T${end_time.length === 5 ? end_time + ':00' : end_time}`;
       const start = new Date(`2000-01-01T${start_time}`);
       const end = new Date(`2000-01-01T${end_time}`);
       const diffMs = end.getTime() - start.getTime();

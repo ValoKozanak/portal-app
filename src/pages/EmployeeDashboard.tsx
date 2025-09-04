@@ -44,7 +44,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const [employeeChanges, setEmployeeChanges] = useState<any[]>([]);
   const [attendanceSettings, setAttendanceSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'leave' | 'profile' | 'messages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'leave' | 'employment' | 'profile' | 'messages'>('overview');
   const [showLeaveRequestModal, setShowLeaveRequestModal] = useState(false);
   const [showChangeRequestModal, setShowChangeRequestModal] = useState(false);
   const [selectedField, setSelectedField] = useState<string>('');
@@ -125,110 +125,15 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           console.error('Chyba pri načítaní dochádzkových nastavení:', error);
         }
 
-        // Načítanie pracovných pomerov (zatiaľ simulované)
-    
-        const mockEmploymentRelations: EmploymentRelation[] = [
-          {
-            id: 1,
-            employee_id: foundEmployee.id,
-            employee_first_name: foundEmployee.first_name,
-            employee_last_name: foundEmployee.last_name,
-            employee_email: foundEmployee.email,
-            birth_number: foundEmployee.birth_number || '123456/7890',
-            insurance_company: 'Všeobecná zdravotná poisťovňa',
-            insurance_number: '123456789',
-            workplace: foundEmployee.department || 'Hlavné oddelenie',
-            center: 'Bratislava',
-            work_start_date: foundEmployee.hire_date,
-            position: foundEmployee.position,
-            position_name: foundEmployee.position,
-            employment_type: foundEmployee.employment_type,
-            employment_start_date: foundEmployee.hire_date,
-            fixed_term_contract: false,
-            is_active: foundEmployee.status === 'active',
-            salary: foundEmployee.salary || 1500,
-            salary_after_departure: 0,
-            temporary_work_force: false,
-            irregular_income: false,
-            reduce_personal_evaluation: false,
-            agreed_weekly_hours: 40,
-            no_vacation_entitlement: false,
-            manual_vacation_adjustment: false,
-            agreed_work_days: 21,
-            agreed_work_days_partial: 0,
-            work_days_full_time: 21,
-            work_days_full_time_partial: 0,
-            vacation_increase: 0,
-            vacation_increase_partial: 0,
-            basic_annual_vacation_days: 20,
-            basic_annual_vacation_days_partial: 0,
-            vacation_partial: 0,
-            vacation_days: 20,
-            forfeited_vacation_days: 0,
-            forfeited_vacation_days_partial: 0,
-            vacation_reduction_days: 0,
-            vacation_reduction_days_partial: 0,
-            vacation_used: 0,
-            vacation_used_partial: 0,
-            overpaid_vacation_days: 0,
-            overpaid_vacation_days_2year: 0,
-            overpaid_vacation_days_3year: 0,
-            salary_type: 'monthly',
-            holidays_paid: 'Áno',
-            schedule: 'Pondelok - Piatok',
-            rate: 0,
-            vacation: 0,
-            personal_evaluation: 0,
-            bonus_percentage: 0,
-            bonus: 0,
-            life_insurance_company: '',
-            life_insurance: 0,
-            varsym_life_insurance: '',
-            specsym_life_insurance: '',
-            risky_work: false,
-            advance: 0,
-            payment: 0,
-            advance_2: 0,
-            in_cash: 0,
-            account_number: '',
-            bank_code: '',
-            varsym_settlement: '',
-            specsym_settlement: '',
-            counted_years: 0,
-            counted_days: 0,
-            organization_notice: '',
-            termination_reason: '',
-            other_notice: '',
-            np: true,
-            sp: true,
-            ip: true,
-            pvn: true,
-            pfp: false,
-            gp: false,
-            up: false,
-            prfs: false,
-            zp: false,
-            pension_company: '',
-            varsym_pension: '',
-            specsym_pension: '',
-            pension_contribution: 0,
-            maximum: 0,
-            pension_contribution_percentage: 0,
-            identification_number: '',
-            workplace_code: '',
-            classification_code: '',
-            status: foundEmployee.status === 'active' ? 'active' : 'inactive',
-            
-            // Dochádzkové nastavenia
-            attendance_mode: 'manual',
-            work_start_time: '08:00',
-            work_end_time: '16:00',
-            break_start_time: '12:00',
-            break_end_time: '12:30',
-            weekly_hours: 40
-          }
-        ];
-        setEmploymentRelations(mockEmploymentRelations);
+        // Načítanie pracovných pomerov z backendu a filtrovanie podľa zamestnanca
+        try {
+          const relations = await hrService.getEmploymentRelations(foundCompany.id);
+          const employeeRelations = Array.isArray(relations) ? relations.filter((r: any) => r.employee_id === foundEmployee.id) : [];
+          setEmploymentRelations(employeeRelations);
+        } catch (e) {
+          console.error('Chyba pri načítaní pracovných pomerov:', e);
+          setEmploymentRelations([]);
+        }
       }
     } catch (error) {
       console.error('Chyba pri načítaní dát:', error);
@@ -786,6 +691,91 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         {leaveRequests.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400">Žiadne žiadosti o dovolenku</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderEmployment = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Pracovné pomery</h2>
+      </div>
+      <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
+        {employmentRelations.length === 0 ? (
+          <p className="text-gray-600 dark:text-gray-300">Žiadne pracovné pomery</p>
+        ) : (
+          <div className="space-y-4">
+            {employmentRelations.map((relation) => (
+              <div key={relation.id} className="border border-gray-200 dark:border-dark-600 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovisko</label>
+                    <p className="text-gray-900 dark:text-white">{relation.workplace}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pozícia</label>
+                    <p className="text-gray-900 dark:text-white">{relation.position_name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mzda</label>
+                    <p className="text-gray-900 dark:text-white">{relation.salary} €</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dátum nástupu</label>
+                    <p className="text-gray-900 dark:text-white">{new Date(relation.employment_start_date).toLocaleDateString('sk-SK')}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ úväzku</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.employment_type === 'full_time' ? 'Plný úväzok' :
+                       relation.employment_type === 'part_time' ? 'Čiastočný úväzok' :
+                       relation.employment_type === 'contract' ? 'Zmluva' :
+                       relation.employment_type === 'intern' ? 'Stáž' :
+                       relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
+                    <p className="text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
+                       relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.work_start_time && relation.work_end_time ? 
+                        `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
+                    <p className="text-gray-900 dark:text-white">
+                      {relation.break_start_time && relation.break_end_time ? 
+                        `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                    <p className="text-gray-900 dark:text-white">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        relation.status === 'active' 
+                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                          : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                      }`}>
+                        {relation.status === 'active' ? 'Aktívny' : 'Neaktívny'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -1466,95 +1456,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Pracovné pomery */}
-      {employmentRelations.length > 0 && (
-        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <DocumentTextIcon className="w-5 h-5 mr-2" />
-            Pracovné pomery
-          </h3>
-          <div className="space-y-4">
-            {employmentRelations.map((relation) => (
-              <div key={relation.id} className="border border-gray-200 dark:border-dark-600 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovisko</label>
-                    <p className="text-gray-900 dark:text-white">{relation.workplace}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pozícia</label>
-                    <p className="text-gray-900 dark:text-white">{relation.position_name}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mzda</label>
-                    <p className="text-gray-900 dark:text-white">{relation.salary} €</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dátum nástupu</label>
-                    <p className="text-gray-900 dark:text-white">{new Date(relation.employment_start_date).toLocaleDateString('sk-SK')}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ úväzku</label>
-                    <p className="text-gray-900 dark:text-white">
-                      {relation.employment_type === 'full_time' ? 'Plný úväzok' :
-                       relation.employment_type === 'part_time' ? 'Čiastočný úväzok' :
-                       relation.employment_type === 'contract' ? 'Zmluva' :
-                       relation.employment_type === 'intern' ? 'Stáž' :
-                       relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
-                    <p className="text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
-                    <p className="text-gray-900 dark:text-white">
-                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
-                       relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
-                    <p className="text-gray-900 dark:text-white">
-                      {relation.work_start_time && relation.work_end_time ? 
-                        `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
-                    <p className="text-gray-900 dark:text-white">
-                      {relation.break_start_time && relation.break_end_time ? 
-                        `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                    <p className="text-gray-900 dark:text-white">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        relation.status === 'active' 
-                          ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                          : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                      }`}>
-                        {relation.status === 'active' ? 'Aktívny' : 'Neaktívny'}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button 
-                    onClick={() => handleChangeRequest('employment_relation')}
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center"
-                  >
-                    <PencilIcon className="w-4 h-4 mr-1" />
-                    Nahlásiť zmenu
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Pracovné pomery - presunuté do samostatnej záložky */}
 
       {/* Informačný box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -1626,6 +1528,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               { id: 'overview', name: 'Prehľad', icon: ChartBarIcon },
               { id: 'attendance', name: 'Dochádzka', icon: ClockIcon },
               { id: 'leave', name: 'Dovolenky', icon: CalendarIcon },
+              { id: 'employment', name: 'Pracovné pomery', icon: DocumentTextIcon },
               { id: 'profile', name: 'Profil', icon: UserIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon }
             ].map((tab) => (
@@ -1651,6 +1554,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         {activeTab === 'overview' && renderOverview()}
         {activeTab === 'attendance' && renderAttendance()}
         {activeTab === 'leave' && renderLeave()}
+        {activeTab === 'employment' && renderEmployment()}
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'messages' && renderMessages()}
       </div>
