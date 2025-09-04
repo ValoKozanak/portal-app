@@ -93,19 +93,21 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       }
 
       if (foundEmployee && foundCompany) {
+        const employeeId = foundEmployee.id;
+        const companyId = foundCompany.id;
         setSelectedCompany(foundCompany);
         setEmployeeData(foundEmployee);
         
         // Načítanie žiadostí o dovolenku
-        const leaveData = await hrService.getLeaveRequests(foundCompany.id, undefined, foundEmployee.id);
+        const leaveData = await hrService.getLeaveRequests(companyId, undefined, employeeId);
         setLeaveRequests(leaveData);
         
         // Načítanie dochádzky za posledných 30 dní
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const attendanceData = await hrService.getAttendance(
-          foundCompany.id, 
-          foundEmployee.id, 
+          companyId, 
+          employeeId, 
           formatDate(thirtyDaysAgo)
         );
         setAttendance(attendanceData);
@@ -114,12 +116,12 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         await loadUnreadMessagesCount();
 
         // Načítanie zmien pre zamestnanca
-        const changesData = await hrService.getEmployeeChanges(foundEmployee.id);
+        const changesData = await hrService.getEmployeeChanges(employeeId);
         setEmployeeChanges(changesData);
 
         // Načítanie dochádzkových nastavení
         try {
-          const settingsData = await hrService.getAttendanceSettings(foundEmployee.id);
+          const settingsData = await hrService.getAttendanceSettings(employeeId);
           setAttendanceSettings(settingsData);
         } catch (error) {
           console.error('Chyba pri načítaní dochádzkových nastavení:', error);
@@ -127,8 +129,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
         // Načítanie pracovných pomerov z backendu a filtrovanie podľa zamestnanca
         try {
-          const relations = await hrService.getEmploymentRelations(foundCompany.id);
-          const employeeRelations = Array.isArray(relations) ? relations.filter((r: any) => r.employee_id === foundEmployee.id) : [];
+          const relations = await hrService.getEmploymentRelations(companyId);
+          const employeeRelations = Array.isArray(relations) ? relations.filter((r: any) => r.employee_id === employeeId) : [];
           setEmploymentRelations(employeeRelations);
         } catch (e) {
           console.error('Chyba pri načítaní pracovných pomerov:', e);
