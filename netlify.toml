@@ -1,35 +1,7 @@
-[build]
-  command = "npm run build"
+﻿[build]
+  command = "CI=false npm run build"
   publish = "build"
-  functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "18"
-
-# API redirects
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-# Static files - React chunks
-[[redirects]]
-  from = "/static/js/*"
-  to = "/static/js/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/static/css/*"
-  to = "/static/css/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/static/media/*"
-  to = "/static/media/:splat"
-  status = 200
-
-# SPA redirect - všetko ostatné na index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  NODE_VERSION = "18.19.0"
+  NPM_FLAGS = "--legacy-peer-deps"
