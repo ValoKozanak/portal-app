@@ -30,6 +30,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<ReceivedInvoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showSummary, setShowSummary] = useState(true);
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -303,16 +304,18 @@ const ReceivedInvoicesPage: React.FC = () => {
 
       {/* Hlavný obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="flex flex-col min-h-0">
           {/* Horná časť - Sumár faktúr */}
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200" style={{ height: '200px', overflow: 'hidden' }}>
-            <div className="p-4">
-              <InvoiceSummary invoices={filteredInvoices} type="received" />
+          {showSummary && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+              <div className="p-4">
+                <InvoiceSummary invoices={filteredInvoices} type="received" />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Spodná časť - Zoznam faktúr */}
-          <div className="bg-white overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 400px)', maxHeight: '700px' }}>
+          <div className="bg-white overflow-hidden flex flex-col flex-1 min-h-0">
             {/* Hlavička zoznamu */}
             <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
               <div className="flex items-center justify-between">
@@ -330,6 +333,12 @@ const ReceivedInvoicesPage: React.FC = () => {
                   >
                     <FunnelIcon className="h-4 w-4 mr-2" />
                     Filtre
+                  </button>
+                  <button
+                    onClick={() => setShowSummary(!showSummary)}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    {showSummary ? 'Skryť sumár' : 'Zobraziť sumár'}
                   </button>
                   <div className="relative">
                     <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -454,46 +463,46 @@ const ReceivedInvoicesPage: React.FC = () => {
             )}
 
             {/* Tabuľka faktúr */}
-            <div className="overflow-x-auto overflow-y-auto" style={{ height: 'calc(100vh - 500px)', maxHeight: '600px' }}>
+            <div className="flex-1 overflow-x-auto overflow-y-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                                 <thead className="bg-gray-50">
-                   <tr>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Číslo
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Varsym
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Dátum
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Splatné
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Dodávateľ
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Celkom
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Doplatok
-                     </th>
-                     <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                       Akcie
-                     </th>
-                   </tr>
-                 </thead>
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Číslo
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Varsym
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dátum
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Splatné
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dodávateľ
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Celkom
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Doplatok
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Akcie
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
                         Načítavam faktúry...
                       </td>
                     </tr>
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
                         Žiadne faktúry neboli nájdené
                       </td>
                     </tr>
@@ -506,28 +515,28 @@ const ReceivedInvoicesPage: React.FC = () => {
                           selectedInvoice?.id === invoice.id ? 'bg-green-50' : ''
                         }`}
                       >
-                        <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
                           {invoice.invoice_number}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           {(invoice as any).varsym || '-'}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(invoice.issue_date)}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(invoice.due_date)}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
                           {invoice.supplier_name}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
                           {formatCurrency(invoice.kc_celkem || invoice.total_amount)}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
                           {formatCurrency(invoice.kc_likv || 0)}
                         </td>
-                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={(e) => {
