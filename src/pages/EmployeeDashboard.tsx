@@ -12,7 +12,7 @@ import {
   PencilIcon
 } from '@heroicons/react/24/outline';
 import { hrService, Employee, LeaveRequest, Attendance } from '../services/hrService';
-import { apiService, User } from '../services/apiService';
+import { apiService, User, Company } from '../services/apiService';
 import { EmploymentRelation } from '../types/EmploymentRelation';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AttendanceTracker from '../components/AttendanceTracker';
@@ -36,8 +36,8 @@ interface EmployeeDashboardProps {
 const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRole }) => {
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [employeeData, setEmployeeData] = useState<Employee | null>(null);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [employmentRelations, setEmploymentRelations] = useState<EmploymentRelation[]>([]);
@@ -70,11 +70,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       setUserProfile(profile);
 
       // Načítanie firiem a hľadanie zamestnanca vo všetkých firmách
-      const companiesData = await apiService.getAllCompanies();
+      const companiesData: Company[] = await apiService.getAllCompanies();
       setCompanies(companiesData);
 
-      let foundEmployee = null;
-      let foundCompany = null;
+      let foundEmployee: Employee | null = null;
+      let foundCompany: Company | null = null;
 
       // Hľadanie zamestnanca vo všetkých firmách
       for (const company of companiesData) {
