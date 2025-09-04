@@ -27,7 +27,7 @@ router.get('/employees/:companyId', authenticateToken, (req, res) => {
   const { companyId } = req.params;
   
   db.all(`
-    SELECT e.*, 
+    SELECT DISTINCT e.*, 
            m.first_name as manager_first_name, 
            m.last_name as manager_last_name,
            er.employment_start_date,

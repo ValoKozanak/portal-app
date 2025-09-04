@@ -1,5 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+// Demo dáta je možné zapnúť len ak je nastavené ENABLE_DEMO_DATA=true
+const ENABLE_DEMO = process.env.ENABLE_DEMO_DATA === 'true';
 
 // Vytvorenie databázy
 const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'databases', 'portal.db');
@@ -216,17 +218,19 @@ const initDatabase = () => {
         }
       });
 
-      // Vloženie predvolených používateľov
-      db.run(`
-        INSERT OR IGNORE INTO users (email, password, name, role, status)
-        VALUES 
-          ('admin@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Admin', 'admin', 'active'),
-          ('user@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Používateľ', 'user', 'active'),
-          ('accountant@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Účtovník', 'accountant', 'active'),
-          ('jan.novak@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Ján Novák', 'employee', 'active'),
-          ('maria.kovacova@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Mária Kováčová', 'employee', 'active'),
-          ('peter.svoboda@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Peter Svoboda', 'employee', 'active')
-      `);
+      // Vloženie predvolených používateľov (len ak povolené demo)
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO users (email, password, name, role, status)
+          VALUES 
+            ('admin@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Admin', 'admin', 'active'),
+            ('user@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Používateľ', 'user', 'active'),
+            ('accountant@portal.sk', '$2b$10$rQZ8K9mN2pL1vX3yA6bC7dE8fG9hI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE', 'Účtovník', 'accountant', 'active'),
+            ('jan.novak@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Ján Novák', 'employee', 'active'),
+            ('maria.kovacova@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Mária Kováčová', 'employee', 'active'),
+            ('peter.svoboda@demo.sk', '$2b$10$Zg9JhaLmiM187enFXXSkkeVPCDWK9cvBilvIlPp81exB6phNJzkGW', 'Peter Svoboda', 'employee', 'active')
+        `);
+      }
 
       // Vloženie predvoleného CMS obsahu
       const defaultCmsContent = [
@@ -293,30 +297,34 @@ const initDatabase = () => {
         }
       });
 
-      // Vloženie demo správ - len jedna správa
-      db.run(`
-        INSERT OR IGNORE INTO messages (
-          sender_email, recipient_email, subject, content, company_id, message_type, created_at
-        ) VALUES 
-          ('admin@portal.sk', 'user@portal.sk', 'Vitajte v portáli', 'Vítame vás v našom účtovníckom portáli! Ak máte otázky, neváhajte nás kontaktovať.', 1, 'welcome', CURRENT_TIMESTAMP)
-      `, (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo správ:', err);
-        }
-      });
+      // Demo správa (len ak povolené demo)
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO messages (
+            sender_email, recipient_email, subject, content, company_id, message_type, created_at
+          ) VALUES 
+            ('admin@portal.sk', 'user@portal.sk', 'Vitajte v portáli', 'Vítame vás v našom účtovníckom portáli! Ak máte otázky, neváhajte nás kontaktovať.', 1, 'welcome', CURRENT_TIMESTAMP)
+        `, (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo správ:', err);
+          }
+        });
+      }
 
-      // Vloženie demo úloh - len jedna úloha
-      db.run(`
-        INSERT OR IGNORE INTO tasks (
-          title, description, status, priority, assigned_to, 
-          company_id, company_name, created_by, due_date, created_at
-        ) VALUES 
-          ('Aktualizácia účtovníctva', 'Mesačná aktualizácia účtovníctva a kontrola dokladov', 'pending', 'medium', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-15', CURRENT_TIMESTAMP)
-      `, (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo úloh:', err);
-        }
-      });
+      // Demo úloha (len ak povolené demo)
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO tasks (
+            title, description, status, priority, assigned_to, 
+            company_id, company_name, created_by, due_date, created_at
+          ) VALUES 
+            ('Aktualizácia účtovníctva', 'Mesačná aktualizácia účtovníctva a kontrola dokladov', 'pending', 'medium', 'accountant@portal.sk', 1, 'Demo Firma s.r.o.', 'admin@portal.sk', '2024-02-15', CURRENT_TIMESTAMP)
+        `, (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo úloh:', err);
+          }
+        });
+      }
 
       // HR a Dochádzkový systém - Tabuľka zamestnancov
       db.run(`
@@ -480,17 +488,19 @@ const initDatabase = () => {
         )
       `);
 
-      // Vloženie demo zamestnancov (ak existuje Demo Firma)
-      db.run(`
-        INSERT OR IGNORE INTO employees (
-          company_id, employee_id, first_name, last_name, email, phone, position, department, hire_date, salary, employment_type
-        ) VALUES 
-          (1, 'EMP001', 'Ján', 'Novák', 'jan.novak@demo.sk', '+421901234567', 'Manažér', 'Vedenie', '2023-01-15', 2500.00, 'full_time')
-      `, (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo zamestnancov:', err);
-        }
-      });
+      // Demo zamestnanci (len ak povolené demo)
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO employees (
+            company_id, employee_id, first_name, last_name, email, phone, position, department, hire_date, salary, employment_type
+          ) VALUES 
+            (1, 'EMP001', 'Ján', 'Novák', 'jan.novak@demo.sk', '+421901234567', 'Manažér', 'Vedenie', '2023-01-15', 2500.00, 'full_time')
+        `, (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo zamestnancov:', err);
+          }
+        });
+      }
 
       // Vyčistenie nepriradených pracovných pomerov
       db.run(`
@@ -502,30 +512,32 @@ const initDatabase = () => {
         }
       });
 
-      // Vloženie demo pracovných zmien - len jedna zmena
-      db.run(`
-        INSERT OR IGNORE INTO work_shifts (
-          company_id, shift_name, start_time, end_time, break_start, break_end
-        ) VALUES 
-          (1, 'Ranná zmena', '08:00', '16:00', '12:00', '12:30')
-      `, (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo zmien:', err);
-        }
-      });
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO work_shifts (
+            company_id, shift_name, start_time, end_time, break_start, break_end
+          ) VALUES 
+            (1, 'Ranná zmena', '08:00', '16:00', '12:00', '12:30')
+        `, (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo zmien:', err);
+          }
+        });
+      }
 
-      // Vloženie demo pracovných pomerov - len jeden záznam
-      db.run(`
-        INSERT OR IGNORE INTO employment_relations (
-          employee_id, company_id, position, employment_type, employment_start_date, salary, weekly_hours, 
-          attendance_mode, work_start_time, work_end_time, break_start_time, break_end_time
-        ) VALUES 
-          (1, 1, 'Manažér', 'full_time', '2023-01-15', 2500.00, 40, 'automatic', '08:00', '16:00', '12:00', '12:30')
-      `, (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
-        }
-      });
+      if (ENABLE_DEMO) {
+        db.run(`
+          INSERT OR IGNORE INTO employment_relations (
+            employee_id, company_id, position, employment_type, employment_start_date, salary, weekly_hours, 
+            attendance_mode, work_start_time, work_end_time, break_start_time, break_end_time
+          ) VALUES 
+            (1, 1, 'Manažér', 'full_time', '2023-01-15', 2500.00, 40, 'automatic', '08:00', '16:00', '12:00', '12:30')
+        `, (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo pracovných pomerov:', err);
+          }
+        });
+      }
 
       // Tabuľka zmien personálnych údajov zamestnancov
       db.run(`
@@ -547,19 +559,19 @@ const initDatabase = () => {
         )
       `);
 
-      // Vloženie demo dochádzky - len jeden záznam
-      const today = new Date().toISOString().split('T')[0];
-      
-      db.run(`
-        INSERT OR IGNORE INTO attendance (
-          employee_id, company_id, date, check_in, check_out, total_hours, status
-        ) VALUES 
-          (1, 1, ?, '08:05:00', '16:02:00', 7.95, 'present')
-      `, [today], (err) => {
-        if (err) {
-          console.error('Chyba pri vkladaní demo dochádzky:', err);
-        }
-      });
+      if (ENABLE_DEMO) {
+        const today = new Date().toISOString().split('T')[0];
+        db.run(`
+          INSERT OR IGNORE INTO attendance (
+            employee_id, company_id, date, check_in, check_out, total_hours, status
+          ) VALUES 
+            (1, 1, ?, '08:05:00', '16:02:00', 7.95, 'present')
+        `, [today], (err) => {
+          if (err) {
+            console.error('Chyba pri vkladaní demo dochádzky:', err);
+          }
+        });
+      }
 
       // Funkcia na kontrolu či je deň víkend
       const isWeekend = (date) => {
@@ -614,83 +626,71 @@ const initDatabase = () => {
         return workingDays;
       };
 
-      // Vloženie demo dovoleniek - len jedna dovolenka
-      const leaveRequests = [
-        { employee_id: 1, company_id: 1, leave_type: 'vacation', start_date: '2024-07-15', end_date: '2024-07-19', reason: 'Letná dovolenka', status: 'approved' }
-      ];
-
-      // Vložiť každú dovolenku s správnym počtom pracovných dní
-      leaveRequests.forEach(request => {
-        const workingDays = calculateWorkingDays(request.start_date, request.end_date);
-        db.run(`
-          INSERT OR IGNORE INTO leave_requests (
-            employee_id, company_id, leave_type, start_date, end_date, total_days, reason, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [request.employee_id, request.company_id, request.leave_type, request.start_date, request.end_date, workingDays, request.reason, request.status], (err) => {
-          if (err) {
-            console.error('Chyba pri vkladaní demo dovolenky:', err);
-          }
-        });
-      });
-      // Demo mzdové obdobia - vytvoriť pre všetky existujúce firmy
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth() + 1;
-      
-      // Najprv získame všetky firmy
-      db.all('SELECT id FROM companies', [], (err, companies) => {
-        if (err) {
-          console.error('Chyba pri získavaní firiem:', err);
-          return;
-        }
-        
-        // Vytvoriť mzdové obdobia pre roky 2023, 2024 a aktuálny rok + budúci mesiac
-        const years = [2023, 2024, currentYear];
-        
-        companies.forEach(company => {
-          years.forEach(year => {
-            // Pre aktuálny rok pridáme aj budúci mesiac
-            const maxMonth = (year === currentYear) ? Math.min(12, currentMonth + 1) : 12;
-            
-            for (let month = 1; month <= maxMonth; month++) {
-              let isClosed = false;
-              let closedAt = null;
-              let closedBy = null;
-              
-              if (year < currentYear) {
-                // Minulé roky sú úplne uzatvorené
-                isClosed = true;
-                closedAt = new Date(year, month - 1, 1).toISOString();
-                closedBy = 'admin@portal.sk';
-              } else if (year === currentYear) {
-                // Aktuálny rok - uzatvorené sú len minulé mesiace
-                isClosed = month < currentMonth;
-                if (isClosed) {
-                  closedAt = new Date(year, month - 1, 1).toISOString();
-                  closedBy = 'admin@portal.sk';
-                }
-              }
-              
-              db.run(`
-                INSERT OR IGNORE INTO payroll_periods (
-                  company_id, year, month, is_closed, closed_at, closed_by
-                ) VALUES (?, ?, ?, ?, ?, ?)
-              `, [
-                company.id, // company_id - každá firma má svoje obdobia
-                year,
-                month,
-                isClosed ? 1 : 0,
-                closedAt,
-                closedBy
-              ], (err) => {
-                if (err) {
-                  console.error('Chyba pri vkladaní demo mzdového obdobia:', err);
-                }
-              });
+      if (ENABLE_DEMO) {
+        const leaveRequests = [
+          { employee_id: 1, company_id: 1, leave_type: 'vacation', start_date: '2024-07-15', end_date: '2024-07-19', reason: 'Letná dovolenka', status: 'approved' }
+        ];
+        leaveRequests.forEach(request => {
+          const workingDays = calculateWorkingDays(request.start_date, request.end_date);
+          db.run(`
+            INSERT OR IGNORE INTO leave_requests (
+              employee_id, company_id, leave_type, start_date, end_date, total_days, reason, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `, [request.employee_id, request.company_id, request.leave_type, request.start_date, request.end_date, workingDays, request.reason, request.status], (err) => {
+            if (err) {
+              console.error('Chyba pri vkladaní demo dovolenky:', err);
             }
           });
         });
-        
+      }
+      if (ENABLE_DEMO) {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1;
+        db.all('SELECT id FROM companies', [], (err, companies) => {
+          if (err) {
+            console.error('Chyba pri získavaní firiem:', err);
+            return;
+          }
+          const years = [2023, 2024, currentYear];
+          companies.forEach(company => {
+            years.forEach(year => {
+              const maxMonth = (year === currentYear) ? Math.min(12, currentMonth + 1) : 12;
+              for (let month = 1; month <= maxMonth; month++) {
+                let isClosed = false;
+                let closedAt = null;
+                let closedBy = null;
+                if (year < currentYear) {
+                  isClosed = true;
+                  closedAt = new Date(year, month - 1, 1).toISOString();
+                  closedBy = 'admin@portal.sk';
+                } else if (year === currentYear) {
+                  isClosed = month < currentMonth;
+                  if (isClosed) {
+                    closedAt = new Date(year, month - 1, 1).toISOString();
+                    closedBy = 'admin@portal.sk';
+                  }
+                }
+                db.run(`
+                  INSERT OR IGNORE INTO payroll_periods (
+                    company_id, year, month, is_closed, closed_at, closed_by
+                  ) VALUES (?, ?, ?, ?, ?, ?)
+                `, [
+                  company.id,
+                  year,
+                  month,
+                  isClosed ? 1 : 0,
+                  closedAt,
+                  closedBy
+                ], (err) => {
+                  if (err) {
+                    console.error('Chyba pri vkladaní demo mzdového obdobia:', err);
+                  }
+                });
+              }
+            });
+          });
         });
+      }
 
       // ===== ÚČTOVNÍCTVO - NOVÉ TABUĽKY =====
       
