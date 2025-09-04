@@ -40,6 +40,7 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack, onMessage
   const [recipientFilter, setRecipientFilter] = useState('all');
   const [readStatusFilter, setReadStatusFilter] = useState('all');
   const [messageTypeFilter, setMessageTypeFilter] = useState('all');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   // Načítanie všetkých správ
   useEffect(() => {
@@ -91,6 +92,37 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack, onMessage
   const senders = Array.from(new Set(messages.map(msg => msg.sender_email)));
   const recipients = Array.from(new Set(messages.map(msg => msg.recipient_email)));
   const messageTypes = Array.from(new Set(messages.map(msg => msg.message_type)));
+
+  // Výber správ
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const isSelected = (id: number) => selectedIds.has(id);
+
+  const selectAllVisible = () => {
+    setSelectedIds(new Set(filteredMessages.map(m => m.id)));
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Naozaj chcete vymazať ${selectedIds.size} vybraných správ?`)) return;
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => apiService.deleteMessage(id)));
+      setMessages(prev => prev.filter(msg => !selectedIds.has(msg.id)));
+      clearSelection();
+      onMessageAction?.();
+    } catch (error) {
+      console.error('Chyba pri hromadnom mazaní správ:', error);
+      alert('Chyba pri hromadnom mazaní správ');
+    }
+  };
 
   // Označenie správy ako prečítaná/neprečítaná
   const handleToggleReadStatus = async (messageId: number, isRead: boolean) => {
@@ -182,6 +214,29 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack, onMessage
                     </span>
                   )}
                 </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">Vybrané: {selectedIds.size}</span>
+                <button
+                  onClick={selectAllVisible}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Vybrať zobrazené
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Zrušiť výber
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={selectedIds.size === 0}
+                  className={`px-3 py-1 text-sm rounded-md flex items-center ${selectedIds.size === 0 ? 'bg-red-100 text-red-300 cursor-not-allowed' : 'bg-red-600 text-white hover:bg-red-700'}`}
+                  title={selectedIds.size === 0 ? 'Najprv vyberte správy' : 'Vymazať vybrané správy'}
+                >
+                  <TrashIcon className="h-4 w-4 mr-1" /> Vymazať vybrané
+                </button>
               </div>
             </div>
             
@@ -301,6 +356,17 @@ const AdminMessagesPage: React.FC<AdminMessagesPageProps> = ({ onBack, onMessage
                   <div key={message.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow border border-gray-200">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
+                        <div className="mb-2">
+                          <label className="inline-flex items-center space-x-2 text-sm text-gray-600">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                              checked={isSelected(message.id)}
+                              onChange={() => toggleSelect(message.id)}
+                            />
+                            <span>Vybrať</span>
+                          </label>
+                        </div>
                         <div className="flex items-center mb-2">
                           <h3 className="text-lg font-medium text-gray-900 mr-3">{message.subject}</h3>
                           {message.read_at ? (
