@@ -576,8 +576,8 @@ router.get('/stats/:companyId', authenticateToken, async (req, res) => {
     const company = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
         if (err) reject(err); else resolve(row);
-      });
-    });
+  });
+});
     if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
 
     const mdbInfo = await getMDBFilePath(company.ico, undefined);
@@ -1220,9 +1220,9 @@ router.get('/bank-accounts/:companyId', authenticateToken, async (req, res) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
-              });
-            });
-          
+  });
+});
+
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
@@ -1363,9 +1363,9 @@ router.get('/bank-transactions/:companyId/:accountNumber', authenticateToken, as
         typ: isCredit ? 'kredit' : 'debet',
         firma: r.Firma || r.firma || ''
       });
-    }
-
-    res.json({
+          }
+          
+          res.json({
       company: { id: company.id, name: company.name, ico: company.ico },
       account: {
         accountNumber: matched ? (matched.SText || matched.AUcet) : accountNumber,
@@ -1399,9 +1399,9 @@ router.get('/cash-accounts/:companyId', authenticateToken, async (req, res) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
         if (err) reject(err);
         else resolve(row);
-      });
-    });
-    
+  });
+});
+
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
@@ -1545,11 +1545,11 @@ router.get('/cash-transactions/:companyId/:accountNumber', authenticateToken, as
     // Získanie informácií o firme
     const company = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM companies WHERE id = ?', [companyId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    
+                if (err) reject(err);
+                else resolve(row);
+              });
+            });
+          
     if (!company) {
       return res.status(404).json({ error: 'Firma nebola nájdená' });
     }
@@ -1625,8 +1625,8 @@ router.get('/test-dropbox-public', async (req, res) => {
           testResults.dropbox.testResults.sampleFileExists = fileExists;
           testResults.dropbox.testResults.sampleCompanyIco = companyIco;
         }
-    
-  } catch (error) {
+          
+        } catch (error) {
         testResults.dropbox.testResults.error = error.message;
         testResults.dropbox.testResults.errorStack = error.stack;
       }
@@ -1658,7 +1658,7 @@ router.get('/admin/spaces/test', authenticateToken, async (req, res) => {
       message: 'Spaces test endpoint je dostupný',
       timestamp: new Date().toISOString()
     });
-
+    
   } catch (error) {
     console.error('Chyba pri Spaces test:', error);
     res.status(500).json({ error: 'Chyba pri spracovaní požiadavky' });
@@ -1799,7 +1799,7 @@ router.post("/admin/mdb/upload/:companyId", authenticateToken, ensureAdmin, uplo
       size: req.file.size,
       companyId
     });
-
+    
   } catch (error) {
     console.error("Chyba pri upload endpoint:", error);
     const status = error.status || 500;
