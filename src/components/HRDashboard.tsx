@@ -178,7 +178,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
         const automaticEmployees = await hrService.getEmployeesWithAutomaticAttendance(companyId);
 
         const now = new Date();
-        const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+        const todayStr = formatDate(now);
         const minutesNow = now.getHours() * 60 + now.getMinutes();
 
         const toMinutes = (t?: string) => {
@@ -216,17 +216,17 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
           // Zaznamenať rýchly príchod teraz
           const hh = String(now.getHours()).padStart(2, '0');
           const mm = String(now.getMinutes()).padStart(2, '0');
-          await hrService.recordAttendance({
+          await hrService.addAttendance({
             employee_id: emp.id,
             company_id: companyId,
             date: todayStr,
-            attendance_type: 'present',
-            start_time: `${hh}:${mm}:00`,
-            end_time: null as any,
+            check_in: `${todayStr}T${hh}:${mm}:00`,
+            check_out: null as any,
+            total_hours: 0,
             break_minutes: 0,
-            note: 'Automatický príchod (v rámci pracovných hodín)',
-            recorded_by: 'system'
-          });
+            status: 'present',
+            notes: 'Automatický príchod (v rámci pracovných hodín)'
+          } as any);
 
           localStorage.setItem(flagKey, 'true');
         }
