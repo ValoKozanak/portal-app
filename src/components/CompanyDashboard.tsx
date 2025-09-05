@@ -32,6 +32,7 @@ import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
 import { hrService } from '../services/hrService';
 import { accountingService } from '../services/accountingService';
+import { payrollService } from '../services/payrollService';
 
 // Používame API typy, ale zachovávame kompatibilitu s existujúcimi komponentmi
 type Company = ApiCompany;
@@ -46,6 +47,23 @@ interface CompanyDashboardProps {
 const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, userEmail, userRole = 'company' }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  // Výplatné pásky (firma)
+  const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
+  const [payslipsMonth, setPayslipsMonth] = useState<number | ''>('');
+  const [payslipsEmployeeId, setPayslipsEmployeeId] = useState<number | 'all'>('all');
+  const [payslipsLoading, setPayslipsLoading] = useState(false);
+  const [payslipsRows, setPayslipsRows] = useState<Array<{
+    employeeId: number;
+    name: string;
+    month?: number;
+    gross?: number;
+    net?: number;
+    settlement?: number;
+    workedDays?: number;
+    workedHours?: number;
+  }>>([]);
+  // HR zamestnanci (raw) pre výplatné pásky
+  const [hrEmployeesRaw, setHrEmployeesRaw] = useState<any[]>([]);
 
 
 
@@ -113,6 +131,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     try {
       setLoadingEmployees(true);
       const employees = await hrService.getEmployees(company.id);
+      setHrEmployeesRaw(employees);
       
       // Konvertujeme HR zamestnancov na formát potrebný pre TaskModal
       const convertedEmployees: Employee[] = employees.map(emp => ({
@@ -420,6 +439,68 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     return () => clearInterval(interval);
   }, [loadUnreadCounts]);
 
+  // Načítanie výplatných pások podľa filtrov
+  useEffect(() => {
+    const loadPayslips = async () => {
+      if (activeTab !== 'hr-payslips' && activeTab !== 'payslips') return;
+      setPayslipsLoading(true);
+      try {
+        const targetEmployees = payslipsEmployeeId === 'all'
+          ? hrEmployeesRaw
+          : hrEmployeesRaw.filter(e => e.id === payslipsEmployeeId);
+
+        const rows: Array<{
+          employeeId: number; name: string; month?: number; gross?: number; net?: number; settlement?: number; workedDays?: number; workedHours?: number;
+        }> = [];
+
+        // Ak je zvolený konkrétny mesiac -> načítaj detail za mesiac pre každého
+        if (payslipsMonth) {
+          await Promise.all(targetEmployees.map(async (emp) => {
+            try {
+              const detail = await payrollService.getPayslipDetail(company.id, emp.id, payslipsYear, payslipsMonth as number);
+              const p = detail.payslip || {};
+              rows.push({
+                employeeId: emp.id,
+                name: `${emp.first_name} ${emp.last_name}`,
+                month: payslipsMonth as number,
+                gross: p.grossWage || 0,
+                net: p.netWage || 0,
+                settlement: p.settlement || 0,
+                workedDays: p.workedDays || 0,
+                workedHours: p.workedHours || 0,
+              });
+            } catch (_) {
+              // Bez pádu – zamestnanec môže nemať výplatu v danom mesiaci
+            }
+          }));
+        } else {
+          // Inak ročný prehľad pre každého zamestnanca (sumár)
+          await Promise.all(targetEmployees.map(async (emp) => {
+            try {
+              const data = await payrollService.getPayslips(company.id, emp.id, payslipsYear);
+              rows.push({
+                employeeId: emp.id,
+                name: `${emp.first_name} ${emp.last_name}`,
+                gross: data.summary?.totalGross || 0,
+                net: data.summary?.totalNet || 0,
+                settlement: data.summary?.totalSettlement || 0,
+                workedDays: data.summary?.totalWorkedDays || 0,
+                workedHours: data.summary?.totalWorkedHours || 0,
+              });
+            } catch (_) {}
+          }));
+        }
+
+        // Zoradenie podľa mena
+        rows.sort((a, b) => a.name.localeCompare(b.name, 'sk'));
+        setPayslipsRows(rows);
+      } finally {
+        setPayslipsLoading(false);
+      }
+    };
+    loadPayslips();
+  }, [activeTab, payslipsYear, payslipsMonth, payslipsEmployeeId, hrEmployeesRaw, company.id]);
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Štatistiky */}
@@ -565,6 +646,91 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             </div>
           </div>
         </button>
+      </div>
+    </div>
+  );
+
+  const renderCompanyPayslips = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Výplatné pásky</h2>
+        <div className="flex items-center space-x-3">
+          <label className="text-sm text-gray-600">Rok</label>
+          <select
+            value={payslipsYear}
+            onChange={(e) => setPayslipsYear(parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            {Array.from({ length: 5 }).map((_, idx) => {
+              const y = new Date().getFullYear() - idx;
+              return <option key={y} value={y}>{y}</option>;
+            })}
+          </select>
+          <label className="text-sm text-gray-600 ml-4">Mesiac</label>
+          <select
+            value={String(payslipsMonth)}
+            onChange={(e) => setPayslipsMonth(e.target.value === '' ? '' : parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Všetky</option>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i+1} value={i+1}>{i+1}</option>
+            ))}
+          </select>
+          <label className="text-sm text-gray-600 ml-4">Zamestnanec</label>
+          <select
+            value={String(payslipsEmployeeId)}
+            onChange={(e) => setPayslipsEmployeeId(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="all">Všetci</option>
+            {hrEmployeesRaw.map((emp) => (
+              <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        {payslipsLoading ? (
+          <div className="p-6">Načítavam...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zamestnanec</th>
+                  {payslipsMonth && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mesiac</th>
+                  )}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hrubá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Čistá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Odpracované (dni / h)</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {payslipsRows.map((row) => (
+                  <tr key={`${row.employeeId}-${row.month || 'year'}`} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.name}</td>
+                    {payslipsMonth && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.month}</td>
+                    )}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.gross || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.net || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.settlement || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.workedDays || 0} / {row.workedHours || 0}</td>
+                  </tr>
+                ))}
+                {payslipsRows.length === 0 && (
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-500" colSpan={payslipsMonth ? 6 : 5}>Žiadne dáta pre zvolené filtre.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -842,6 +1008,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               { id: 'files', name: 'Súbory', icon: FolderIcon },
               { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
               { id: 'hr', name: 'HR', icon: UsersIcon },
+              { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
               { id: 'accountants', name: 'Účtovníci', icon: UserIcon },
               { id: 'accounting', name: 'Účtovníctvo', icon: DocumentTextIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon },
@@ -939,6 +1106,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           {activeTab === 'hr' && (
             <HRDashboard companyId={company.id} />
           )}
+          {activeTab === 'payslips' && renderCompanyPayslips()}
           {activeTab === 'accountants' && renderAccountants()}
           {activeTab === 'accounting' && renderAccounting()}
           {activeTab === 'messages' && renderMessages()}
