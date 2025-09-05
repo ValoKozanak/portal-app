@@ -89,6 +89,68 @@ class PayrollService {
     // Môžeme uzatvoriť len minulé mesiace
     return year < currentYear || (year === currentYear && month < currentMonth);
   }
+
+  // Výplatné pásky – ročný prehľad z MDB (MZSK)
+  async getPayslips(
+    companyId: number,
+    employeeId: number,
+    year: number
+  ): Promise<{
+    year: number;
+    employeeId: number;
+    months: Array<{
+      year: number;
+      month: number;
+      employeeCode: string | null;
+      calendarDays: number;
+      holidays: number;
+      workingDays: number;
+      workRatio: string | number | null;
+      workedDays: number;
+      workedHours: number;
+      baseWage: number;
+      bonuses: number;
+      grossWage: number;
+      taxableIncome: number;
+      wageTax: number;
+      taxBonus: number;
+      netWage: number;
+      advance: number;
+      settlement: number;
+    }>;
+    summary: {
+      totalGross: number;
+      totalNet: number;
+      totalAdvance: number;
+      totalSettlement: number;
+      totalBonuses: number;
+      totalTax: number;
+      totalTaxableIncome: number;
+      totalWorkedHours: number;
+      totalWorkedDays: number;
+      monthsCount: number;
+    };
+    source: string;
+  }> {
+    const url = `/payroll/payslips/${companyId}?employeeId=${employeeId}&year=${year}`;
+    return apiService.get(url);
+  }
+
+  async getPayslipDetail(
+    companyId: number,
+    employeeId: number,
+    year: number,
+    month: number
+  ): Promise<{
+    year: number;
+    month: number;
+    employeeId: number;
+    payslip: any;
+    source: string;
+  }> {
+    const url = `/payroll/payslips/${companyId}/detail?employeeId=${employeeId}&year=${year}&month=${month}`;
+    return apiService.get(url);
+  }
 }
 
 export const payrollService = new PayrollService();

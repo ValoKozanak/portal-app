@@ -9,12 +9,14 @@ import {
   BellIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
-  PencilIcon
+  PencilIcon,
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 import { hrService, Employee, LeaveRequest, Attendance } from '../services/hrService';
 import { apiService, User, Company } from '../services/apiService';
 import { EmploymentRelation } from '../types/EmploymentRelation';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { payrollService } from '../services/payrollService';
 import AttendanceTracker from '../components/AttendanceTracker';
 import AttendanceOverview from '../components/AttendanceOverview';
 import LeaveRequestModal from '../components/LeaveRequestModal';
@@ -44,7 +46,10 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const [employeeChanges, setEmployeeChanges] = useState<any[]>([]);
   const [attendanceSettings, setAttendanceSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'leave' | 'employment' | 'profile' | 'messages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'leave' | 'employment' | 'payslips' | 'profile' | 'messages'>('overview');
+  const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
+  const [payslipsData, setPayslipsData] = useState<any | null>(null);
+  const [loadingPayslips, setLoadingPayslips] = useState(false);
   const [showLeaveRequestModal, setShowLeaveRequestModal] = useState(false);
   const [showChangeRequestModal, setShowChangeRequestModal] = useState(false);
   const [selectedField, setSelectedField] = useState<string>('');
@@ -157,6 +162,24 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const handleLeaveRequestSuccess = () => {
     loadData();
   };
+
+  useEffect(() => {
+    const loadPayslips = async () => {
+      if (!selectedCompany || !employeeData) return;
+      setLoadingPayslips(true);
+      try {
+        const data = await payrollService.getPayslips(selectedCompany.id, employeeData.id, payslipsYear);
+        setPayslipsData(data);
+      } catch (e) {
+        setPayslipsData(null);
+      } finally {
+        setLoadingPayslips(false);
+      }
+    };
+    if (activeTab === 'payslips') {
+      loadPayslips();
+    }
+  }, [activeTab, payslipsYear, selectedCompany?.id, employeeData?.id]);
 
   const handleChangeRequest = (fieldName: string) => {
     setSelectedField(fieldName);
@@ -636,6 +659,83 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           employeeName={`${employeeData.first_name} ${employeeData.last_name}`}
           isCompanyView={false}
         />
+      )}
+    </div>
+  );
+
+  const renderPayslips = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Výplatné pásky</h2>
+        <div className="flex items-center space-x-3">
+          <label className="text-sm text-gray-600 dark:text-gray-300">Rok</label>
+          <select
+            value={payslipsYear}
+            onChange={(e) => setPayslipsYear(parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+          >
+            {Array.from({ length: 5 }).map((_, idx) => {
+              const y = new Date().getFullYear() - idx;
+              return <option key={y} value={y}>{y}</option>;
+            })}
+          </select>
+        </div>
+      </div>
+
+      {/* Ročný sumár */}
+      {loadingPayslips ? (
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">Načítavam...</div>
+      ) : payslipsData ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+            <p className="text-sm text-green-700 dark:text-green-300">Čistá mzda spolu</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsData.summary.totalNet.toFixed(2)} €</p>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">Hrubá mzda spolu</p>
+            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsData.summary.totalGross.toFixed(2)} €</p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+            <p className="text-sm text-purple-700 dark:text-purple-300">Vyplatené spolu</p>
+            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsData.summary.totalSettlement.toFixed(2)} €</p>
+          </div>
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">Počet mesiacov</p>
+            <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{payslipsData.summary.monthsCount}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">Žiadne dáta pre zvolený rok.</div>
+      )}
+
+      {/* Mesačný prehľad */}
+      {payslipsData && (
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
+              <thead className="bg-gray-50 dark:bg-dark-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mesiac</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Hrubá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Čistá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Odpracované (dni / h)</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-600">
+                {payslipsData.months.map((m: any) => (
+                  <tr key={`${m.year}-${m.month}`} className="hover:bg-gray-50 dark:hover:bg-dark-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{payrollService.getMonthName(m.month)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.grossWage.toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.netWage.toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.settlement.toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.workedDays} / {m.workedHours}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -1555,6 +1655,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               { id: 'attendance', name: 'Dochádzka', icon: ClockIcon },
               { id: 'leave', name: 'Dovolenky', icon: CalendarIcon },
               { id: 'employment', name: 'Pracovné pomery', icon: DocumentTextIcon },
+              { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
               { id: 'profile', name: 'Profil', icon: UserIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon }
             ].map((tab) => (
@@ -1581,6 +1682,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         {activeTab === 'attendance' && renderAttendance()}
         {activeTab === 'leave' && renderLeave()}
         {activeTab === 'employment' && renderEmployment()}
+        {activeTab === 'payslips' && renderPayslips()}
         {activeTab === 'profile' && renderProfile()}
         {activeTab === 'messages' && renderMessages()}
       </div>
