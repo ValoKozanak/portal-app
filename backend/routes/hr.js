@@ -138,16 +138,18 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
         .sort((a, b) => b.mtimeMs - a.mtimeMs);
     }
 
-    // Ak nič v Admin adresári, použi univerzálne vyhľadanie cez payroll.getMDBFilePath (ICO/zalohy)
+    // Potom: doplň kandidátov cez univerzálne vyhľadanie (ICO/zalohy) pre viac rokov
     const { getMDBFilePath } = require('../routes/payroll');
-    if (candidateFiles.length === 0) {
-      const yearsToTry = year ? [Number(year)] : [new Date().getFullYear(), new Date().getFullYear() - 1, new Date().getFullYear() - 2, new Date().getFullYear() - 3];
-      for (const y of yearsToTry) {
-        try {
-          const info = await getMDBFilePath(company.id, company.ico, y);
-          candidateFiles.push({ name: path.basename(info.path), full: info.path, mtimeMs: fs.statSync(info.path).mtimeMs });
-        } catch (_) { /* skúsiť ďalší rok */ }
-      }
+    const now = new Date().getFullYear();
+    const yearsToTry = year ? [Number(year), Number(year) - 1, Number(year) - 2, Number(year) - 3] : [now, now - 1, now - 2, now - 3];
+    for (const y of yearsToTry) {
+      try {
+        const info = await getMDBFilePath(company.id, company.ico, y);
+        const full = info.path;
+        if (!candidateFiles.some(c => c.full === full)) {
+          candidateFiles.push({ name: path.basename(full), full, mtimeMs: fs.existsSync(full) ? fs.statSync(full).mtimeMs : 0 });
+        }
+      } catch (_) { /* skúsiť ďalší rok */ }
     }
 
     if (candidateFiles.length === 0) {
@@ -159,11 +161,10 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
     // Prehľadaj postupne všetky kandidátne MDB súbory, kým nenájdeš RČ
     let match = null;
     let sourceInfo = null;
+    let matchedFilePath = null;
     for (const file of candidateFiles) {
       try {
         const buffer = fs.readFileSync(file.full);
-        const MDBLib = require('mdb-reader');
-        const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
         const mdb = new MDBReader(buffer);
         let tableName = 'ZAMSK';
         const tableNames = mdb.getTableNames();
@@ -174,7 +175,8 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
         const found = rows.find(r => normalizeBirthNumber(r.RodCisl) === targetRC);
         if (found) {
           match = found;
-          sourceInfo = { path: file.full, source: file.full.includes('/uploads/') ? 'uploads-companyId' : 'auto' };
+          sourceInfo = { path: file.full, source: file.full.includes(path.sep + 'uploads' + path.sep) ? 'uploads' : 'auto' };
+          matchedFilePath = file.full;
           break;
         }
       } catch (_) { /* pokračuj ďalším súborom */ }
@@ -185,7 +187,7 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
     const toStringClean = (v) => (v == null ? '' : String(v).toString().trim());
 
     const payload = {
-      source: mdbInfo.source,
+      source: (sourceInfo && sourceInfo.source) || 'unknown',
       birth_number: toStringClean(match.RodCisl),
       first_name: toStringClean(match.Jmeno || match.Meno || match.Jmeno1),
       last_name: toStringClean(match.Priezvisko || match.Prijmeni),
@@ -195,39 +197,44 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
       permanent_country: toStringClean(match.Stat || match.Country) || 'SK'
     };
 
-    // Načítanie pracovných pomerov zo ZAMSKpomer (ak existuje)
-    if (tableNames.includes('ZAMSKpomer')) {
+    // Načítanie pracovných pomerov zo ZAMSKpomer (ak existuje) z rovnakého MDB súboru ako match
+    if (matchedFilePath) {
       try {
-        const relRows = mdb.getTable('ZAMSKpomer').getData();
-        const rels = relRows
-          .filter(r => normalizeBirthNumber(r.RodCisl) === targetRC)
-          .map(r => {
-            const get = (obj, candidates, def = '') => {
-              for (const k of candidates) { if (obj[k] != null && obj[k] !== '') return String(obj[k]); }
-              return def;
-            };
-            const toISO = (v) => {
-              if (!v) return null;
-              try {
-                const d = new Date(v);
-                if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
-                // niektoré MDB majú string "DD.MM.YYYY"
-                const m = String(v).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-                if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-              } catch (_) {}
-              return null;
-            };
-            const weeklyHours = Number(get(r, ['TydenHodin','TydenniHodiny','WeekHours','TydHodin'], '0')) || null;
-            return {
-              position: get(r, ['Pozice','PracPozice','Funkce','Position']),
-              employment_type: get(r, ['PracPomer','PPomer','EmploymentType']),
-              employment_start_date: toISO(get(r, ['DatumNastupu','DatNastupu','Nastup','StartDate'])),
-              employment_end_date: toISO(get(r, ['DatumUkonceni','DatUkonceni','Ukonceni','EndDate'])),
-              weekly_hours: weeklyHours,
-              work_ratio: get(r, ['DUvazek','Uvazek','WorkRatio'])
-            };
-          });
-        payload.employment_relations = rels;
+        const buffer = fs.readFileSync(matchedFilePath);
+        const mdb2 = new MDBReader(buffer);
+        const tableNames2 = mdb2.getTableNames();
+        if (tableNames2.includes('ZAMSKpomer')) {
+          const relRows = mdb2.getTable('ZAMSKpomer').getData();
+          const rels = relRows
+            .filter(r => normalizeBirthNumber(r.RodCisl) === targetRC)
+            .map(r => {
+              const get = (obj, candidates, def = '') => {
+                for (const k of candidates) { if (obj[k] != null && obj[k] !== '') return String(obj[k]); }
+                return def;
+              };
+              const toISO = (v) => {
+                if (!v) return null;
+                try {
+                  const d = new Date(v);
+                  if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+                  // niektoré MDB majú string "DD.MM.YYYY"
+                  const m = String(v).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+                } catch (_) {}
+                return null;
+              };
+              const weeklyHours = Number(get(r, ['TydenHodin','TydenniHodiny','WeekHours','TydHodin'], '0')) || null;
+              return {
+                position: get(r, ['Pozice','PracPozice','Funkce','Position']),
+                employment_type: get(r, ['PracPomer','PPomer','EmploymentType']),
+                employment_start_date: toISO(get(r, ['DatumNastupu','DatNastupu','Nastup','StartDate'])),
+                employment_end_date: toISO(get(r, ['DatumUkonceni','DatUkonceni','Ukonceni','EndDate'])),
+                weekly_hours: weeklyHours,
+                work_ratio: get(r, ['DUvazek','Uvazek','WorkRatio'])
+              };
+            });
+          payload.employment_relations = rels;
+        }
       } catch (e) {
         // ignore, nepokazí odpoveď
       }
