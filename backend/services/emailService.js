@@ -333,6 +333,35 @@ class EmailService {
     return this.sendEmail(userEmail, subject, html);
   }
 
+  // Zmena stavu úlohy
+  async sendTaskStatusChanged(userEmail, userName, taskTitle, status, companyName, updatedBy) {
+    const statusLabels = {
+      pending: 'Čaká',
+      in_progress: 'V riešení',
+      completed: 'Dokončená',
+      cancelled: 'Zrušená',
+      overdue: 'Po splatnosti'
+    };
+    const statusLabel = statusLabels[status] || status;
+
+    const subject = `🔔 Zmena stavu úlohy: ${taskTitle} → ${statusLabel}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family:Arial,sans-serif;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;">
+          <h2>Stav úlohy bol zmenený</h2>
+          <p>Ahoj ${userName || ''},</p>
+          <p>Úloha <strong>${taskTitle}</strong> vo firme <strong>${companyName || '-'}</strong> bola zmenená na <strong>${statusLabel}</strong>.</p>
+          ${updatedBy ? `<p>Zmenil: <strong>${updatedBy}</strong></p>` : ''}
+        </div>
+      </body>
+      </html>
+    `;
+    return this.sendEmail(userEmail, subject, html);
+  }
+
   // Notifikácia o novom dokumente
   async sendDocumentNotification(userEmail, userName, fileName, fileSize, fileType, companyName, uploadedBy) {
     const subject = `📄 Nový dokument: ${fileName}`;

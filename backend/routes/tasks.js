@@ -173,6 +173,24 @@ router.put('/:id', (req, res) => {
         return res.status(404).json({ error: 'Úloha nebola nájdená' });
       }
 
+      // E-mail pri aktualizácii úlohy (zmena obsahu alebo priradenia/statusu)
+      try {
+        if (assigned_to) {
+          db.get('SELECT name FROM users WHERE email = ?', [assigned_to], (e1, user) => {
+            if (!e1 && user) {
+              emailService.sendTaskStatusChanged(
+                assigned_to,
+                user.name,
+                title,
+                status,
+                undefined,
+                req.user?.email || 'Systém'
+              ).catch(() => {});
+            }
+          });
+        }
+      } catch (_) {}
+
       res.json({ message: 'Úloha aktualizovaná úspešne' });
     }
   );
@@ -195,6 +213,20 @@ router.patch('/:id/status', (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ error: 'Úloha nebola nájdená' });
     }
+
+    // E-mail pri zmene statusu
+    try {
+      db.get('SELECT title, assigned_to, company_name FROM tasks WHERE id = ?', [id], (e1, task) => {
+        if (!e1 && task && task.assigned_to) {
+          db.get('SELECT name FROM users WHERE email = ?', [task.assigned_to], (e2, user) => {
+            const userName = (!e2 && user) ? user.name : '';
+            emailService
+              .sendTaskStatusChanged(task.assigned_to, userName, task.title, status, task.company_name, req.user?.email || 'Systém')
+              .catch(() => {});
+          });
+        }
+      });
+    } catch (_) {}
 
     res.json({ message: 'Status úlohy aktualizovaný úspešne' });
   });

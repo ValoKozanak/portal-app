@@ -184,21 +184,24 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               </select>
             </div>
 
-            {/* Počet dní */}
+            {/* Počet dní (automaticky) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Počet dní *
+                Počet dní
               </label>
-              <input
-                type="number"
-                name="total_days"
-                value={formData.total_days}
-                onChange={handleInputChange}
-                min="1"
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
-                placeholder="5"
-              />
+              {formData.start_date && formData.end_date ? (
+                <input
+                  type="number"
+                  name="total_days"
+                  value={formData.total_days}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-900 dark:text-white"
+                />
+              ) : (
+                <div className="text-sm text-gray-500 dark:text-gray-400 py-2">
+                  Vyberte začiatok a koniec dovolenky. Počet dní sa spočíta automaticky.
+                </div>
+              )}
             </div>
 
             {/* Začiatok dovolenky */}
@@ -288,7 +291,13 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={
+                loading ||
+                !formData.start_date ||
+                !formData.end_date ||
+                !formData.total_days ||
+                Number(formData.total_days) <= 0
+              }
               className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
             >
               {loading ? 'Ukladám...' : (isEdit ? 'Upraviť' : 'Odoslať žiadosť')}
