@@ -31,8 +31,25 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     last_name: '',
     email: '',
     phone: '',
-    password: ''
+    password: '',
+    // Doplnkové polia pre RČ a adresu (prefill z MDB)
+    birth_number: '',
+    permanent_street: '',
+    permanent_city: '',
+    permanent_zip: '',
+    permanent_country: 'SK'
   });
+
+  const [birthNumber, setBirthNumber] = useState('');
+  const [prefillLoading, setPrefillLoading] = useState(false);
+  // Návrh pracovného pomeru z MDB, ktorý môžeme upraviť pred uložením
+  const [relationDraft, setRelationDraft] = useState<null | {
+    position: string;
+    employment_type: 'full_time' | 'part_time' | 'contract' | 'intern';
+    employment_start_date: string;
+    employment_end_date?: string | null;
+    weekly_hours?: number | null;
+  }>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +63,12 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           last_name: employee.last_name,
           email: employee.email,
           phone: employee.phone || '',
-          password: ''
+          password: '',
+          birth_number: (employee as any).birth_number || '',
+          permanent_street: (employee as any).permanent_street || '',
+          permanent_city: (employee as any).permanent_city || '',
+          permanent_zip: (employee as any).permanent_zip || '',
+          permanent_country: (employee as any).permanent_country || 'SK'
         });
       } else {
         setFormData({
@@ -54,8 +76,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           last_name: '',
           email: '',
           phone: '',
-          password: ''
+          password: '',
+          birth_number: '',
+          permanent_street: '',
+          permanent_city: '',
+          permanent_zip: '',
+          permanent_country: 'SK'
         });
+        setRelationDraft(null);
       }
     }
   }, [isOpen, employee]);
@@ -91,7 +119,38 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           status: 'active' as const
         };
         
-        await hrService.addEmployee(employeeData);
+        const created = await hrService.addEmployee(employeeData);
+
+        // Doplnenie RČ a adresy (ak sú k dispozícii) po vytvorení zamestnanca
+        try {
+          const normalizedRC = (formData.birth_number || birthNumber || '').replace(/[^0-9]/g, '');
+          await hrService.updateEmployee(created.id, {
+            birth_number: normalizedRC || undefined,
+            permanent_street: formData.permanent_street || undefined,
+            permanent_city: formData.permanent_city || undefined,
+            permanent_zip: formData.permanent_zip || undefined,
+            permanent_country: formData.permanent_country || undefined
+          } as any);
+        } catch (e) {
+          console.warn('Nepodarilo sa doplniť RČ/adresu po vytvorení.', e);
+        }
+
+        // Ak máme návrh pracovného pomeru, založ ho
+        if (relationDraft && relationDraft.employment_start_date) {
+          try {
+            await hrService.addEmploymentRelation({
+              employee_id: created.id,
+              company_id: companyId,
+              position: relationDraft.position || 'Zamestnanec',
+              employment_type: relationDraft.employment_type || 'full_time',
+              employment_start_date: relationDraft.employment_start_date,
+              employment_end_date: relationDraft.employment_end_date || undefined,
+              weekly_hours: relationDraft.weekly_hours || undefined
+            });
+          } catch (e) {
+            console.warn('Nepodarilo sa vytvoriť pracovný pomer.', e);
+          }
+        }
         
         // Vytvorenie používateľského účtu pre zamestnanca
         if (formData.password) {
@@ -154,6 +213,84 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Načítať z POHODA (MDB) podľa RČ */}
+          {!isEdit && (
+            <div className="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg space-y-3">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Načítať údaje z POHODA (MDB)</h3>
+              <div className="flex flex-col md:flex-row md:items-center gap-3">
+                <input
+                  type="text"
+                  value={birthNumber}
+                  onChange={(e) => setBirthNumber(e.target.value)}
+                  placeholder="Rodné číslo (bez lomítka aj s lomítkom)"
+                  className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const normalized = (birthNumber || '').replace(/[^0-9]/g, '');
+                    if (!normalized) { alert('Zadajte rodné číslo'); return; }
+                    try {
+                      setPrefillLoading(true);
+                      const res = await hrService.getEmployeeFromMdb(companyId, normalized);
+                      if (res && res.employee) {
+                        const e = res.employee;
+                        const ok = confirm('Našli sme údaje v MDB. Chcete predvyplniť formulár?');
+                        if (ok) {
+                          setFormData(prev => ({
+                            ...prev,
+                            first_name: e.first_name || prev.first_name,
+                            last_name: e.last_name || prev.last_name,
+                            email: prev.email,
+                            phone: prev.phone || '',
+                            birth_number: (e.birth_number || '').replace(/[^0-9]/g, ''),
+                            permanent_street: e.permanent_street || prev.permanent_street,
+                            permanent_city: e.permanent_city || prev.permanent_city,
+                            permanent_zip: e.permanent_zip || prev.permanent_zip,
+                            permanent_country: e.permanent_country || prev.permanent_country
+                          }));
+                          setBirthNumber(((e.birth_number as string) || '').replace(/[^0-9]/g, ''));
+
+                          // Navrhnúť pracovný pomer z MDB (vezmi aktívny alebo prvý)
+                          if (Array.isArray((e as any).employment_relations) && (e as any).employment_relations.length > 0) {
+                            const rels = (e as any).employment_relations as any[];
+                            const pick = rels.find(r => !r.employment_end_date) || rels[0];
+                            const toISO = (v: any) => {
+                              if (!v) return '';
+                              const s = String(v);
+                              if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                              const m = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                              if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+                              const d = new Date(s);
+                              return isNaN(d.getTime()) ? '' : d.toISOString().slice(0,10);
+                            };
+                            setRelationDraft({
+                              position: pick.position || 'Zamestnanec',
+                              employment_type: (pick.employment_type as any) || 'full_time',
+                              employment_start_date: toISO(pick.employment_start_date) || formatDate(new Date()),
+                              employment_end_date: pick.employment_end_date ? toISO(pick.employment_end_date) : undefined,
+                              weekly_hours: pick.weekly_hours ? Number(pick.weekly_hours) : 40
+                            });
+                          }
+                        }
+                      } else {
+                        alert('Údaje pre zadané RČ neboli nájdené.');
+                      }
+                    } catch (err) {
+                      alert('Chyba pri načítaní z MDB');
+                    } finally {
+                      setPrefillLoading(false);
+                    }
+                  }}
+                  disabled={prefillLoading}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {prefillLoading ? 'Načítavam…' : 'Načítať z MDB'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Hľadanie prebieha podľa IČO aktívnej firmy a rodného čísla v tabuľke ZAMSK.</p>
+            </div>
+          )}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Základné údaje zamestnanca</h3>
             
@@ -241,6 +378,131 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               </div>
             )}
           </div>
+
+          {/* Personálne údaje (RČ) a adresa trvalého pobytu */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Personálne údaje a adresa</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {!isEdit && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rodné číslo</label>
+                  <input
+                    type="text"
+                    name="birth_number"
+                    value={formData.birth_number}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                    placeholder="123456/7890"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ulica a číslo</label>
+                <input
+                  type="text"
+                  name="permanent_street"
+                  value={formData.permanent_street}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  placeholder="Hlavná 1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mesto</label>
+                <input
+                  type="text"
+                  name="permanent_city"
+                  value={formData.permanent_city}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  placeholder="Bratislava"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PSČ</label>
+                <input
+                  type="text"
+                  name="permanent_zip"
+                  value={formData.permanent_zip}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  placeholder="811 01"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Štát</label>
+                <input
+                  type="text"
+                  name="permanent_country"
+                  value={formData.permanent_country}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  placeholder="SK"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Návrh pracovného pomeru z MDB */}
+          {!isEdit && relationDraft && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Návrh pracovného pomeru (z MDB)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pozícia</label>
+                  <input
+                    type="text"
+                    value={relationDraft.position}
+                    onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, position: e.target.value }) : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Typ úväzku</label>
+                  <select
+                    value={relationDraft.employment_type}
+                    onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, employment_type: e.target.value as any }) : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="full_time">Plný úväzok</option>
+                    <option value="part_time">Skrátený úväzok</option>
+                    <option value="contract">Dohoda/kontrakt</option>
+                    <option value="intern">Stáž</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dátum nástupu</label>
+                  <input
+                    type="date"
+                    value={relationDraft.employment_start_date}
+                    onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, employment_start_date: e.target.value }) : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dátum ukončenia</label>
+                  <input
+                    type="date"
+                    value={relationDraft.employment_end_date || ''}
+                    onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, employment_end_date: e.target.value || undefined }) : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Týždenné hodiny</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={relationDraft.weekly_hours ?? 40}
+                    onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, weekly_hours: Number(e.target.value) || 40 }) : prev)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-dark-600">
             <button

@@ -192,6 +192,12 @@ class HRService {
     return apiService.put(`/hr/employees/${id}`, employeeData);
   }
 
+  async getEmployeeFromMdb(companyId: number, birthNumber: string, year?: number): Promise<{ success: boolean; employee?: any; source?: string }> {
+    const params = new URLSearchParams({ birthNumber });
+    if (year) params.set('year', String(year));
+    return apiService.get(`/hr/employees/from-mdb/${companyId}?${params.toString()}`);
+  }
+
   async deleteEmployee(id: number): Promise<{ message: string }> {
     return apiService.delete(`/hr/employees/${id}`);
   }

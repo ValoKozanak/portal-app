@@ -4,6 +4,8 @@ const { db, isWeekend, isHoliday } = require('../database');
 const calendarService = require('../services/calendarService');
 const emailService = require('../services/emailService');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
 // Middleware pre overenie JWT tokenu
 const authenticateToken = (req, res, next) => {
@@ -106,6 +108,109 @@ router.get('/employees/:companyId', authenticateToken, (req, res) => {
       res.json(employees);
     }
   });
+});
+
+// Načítanie údajov o zamestnancovi z MDB podľa IČO firmy a RČ (ZAMSK/MZSK)
+router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res) => {
+  const { companyId } = req.params;
+  const { birthNumber, year } = req.query;
+
+  const normalizeBirthNumber = (v) => String(v || '').replace(/[^0-9]/g, '');
+  const targetRC = normalizeBirthNumber(birthNumber);
+  if (!targetRC) {
+    return res.status(400).json({ error: 'Chýba birthNumber' });
+  }
+
+  try {
+    // Zisti IČO firmy
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT id, ico, name FROM companies WHERE id = ?', [companyId], (err, row) => err ? reject(err) : resolve(row));
+    });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+
+    // Vyhľadaj MDB súbor (znovupoužitie logiky z payroll.js)
+    const { getMDBFilePath } = require('../routes/payroll');
+    let mdbInfo;
+    try {
+      mdbInfo = await getMDBFilePath(company.id, company.ico, year || new Date().getFullYear());
+    } catch (e) {
+      return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
+    }
+
+    const MDBLib = require('mdb-reader');
+    const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
+    const buffer = fs.readFileSync(mdbInfo.path);
+    const mdb = new MDBReader(buffer);
+
+    // Preferuj tabuľku ZAMSK, inak fallback MZSK
+    let tableName = 'ZAMSK';
+    const tableNames = mdb.getTableNames();
+    if (!tableNames.includes('ZAMSK')) {
+      if (tableNames.includes('MZSK')) tableName = 'MZSK'; else return res.status(404).json({ error: 'Tabuľka ZAMSK/MZSK nebola nájdená' });
+    }
+
+    const rows = mdb.getTable(tableName).getData();
+
+    // Stĺpce: v ZAMSK očakávame RodCisl, Priezvisko, Jmeno, Ulica, Mesto, PSC atď. (mení sa podľa verzie POHODA)
+    const match = rows.find(r => normalizeBirthNumber(r.RodCisl) === targetRC);
+    if (!match) return res.status(404).json({ error: 'Zamestnanec s daným RČ nebol nájdený v MDB' });
+
+    const toStringClean = (v) => (v == null ? '' : String(v).toString().trim());
+
+    const payload = {
+      source: mdbInfo.source,
+      birth_number: toStringClean(match.RodCisl),
+      first_name: toStringClean(match.Jmeno || match.Meno || match.Jmeno1),
+      last_name: toStringClean(match.Priezvisko || match.Prijmeni),
+      permanent_street: toStringClean(match.Ulica || match.Adresa || match.Street),
+      permanent_city: toStringClean(match.Mesto || match.Obec || match.City),
+      permanent_zip: toStringClean(match.PSC || match.Zip),
+      permanent_country: toStringClean(match.Stat || match.Country) || 'SK'
+    };
+
+    // Načítanie pracovných pomerov zo ZAMSKpomer (ak existuje)
+    if (tableNames.includes('ZAMSKpomer')) {
+      try {
+        const relRows = mdb.getTable('ZAMSKpomer').getData();
+        const rels = relRows
+          .filter(r => normalizeBirthNumber(r.RodCisl) === targetRC)
+          .map(r => {
+            const get = (obj, candidates, def = '') => {
+              for (const k of candidates) { if (obj[k] != null && obj[k] !== '') return String(obj[k]); }
+              return def;
+            };
+            const toISO = (v) => {
+              if (!v) return null;
+              try {
+                const d = new Date(v);
+                if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+                // niektoré MDB majú string "DD.MM.YYYY"
+                const m = String(v).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+              } catch (_) {}
+              return null;
+            };
+            const weeklyHours = Number(get(r, ['TydenHodin','TydenniHodiny','WeekHours','TydHodin'], '0')) || null;
+            return {
+              position: get(r, ['Pozice','PracPozice','Funkce','Position']),
+              employment_type: get(r, ['PracPomer','PPomer','EmploymentType']),
+              employment_start_date: toISO(get(r, ['DatumNastupu','DatNastupu','Nastup','StartDate'])),
+              employment_end_date: toISO(get(r, ['DatumUkonceni','DatUkonceni','Ukonceni','EndDate'])),
+              weekly_hours: weeklyHours,
+              work_ratio: get(r, ['DUvazek','Uvazek','WorkRatio'])
+            };
+          });
+        payload.employment_relations = rels;
+      } catch (e) {
+        // ignore, nepokazí odpoveď
+      }
+    }
+
+    return res.json({ success: true, employee: payload });
+  } catch (error) {
+    console.error('Chyba pri čítaní zamestnanca z MDB:', error);
+    return res.status(500).json({ error: 'Chyba pri čítaní údajov z MDB' });
+  }
 });
 
 // Hľadanie zamestnanca podľa emailu
