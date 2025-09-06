@@ -186,13 +186,25 @@ function findLatestLocalMdb(companyIco, preferredYear) {
   return entries[0].full;
 }
 
-async function getMDBFilePath(companyIco, year) {
-  // 1) Lokálne nahratý MDB v uploads/mdb/<ICO>/
+async function getMDBFilePath(companyId, companyIco, year) {
+  // 1) Lokálne nahratý MDB v uploads/mdb/<COMPANY_ID>/
+  try {
+    const byIdDir = path.join(__dirname, '..', 'uploads', 'mdb', String(companyId));
+    if (fs.existsSync(byIdDir)) {
+      const files = fs.readdirSync(byIdDir).filter(n => n.toLowerCase().endsWith('.mdb'));
+      if (files.length > 0) {
+        const prefer = year ? files.find(n => n.includes(String(year))) : null;
+        const chosen = prefer || files.sort((a, b) => fs.statSync(path.join(byIdDir, b)).mtimeMs - fs.statSync(path.join(byIdDir, a)).mtimeMs)[0];
+        return { path: path.join(byIdDir, chosen), source: 'uploads-companyId' };
+      }
+    }
+  } catch {}
+  // 2) Lokálne nahratý MDB v uploads/mdb/<ICO>/
   const local = findLatestLocalMdb(companyIco, year);
   if (local && fs.existsSync(local)) {
-    return { path: local, source: 'uploads' };
+    return { path: local, source: 'uploads-ico' };
   }
-  // 2) Zálohy v backend/zalohy/<YEAR>/<ICO_YEAR>/...
+  // 3) Zálohy v backend/zalohy/<YEAR>/<ICO_YEAR>/...
   const zalohyDir = path.join(__dirname, '..', 'zalohy');
   if (fs.existsSync(zalohyDir)) {
     const years = year ? [String(year)] : fs.readdirSync(zalohyDir).filter(d => /\d{4}/.test(d));
@@ -289,7 +301,7 @@ router.get('/payslips/:companyId', authenticateToken, async (req, res) => {
     }
 
     const targetRC = normalizeBirthNumber(employee.birth_number);
-    const mdbInfo = await getMDBFilePath(company.ico, year);
+    const mdbInfo = await getMDBFilePath(company.id, company.ico, year);
     const mdb = openMdbReader(mdbInfo.path);
 
     // Načítaj tabuľku MZSK
@@ -336,7 +348,7 @@ router.get('/payslips/:companyId/detail', authenticateToken, async (req, res) =>
     }
 
     const targetRC = normalizeBirthNumber(employee.birth_number);
-    const mdbInfo = await getMDBFilePath(company.ico, year);
+    const mdbInfo = await getMDBFilePath(company.id, company.ico, year);
     const mdb = openMdbReader(mdbInfo.path);
     const table = mdb.getTable('MZSK');
     const rows = table.getData();
@@ -345,12 +357,23 @@ router.get('/payslips/:companyId/detail', authenticateToken, async (req, res) =>
     if (!match) return res.status(404).json({ error: 'Výplatná páska pre dané obdobie nebola nájdená' });
 
     const monthData = mapMZSKRowToMonth(match);
+    const debug = req.query.debug === '1' ? {
+      RodCisl: match.RodCisl,
+      Rok: match.Rok,
+      RelMes: match.RelMes,
+      KcNem: match.KcNem,
+      KcSoc: match.KcSoc,
+      KcInv: match.KcInv,
+      KcFz: match.KcFz,
+      KcZdr: match.KcZdr
+    } : undefined;
     return res.json({
       year: Number(year),
       month: Number(month),
       employeeId: Number(employeeId),
       payslip: monthData,
-      source: mdbInfo.source
+      source: mdbInfo.source,
+      ...(debug ? { debug } : {})
     });
   } catch (error) {
     console.error('Chyba pri čítaní detailu výplatnej pásky:', error);
