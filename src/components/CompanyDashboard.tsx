@@ -26,6 +26,7 @@ import MessageModal from './MessageModal';
 import DropboxIntegration from './DropboxIntegration';
 import HRDashboard from './HRDashboard';
 import PayrollPeriodsModal from './PayrollPeriodsModal';
+import PayslipDetailModal from './PayslipDetailModal';
 // import AccountingDashboard from './AccountingDashboard'; // Už sa nepoužíva
 
 import { apiService } from '../services/apiService';
@@ -64,6 +65,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     socialInsurance?: number;
     healthInsurance?: number;
   }>>([]);
+  const [showPayslipModal, setShowPayslipModal] = useState(false);
+  const [payslipModalEmployeeId, setPayslipModalEmployeeId] = useState<number | null>(null);
   // HR zamestnanci (raw) pre výplatné pásky
   const [hrEmployeesRaw, setHrEmployeesRaw] = useState<any[]>([]);
 
@@ -697,6 +700,34 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         </div>
       </div>
 
+      {/* Súhrnné karty podľa aktuálneho filtra */}
+      {!payslipsLoading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <p className="text-sm text-green-700">Čistá mzda spolu</p>
+            <p className="text-2xl font-bold text-green-900">
+              {payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} €
+            </p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-blue-700">Hrubá mzda spolu</p>
+            <p className="text-2xl font-bold text-blue-900">
+              {payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} €
+            </p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <p className="text-sm text-purple-700">Vyplatené spolu</p>
+            <p className="text-2xl font-bold text-purple-900">
+              {payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} €
+            </p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <p className="text-sm text-yellow-700">Počet záznamov</p>
+            <p className="text-2xl font-bold text-yellow-900">{payslipsRows.length}</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {payslipsLoading ? (
           <div className="p-6">Načítavam...</div>
@@ -715,6 +746,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ZP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Odpracované (dni / h)</th>
+                  {payslipsMonth && (
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akcie</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -730,11 +764,21 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.socialInsurance || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.healthInsurance || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.workedDays || 0} / {row.workedHours || 0}</td>
+                    {payslipsMonth && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => { setPayslipModalEmployeeId(row.employeeId); setShowPayslipModal(true); }}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Detail
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {payslipsRows.length === 0 && (
                   <tr>
-                    <td className="px-6 py-4 text-sm text-gray-500" colSpan={payslipsMonth ? 6 : 5}>Žiadne dáta pre zvolené filtre.</td>
+                    <td className="px-6 py-4 text-sm text-gray-500" colSpan={payslipsMonth ? 9 : 7}>Žiadne dáta pre zvolené filtre.</td>
                   </tr>
                 )}
               </tbody>
@@ -1136,6 +1180,18 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           isAccountant={userRole === 'accountant'}
           userEmail={userEmail}
         />
+
+        {/* Payslip Detail Modal (firma) */}
+        {showPayslipModal && payslipModalEmployeeId && payslipsMonth && (
+          <PayslipDetailModal
+            isOpen={showPayslipModal}
+            onClose={() => setShowPayslipModal(false)}
+            companyId={company.id}
+            employeeId={payslipModalEmployeeId}
+            year={payslipsYear}
+            month={payslipsMonth as number}
+          />
+        )}
 
         {/* Message Modal */}
         <MessageModal
