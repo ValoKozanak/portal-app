@@ -117,6 +117,8 @@ class PayrollService {
       netWage: number;
       advance: number;
       settlement: number;
+      socialInsurance: number; // SP = KcNem+KcSoc+KcInv+KcFz
+      healthInsurance: number; // ZP = KcZdr
     }>;
     summary: {
       totalGross: number;
@@ -128,6 +130,8 @@ class PayrollService {
       totalTaxableIncome: number;
       totalWorkedHours: number;
       totalWorkedDays: number;
+      totalSocialInsurance: number;
+      totalHealthInsurance: number;
       monthsCount: number;
     };
     source: string;

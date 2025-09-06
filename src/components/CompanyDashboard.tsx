@@ -61,6 +61,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     settlement?: number;
     workedDays?: number;
     workedHours?: number;
+    socialInsurance?: number;
+    healthInsurance?: number;
   }>>([]);
   // HR zamestnanci (raw) pre výplatné pásky
   const [hrEmployeesRaw, setHrEmployeesRaw] = useState<any[]>([]);
@@ -468,6 +470,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                 settlement: p.settlement || 0,
                 workedDays: p.workedDays || 0,
                 workedHours: p.workedHours || 0,
+                socialInsurance: p.socialInsurance || 0,
+                healthInsurance: p.healthInsurance || 0,
               });
             } catch (_) {
               // Bez pádu – zamestnanec môže nemať výplatu v danom mesiaci
@@ -486,6 +490,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                 settlement: data.summary?.totalSettlement || 0,
                 workedDays: data.summary?.totalWorkedDays || 0,
                 workedHours: data.summary?.totalWorkedHours || 0,
+                socialInsurance: data.summary?.totalSocialInsurance || 0,
+                healthInsurance: data.summary?.totalHealthInsurance || 0,
               });
             } catch (_) {}
           }));
@@ -706,6 +712,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hrubá</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Čistá</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SP</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ZP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Odpracované (dni / h)</th>
                 </tr>
               </thead>
@@ -719,6 +727,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.gross || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.net || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.settlement || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.socialInsurance || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.healthInsurance || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.workedDays || 0} / {row.workedHours || 0}</td>
                   </tr>
                 ))}

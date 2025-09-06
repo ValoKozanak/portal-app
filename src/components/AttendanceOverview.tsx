@@ -367,6 +367,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 
   const [stats, setStats] = useState<any>(null);
 
+  // Zobrazenie stavov len pre tabuľku (bez zmeny globálnych prekladov)
+  const getDisplayStatusLabel = (status: Attendance['status']): string => {
+    if (status === 'present') return 'Odpracované';
+    if (status === 'absent') return 'Neodpracované';
+    return hrService.getAttendanceStatusLabel(status as unknown as string);
+  };
+
   useEffect(() => {
     const loadStats = async () => {
       const calculatedStats = await calculateStats();
@@ -614,7 +621,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 Prestávky
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Aktuálne
+                Stav
               </th>
               {!showAllEmployees && canEdit && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Akcie</th>
@@ -677,7 +684,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                         ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                     }`}>
-                      {hrService.getAttendanceStatusLabel(att.status)}
+                      {getDisplayStatusLabel(att.status)}
                     </span>
                   </td>
                   {!showAllEmployees && canEdit && (

@@ -238,7 +238,10 @@ function mapMZSKRowToMonth(row) {
     taxBonus: toNumber(row.KcDanBon),
     netWage: toNumber(row.KcCistaM),
     advance: toNumber(row.KcZaloha),
-    settlement: toNumber(row.KcVyuct)
+    settlement: toNumber(row.KcVyuct),
+    // Odvody zamestnanca
+    socialInsurance: toNumber(row.KcNem) + toNumber(row.KcSoc) + toNumber(row.KcInv) + toNumber(row.KcFz),
+    healthInsurance: toNumber(row.KcZdr)
   };
 }
 
@@ -255,6 +258,8 @@ function summarizePayslips(months) {
     totalTaxableIncome: sum('taxableIncome'),
     totalWorkedHours: sum('workedHours'),
     totalWorkedDays: sum('workedDays'),
+    totalSocialInsurance: sum('socialInsurance'),
+    totalHealthInsurance: sum('healthInsurance'),
     monthsCount
   };
 }
