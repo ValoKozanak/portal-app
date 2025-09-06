@@ -1,0 +1,8 @@
+  backup-1user-1company      [m 9144a90 Backup: verzia s 1 USER = 1 COMPANY - messaging system, file uploads, registration
+  backup/safe-20250903-1447  [m 8b3be0e chore: update lockfile after npm install
+  deployment-ready           [m 08cc96c DEPLOYMENT: Pridané všetky súbory pre nasadenie na web
+  hr-version                 [m 9048f9d [[34morigin/hr-version[m: ahead 2] vezia-ucto: Pridaná karta Hospodárske výsledky s napojením na MDB tabuľku pUD
+  master                     [m ce57580 [[34morigin/master[m] Add Netlify Functions - accounting and dropbox
+  safe-safe-2025-09-03-202609[m ba307fc feat(admin): MDB UI list/download/delete + upload fix
+  vezia-ucto                 [m 79b82e7 [[34morigin/vezia-ucto[m: behind 20] Configure Railway for backend deployment
+* [32mworking-version            [m cb6c1c5 [[34morigin/working-version[m] HR: EmployeeModal predfill z MDB (adresa, RČ, pracovný pomer) + hrService.getEmployeeFromMdb

@@ -42,6 +42,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
   const [birthNumber, setBirthNumber] = useState('');
   const [prefillLoading, setPrefillLoading] = useState(false);
+  const [mdbCandidate, setMdbCandidate] = useState<any | null>(null);
   // Návrh pracovného pomeru z MDB, ktorý môžeme upraviť pred uložením
   const [relationDraft, setRelationDraft] = useState<null | {
     position: string;
@@ -213,6 +214,67 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* MDB prefill banner */}
+          {!isEdit && mdbCandidate && (
+            <div className="p-4 rounded-md border border-purple-200 bg-purple-50 dark:bg-dark-700 dark:border-dark-600">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="text-sm text-gray-800 dark:text-gray-100">
+                  Našli sme údaje v MDB pre RČ. Chceš predvyplniť formulár z POHODA?
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                    onClick={() => {
+                      const e = mdbCandidate as any;
+                      setFormData(prev => ({
+                        ...prev,
+                        first_name: e.first_name || prev.first_name,
+                        last_name: e.last_name || prev.last_name,
+                        email: prev.email,
+                        phone: prev.phone || '',
+                        birth_number: (e.birth_number || '').replace(/[^0-9]/g, ''),
+                        permanent_street: e.permanent_street || prev.permanent_street,
+                        permanent_city: e.permanent_city || prev.permanent_city,
+                        permanent_zip: e.permanent_zip || prev.permanent_zip,
+                        permanent_country: e.permanent_country || prev.permanent_country
+                      }));
+                      setBirthNumber(((e.birth_number as string) || '').replace(/[^0-9]/g, ''));
+
+                      // priprav návrh pracovného pomeru
+                      if (Array.isArray(e.employment_relations) && e.employment_relations.length > 0) {
+                        const rels = e.employment_relations as any[];
+                        const pick = rels.find(r => !r.employment_end_date) || rels[0];
+                        const toISO = (v: any) => {
+                          if (!v) return '';
+                          const s = String(v);
+                          if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                          const m = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                          if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+                          const d = new Date(s);
+                          return isNaN(d.getTime()) ? '' : d.toISOString().slice(0,10);
+                        };
+                        setRelationDraft({
+                          position: pick.position || 'Zamestnanec',
+                          employment_type: (pick.employment_type as any) || 'full_time',
+                          employment_start_date: toISO(pick.employment_start_date) || formatDate(new Date()),
+                          employment_end_date: pick.employment_end_date ? toISO(pick.employment_end_date) : undefined,
+                          weekly_hours: pick.weekly_hours ? Number(pick.weekly_hours) : 40
+                        });
+                      }
+
+                      setMdbCandidate(null);
+                    }}
+                  >Predvyplniť</button>
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-gray-200 dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded hover:bg-gray-300 dark:hover:bg-dark-500"
+                    onClick={() => setMdbCandidate(null)}
+                  >Zavrieť</button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Načítať z POHODA (MDB) podľa RČ */}
           {!isEdit && (
             <div className="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg space-y-3">
@@ -235,44 +297,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                       const res = await hrService.getEmployeeFromMdb(companyId, normalized);
                       if (res && res.employee) {
                         const e = res.employee;
-                        const ok = confirm('Našli sme údaje v MDB. Chcete predvyplniť formulár?');
-                        if (ok) {
-                          setFormData(prev => ({
-                            ...prev,
-                            first_name: e.first_name || prev.first_name,
-                            last_name: e.last_name || prev.last_name,
-                            email: prev.email,
-                            phone: prev.phone || '',
-                            birth_number: (e.birth_number || '').replace(/[^0-9]/g, ''),
-                            permanent_street: e.permanent_street || prev.permanent_street,
-                            permanent_city: e.permanent_city || prev.permanent_city,
-                            permanent_zip: e.permanent_zip || prev.permanent_zip,
-                            permanent_country: e.permanent_country || prev.permanent_country
-                          }));
-                          setBirthNumber(((e.birth_number as string) || '').replace(/[^0-9]/g, ''));
-
-                          // Navrhnúť pracovný pomer z MDB (vezmi aktívny alebo prvý)
-                          if (Array.isArray((e as any).employment_relations) && (e as any).employment_relations.length > 0) {
-                            const rels = (e as any).employment_relations as any[];
-                            const pick = rels.find(r => !r.employment_end_date) || rels[0];
-                            const toISO = (v: any) => {
-                              if (!v) return '';
-                              const s = String(v);
-                              if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-                              const m = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-                              if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-                              const d = new Date(s);
-                              return isNaN(d.getTime()) ? '' : d.toISOString().slice(0,10);
-                            };
-                            setRelationDraft({
-                              position: pick.position || 'Zamestnanec',
-                              employment_type: (pick.employment_type as any) || 'full_time',
-                              employment_start_date: toISO(pick.employment_start_date) || formatDate(new Date()),
-                              employment_end_date: pick.employment_end_date ? toISO(pick.employment_end_date) : undefined,
-                              weekly_hours: pick.weekly_hours ? Number(pick.weekly_hours) : 40
-                            });
-                          }
-                        }
+                        setMdbCandidate(e);
                       } else {
                         alert('Údaje pre zadané RČ neboli nájdené.');
                       }
