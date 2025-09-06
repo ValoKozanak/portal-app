@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { db, isWeekend, isHoliday } = require('../database');
 const calendarService = require('../services/calendarService');
+const emailService = require('../services/emailService');
 const jwt = require('jsonwebtoken');
 
 // Middleware pre overenie JWT tokenu
@@ -572,6 +573,25 @@ router.post('/leave-requests', authenticateToken, async (req, res) => {
         console.error('Chyba pri pridávaní žiadosti o dovolenku:', err);
         return res.status(500).json({ error: 'Chyba pri pridávaní žiadosti o dovolenku' });
       }
+      // Email notifikácie: zamestnanec + admin
+      try {
+        db.get(`SELECT first_name, last_name, email FROM employees WHERE id = ?`, [employee_id], (e1, emp) => {
+          const employeeName = emp ? `${emp.first_name} ${emp.last_name}` : '';
+          const employeeEmail = emp?.email;
+          db.get(`SELECT name as company_name FROM companies WHERE id = ?`, [company_id], (e2, comp) => {
+            const companyName = comp?.company_name || '';
+            if (employeeEmail) {
+              emailService.sendLeaveRequestSubmitted(employeeEmail, employeeName, leave_type, start_date, end_date, calculatedWorkingDays, reason, companyName).catch(() => {});
+            }
+            db.get(`SELECT email, name FROM users WHERE role = 'admin' LIMIT 1`, [], (e3, admin) => {
+              if (admin?.email) {
+                emailService.sendLeaveRequestPendingNotification(admin.email, admin.name || 'Admin', employeeName, leave_type, start_date, end_date, calculatedWorkingDays, reason, companyName).catch(() => {});
+              }
+            });
+          });
+        });
+      } catch (_) {}
+
       res.json({ 
         id: this.lastID, 
         message: 'Žiadosť o dovolenku úspešne pridaná',
@@ -595,6 +615,24 @@ router.post('/leave-requests', authenticateToken, async (req, res) => {
         console.error('Chyba pri pridávaní žiadosti o dovolenku:', err);
         return res.status(500).json({ error: 'Chyba pri pridávaní žiadosti o dovolenku' });
       }
+      try {
+        db.get(`SELECT first_name, last_name, email FROM employees WHERE id = ?`, [employee_id], (e1, emp) => {
+          const employeeName = emp ? `${emp.first_name} ${emp.last_name}` : '';
+          const employeeEmail = emp?.email;
+          db.get(`SELECT name as company_name FROM companies WHERE id = ?`, [company_id], (e2, comp) => {
+            const companyName = comp?.company_name || '';
+            if (employeeEmail) {
+              emailService.sendLeaveRequestSubmitted(employeeEmail, employeeName, leave_type, start_date, end_date, fallbackDays, reason, companyName).catch(() => {});
+            }
+            db.get(`SELECT email, name FROM users WHERE role = 'admin' LIMIT 1`, [], (e3, admin) => {
+              if (admin?.email) {
+                emailService.sendLeaveRequestPendingNotification(admin.email, admin.name || 'Admin', employeeName, leave_type, start_date, end_date, fallbackDays, reason, companyName).catch(() => {});
+              }
+            });
+          });
+        });
+      } catch (_) {}
+
       res.json({ 
         id: this.lastID, 
         message: 'Žiadosť o dovolenku úspešne pridaná (použitý fallback)',
@@ -623,6 +661,25 @@ router.put('/leave-requests/:id/status', authenticateToken, (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ error: 'Žiadosť o dovolenku nenájdená' });
     }
+    // Email o zmene statusu
+    try {
+      db.get(`
+        SELECT lr.leave_type, lr.start_date, lr.end_date, e.email, e.first_name, e.last_name, c.name as company_name, a.first_name as approver_first_name, a.last_name as approver_last_name
+        FROM leave_requests lr
+        JOIN employees e ON lr.employee_id = e.id
+        LEFT JOIN employees a ON lr.approved_by = a.id
+        JOIN companies c ON lr.company_id = c.id
+        WHERE lr.id = ?
+      `, [id], (e1, row) => {
+        if (!e1 && row && row.email) {
+          const approverName = row.approver_first_name || row.approver_last_name ? `${row.approver_first_name || ''} ${row.approver_last_name || ''}`.trim() : '';
+          emailService
+            .sendLeaveStatusChanged(row.email, `${row.first_name} ${row.last_name}`, row.leave_type, row.start_date, row.end_date, status, approverName, row.company_name)
+            .catch(() => {});
+        }
+      });
+    } catch (_) {}
+
     res.json({ message: 'Žiadosť o dovolenku úspešne aktualizovaná' });
   });
 });

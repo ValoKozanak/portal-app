@@ -22,6 +22,18 @@ class EmailService {
       text: text || this.stripHtml(html)
     };
 
+    // Ak je nastavený testovací email, smeruj všetky e-maily tam
+    if (process.env.TEST_EMAIL) {
+      const originalTo = Array.isArray(to) ? to.join(',') : String(to);
+      msg.to = process.env.TEST_EMAIL;
+      msg.subject = `[TEST to:${originalTo}] ${subject}`;
+    }
+
+    // Sandbox mód (neodosiela reálne e-maily)
+    if (process.env.SENDGRID_SANDBOX === '1' || process.env.SENDGRID_SANDBOX === 'true') {
+      msg.mailSettings = { sandboxMode: { enable: true } };
+    }
+
     try {
       await sgMail.send(msg);
       console.log(`✅ Email sent successfully to: ${to}`);
@@ -32,6 +44,93 @@ class EmailService {
     }
   }
 
+  leaveTypeLabel(type) {
+    const map = {
+      vacation: 'Dovolenka',
+      sick_leave: 'PN',
+      personal_leave: 'Osobná prekážka',
+      maternity_leave: 'Materská',
+      paternity_leave: 'Otcovská',
+      unpaid_leave: 'Neplatené voľno'
+    };
+    return map[type] || type;
+  }
+
+  // Žiadosť o dovolenku – potvrdenie zamestnancovi
+  async sendLeaveRequestSubmitted(userEmail, userName, leaveType, startDate, endDate, totalDays, reason, companyName) {
+    const subject = `Žiadosť o ${this.leaveTypeLabel(leaveType)} bola odoslaná`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family:Arial,sans-serif;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;">
+          <h2>Potvrdenie prijatia žiadosti</h2>
+          <p>Ahoj ${userName},</p>
+          <p>Vaša žiadosť o <strong>${this.leaveTypeLabel(leaveType)}</strong> bola odoslaná na schválenie.</p>
+          <ul>
+            <li>Firma: <strong>${companyName || '-'}</strong></li>
+            <li>Obdobie: <strong>${startDate}</strong> – <strong>${endDate}</strong></li>
+            <li>Počet dní: <strong>${totalDays}</strong></li>
+            ${reason ? `<li>Dôvod: <em>${reason}</em></li>` : ''}
+          </ul>
+          <p>O výsledku schvaľovania budete informovaný e‑mailom.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    return this.sendEmail(userEmail, subject, html);
+  }
+
+  // Žiadosť o dovolenku – notifikácia pre administrátora/schvaľovateľa
+  async sendLeaveRequestPendingNotification(adminEmail, adminName, employeeName, leaveType, startDate, endDate, totalDays, reason, companyName) {
+    const subject = `Nová žiadosť o ${this.leaveTypeLabel(leaveType)} – ${employeeName}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family:Arial,sans-serif;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;">
+          <h2>Nová žiadosť o ${this.leaveTypeLabel(leaveType)}</h2>
+          <p>Dobrý deň ${adminName || ''},</p>
+          <p>Zamestnanec <strong>${employeeName}</strong> podal žiadosť o ${this.leaveTypeLabel(leaveType)}.</p>
+          <ul>
+            <li>Firma: <strong>${companyName || '-'}</strong></li>
+            <li>Obdobie: <strong>${startDate}</strong> – <strong>${endDate}</strong></li>
+            <li>Počet dní: <strong>${totalDays}</strong></li>
+            ${reason ? `<li>Dôvod: <em>${reason}</em></li>` : ''}
+          </ul>
+        </div>
+      </body>
+      </html>
+    `;
+    return this.sendEmail(adminEmail, subject, html);
+  }
+
+  // Zmena statusu žiadosti – informácia zamestnancovi
+  async sendLeaveStatusChanged(userEmail, userName, leaveType, startDate, endDate, status, approverName, companyName) {
+    const statusLabel = status === 'approved' ? 'schválená' : status === 'rejected' ? 'zamietnutá' : status;
+    const subject = `Žiadosť o ${this.leaveTypeLabel(leaveType)} bola ${statusLabel}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family:Arial,sans-serif;color:#333;">
+        <div style="max-width:600px;margin:0 auto;padding:20px;">
+          <h2>Stav žiadosti: ${statusLabel}</h2>
+          <p>Ahoj ${userName},</p>
+          <p>Vaša žiadosť o <strong>${this.leaveTypeLabel(leaveType)}</strong> bola <strong>${statusLabel}</strong>.</p>
+          <ul>
+            <li>Firma: <strong>${companyName || '-'}</strong></li>
+            <li>Obdobie: <strong>${startDate}</strong> – <strong>${endDate}</strong></li>
+          </ul>
+          ${approverName ? `<p>Schvaľovateľ: <strong>${approverName}</strong></p>` : ''}
+        </div>
+      </body>
+      </html>
+    `;
+    return this.sendEmail(userEmail, subject, html);
+  }
   // Welcome email pre nového používateľa
   async sendWelcomeEmail(userEmail, userName) {
     const subject = 'Vitajte v portáli!';
