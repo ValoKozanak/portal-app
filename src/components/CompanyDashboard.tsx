@@ -452,7 +452,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           : hrEmployeesRaw.filter(e => e.id === payslipsEmployeeId);
 
         const rows: Array<{
-          employeeId: number; name: string; month?: number; gross?: number; net?: number; settlement?: number; workedDays?: number; workedHours?: number;
+          employeeId: number; name: string; month?: number; gross?: number; net?: number; settlement?: number; workedDays?: number; workedHours?: number; socialInsurance?: number; healthInsurance?: number;
         }> = [];
 
         // Ak je zvolený konkrétny mesiac -> načítaj detail za mesiac pre každého
