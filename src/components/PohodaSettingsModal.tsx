@@ -83,7 +83,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
           pohoda_ico: formData.pohoda_ico,
           pohoda_year: formData.pohoda_year
         })
-      });
+      }); 36255789
 
       const result = await response.json();
 

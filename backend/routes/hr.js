@@ -128,15 +128,33 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
     });
     if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
 
-    // Najprv: hľadaj v Admin per-company adresári uploads/mdb/<companyId>/ (novší -> starší, všetky .mdb)
+    // Helper: rekurzívne zozbieraj všetky .mdb súbory v adresári
+    const listMdbRecursive = (rootDir) => {
+      const out = [];
+      if (!fs.existsSync(rootDir)) return out;
+      const stack = [rootDir];
+      while (stack.length > 0) {
+        const dir = stack.pop();
+        try {
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const e of entries) {
+            const full = path.join(dir, e.name);
+            if (e.isDirectory()) stack.push(full);
+            else if (e.isFile() && e.name.toLowerCase().endsWith('.mdb')) {
+              let mtimeMs = 0;
+              try { mtimeMs = fs.statSync(full).mtimeMs; } catch (_) {}
+              out.push({ name: e.name, full, mtimeMs });
+            }
+          }
+        } catch (_) {}
+      }
+      return out;
+    };
+
+    // Najprv: hľadaj v Admin per-company adresári uploads/mdb/<companyId>/ (rekurzívne; zoradené podľa mtime)
     const adminDir = path.join(__dirname, '..', 'uploads', 'mdb', String(company.id));
     let candidateFiles = [];
-    if (fs.existsSync(adminDir)) {
-      candidateFiles = fs.readdirSync(adminDir)
-        .filter(n => n.toLowerCase().endsWith('.mdb'))
-        .map(n => ({ name: n, full: path.join(adminDir, n), mtimeMs: fs.statSync(path.join(adminDir, n)).mtimeMs }))
-        .sort((a, b) => b.mtimeMs - a.mtimeMs);
-    }
+    candidateFiles.push(...listMdbRecursive(adminDir));
 
     // Potom: doplň kandidátov cez univerzálne vyhľadanie (ICO/zalohy) pre viac rokov
     const { getMDBFilePath } = require('../routes/payroll');
@@ -158,6 +176,22 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
 
     const MDBLib = require('mdb-reader');
     const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
+
+    // Helper: z rôznych možných názvov stĺpcov vyber hodnotu RČ a normalizuj
+    const extractBirthNumber = (row) => {
+      const candidates = [
+        'RodCisl', 'RodCislo', 'RodneCislo', 'Rodne_cislo', 'rodne_cislo', 'rod_cislo',
+        'RC', 'R_Cislo', 'RodneC', 'RodC', 'BirthNumber', 'BirthNum'
+      ];
+      for (const key of candidates) {
+        if (row && row[key] != null && String(row[key]).trim() !== '') {
+          return String(row[key]).replace(/[^0-9]/g, '');
+        }
+      }
+      // fallback na najčastejší kľúč
+      if (row && row.RodCisl != null) return String(row.RodCisl).replace(/[^0-9]/g, '');
+      return '';
+    };
     // Prehľadaj postupne všetky kandidátne MDB súbory, kým nenájdeš RČ
     let match = null;
     let sourceInfo = null;
@@ -172,7 +206,7 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
           if (tableNames.includes('MZSK')) tableName = 'MZSK'; else continue;
         }
         const rows = mdb.getTable(tableName).getData();
-        const found = rows.find(r => normalizeBirthNumber(r.RodCisl) === targetRC);
+        const found = rows.find(r => extractBirthNumber(r) === targetRC);
         if (found) {
           match = found;
           sourceInfo = { path: file.full, source: file.full.includes(path.sep + 'uploads' + path.sep) ? 'uploads' : 'auto' };
@@ -206,7 +240,7 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
         if (tableNames2.includes('ZAMSKpomer')) {
           const relRows = mdb2.getTable('ZAMSKpomer').getData();
           const rels = relRows
-            .filter(r => normalizeBirthNumber(r.RodCisl) === targetRC)
+            .filter(r => extractBirthNumber(r) === targetRC)
             .map(r => {
               const get = (obj, candidates, def = '') => {
                 for (const k of candidates) { if (obj[k] != null && obj[k] !== '') return String(obj[k]); }
