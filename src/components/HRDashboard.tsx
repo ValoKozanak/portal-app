@@ -204,6 +204,12 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
         const todayStr = formatDate(now);
         const minutesNow = now.getHours() * 60 + now.getMinutes();
 
+        // Cez víkend neauto-checkovať
+        const dayOfWeek = now.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          return;
+        }
+
         const toMinutes = (t?: string) => {
           if (!t) return null;
           const [h, m] = t.split(':');
@@ -212,10 +218,43 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
           return hh * 60 + mm;
         };
 
+        // Zostav množinu zamestnancov s aktívnou nahlásenou absenciou (dovolenka/PN/OČR...) pre dnešok
+        const employeesWithActiveLeaveToday = new Set<number>();
+        try {
+          const isTodayBetween = (start: string, end: string) => {
+            const s = new Date(start);
+            const e = new Date(end);
+            const d = new Date(todayStr + 'T00:00:00');
+            s.setHours(0, 0, 0, 0);
+            e.setHours(23, 59, 59, 999);
+            return d >= s && d <= e;
+          };
+          (leaveRequests || []).forEach(req => {
+            const status = (req as any).status || 'pending';
+            if ((status === 'approved' || status === 'pending') && isTodayBetween((req as any).start_date, (req as any).end_date)) {
+              employeesWithActiveLeaveToday.add((req as any).employee_id);
+            }
+          });
+        } catch (_) {}
+
         for (const emp of automaticEmployees) {
           const status = employeesAttendanceStatus.find(e => e.id === emp.id);
-          // Preskočiť ak už má status prítomný/mešká alebo je víkend/sviatok
-          if (status && (status.status_type === 'present' || status.status_type === 'late' || status.is_weekend || status.is_holiday)) {
+          // Preskočiť ak už má status prítomný/mešká alebo je víkend/sviatok/dovolenka/PN/absencia
+          if (
+            status && (
+              status.status_type === 'present' ||
+              status.status_type === 'late' ||
+              (status as any).is_weekend ||
+              (status as any).is_holiday ||
+              status.status_type === 'leave' ||
+              status.status_type === 'absent'
+            )
+          ) {
+            continue;
+          }
+
+          // Preskočiť ak má aktívnu nahlásenú absenciu (dovolenka/PN/OČR) dnes
+          if (employeesWithActiveLeaveToday.has(emp.id)) {
             continue;
           }
 
@@ -262,11 +301,11 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
       }
     };
 
-    // Spustiť len keď máme načítané dnešné statusy
-    if (employeesAttendanceStatus && employeesAttendanceStatus.length >= 0) {
+    // Spustiť len keď máme načítané dnešné statusy a žiadosti o dovolenku
+    if (employeesAttendanceStatus && employeesAttendanceStatus.length > 0) {
       autoCheckInAutomaticToday();
     }
-  }, [companyId, employeesAttendanceStatus, refreshAttendanceData]);
+  }, [companyId, employeesAttendanceStatus, leaveRequests, refreshAttendanceData]);
 
   // Automatické aktualizácie dochádzkových dát každých 30 sekúnd
   useEffect(() => {
