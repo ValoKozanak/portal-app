@@ -21,6 +21,7 @@ import AttendanceTracker from '../components/AttendanceTracker';
 import AttendanceOverview from '../components/AttendanceOverview';
 import LeaveRequestModal from '../components/LeaveRequestModal';
 import MessagesList from '../components/MessagesList';
+import PayslipDetailModal from '../components/PayslipDetailModal';
 
 // Helper funkcia pre lokálne formátovanie dátumu
 const formatDate = (date: Date): string => {
@@ -50,6 +51,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
   const [payslipsData, setPayslipsData] = useState<any | null>(null);
   const [loadingPayslips, setLoadingPayslips] = useState(false);
+  const [showPayslipModal, setShowPayslipModal] = useState(false);
+  const [payslipModalMonth, setPayslipModalMonth] = useState<number | null>(null);
   const [showLeaveRequestModal, setShowLeaveRequestModal] = useState(false);
   const [showChangeRequestModal, setShowChangeRequestModal] = useState(false);
   const [selectedField, setSelectedField] = useState<string>('');
@@ -736,6 +739,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.wageTax || 0).toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.netWage.toFixed(2)} €</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.settlement.toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => { setPayslipModalMonth(m.month); setShowPayslipModal(true); }}
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Detail
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -1711,6 +1722,18 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           field={selectedField}
                      currentValue={getCurrentFieldValue(selectedField)}
           onSubmit={handleChangeRequestSubmit}
+        />
+      )}
+
+      {/* Payslip Detail Modal */}
+      {showPayslipModal && selectedCompany && employeeData && payslipModalMonth && (
+        <PayslipDetailModal
+          isOpen={showPayslipModal}
+          onClose={() => setShowPayslipModal(false)}
+          companyId={selectedCompany.id}
+          employeeId={employeeData.id}
+          year={payslipsYear}
+          month={payslipModalMonth}
         />
       )}
     </div>
