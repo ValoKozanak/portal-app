@@ -230,6 +230,9 @@ function normalizeBirthNumber(value) {
   return String(value).replace(/[^0-9]/g, '');
 }
 
+// Export helper pre iné routy (napr. HR)
+module.exports.getMDBFilePath = getMDBFilePath;
+
 function mapMZSKRowToMonth(row) {
   const toNumber = (v) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).toString().replace(',', '.')) || 0);
   return {

@@ -170,6 +170,38 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
       } catch (_) { /* skúsiť ďalší rok */ }
     }
 
+    // Extra fallback: rekurzívne prehľadať uploads/mdb pre všetky .mdb súbory a pridať tie, ktoré
+    // sú v priečinku s názvom companyId alebo ICO, alebo ktorých názov obsahuje ICO
+    try {
+      const uploadsRoot = path.join(__dirname, '..', 'uploads', 'mdb');
+      if (fs.existsSync(uploadsRoot)) {
+        const stack = [uploadsRoot];
+        while (stack.length > 0) {
+          const dir = stack.pop();
+          let entries;
+          try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { entries = []; }
+          for (const e of entries) {
+            const full = path.join(dir, e.name);
+            if (e.isDirectory()) {
+              stack.push(full);
+              continue;
+            }
+            if (!e.isFile()) continue;
+            if (!e.name.toLowerCase().endsWith('.mdb')) continue;
+            const belongsToCompany = full.includes(path.sep + String(company.id) + path.sep)
+              || full.includes(path.sep + String(company.ico) + path.sep)
+              || e.name.includes(String(company.ico));
+            if (!belongsToCompany) continue;
+            if (!candidateFiles.some(c => c.full === full)) {
+              let mtimeMs = 0;
+              try { mtimeMs = fs.statSync(full).mtimeMs; } catch {}
+              candidateFiles.push({ name: path.basename(full), full, mtimeMs });
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
     if (candidateFiles.length === 0) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
     }
