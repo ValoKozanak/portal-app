@@ -1062,7 +1062,6 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               { id: 'files', name: 'Súbory', icon: FolderIcon },
               { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
               { id: 'hr', name: 'HR', icon: UsersIcon },
-              { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
               { id: 'accountants', name: 'Účtovníci', icon: UserIcon },
               { id: 'accounting', name: 'Účtovníctvo', icon: DocumentTextIcon },
               { id: 'messages', name: 'Správy', icon: EnvelopeIcon },
@@ -1160,7 +1159,6 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           {activeTab === 'hr' && (
             <HRDashboard companyId={company.id} />
           )}
-          {activeTab === 'payslips' && renderCompanyPayslips()}
           {activeTab === 'accountants' && renderAccountants()}
           {activeTab === 'accounting' && renderAccounting()}
           {activeTab === 'messages' && renderMessages()}

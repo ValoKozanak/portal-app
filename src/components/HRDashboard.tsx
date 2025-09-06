@@ -10,7 +10,8 @@ import {
   PencilIcon,
   DocumentTextIcon,
   BriefcaseIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from './LoadingSpinner';
 import EmployeeModal from './EmployeeModal';
@@ -21,6 +22,8 @@ import AttendanceOverview from './AttendanceOverview';
 import AutomaticAttendancePage from '../pages/AutomaticAttendancePage';
 import AttendanceRecordModal from './AttendanceRecordModal';
 import { hrService, Employee, LeaveRequest, HRStats, EmployeeAttendanceStatus } from '../services/hrService';
+import { payrollService } from '../services/payrollService';
+import PayslipDetailModal from './PayslipDetailModal';
 
 // Helper funkcia pre lokálne formátovanie dátumu
 const formatDate = (date: Date): string => {
@@ -72,7 +75,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
   const [employeesAttendanceStatus, setEmployeesAttendanceStatus] = useState<EmployeeAttendanceStatus[]>([]);
   const [lastAttendanceUpdate, setLastAttendanceUpdate] = useState<Date>(new Date());
   const [isRefreshingAttendance, setIsRefreshingAttendance] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'employees' | 'attendance' | 'leave' | 'employee-cards' | 'employment-relations' | 'attendance-overview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'employees' | 'attendance' | 'leave' | 'employee-cards' | 'employment-relations' | 'attendance-overview' | 'payslips'>('overview');
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeFilter, setEmployeeFilter] = useState<'all' | 'active' | 'inactive' | 'terminated' | 'on_leave'>('all');
@@ -82,6 +85,26 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
   const [selectedEmployeeForLeave, setSelectedEmployeeForLeave] = useState<Employee | null>(null);
   const [showAttendanceRecordModal, setShowAttendanceRecordModal] = useState(false);
   const [activeSection, setActiveSection] = useState<'overview' | 'leave-requests' | 'automatic-attendance' | 'select-employee-for-leave' | 'present-today' | 'absent-today'>('overview');
+
+  // Výplatné pásky (firma) – filtre a stav
+  const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
+  const [payslipsMonth, setPayslipsMonth] = useState<number | ''>('');
+  const [payslipsEmployeeId, setPayslipsEmployeeId] = useState<number | 'all'>('all');
+  const [payslipsLoading, setPayslipsLoading] = useState(false);
+  const [payslipsRows, setPayslipsRows] = useState<Array<{
+    employeeId: number;
+    name: string;
+    month?: number;
+    gross?: number;
+    net?: number;
+    settlement?: number;
+    workedDays?: number;
+    workedHours?: number;
+    socialInsurance?: number;
+    healthInsurance?: number;
+  }>>([]);
+  const [showPayslipModal, setShowPayslipModal] = useState(false);
+  const [payslipModalEmployeeId, setPayslipModalEmployeeId] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -253,6 +276,67 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
 
     return () => clearInterval(interval);
   }, [refreshAttendanceData]);
+
+  // Načítanie výplatných pások podľa filtrov (firma)
+  useEffect(() => {
+    const loadPayslips = async () => {
+      if (activeTab !== 'payslips') return;
+      setPayslipsLoading(true);
+      try {
+        const targetEmployees = payslipsEmployeeId === 'all'
+          ? employees
+          : employees.filter(e => e.id === payslipsEmployeeId);
+
+        const rows: Array<{
+          employeeId: number; name: string; month?: number; gross?: number; net?: number; settlement?: number; workedDays?: number; workedHours?: number; socialInsurance?: number; healthInsurance?: number;
+        }> = [];
+
+        if (payslipsMonth) {
+          await Promise.all(targetEmployees.map(async (emp) => {
+            try {
+              const detail = await payrollService.getPayslipDetail(companyId, emp.id, payslipsYear, payslipsMonth as number);
+              const p = detail.payslip || {};
+              rows.push({
+                employeeId: emp.id,
+                name: `${emp.first_name} ${emp.last_name}`,
+                month: payslipsMonth as number,
+                gross: p.grossWage || 0,
+                net: p.netWage || 0,
+                settlement: p.settlement || 0,
+                workedDays: p.workedDays || 0,
+                workedHours: p.workedHours || 0,
+                socialInsurance: p.socialInsurance || 0,
+                healthInsurance: p.healthInsurance || 0,
+              });
+            } catch (_) {}
+          }));
+        } else {
+          await Promise.all(targetEmployees.map(async (emp) => {
+            try {
+              const data = await payrollService.getPayslips(companyId, emp.id, payslipsYear);
+              rows.push({
+                employeeId: emp.id,
+                name: `${emp.first_name} ${emp.last_name}`,
+                gross: data.summary?.totalGross || 0,
+                net: data.summary?.totalNet || 0,
+                settlement: data.summary?.totalSettlement || 0,
+                workedDays: data.summary?.totalWorkedDays || 0,
+                workedHours: data.summary?.totalWorkedHours || 0,
+                socialInsurance: data.summary?.totalSocialInsurance || 0,
+                healthInsurance: data.summary?.totalHealthInsurance || 0,
+              });
+            } catch (_) {}
+          }));
+        }
+
+        rows.sort((a, b) => a.name.localeCompare(b.name, 'sk'));
+        setPayslipsRows(rows);
+      } finally {
+        setPayslipsLoading(false);
+      }
+    };
+    loadPayslips();
+  }, [activeTab, payslipsYear, payslipsMonth, payslipsEmployeeId, employees, companyId]);
 
   const handleAddEmployee = () => {
     setSelectedEmployee(null);
@@ -1299,6 +1383,139 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
     </div>
   );
 
+  const renderPayslips = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Výplatné pásky</h2>
+        <div className="flex items-center space-x-3">
+          <label className="text-sm text-gray-600 dark:text-gray-300">Rok</label>
+          <select
+            value={payslipsYear}
+            onChange={(e) => setPayslipsYear(parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+          >
+            {Array.from({ length: 5 }).map((_, idx) => {
+              const y = new Date().getFullYear() - idx;
+              return <option key={y} value={y}>{y}</option>;
+            })}
+          </select>
+          <label className="text-sm text-gray-600 dark:text-gray-300 ml-4">Mesiac</label>
+          <select
+            value={String(payslipsMonth)}
+            onChange={(e) => setPayslipsMonth(e.target.value === '' ? '' : parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+          >
+            <option value="">Všetky</option>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i+1} value={i+1}>{i+1}</option>
+            ))}
+          </select>
+          <label className="text-sm text-gray-600 dark:text-gray-300 ml-4">Zamestnanec</label>
+          <select
+            value={String(payslipsEmployeeId)}
+            onChange={(e) => setPayslipsEmployeeId(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+            className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
+          >
+            <option value="all">Všetci</option>
+            {employees.map((emp) => (
+              <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {!payslipsLoading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+            <p className="text-sm text-green-700 dark:text-green-300">Čistá mzda spolu</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} €</p>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">Hrubá mzda spolu</p>
+            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} €</p>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+            <p className="text-sm text-purple-700 dark:text-purple-300">Vyplatené spolu</p>
+            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} €</p>
+          </div>
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">Počet záznamov</p>
+            <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{payslipsRows.length}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
+        {payslipsLoading ? (
+          <div className="p-6">Načítavam...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
+              <thead className="bg-gray-50 dark:bg-dark-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Zamestnanec</th>
+                  {payslipsMonth && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mesiac</th>
+                  )}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Hrubá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Čistá</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">SP</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ZP</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Odpracované (dni / h)</th>
+                  {payslipsMonth && (
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Akcie</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-600">
+                {payslipsRows.map((row) => (
+                  <tr key={`${row.employeeId}-${row.month || 'year'}`} className="hover:bg-gray-50 dark:hover:bg-dark-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{row.name}</td>
+                    {payslipsMonth && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{row.month}</td>
+                    )}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.gross || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.net || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.settlement || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.socialInsurance || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.healthInsurance || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{row.workedDays || 0} / {row.workedHours || 0}</td>
+                    {payslipsMonth && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => { setPayslipModalEmployeeId(row.employeeId); setShowPayslipModal(true); }}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Detail
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+                {payslipsRows.length === 0 && (
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400" colSpan={payslipsMonth ? 9 : 7}>Žiadne dáta pre zvolené filtre.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {showPayslipModal && payslipModalEmployeeId && payslipsMonth && (
+        <PayslipDetailModal
+          isOpen={showPayslipModal}
+          onClose={() => setShowPayslipModal(false)}
+          companyId={companyId}
+          employeeId={payslipModalEmployeeId}
+          year={payslipsYear}
+          month={payslipsMonth as number}
+        />
+      )}
+    </div>
+  );
 
 
   return (
@@ -1323,6 +1540,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                 { id: 'employees', name: 'Zamestnanci', icon: UsersIcon },
                 { id: 'attendance', name: 'Dochádzka', icon: ClockIcon },
                 { id: 'attendance-overview', name: 'Prehľad dochádzky', icon: ChartBarIcon },
+                { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
                 { id: 'leave', name: 'Dovolenky', icon: CalendarIcon },
                 { id: 'employee-cards', name: 'Karty zamestnancov', icon: DocumentTextIcon },
                 { id: 'employment-relations', name: 'Pracovné pomery', icon: BriefcaseIcon }
@@ -1357,6 +1575,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'employees' && renderEmployees()}
             {activeTab === 'attendance' && renderAttendance()}
+            {activeTab === 'payslips' && renderPayslips()}
             {activeTab === 'attendance-overview' && (
               <AttendanceOverview
                 companyId={companyId}
