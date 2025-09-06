@@ -92,7 +92,8 @@ router.post('/register-accountant', (req, res) => {
           }
           return res.status(500).json({ error: 'Chyba pri vytváraní účtu' });
         }
-
+        // Welcome email účtovníkovi
+        try { emailService.sendWelcomeEmail(email, name).catch(() => {}); } catch (_) {}
         res.json({ message: 'Účet účtovníka vytvorený úspešne', userId: this.lastID });
       }
     );
@@ -128,7 +129,8 @@ router.post('/create-user', (req, res) => {
           }
           return res.status(500).json({ error: 'Chyba pri vytváraní používateľa' });
         }
-
+        // Welcome email pre nového používateľa
+        try { emailService.sendWelcomeEmail(email, name).catch(() => {}); } catch (_) {}
         res.json({ 
           message: 'Používateľ vytvorený úspešne', 
           userId: this.lastID,

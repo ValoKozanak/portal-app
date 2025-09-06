@@ -368,6 +368,13 @@ router.post('/employees', authenticateToken, (req, res) => {
       console.error('Chyba pri pridávaní zamestnanca:', err);
       return res.status(500).json({ error: 'Chyba pri pridávaní zamestnanca' });
     }
+    try {
+      if (email) {
+        const displayName = [first_name, last_name].filter(Boolean).join(' ').trim() || 'Používateľ';
+        // Uvítací e‑mail novému zamestnancovi
+        emailService.sendWelcomeEmail(email, displayName).catch(() => {});
+      }
+    } catch (_) {}
     res.json({ id: this.lastID, message: 'Zamestnanec úspešne pridaný' });
   });
 });
