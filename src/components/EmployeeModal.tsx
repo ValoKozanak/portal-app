@@ -294,12 +294,19 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                     if (!normalized) { alert('Zadajte rodné číslo'); return; }
                     try {
                       setPrefillLoading(true);
-                      const res = await hrService.getEmployeeFromMdb(companyId, normalized);
-                      if (res && res.employee) {
-                        const e = res.employee;
-                        setMdbCandidate(e);
+                      const now = new Date().getFullYear();
+                      const years = [now, now - 1, now - 2];
+                      let found: any = null;
+                      for (const y of years) {
+                        try {
+                          const r = await hrService.getEmployeeFromMdb(companyId, normalized, y);
+                          if (r && r.employee) { found = r.employee; break; }
+                        } catch (_) { /* skúsiť ďalší rok */ }
+                      }
+                      if (found) {
+                        setMdbCandidate(found);
                       } else {
-                        alert('Údaje pre zadané RČ neboli nájdené.');
+                        alert('Údaje pre zadané RČ neboli nájdené v posledných rokoch.');
                       }
                     } catch (err) {
                       alert('Chyba pri načítaní z MDB');

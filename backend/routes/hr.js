@@ -128,31 +128,58 @@ router.get('/employees/from-mdb/:companyId', authenticateToken, async (req, res)
     });
     if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
 
-    // Vyhľadaj MDB súbor (znovupoužitie logiky z payroll.js)
+    // Najprv: hľadaj v Admin per-company adresári uploads/mdb/<companyId>/ (novší -> starší, všetky .mdb)
+    const adminDir = path.join(__dirname, '..', 'uploads', 'mdb', String(company.id));
+    let candidateFiles = [];
+    if (fs.existsSync(adminDir)) {
+      candidateFiles = fs.readdirSync(adminDir)
+        .filter(n => n.toLowerCase().endsWith('.mdb'))
+        .map(n => ({ name: n, full: path.join(adminDir, n), mtimeMs: fs.statSync(path.join(adminDir, n)).mtimeMs }))
+        .sort((a, b) => b.mtimeMs - a.mtimeMs);
+    }
+
+    // Ak nič v Admin adresári, použi univerzálne vyhľadanie cez payroll.getMDBFilePath (ICO/zalohy)
     const { getMDBFilePath } = require('../routes/payroll');
-    let mdbInfo;
-    try {
-      mdbInfo = await getMDBFilePath(company.id, company.ico, year || new Date().getFullYear());
-    } catch (e) {
+    if (candidateFiles.length === 0) {
+      const yearsToTry = year ? [Number(year)] : [new Date().getFullYear(), new Date().getFullYear() - 1, new Date().getFullYear() - 2, new Date().getFullYear() - 3];
+      for (const y of yearsToTry) {
+        try {
+          const info = await getMDBFilePath(company.id, company.ico, y);
+          candidateFiles.push({ name: path.basename(info.path), full: info.path, mtimeMs: fs.statSync(info.path).mtimeMs });
+        } catch (_) { /* skúsiť ďalší rok */ }
+      }
+    }
+
+    if (candidateFiles.length === 0) {
       return res.status(404).json({ error: 'MDB súbor nebol nájdený' });
     }
 
     const MDBLib = require('mdb-reader');
     const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
-    const buffer = fs.readFileSync(mdbInfo.path);
-    const mdb = new MDBReader(buffer);
-
-    // Preferuj tabuľku ZAMSK, inak fallback MZSK
-    let tableName = 'ZAMSK';
-    const tableNames = mdb.getTableNames();
-    if (!tableNames.includes('ZAMSK')) {
-      if (tableNames.includes('MZSK')) tableName = 'MZSK'; else return res.status(404).json({ error: 'Tabuľka ZAMSK/MZSK nebola nájdená' });
+    // Prehľadaj postupne všetky kandidátne MDB súbory, kým nenájdeš RČ
+    let match = null;
+    let sourceInfo = null;
+    for (const file of candidateFiles) {
+      try {
+        const buffer = fs.readFileSync(file.full);
+        const MDBLib = require('mdb-reader');
+        const MDBReader = MDBLib && MDBLib.default ? MDBLib.default : MDBLib;
+        const mdb = new MDBReader(buffer);
+        let tableName = 'ZAMSK';
+        const tableNames = mdb.getTableNames();
+        if (!tableNames.includes('ZAMSK')) {
+          if (tableNames.includes('MZSK')) tableName = 'MZSK'; else continue;
+        }
+        const rows = mdb.getTable(tableName).getData();
+        const found = rows.find(r => normalizeBirthNumber(r.RodCisl) === targetRC);
+        if (found) {
+          match = found;
+          sourceInfo = { path: file.full, source: file.full.includes('/uploads/') ? 'uploads-companyId' : 'auto' };
+          break;
+        }
+      } catch (_) { /* pokračuj ďalším súborom */ }
     }
 
-    const rows = mdb.getTable(tableName).getData();
-
-    // Stĺpce: v ZAMSK očakávame RodCisl, Priezvisko, Jmeno, Ulica, Mesto, PSC atď. (mení sa podľa verzie POHODA)
-    const match = rows.find(r => normalizeBirthNumber(r.RodCisl) === targetRC);
     if (!match) return res.status(404).json({ error: 'Zamestnanec s daným RČ nebol nájdený v MDB' });
 
     const toStringClean = (v) => (v == null ? '' : String(v).toString().trim());
