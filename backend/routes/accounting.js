@@ -1858,3 +1858,35 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
     return res.status(500).json({ error: 'Chyba pri generovaní odkazu' });
   }
 });
+
+// ===== Presigned upload pre PDF faktúry (Spaces) =====
+// kind: issued | received
+router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async (req, res) => {
+  const { kind, invoiceId } = req.params;
+  try {
+    const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
+    if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
+
+    const invoice = await new Promise((resolve, reject) => {
+      db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+    });
+    if (!invoice) return res.status(404).json({ error: 'Faktúra nebola nájdená' });
+
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
+    });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+
+    const year = (() => {
+      const d = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
+      const y = d.getFullYear();
+      return Number.isFinite(y) ? y : new Date().getFullYear();
+    })();
+
+    const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(company.ico, kind, year, invoiceId);
+    return res.json({ url, key, contentType: 'application/pdf' });
+  } catch (e) {
+    console.error('Presign upload invoice error:', e);
+    return res.status(500).json({ error: 'Chyba pri generovaní upload odkazu' });
+  }
+});

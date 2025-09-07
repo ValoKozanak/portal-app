@@ -9,7 +9,8 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   Cog6ToothIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  ArrowUpOnSquareIcon
 } from '@heroicons/react/24/outline';
 import { accountingService, ReceivedInvoice } from '../services/accountingService';
 import InvoiceSummary from '../components/InvoiceSummary';
@@ -32,6 +33,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSummary, setShowSummary] = useState(true);
   const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -367,6 +369,45 @@ const ReceivedInvoicesPage: React.FC = () => {
                     <PlusIcon className="h-4 w-4 mr-1" />
                     Nová faktúra
                   </button>
+                  {(userRole === 'admin' || userRole === 'accountant') && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files && e.target.files[0];
+                          if (!file) return;
+                          try {
+                            if (!selectedInvoice) { alert('Vyberte faktúru v zozname.'); return; }
+                            const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+                            const resp = await fetch(`${base}/api/accounting/invoices/received/${selectedInvoice.id}/presign-upload`, {
+                              method: 'POST',
+                              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                            });
+                            if (!resp.ok) throw new Error('Chyba pri vytváraní upload linku');
+                            const { url } = await resp.json();
+                            const put = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
+                            if (!put.ok) throw new Error('Chyba uploadu do úložiska');
+                            alert('PDF nahrané. Skúste náhľad (oko).');
+                          } catch (err: any) {
+                            alert(err?.message || 'Chyba pri nahrávaní PDF');
+                          } finally {
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        title="Nahrať PDF k vybranej faktúre"
+                      >
+                        <ArrowUpOnSquareIcon className="h-4 w-4 mr-1" />
+                        Upload PDF
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
