@@ -83,13 +83,14 @@ const ReceivedInvoicesPage: React.FC = () => {
 
   const loadCompanies = async () => {
     try {
-      let endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies`;
+      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      let endpoint = `${base}/api/companies`;
       
       // Výber správneho endpointu podľa role
       if (userRole === 'user') {
-        endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies/user/${userEmail}`;
+        endpoint = `${base}/api/companies/user/${userEmail}`;
       } else if (userRole === 'accountant') {
-        endpoint = `/api/companies/accountant/${userEmail}`;
+        endpoint = `${base}/api/companies/accountant/${userEmail}`;
       }
       // Pre admin sa používa default endpoint '/api/companies'
       
