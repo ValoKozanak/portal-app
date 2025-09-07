@@ -647,8 +647,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 </td>
               </tr>
             ) : (
-              (showAllEmployees ? attendance : buildDisplayRows()).map((att) => (
-                <tr key={att.id} className="hover:bg-gray-50 dark:hover:bg-dark-700">
+              (() => {
+                const rows = showAllEmployees 
+                  ? [...attendance].sort((a, b) => a.date.localeCompare(b.date))
+                  : buildDisplayRows();
+                return rows.map((att) => (
+                <tr key={(att.id && att.id > 0) ? String(att.id) : `${att.date}-${att.employee_id}`} className="hover:bg-gray-50 dark:hover:bg-dark-700">
                   {showAllEmployees && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {att.employee_name || '-'}
@@ -713,7 +717,8 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                     </td>
                   )}
                 </tr>
-              ))
+                ));
+              })()
             )}
           </tbody>
         </table>
