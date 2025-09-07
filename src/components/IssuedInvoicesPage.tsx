@@ -470,6 +470,9 @@ const IssuedInvoicesPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Vybrať
+                    </th>
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Číslo
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -498,13 +501,13 @@ const IssuedInvoicesPage: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
+                      <td colSpan={9} className="px-4 py-3 text-center text-gray-500">
                         Načítavam faktúry...
                       </td>
                     </tr>
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
+                      <td colSpan={9} className="px-4 py-3 text-center text-gray-500">
                         Žiadne faktúry neboli nájdené
                       </td>
                     </tr>
@@ -517,6 +520,15 @@ const IssuedInvoicesPage: React.FC = () => {
                           (selectedInvoice && String(selectedInvoice.id) === String(invoice.id)) ? 'bg-blue-50' : ''
                         }`}
                       >
+                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900" onClick={(e)=>e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={!!(selectedInvoice && String(selectedInvoice.id) === String(invoice.id))}
+                            onChange={(e)=> {
+                              if (e.target.checked) setSelectedInvoice(invoice); else setSelectedInvoice(null);
+                            }}
+                          />
+                        </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
                           {invoice.invoice_number}
                         </td>
