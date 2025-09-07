@@ -363,6 +363,9 @@ const ReceivedInvoicesPage: React.FC = () => {
                     <ArrowPathIcon className="h-4 w-4 mr-1" />
                     Obnoviť
                   </button>
+                  {selectedInvoice && (
+                    <span className="text-xs text-gray-600">Vybraná: {selectedInvoice.invoice_number || (selectedInvoice as any).varsym || selectedInvoice.id}</span>
+                  )}
                   <button
                     onClick={handleCreateInvoice}
                     className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"

@@ -66,13 +66,14 @@ const IssuedInvoicesPage: React.FC = () => {
 
   const loadCompanies = async () => {
     try {
-      let endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies`;
+      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      let endpoint = `${base}/api/companies`;
       
       // Výber správneho endpointu podľa role
       if (userRole === 'user') {
-        endpoint = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/companies/user/${userEmail}`;
+        endpoint = `${base}/api/companies/user/${userEmail}`;
       } else if (userRole === 'accountant') {
-        endpoint = `/api/companies/accountant/${userEmail}`;
+        endpoint = `${base}/api/companies/accountant/${userEmail}`;
       }
       // Pre admin sa používa default endpoint '/api/companies'
       
@@ -328,6 +329,9 @@ const IssuedInvoicesPage: React.FC = () => {
                       <PlusIcon className="h-4 w-4 mr-1" />
                       Nová faktúra
                     </button>
+                    {selectedInvoice && (
+                      <span className="text-xs text-gray-600">Vybraná: {selectedInvoice.invoice_number || (selectedInvoice as any).varsym || selectedInvoice.id}</span>
+                    )}
                     {(userRole === 'admin' || userRole === 'accountant') && (
                       <>
                         <input
