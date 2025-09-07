@@ -522,11 +522,10 @@ const IssuedInvoicesPage: React.FC = () => {
                       >
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900" onClick={(e)=>e.stopPropagation()}>
                           <input
-                            type="checkbox"
+                            type="radio"
+                            name="issuedInvoiceSelect"
                             checked={!!(selectedInvoice && String(selectedInvoice.id) === String(invoice.id))}
-                            onChange={(e)=> {
-                              if (e.target.checked) setSelectedInvoice(invoice); else setSelectedInvoice(null);
-                            }}
+                            onChange={(e)=> { if (e.target.checked) setSelectedInvoice(invoice); }}
                           />
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
