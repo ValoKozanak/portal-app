@@ -1829,6 +1829,9 @@ router.post("/admin/mdb/upload/:companyId", authenticateToken, ensureAdmin, uplo
 router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, res) => {
   const { kind, invoiceId } = req.params;
   try {
+    if (!spacesService.isInitialized()) {
+      return res.status(503).json({ error: 'Úložisko nie je nakonfigurované (SPACES_* env chýbajú)' });
+    }
     // Zistíme company_id, IČO a rok
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     const invoice = await new Promise((resolve, reject) => {
@@ -1864,6 +1867,9 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
 router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async (req, res) => {
   const { kind, invoiceId } = req.params;
   try {
+    if (!spacesService.isInitialized()) {
+      return res.status(503).json({ error: 'Úložisko nie je nakonfigurované (SPACES_* env chýbajú)' });
+    }
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
