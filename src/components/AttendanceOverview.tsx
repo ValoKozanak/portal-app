@@ -90,8 +90,11 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 
   const getDatesInRange = (start: string, end: string): string[] => {
     const result: string[] = [];
-    const s = new Date(start);
-    const e = new Date(end);
+    const [sy, sm, sd] = start.split('-').map((v) => parseInt(v, 10));
+    const [ey, em, ed] = end.split('-').map((v) => parseInt(v, 10));
+    // Vytvárame dátumy v lokálnom čase, aby sme sa vyhli UTC posunom
+    const s = new Date(sy, sm - 1, sd);
+    const e = new Date(ey, em - 1, ed);
     const cur = new Date(s);
     while (cur <= e) {
       const y = cur.getFullYear();
@@ -146,11 +149,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     let end: Date;
 
     switch (selectedPeriod) {
-      case 'week':
-        start = new Date(now);
-        start.setDate(now.getDate() - now.getDay() + 1); // Pondelok
-        end = new Date(now);
+      case 'week': {
+        // Začiatok týždňa (pondelok) – korektne aj pre nedeľu
+        const day = now.getDay() === 0 ? 7 : now.getDay();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
+      }
       case 'month':
         start = new Date(now.getFullYear(), now.getMonth(), 1);
         end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Posledný deň mesiaca
