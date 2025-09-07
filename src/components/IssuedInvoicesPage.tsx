@@ -343,9 +343,14 @@ const IssuedInvoicesPage: React.FC = () => {
                             const file = e.target.files && e.target.files[0];
                             if (!file) return;
                             try {
-                              if (!selectedInvoice) { alert('Vyberte faktúru v zozname.'); return; }
+                              if (!selectedInvoice || selectedInvoice.id === undefined || selectedInvoice.id === null) {
+                                console.error('Missing invoiceId before presign', selectedInvoice);
+                                alert('Vyberte faktúru v zozname (chýba ID).');
+                                return;
+                              }
                               const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                              const resp = await fetch(`${base}/api/accounting/invoices/issued/${selectedInvoice.id}/presign-upload`, {
+                              const invoiceId = encodeURIComponent(String(selectedInvoice.id));
+                              const resp = await fetch(`${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload`, {
                                 method: 'POST',
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                               });
@@ -362,7 +367,13 @@ const IssuedInvoicesPage: React.FC = () => {
                           }}
                         />
                         <button
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick={() => {
+                            if (!selectedInvoice || selectedInvoice.id === undefined || selectedInvoice.id === null) {
+                              alert('Najprv vyberte jednu faktúru.');
+                              return;
+                            }
+                            fileInputRef.current?.click();
+                          }}
                           className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           title="Nahrať PDF k vybranej faktúre"
                         >

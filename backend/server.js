@@ -25,9 +25,18 @@ const corsOptions = {
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'x-amz-acl',
+    'x-amz-date',
+    'x-amz-content-sha256',
+    'x-requested-with'
+  ]
 };
 app.use(cors(corsOptions));
+// Preflight handler (OPTIONS) – dôležité pre presign-upload a PUT do Spaces
+app.options('*', cors(corsOptions));
 
 // (voliteľné) log základných info o requeste
 app.use((req, _res, next) => {
