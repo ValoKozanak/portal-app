@@ -514,7 +514,7 @@ const IssuedInvoicesPage: React.FC = () => {
                         key={invoice.id}
                         onClick={() => handleInvoiceSelect(invoice)}
                         className={`cursor-pointer hover:bg-gray-50 ${
-                          selectedInvoice?.id === invoice.id ? 'bg-blue-50' : ''
+                          (selectedInvoice && String(selectedInvoice.id) === String(invoice.id)) ? 'bg-blue-50' : ''
                         }`}
                       >
                         <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -562,6 +562,13 @@ const IssuedInvoicesPage: React.FC = () => {
                               title="Náhľad PDF"
                             >
                               <EyeIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedInvoice(invoice); }}
+                              className="text-gray-600 hover:text-gray-900"
+                              title="Vybrať pre upload"
+                            >
+                              Vybrať
                             </button>
                             <button
                               onClick={(e) => {
