@@ -63,6 +63,11 @@ class PayrollService {
     return apiService.get(`/payroll/periods/${companyId}/check/${year}/${month}`);
   }
 
+  // Inicializácia období pre daný rok (ak chýbajú)
+  async initPayrollPeriods(companyId: number, year: number): Promise<PayrollPeriod[]> {
+    return apiService.post(`/payroll/periods/${companyId}/init`, { year });
+  }
+
   // Pomocné metódy
   getMonthName(month: number): string {
     const months = [

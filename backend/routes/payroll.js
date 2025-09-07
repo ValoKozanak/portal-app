@@ -65,6 +65,64 @@ router.get('/periods/:companyId/current', authenticateToken, (req, res) => {
   });
 });
 
+// Inicializácia mzdových období pre rok (vytvorí chýbajúce mesiace)
+router.post('/periods/:companyId/init', authenticateToken, (req, res) => {
+  const { companyId } = req.params;
+  const { year } = req.body || {};
+  const targetYear = Number(year) || new Date().getFullYear();
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+
+  const runInsert = (month, cb) => {
+    let isClosed = 0;
+    let closedAt = null;
+    let closedBy = null;
+    if (targetYear < currentYear || (targetYear === currentYear && month < currentMonth)) {
+      isClosed = 1;
+      // nastavíme closed_at na prvý deň mesiaca daného obdobia
+      closedAt = new Date(targetYear, month - 1, 1).toISOString();
+      closedBy = 'system';
+    }
+    db.run(
+      `INSERT OR IGNORE INTO payroll_periods (
+         company_id, year, month, is_closed, closed_at, closed_by
+       ) VALUES (?, ?, ?, ?, ?, ?)`,
+      [companyId, targetYear, month, isClosed, closedAt, closedBy],
+      cb
+    );
+  };
+
+  // vložíme 12 mesiacov (INSERT OR IGNORE – neprepíše existujúce)
+  let pending = 12;
+  let failed = false;
+  for (let m = 1; m <= 12; m++) {
+    runInsert(m, (err) => {
+      if (failed) return;
+      if (err) {
+        failed = true;
+        console.error('Chyba pri inicializácii mzdových období:', err);
+        return res.status(500).json({ error: 'Chyba pri inicializácii mzdových období' });
+      }
+      pending--;
+      if (pending === 0) {
+        // po dokončení vrátime zoznam období pre rok
+        db.all(
+          `SELECT * FROM payroll_periods WHERE company_id = ? AND year = ? ORDER BY month ASC`,
+          [companyId, targetYear],
+          (e2, rows) => {
+            if (e2) {
+              console.error('Chyba pri načítaní mzdových období po inicializácii:', e2);
+              return res.status(500).json({ error: 'Chyba pri načítaní mzdových období' });
+            }
+            res.json(rows || []);
+          }
+        );
+      }
+    });
+  }
+});
+
 // Uzatvorenie mzdového obdobia
 router.post('/periods/:companyId/close', authenticateToken, (req, res) => {
   const { companyId } = req.params;

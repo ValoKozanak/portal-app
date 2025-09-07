@@ -27,8 +27,17 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
   const loadPeriods = async () => {
     try {
       setLoading(true);
-      const data = await payrollService.getPayrollPeriods(companyId, selectedYear);
-      setPeriods(data);
+      let data = await payrollService.getPayrollPeriods(companyId, selectedYear);
+      if (!data || data.length === 0) {
+        try {
+          // inicializuj obdobia na serveri (ak ešte neexistujú)
+          await payrollService.initPayrollPeriods(companyId, selectedYear);
+          data = await payrollService.getPayrollPeriods(companyId, selectedYear);
+        } catch (e) {
+          console.error('Inicializácia mzdových období zlyhala:', e);
+        }
+      }
+      setPeriods(data || []);
     } catch (error) {
       console.error('Chyba pri načítaní mzdových období:', error);
     } finally {
