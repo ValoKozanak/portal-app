@@ -97,9 +97,13 @@ const IssuedInvoicesPage: React.FC = () => {
       setLoading(true);
       const data = await accountingService.getIssuedInvoices(companyId, { limit: 100 });
       setInvoices(data);
-      if (data.length > 0) {
-        setSelectedInvoice(data[0]);
-      }
+      setSelectedInvoice((prev) => {
+        if (prev && prev.id !== undefined && prev.id !== null) {
+          const match = data.find((i) => String(i.id) === String(prev.id));
+          return match || null;
+        }
+        return null;
+      });
     } catch (error) {
       console.error('Chyba pri načítaní faktúr:', error);
     } finally {
