@@ -337,10 +337,10 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
       return true;
     };
 
-    const expMap = new Map();
-    const revMap = new Map();
-    let totalExpensesAmount = 0;
-    let totalRevenueAmount = 0;
+    const expMap = new Map(); // 5xx – netto: MD (+) a D (−)
+    const revMap = new Map(); // 6xx – netto: D (+) a MD (−)
+    let totalExpensesAmount = 0; // netto náklady
+    let totalRevenueAmount = 0;  // netto výnosy
 
     for (const r of rows) {
       const kc = Number(r.Kc || r.kc || 0);
@@ -350,6 +350,7 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
       const umd = String(r.UMD || r.umd || '');
       const ud = String(r.UD || r.ud || '');
 
+      // 5xx – náklady: MD zvyšuje, D znižuje
       if (umd.startsWith('5')) {
         const prev = expMap.get(umd) || { total_amount: 0, transaction_count: 0 };
         prev.total_amount += kc;
@@ -357,13 +358,28 @@ router.get('/financial-analysis/:companyId', authenticateToken, async (req, res)
         expMap.set(umd, prev);
         totalExpensesAmount += kc;
       }
+      if (ud.startsWith('5')) {
+        const prev = expMap.get(ud) || { total_amount: 0, transaction_count: 0 };
+        prev.total_amount -= kc; // kredit 5xx znižuje náklady
+        prev.transaction_count += 1;
+        expMap.set(ud, prev);
+        totalExpensesAmount -= kc;
+      }
 
+      // 6xx – výnosy: D zvyšuje, MD znižuje
       if (ud.startsWith('6')) {
         const prev = revMap.get(ud) || { total_amount: 0, transaction_count: 0 };
         prev.total_amount += kc;
         prev.transaction_count += 1;
         revMap.set(ud, prev);
         totalRevenueAmount += kc;
+      }
+      if (umd.startsWith('6')) {
+        const prev = revMap.get(umd) || { total_amount: 0, transaction_count: 0 };
+        prev.total_amount -= kc; // debet 6xx znižuje výnosy
+        prev.transaction_count += 1;
+        revMap.set(umd, prev);
+        totalRevenueAmount -= kc;
       }
     }
 
