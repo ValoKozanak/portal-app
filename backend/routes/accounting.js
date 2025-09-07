@@ -34,6 +34,7 @@ const router = Router();
 const { authenticateToken } = require('./auth');
 const { db } = require('../database');
 const dropboxService = require('../services/dropboxService');
+const spacesService = require('../services/spacesService');
 
 // Helper: admin kontrola
 function ensureAdmin(req, res, next) {
@@ -1820,5 +1821,40 @@ router.post("/admin/mdb/upload/:companyId", authenticateToken, ensureAdmin, uplo
     console.error("Chyba pri upload endpoint:", error);
     const status = error.status || 500;
     res.status(status).json({ error: error.message || "Chyba pri spracovaní požiadavky" });
+  }
+});
+
+// ===== Presigned download pre PDF faktúry (Spaces) =====
+// kind: issued | received
+router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, res) => {
+  const { kind, invoiceId } = req.params;
+  try {
+    // Zistíme company_id, IČO a rok
+    const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
+    const invoice = await new Promise((resolve, reject) => {
+      db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+    });
+    if (!invoice) return res.status(404).json({ error: 'Faktúra nebola nájdená' });
+
+    const company = await new Promise((resolve, reject) => {
+      db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
+    });
+    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+
+    const year = (() => {
+      const d = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
+      const y = d.getFullYear();
+      return Number.isFinite(y) ? y : new Date().getFullYear();
+    })();
+
+    const key = spacesService.getInvoiceKey(company.ico, kind, year, invoiceId, 'pdf');
+    const exists = await spacesService.checkKeyExists(key);
+    if (!exists) return res.status(404).json({ error: 'PDF faktúry nebolo nájdené' });
+
+    const url = await spacesService.getPresignedGetUrl(key, 300); // 5 min
+    return res.json({ url, key });
+  } catch (e) {
+    console.error('Presign invoice error:', e);
+    return res.status(500).json({ error: 'Chyba pri generovaní odkazu' });
   }
 });

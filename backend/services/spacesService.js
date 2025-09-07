@@ -17,6 +17,43 @@ class SpacesService {
     this.bucket = process.env.SPACES_BUCKET;
   }
 
+  // Všeobecný presigned GET URL
+  async getPresignedGetUrl(key, expiresIn = 900) {
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
+    return getSignedUrl(this.s3, command, { expiresIn });
+  }
+
+  // Faktúry: generovanie kľúča podľa IČO, typu a roku
+  getInvoiceKey(companyIco, kind /* 'issued'|'received' */ , year, invoiceId, ext = 'pdf') {
+    const ico = String(companyIco);
+    const y = String(year);
+    const id = String(invoiceId);
+    const safeKind = kind === 'issued' ? 'issued' : 'received';
+    return `companies/${ico}/invoices/${safeKind}/${y}/${id}.${ext}`;
+  }
+
+  // Presigned PUT pre upload faktúry (PDF)
+  async getPresignedUploadUrlForInvoice(companyIco, kind, year, invoiceId) {
+    const key = this.getInvoiceKey(companyIco, kind, year, invoiceId, 'pdf');
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ContentType: 'application/pdf',
+    });
+    const url = await getSignedUrl(this.s3, command, { expiresIn: 900 });
+    return { url, key };
+  }
+
+  // Kontrola existencie ľubovoľného kľúča
+  async checkKeyExists(key) {
+    const command = new ListObjectsV2Command({ Bucket: this.bucket, Prefix: key, MaxKeys: 1 });
+    try {
+      const response = await this.s3.send(command);
+      return Array.isArray(response.Contents) && response.Contents.some(obj => obj.Key === key);
+    } catch (e) {
+      return false;
+    }
+  }
   // Kontrola, či je služba inicializovaná
   isInitialized() {
     return !!(this.bucket && process.env.SPACES_KEY && process.env.SPACES_SECRET);

@@ -31,6 +31,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSummary, setShowSummary] = useState(true);
+  const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -539,12 +540,25 @@ const ReceivedInvoicesPage: React.FC = () => {
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                handleViewInvoiceDetail(invoice);
+                                try {
+                                  setPreviewLoadingId(invoice.id as number);
+                                  const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+                                  const resp = await fetch(`${base}/api/accounting/invoices/received/${invoice.id}/presign`, {
+                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                  });
+                                  if (!resp.ok) throw new Error('PDF nenájdené');
+                                  const data = await resp.json();
+                                  window.open(data.url, '_blank');
+                                } catch (err) {
+                                  alert('PDF nie je dostupné pre túto faktúru');
+                                } finally {
+                                  setPreviewLoadingId(null);
+                                }
                               }}
                               className="text-green-600 hover:text-green-900"
-                              title="Zobraziť detail"
+                              title="Náhľad PDF"
                             >
                               <EyeIcon className="h-4 w-4" />
                             </button>
