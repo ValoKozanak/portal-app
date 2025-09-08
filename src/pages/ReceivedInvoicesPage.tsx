@@ -615,6 +615,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
+                            {invoice.id != null && (
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
@@ -638,6 +639,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                             >
                               <EyeIcon className="h-4 w-4" />
                             </button>
+                            )}
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedInvoice(invoice); }}
                               className="text-gray-600 hover:text-gray-900"
