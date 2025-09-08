@@ -23,13 +23,13 @@ class SpacesService {
     return getSignedUrl(this.s3, command, { expiresIn });
   }
 
-  // Faktúry: generovanie kľúča podľa IČO, typu a roku
+  // Faktúry: generovanie kľúča podľa IČO, typu a roku (v dokumentoch firmy)
   getInvoiceKey(companyIco, kind /* 'issued'|'received' */ , year, invoiceId, ext = 'pdf') {
     const ico = String(companyIco);
     const y = String(year);
     const id = String(invoiceId);
     const safeKind = kind === 'issued' ? 'issued' : 'received';
-    return `companies/${ico}/invoices/${safeKind}/${y}/${id}.${ext}`;
+    return `companies/${ico}/documents/invoices/${safeKind}/${y}/${id}.${ext}`;
   }
 
   // Presigned PUT pre upload faktúry (PDF)
