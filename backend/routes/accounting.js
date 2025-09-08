@@ -1871,6 +1871,47 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
   }
 });
 
+// Rýchla kontrola existencie PDF v Spaces (bez generovania URL)
+// Fallback: ak DB záznam neexistuje, pošlite ?companyId=&issueDate=
+router.get('/invoices/:kind/:invoiceId/exists', authenticateToken, async (req, res) => {
+  const { kind, invoiceId } = req.params;
+  try {
+    if (!spacesService.isInitialized()) {
+      return res.status(503).json({ error: 'Úložisko nie je nakonfigurované (SPACES_* env chýbajú)' });
+    }
+    const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
+    let company; let year; let lookupId = invoiceId;
+    let invoice = await new Promise((resolve, reject) => {
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+    });
+
+    if (invoice) {
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
+      const d = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+    } else {
+      const fallbackCompanyId = req.query.companyId || req.body?.companyId;
+      const fallbackIssueDate = req.query.issueDate || req.body?.issueDate;
+      if (!fallbackCompanyId) return res.json({ exists: false });
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [fallbackCompanyId], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.json({ exists: false });
+      const d = fallbackIssueDate ? new Date(fallbackIssueDate) : new Date();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+    }
+
+    const key = spacesService.getInvoiceKey(company.ico, kind, year, lookupId, 'pdf');
+    const exists = await spacesService.checkKeyExists(key);
+    return res.json({ exists, key });
+  } catch (e) {
+    return res.json({ exists: false });
+  }
+});
+
 // ===== Presigned upload pre PDF faktúry (Spaces) =====
 // kind: issued | received
 router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async (req, res) => {

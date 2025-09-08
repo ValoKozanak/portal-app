@@ -600,6 +600,18 @@ const IssuedInvoicesPage: React.FC = () => {
                               <EyeIcon className="h-4 w-4" />
                             </button>
                             )}
+                            {invoice.id == null && (
+                            <a
+                              href={`https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${companies.find(c=>c.id===companyId)?.ico}/documents/invoices/issued/${new Date(invoice.issue_date||Date.now()).getFullYear()}/${encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym))}.pdf`}
+                              target="_blank"
+                              rel="noopener"
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Náhľad PDF (priame URL)"
+                              onClick={(e)=> e.stopPropagation()}
+                            >
+                              <EyeIcon className="h-4 w-4" />
+                            </a>
+                            )}
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedInvoice(invoice); }}
                               className="text-gray-600 hover:text-gray-900"
