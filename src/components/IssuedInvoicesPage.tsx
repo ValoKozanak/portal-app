@@ -32,6 +32,29 @@ const IssuedInvoicesPage: React.FC = () => {
   const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
+  const [companyIcoById, setCompanyIcoById] = useState<Record<number, string>>({});
+
+  // Helper: zostavenie Spaces URL podľa dohodnutého kľúča
+  const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
+    const y = (() => {
+      const d = issueDateLike ? new Date(issueDateLike) : new Date();
+      const yr = d.getFullYear();
+      return Number.isFinite(yr) ? yr : new Date().getFullYear();
+    })();
+    const idPart = String(invoiceNumberOrId);
+    const safeKind = 'issued';
+    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(ico)}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
+  };
+
+  // Helper: HEAD overenie existencie priamo na Spaces
+  const checkExistsOnSpaces = async (url: string): Promise<boolean> => {
+    try {
+      const resp = await fetch(url, { method: 'HEAD' });
+      return resp.ok;
+    } catch {
+      return false;
+    }
+  };
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -107,14 +130,14 @@ const IssuedInvoicesPage: React.FC = () => {
       // Skontroluj existenciu PDF pre ikonku náhľadu
       const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
       const checks = data.map(async (inv) => {
-        const key = `issued-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
+        const key = `issued-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
-          const idOrNum = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
+          const idOrNum = encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym || inv.id));
           const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
           const urlId = `${base}/api/accounting/invoices/issued/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
           const respId = await fetch(urlId, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-          const jsonId = await respId.json().catch(()=>({ exists:false }));
-          if (jsonId.exists) {
+          let jsonId = await respId.json().catch(()=>({ exists:false }));
+          if (jsonId && typeof jsonId.exists === 'boolean' && jsonId.exists) {
             setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
           } else {
             // Fallback: skús existenciu podľa čísla faktúry/VS, ak máme DB ID a prvá kontrola neuspela
@@ -123,7 +146,19 @@ const IssuedInvoicesPage: React.FC = () => {
               const urlNum = `${base}/api/accounting/invoices/issued/${encodeURIComponent(String(num))}/exists?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`;
               const respNum = await fetch(urlNum, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
               const jsonNum = await respNum.json().catch(()=>({ exists:false }));
-              setPdfExistsByKey(prev => ({ ...prev, [key]: !!jsonNum.exists }));
+              if (jsonNum && typeof jsonNum.exists === 'boolean' && jsonNum.exists) {
+                setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
+              } else {
+                // Posledný fallback: HEAD priamo na Spaces podľa známej štruktúry
+                const ico = companies.find(c => c.id === companyId)?.ico;
+                if (ico) {
+                  const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateParam);
+                  const exists = await checkExistsOnSpaces(directUrl);
+                  setPdfExistsByKey(prev => ({ ...prev, [key]: exists }));
+                } else {
+                  setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+                }
+              }
             } else {
               setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
             }
@@ -597,22 +632,36 @@ const IssuedInvoicesPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
-                            {(() => { const k = `issued-${invoice.id ?? (invoice as any).invoice_number ?? (invoice as any).varsym}`; return !!pdfExistsByKey[k]; })() && (
+                            {(() => { const k = `issued-${(invoice as any).invoice_number || (invoice as any).varsym || invoice.id}`; return !!pdfExistsByKey[k]; })() && (
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
                                   setPreviewLoadingId(invoice.id as number);
                                   const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                                  const idOrNum = invoice.id != null ? encodeURIComponent(String(invoice.id)) : encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym));
+                                  const idOrNum = encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id));
                                   const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
                                   const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
                                   const resp = await fetch(`${base}/api/accounting/invoices/issued/${idOrNum}/presign${query}`, {
                                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                                   });
-                                  if (!resp.ok) throw new Error('PDF nenájdené');
-                                  const data = await resp.json();
-                                  window.open(data.url, '_blank');
+                                  if (resp.ok) {
+                                    const data = await resp.json();
+                                    if (data?.url) {
+                                      window.open(data.url, '_blank');
+                                      return;
+                                    }
+                                  }
+                                  // Fallback: otvor priamo Spaces URL
+                                  const ico = companies.find(c => c.id === companyId)?.ico;
+                                  const issueDateParam3 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
+                                  const numOrId = (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
+                                  if (ico && numOrId) {
+                                    const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
+                                    window.open(directUrl, '_blank');
+                                  } else {
+                                    throw new Error('PDF nenájdené');
+                                  }
                                 } catch (err) {
                                   alert('PDF nie je dostupné pre túto faktúru');
                                 } finally {
