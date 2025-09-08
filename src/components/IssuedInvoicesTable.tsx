@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   EyeIcon, 
   PencilIcon, 
-  TrashIcon, 
   PlusIcon,
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
@@ -85,21 +84,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
     alert(`Editovať faktúru: ${invoice.invoice_number}`);
   };
 
-  const handleDeleteInvoice = async (invoice: IssuedInvoice) => {
-    if (!window.confirm(`Naozaj chcete vymazať faktúru ${invoice.invoice_number}?`)) {
-      return;
-    }
-    
-    try {
-      
-      console.log('Vymazať faktúru:', invoice);
-      alert(`Faktúra ${invoice.invoice_number} bola vymazaná`);
-      await loadInvoices(); // Znovu načítať zoznam
-    } catch (error) {
-      console.error('Chyba pri vymazávaní faktúry:', error);
-      alert('Chyba pri vymazávaní faktúry');
-    }
-  };
+  
 
   const handleCreateInvoice = () => {
     console.log('Vytvoriť novú faktúru');
@@ -296,13 +281,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDeleteInvoice(invoice)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Vymazať"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
+                      
                     </div>
                   </td>
 

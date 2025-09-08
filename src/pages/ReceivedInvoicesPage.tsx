@@ -3,7 +3,6 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { 
   EyeIcon, 
   PencilIcon, 
-  TrashIcon, 
   PlusIcon,
   ArrowPathIcon,
   MagnifyingGlassIcon,
@@ -258,19 +257,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     });
   };
 
-  const handleDeleteInvoice = async (invoice: ReceivedInvoice) => {
-    if (!window.confirm(`Naozaj chcete vymazať faktúru ${invoice.invoice_number}?`)) {
-      return;
-    }
-
-    try {
-      await accountingService.deleteReceivedInvoice(invoice.id!);
-      await loadInvoices();
-    } catch (error) {
-      console.error('Chyba pri mazaní faktúry:', error);
-      alert('Chyba pri mazaní faktúry');
-    }
-  };
+  
 
   const handleCreateInvoice = () => {
     console.log('Vytvoriť novú faktúru');
@@ -551,9 +538,6 @@ const ReceivedInvoicesPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Vybrať
-                    </th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Číslo
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -582,13 +566,13 @@ const ReceivedInvoicesPage: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-3 text-center text-gray-500">
+                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
                         Načítavam faktúry...
                       </td>
                     </tr>
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-3 text-center text-gray-500">
+                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
                         Žiadne faktúry neboli nájdené
                       </td>
                     </tr>
@@ -601,14 +585,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                           (selectedInvoice && String(selectedInvoice.id) === String(invoice.id)) ? 'bg-green-50' : ''
                         }`}
                       >
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900" onClick={(e)=>e.stopPropagation()}>
-                          <input
-                            type="radio"
-                            name="receivedInvoiceSelect"
-                            checked={!!(selectedInvoice && String(selectedInvoice.id) === String(invoice.id))}
-                            onChange={(e)=> { if (e.target.checked) setSelectedInvoice(invoice); }}
-                          />
-                        </td>
+                        
                         <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
                           {invoice.invoice_number}
                         </td>
@@ -659,25 +636,6 @@ const ReceivedInvoicesPage: React.FC = () => {
                               <EyeIcon className="h-4 w-4" />
                             </button>
                             )}
-                            {invoice.id == null && (
-                            <a
-                              href={`https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${companies.find(c=>c.id===companyId)?.ico}/documents/invoices/received/${new Date(invoice.issue_date||Date.now()).getFullYear()}/${encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym))}.pdf`}
-                              target="_blank"
-                              rel="noopener"
-                              className="text-green-600 hover:text-green-900"
-                              title="Náhľad PDF (priame URL)"
-                              onClick={(e)=> e.stopPropagation()}
-                            >
-                              <EyeIcon className="h-4 w-4" />
-                            </a>
-                            )}
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setSelectedInvoice(invoice); }}
-                              className="text-gray-600 hover:text-gray-900"
-                              title="Vybrať pre upload"
-                            >
-                              Vybrať
-                            </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -688,16 +646,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                             >
                               <PencilIcon className="h-4 w-4" />
                             </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteInvoice(invoice);
-                              }}
-                              className="text-red-600 hover:text-red-900"
-                              title="Vymazať"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </button>
+                            
                           </div>
                         </td>
                       </tr>
