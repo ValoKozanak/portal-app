@@ -381,6 +381,9 @@ const IssuedInvoicesPage: React.FC = () => {
                               const { url: presignedUrl } = await resp.json();
                               const put = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
                               if (!put.ok) throw new Error('Chyba uploadu do úložiska');
+                              // Označ, že PDF existuje → zobraz oko
+                              const existsKey = `issued-${selectedInvoice.id ?? (selectedInvoice as any).invoice_number ?? (selectedInvoice as any).varsym}`;
+                              setPdfExistsByKey(prev => ({ ...prev, [existsKey]: true }));
                               alert('PDF nahrané. Skúste náhľad (oko).');
                             } catch (err: any) {
                               alert(err?.message || 'Chyba pri nahrávaní PDF');
