@@ -34,6 +34,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [showSummary, setShowSummary] = useState(true);
   const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -112,6 +113,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     
     try {
       setLoading(true);
+      const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
       const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
       setInvoices(data);
       setSelectedInvoice((prev) => {
@@ -121,6 +123,19 @@ const ReceivedInvoicesPage: React.FC = () => {
         }
         return null;
       });
+      const checks = data.map(async (inv) => {
+        const key = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
+        try {
+          const idOrNum = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
+          const url = `${baseUrl}/api/accounting/invoices/received/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((inv as any).issue_date||''))}` : '');
+          const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+          const json = await resp.json().catch(()=>({ exists:false }));
+          setPdfExistsByKey(prev => ({ ...prev, [key]: !!json.exists }));
+        } catch (_e) {
+          setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+        }
+      });
+      await Promise.allSettled(checks);
     } catch (error) {
       console.error('Chyba pri načítaní prijatých faktúr:', error);
     } finally {
@@ -615,14 +630,16 @@ const ReceivedInvoicesPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
-                            {invoice.id != null && (
+                            {(() => { const k = `received-${invoice.id ?? (invoice as any).invoice_number ?? (invoice as any).varsym}`; return !!pdfExistsByKey[k]; })() && (
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
                                   setPreviewLoadingId(invoice.id as number);
                                   const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                                  const resp = await fetch(`${base}/api/accounting/invoices/received/${invoice.id}/presign`, {
+                                  const idOrNum = invoice.id != null ? encodeURIComponent(String(invoice.id)) : encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym));
+                                  const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((invoice as any).issue_date||''))}` : '';
+                                  const resp = await fetch(`${base}/api/accounting/invoices/received/${idOrNum}/presign${query}`, {
                                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                                   });
                                   if (!resp.ok) throw new Error('PDF nenájdené');

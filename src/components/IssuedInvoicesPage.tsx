@@ -32,6 +32,7 @@ const IssuedInvoicesPage: React.FC = () => {
   const [showSummary, setShowSummary] = useState(true);
   const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
   
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
@@ -104,6 +105,21 @@ const IssuedInvoicesPage: React.FC = () => {
         }
         return null;
       });
+      // Skontroluj existenciu PDF pre ikonku náhľadu
+      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      const checks = data.map(async (inv) => {
+        const key = `issued-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
+        try {
+          const idOrNum = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
+          const url = `${base}/api/accounting/invoices/issued/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((inv as any).issue_date||''))}` : '');
+          const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+          const json = await resp.json().catch(()=>({ exists:false }));
+          setPdfExistsByKey(prev => ({ ...prev, [key]: !!json.exists }));
+        } catch (_e) {
+          setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+        }
+      });
+      await Promise.allSettled(checks);
     } catch (error) {
       console.error('Chyba pri načítaní faktúr:', error);
     } finally {
@@ -575,14 +591,16 @@ const IssuedInvoicesPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
-                            {invoice.id != null && (
+                            {(() => { const k = `issued-${invoice.id ?? (invoice as any).invoice_number ?? (invoice as any).varsym}`; return !!pdfExistsByKey[k]; })() && (
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
                                   setPreviewLoadingId(invoice.id as number);
                                   const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                                  const resp = await fetch(`${base}/api/accounting/invoices/issued/${invoice.id}/presign`, {
+                                  const idOrNum = invoice.id != null ? encodeURIComponent(String(invoice.id)) : encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym));
+                                  const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((invoice as any).issue_date||''))}` : '';
+                                  const resp = await fetch(`${base}/api/accounting/invoices/issued/${idOrNum}/presign${query}`, {
                                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                                   });
                                   if (!resp.ok) throw new Error('PDF nenájdené');
@@ -599,18 +617,6 @@ const IssuedInvoicesPage: React.FC = () => {
                             >
                               <EyeIcon className="h-4 w-4" />
                             </button>
-                            )}
-                            {invoice.id == null && (
-                            <a
-                              href={`https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${companies.find(c=>c.id===companyId)?.ico}/documents/invoices/issued/${new Date(invoice.issue_date||Date.now()).getFullYear()}/${encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym))}.pdf`}
-                              target="_blank"
-                              rel="noopener"
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Náhľad PDF (priame URL)"
-                              onClick={(e)=> e.stopPropagation()}
-                            >
-                              <EyeIcon className="h-4 w-4" />
-                            </a>
                             )}
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedInvoice(invoice); }}
