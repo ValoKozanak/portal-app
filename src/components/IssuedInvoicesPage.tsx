@@ -347,21 +347,23 @@ const IssuedInvoicesPage: React.FC = () => {
                             const file = e.target.files && e.target.files[0];
                             if (!file) return;
                             try {
-                              if (!selectedInvoice || selectedInvoice.id === undefined || selectedInvoice.id === null) {
-                                console.error('Missing invoiceId before presign', selectedInvoice);
-                                alert('Vyberte faktúru v zozname (chýba ID).');
+                              const hasId = !!(selectedInvoice && selectedInvoice.id != null);
+                              const hasNumber = !!(selectedInvoice && ((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
+                              if (!selectedInvoice || (!hasId && !hasNumber)) {
+                                console.error('Missing selection before presign', selectedInvoice);
+                                alert('Vyberte faktúru v zozname.');
                                 return;
                               }
                               const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                              const invoiceId = selectedInvoice.id != null ? encodeURIComponent(String(selectedInvoice.id)) : encodeURIComponent(String(selectedInvoice.invoice_number || (selectedInvoice as any).varsym));
-                              const url = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(selectedInvoice.issue_date||''))}` : '');
-                              const resp = await fetch(url, {
+                              const invoiceId = selectedInvoice.id != null ? encodeURIComponent(String(selectedInvoice.id)) : encodeURIComponent(String((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
+                              const presignEndpoint = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((selectedInvoice as any).issue_date||''))}` : '');
+                              const resp = await fetch(presignEndpoint, {
                                 method: 'POST',
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                               });
                               if (!resp.ok) throw new Error('Chyba pri vytváraní upload linku');
-                              const { url } = await resp.json();
-                              const put = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
+                              const { url: presignedUrl } = await resp.json();
+                              const put = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
                               if (!put.ok) throw new Error('Chyba uploadu do úložiska');
                               alert('PDF nahrané. Skúste náhľad (oko).');
                             } catch (err: any) {
@@ -373,7 +375,9 @@ const IssuedInvoicesPage: React.FC = () => {
                         />
                         <button
                           onClick={() => {
-                            if (!selectedInvoice || selectedInvoice.id === undefined || selectedInvoice.id === null) {
+                            const hasId = !!(selectedInvoice && selectedInvoice.id != null);
+                            const hasNumber = !!(selectedInvoice && ((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
+                            if (!selectedInvoice || (!hasId && !hasNumber)) {
                               alert('Najprv vyberte jednu faktúru.');
                               return;
                             }
