@@ -604,22 +604,6 @@ router.get('/stats/:companyId', authenticateToken, async (req, res) => {
     if (!fa) return res.json({ issued_invoices: { total_count: 0, total_amount: 0, paid_amount: 0, overdue_amount: 0 }, received_invoices: { total_count: 0, total_amount: 0, paid_amount: 0, overdue_amount: 0 } });
 
     const rows = fa.getData({ rowOffset: 0 });
-    // Prefetch DB ids pre mapovanie prijatých faktúr
-    const dbRows = await new Promise((resolve, reject) => {
-      db.all('SELECT id, invoice_number FROM received_invoices WHERE company_id = ?', [companyId], (err, rows) => err ? reject(err) : resolve(rows));
-    });
-    const idByNumber = new Map();
-    for (const r of dbRows) {
-      idByNumber.set(String(r.invoice_number || ''), r.id);
-    }
-    // Prefetch DB ids pre mapovanie (kvôli uploadu PDF)
-    const dbRows = await new Promise((resolve, reject) => {
-      db.all('SELECT id, invoice_number FROM issued_invoices WHERE company_id = ?', [companyId], (err, rows) => err ? reject(err) : resolve(rows));
-    });
-    const idByNumber = new Map();
-    for (const r of dbRows) {
-      idByNumber.set(String(r.invoice_number || ''), r.id);
-    }
     const inRange = (d) => {
       if (!date_from && !date_to) return true; if (!d) return false; const dt=new Date(d); if(Number.isNaN(dt.getTime())) return false; if(date_from && dt<new Date(date_from)) return false; if(date_to && dt>new Date(date_to)) return false; return true;
     };
@@ -683,7 +667,6 @@ router.get('/issued-invoices/:companyId', authenticateToken, async (req, res) =>
     const mapped = filtered
       .filter(r => inRange(r.Datum || r.datum))
       .map(r => ({
-        id: idByNumber.get(String(r.Cislo || r.cislo || '')) || null,
         invoice_number: r.Cislo || r.cislo || '',
         customer_name: r.Firma || r.firma || '',
         customer_ico: r.ICO || r.ico || '',
@@ -804,7 +787,6 @@ router.get('/received-invoices/:companyId', authenticateToken, async (req, res) 
     const mapped = filtered
       .filter(r => inRange(r.Datum || r.datum))
       .map(r => ({
-        id: idByNumber.get(String(r.Cislo || r.cislo || '')) || null,
         invoice_number: r.Cislo || r.cislo || '',
         supplier_name: r.Firma || r.firma || '',
         supplier_ico: r.ICO || r.ico || '',
@@ -1853,7 +1835,7 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
     // Zistíme company_id, IČO a rok
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     const invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
     if (!invoice) return res.status(404).json({ error: 'Faktúra nebola nájdená' });
 
@@ -1893,7 +1875,7 @@ router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, asyn
 
     let company; let year; let uploadId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1937,7 +1919,7 @@ router.get('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async
 
     let company; let year; let uploadId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
     if (invoice) {
       company = await new Promise((resolve, reject) => {
