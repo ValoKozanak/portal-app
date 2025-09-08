@@ -126,10 +126,23 @@ const ReceivedInvoicesPage: React.FC = () => {
         const key = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
         try {
           const idOrNum = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
-          const url = `${baseUrl}/api/accounting/invoices/received/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((inv as any).issue_date||''))}` : '');
-          const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-          const json = await resp.json().catch(()=>({ exists:false }));
-          setPdfExistsByKey(prev => ({ ...prev, [key]: !!json.exists }));
+          const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+          const urlId = `${baseUrl}/api/accounting/invoices/received/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
+          const respId = await fetch(urlId, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+          const jsonId = await respId.json().catch(()=>({ exists:false }));
+          if (jsonId.exists) {
+            setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
+          } else {
+            const num = (inv as any).invoice_number || (inv as any).varsym;
+            if (num) {
+              const urlNum = `${baseUrl}/api/accounting/invoices/received/${encodeURIComponent(String(num))}/exists?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`;
+              const respNum = await fetch(urlNum, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+              const jsonNum = await respNum.json().catch(()=>({ exists:false }));
+              setPdfExistsByKey(prev => ({ ...prev, [key]: !!jsonNum.exists }));
+            } else {
+              setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+            }
+          }
         } catch (_e) {
           setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
         }
@@ -399,7 +412,8 @@ const ReceivedInvoicesPage: React.FC = () => {
                             }
                             const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
                             const invoiceId = selectedInvoice.id != null ? encodeURIComponent(String(selectedInvoice.id)) : encodeURIComponent(String((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
-                            const presignEndpoint = `${base}/api/accounting/invoices/received/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((selectedInvoice as any).issue_date||''))}` : '');
+                            const issueDateParam = (selectedInvoice as any).issue_date || (selectedInvoice as any).datum || (selectedInvoice as any).due_date || '';
+                            const presignEndpoint = `${base}/api/accounting/invoices/received/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
                             const resp = await fetch(presignEndpoint, {
                               method: 'POST',
                               headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -617,7 +631,8 @@ const ReceivedInvoicesPage: React.FC = () => {
                                   setPreviewLoadingId(invoice.id as number);
                                   const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
                                   const idOrNum = invoice.id != null ? encodeURIComponent(String(invoice.id)) : encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym));
-                                  const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String((invoice as any).issue_date||''))}` : '';
+                                  const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
+                                  const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
                                   const resp = await fetch(`${base}/api/accounting/invoices/received/${idOrNum}/presign${query}`, {
                                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                                   });
