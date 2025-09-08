@@ -394,8 +394,9 @@ const ReceivedInvoicesPage: React.FC = () => {
                               return;
                             }
                             const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                            const invoiceId = encodeURIComponent(String(selectedInvoice.id));
-                            const resp = await fetch(`${base}/api/accounting/invoices/received/${invoiceId}/presign-upload`, {
+                            const invoiceId = selectedInvoice.id != null ? encodeURIComponent(String(selectedInvoice.id)) : encodeURIComponent(String(selectedInvoice.invoice_number || (selectedInvoice as any).varsym));
+                            const url = `${base}/api/accounting/invoices/received/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(selectedInvoice.issue_date||''))}` : '');
+                            const resp = await fetch(url, {
                               method: 'POST',
                               headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                             });

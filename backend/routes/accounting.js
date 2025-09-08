@@ -1891,23 +1891,33 @@ router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, asyn
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    const invoice = await new Promise((resolve, reject) => {
+    let company; let year; let uploadId = invoiceId;
+    let invoice = await new Promise((resolve, reject) => {
       db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
-    if (!invoice) return res.status(404).json({ error: 'Faktúra nebola nájdená' });
 
-    const company = await new Promise((resolve, reject) => {
-      db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
-    });
-    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
-
-    const year = (() => {
+    if (invoice) {
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
       const d = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
-      const y = d.getFullYear();
-      return Number.isFinite(y) ? y : new Date().getFullYear();
-    })();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+    } else {
+      // Fallback: použijeme companyId + invoiceNumber + issueDate z query/body
+      const fallbackCompanyId = req.query.companyId || req.body?.companyId;
+      const fallbackIssueDate = req.query.issueDate || req.body?.issueDate;
+      if (!fallbackCompanyId) return res.status(400).json({ error: 'Chýba companyId pre fallback' });
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [fallbackCompanyId], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.status(404).json({ error: 'Firma nebola nájdená (fallback)' });
+      const d = fallbackIssueDate ? new Date(fallbackIssueDate) : new Date();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+      // uploadId zostáva ako invoiceId param – front môže poslať invoice_number v path
+    }
 
-    const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(company.ico, kind, year, invoiceId);
+    const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(company.ico, kind, year, uploadId);
     return res.json({ url, key, contentType: 'application/pdf' });
   } catch (e) {
     console.error('Presign upload invoice error:', e);
@@ -1925,23 +1935,30 @@ router.get('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    const invoice = await new Promise((resolve, reject) => {
+    let company; let year; let uploadId = invoiceId;
+    let invoice = await new Promise((resolve, reject) => {
       db.get(`SELECT id, company_id, datum as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
-    if (!invoice) return res.status(404).json({ error: 'Faktúra nebola nájdená' });
-
-    const company = await new Promise((resolve, reject) => {
-      db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
-    });
-    if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
-
-    const year = (() => {
+    if (invoice) {
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [invoice.company_id], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.status(404).json({ error: 'Firma nebola nájdená' });
       const d = invoice.issue_date ? new Date(invoice.issue_date) : new Date();
-      const y = d.getFullYear();
-      return Number.isFinite(y) ? y : new Date().getFullYear();
-    })();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+    } else {
+      const fallbackCompanyId = req.query.companyId || req.body?.companyId;
+      const fallbackIssueDate = req.query.issueDate || req.body?.issueDate;
+      if (!fallbackCompanyId) return res.status(400).json({ error: 'Chýba companyId pre fallback' });
+      company = await new Promise((resolve, reject) => {
+        db.get('SELECT id, ico FROM companies WHERE id = ?', [fallbackCompanyId], (err, row) => err ? reject(err) : resolve(row));
+      });
+      if (!company) return res.status(404).json({ error: 'Firma nebola nájdená (fallback)' });
+      const d = fallbackIssueDate ? new Date(fallbackIssueDate) : new Date();
+      year = Number.isFinite(d.getFullYear()) ? d.getFullYear() : new Date().getFullYear();
+    }
 
-    const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(company.ico, kind, year, invoiceId);
+    const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(company.ico, kind, year, uploadId);
     return res.json({ url, key, contentType: 'application/pdf' });
   } catch (e) {
     console.error('Presign upload (GET) invoice error:', e);
