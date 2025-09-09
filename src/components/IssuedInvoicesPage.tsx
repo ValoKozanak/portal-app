@@ -655,7 +655,7 @@ const IssuedInvoicesPage: React.FC = () => {
                                         setPreviewLoadingId(null);
                                       }
                                     }}
-                                    className="text-blue-600 hover:text-blue-900"
+                                    className="text-green-600 hover:text-green-900"
                                     title="Náhľad PDF"
                                   >
                                     <EyeIcon className="h-4 w-4" />
