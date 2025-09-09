@@ -9,6 +9,9 @@ const os = require('os');
 const path = require('path');
 
 const toolsRouter = Router();
+const { authenticateToken } = require('./auth');
+const spacesService = require('../services/spacesService');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 async function buildQrLabelsPdf(labels) {
   const pdf = await PDFDocument.create();
@@ -98,7 +101,7 @@ async function splitScannedPdfByQr(inputPdf) {
   return { segments: outputs };
 }
 
-toolsRouter.post('/qr-labels', async (req, res, next) => {
+toolsRouter.post('/qr-labels', authenticateToken, async (req, res, next) => {
   try {
     const labels = req.body && req.body.labels;
     if (!Array.isArray(labels) || labels.length === 0) {
@@ -111,15 +114,37 @@ toolsRouter.post('/qr-labels', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-toolsRouter.post('/batch-scan', upload.single('file'), async (req, res, next) => {
+toolsRouter.post('/batch-scan', authenticateToken, upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'file (PDF) required' });
+    const autoUpload = String(req.query.autoUpload || req.body?.autoUpload || '').toLowerCase() === 'true';
     const result = await splitScannedPdfByQr(req.file.buffer);
-    // POZOR: teraz len vraciame JSON s metadátami a bytes; upload do Spaces vieme dorobiť následne
-    res.json({
-      count: result.segments.length,
-      segments: result.segments.map(s => ({ range: s.range, payload: s.payload, fileName: s.fileName, kind: s.kind, direction: s.direction, year: s.year, docId: s.docId, ico: s.ico, size: s.bytes.length }))
-    });
+
+    let uploads = [];
+    if (autoUpload) {
+      if (!spacesService.isInitialized()) {
+        return res.status(503).json({ error: 'Úložisko nie je nakonfigurované (SPACES_* env chýbajú)' });
+      }
+      // Nahrávame len INV (faktúry) podľa existujúcej konvencie
+      for (const seg of result.segments) {
+        if (seg.kind !== 'INV') {
+          uploads.push({ fileName: seg.fileName, uploaded: false, reason: 'unsupported_kind' });
+          continue;
+        }
+        try {
+          const { url, key } = await spacesService.getPresignedUploadUrlForInvoice(seg.ico, seg.direction, seg.year, seg.docId);
+          const put = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: Buffer.from(seg.bytes) });
+          if (!put.ok) throw new Error(`PUT failed ${put.status}`);
+          uploads.push({ fileName: seg.fileName, key, uploaded: true });
+        } catch (e) {
+          uploads.push({ fileName: seg.fileName, uploaded: false, error: e.message });
+        }
+      }
+    }
+
+    // Vyrež bytes z odpovede kvôli veľkosti, ponecháme len metadáta
+    const segments = result.segments.map(s => ({ range: s.range, payload: s.payload, fileName: s.fileName, kind: s.kind, direction: s.direction, year: s.year, docId: s.docId, ico: s.ico, size: s.bytes.length }));
+    res.json({ count: segments.length, segments, autoUpload, uploads: autoUpload ? uploads : undefined });
   } catch (e) { next(e); }
 });
 
