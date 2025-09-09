@@ -398,9 +398,7 @@ const IssuedInvoicesPage: React.FC = () => {
                       <PlusIcon className="h-4 w-4 mr-1" />
                       Nová faktúra
                     </button>
-                    {selectedInvoice && (
-                      <span className="text-xs text-gray-600">Vybraná: {selectedInvoice.invoice_number || (selectedInvoice as any).varsym || selectedInvoice.id}</span>
-                    )}
+                    {/* Zobrazenie vybranej faktúry už netreba, riadkový upload/náhľad stačí */}
                     {(userRole === 'admin' || userRole === 'accountant') && (
                       <>
                         <input
@@ -443,22 +441,6 @@ const IssuedInvoicesPage: React.FC = () => {
                             }
                           }}
                         />
-                        <button
-                          onClick={() => {
-                            const hasId = !!(selectedInvoice && selectedInvoice.id != null);
-                            const hasNumber = !!(selectedInvoice && ((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
-                            if (!selectedInvoice || (!hasId && !hasNumber)) {
-                              alert('Najprv vyberte jednu faktúru.');
-                              return;
-                            }
-                            fileInputRef.current?.click();
-                          }}
-                          className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                          title="Nahrať PDF k vybranej faktúre"
-                        >
-                          <ArrowUpOnSquareIcon className="h-4 w-4 mr-1" />
-                          Upload PDF
-                        </button>
                       </>
                     )}
                   </div>
