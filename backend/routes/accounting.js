@@ -1836,7 +1836,7 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     let company; let year; let lookupId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1882,7 +1882,7 @@ router.get('/invoices/:kind/:invoiceId/exists', authenticateToken, async (req, r
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     let company; let year; let lookupId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
