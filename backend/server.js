@@ -16,6 +16,7 @@ const dropboxRoutes    = require('./routes/dropbox');
 const hrRoutes         = require('./routes/hr');
 const payrollRoutes    = require('./routes/payroll');
 const accountingRoutes = require('./routes/accounting');
+const toolsRoutes = require('./routes/tools.routes');
 const { db, isWeekend, isHoliday } = require('./database');
 
 const app = express();
@@ -62,6 +63,7 @@ app.use('/api/dropbox',    dropboxRoutes);
 app.use('/api/hr',         hrRoutes);
 app.use('/api/payroll',    payrollRoutes);
 app.use('/api/accounting', accountingRoutes);
+app.use('/api/tools', toolsRoutes);
 
 // --- Healthcheck ---
 app.get('/api/health', (_req, res) => {
