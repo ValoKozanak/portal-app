@@ -1923,9 +1923,15 @@ router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, asyn
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    let company; let year; let uploadId = invoiceId;
+    const rawInvoiceId = String(invoiceId || '').trim();
+    if (!rawInvoiceId || rawInvoiceId.toLowerCase() === 'undefined' || rawInvoiceId.toLowerCase() === 'null') {
+      // Bez platného invoiceId v path nedokážeme určiť kľúč
+      return res.status(400).json({ error: 'Chýba platné invoiceId v URL' });
+    }
+
+    let company; let year; let uploadId = rawInvoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [rawInvoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1967,9 +1973,14 @@ router.get('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    let company; let year; let uploadId = invoiceId;
+    const rawInvoiceId = String(invoiceId || '').trim();
+    if (!rawInvoiceId || rawInvoiceId.toLowerCase() === 'undefined' || rawInvoiceId.toLowerCase() === 'null') {
+      return res.status(400).json({ error: 'Chýba platné invoiceId v URL' });
+    }
+
+    let company; let year; let uploadId = rawInvoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [rawInvoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
     if (invoice) {
       company = await new Promise((resolve, reject) => {
