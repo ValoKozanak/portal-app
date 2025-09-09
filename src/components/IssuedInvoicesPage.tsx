@@ -33,6 +33,7 @@ const IssuedInvoicesPage: React.FC = () => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
   const [companyIcoById, setCompanyIcoById] = useState<Record<number, string>>({});
+  const [pendingUploadInvoice, setPendingUploadInvoice] = useState<IssuedInvoice | null>(null);
 
   // Helper: zostavenie Spaces URL podľa dohodnutého kľúča
   const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
@@ -411,17 +412,18 @@ const IssuedInvoicesPage: React.FC = () => {
                             const file = e.target.files && e.target.files[0];
                             if (!file) return;
                             try {
-                              const hasId = !!(selectedInvoice && selectedInvoice.id != null);
-                              const hasNumber = !!(selectedInvoice && ((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
-                              if (!selectedInvoice || (!hasId && !hasNumber)) {
-                                console.error('Missing selection before presign', selectedInvoice);
+                              const inv = pendingUploadInvoice || selectedInvoice;
+                              const hasId = !!(inv && inv.id != null);
+                              const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
+                              if (!inv || (!hasId && !hasNumber)) {
+                                console.error('Missing invoice before presign', inv);
                                 alert('Vyberte faktúru v zozname.');
                                 return;
                               }
                               const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                              const invoiceId = selectedInvoice.id != null ? encodeURIComponent(String(selectedInvoice.id)) : encodeURIComponent(String((selectedInvoice as any).invoice_number || (selectedInvoice as any).varsym));
-                              const issueDateParam = (selectedInvoice as any).issue_date || (selectedInvoice as any).datum || (selectedInvoice as any).due_date || '';
-                              const presignEndpoint = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (selectedInvoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
+                              const invoiceId = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
+                              const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+                              const presignEndpoint = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
                               const resp = await fetch(presignEndpoint, {
                                 method: 'POST',
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -430,13 +432,13 @@ const IssuedInvoicesPage: React.FC = () => {
                               const { url: presignedUrl } = await resp.json();
                               const put = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
                               if (!put.ok) throw new Error('Chyba uploadu do úložiska');
-                              // Označ, že PDF existuje → zobraz oko
-                              const existsKey = `issued-${selectedInvoice.id ?? (selectedInvoice as any).invoice_number ?? (selectedInvoice as any).varsym}`;
+                              const existsKey = `issued-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
                               setPdfExistsByKey(prev => ({ ...prev, [existsKey]: true }));
                               alert('PDF nahrané. Skúste náhľad (oko).');
                             } catch (err: any) {
                               alert(err?.message || 'Chyba pri nahrávaní PDF');
                             } finally {
+                              setPendingUploadInvoice(null);
                               if (fileInputRef.current) fileInputRef.current.value = '';
                             }
                           }}
@@ -632,48 +634,69 @@ const IssuedInvoicesPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
-                            {(() => { const k = `issued-${(invoice as any).invoice_number || (invoice as any).varsym || invoice.id}`; return !!pdfExistsByKey[k]; })() && (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  setPreviewLoadingId(invoice.id as number);
-                                  const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                                  const idOrNum = encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id));
-                                  const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
-                                  const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
-                                  const resp = await fetch(`${base}/api/accounting/invoices/issued/${idOrNum}/presign${query}`, {
-                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                                  });
-                                  if (resp.ok) {
-                                    const data = await resp.json();
-                                    if (data?.url) {
-                                      window.open(data.url, '_blank');
-                                      return;
-                                    }
-                                  }
-                                  // Fallback: otvor priamo Spaces URL
-                                  const ico = companies.find(c => c.id === companyId)?.ico;
-                                  const issueDateParam3 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
-                                  const numOrId = (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
-                                  if (ico && numOrId) {
-                                    const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
-                                    window.open(directUrl, '_blank');
-                                  } else {
-                                    throw new Error('PDF nenájdené');
-                                  }
-                                } catch (err) {
-                                  alert('PDF nie je dostupné pre túto faktúru');
-                                } finally {
-                                  setPreviewLoadingId(null);
-                                }
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Náhľad PDF"
-                            >
-                              <EyeIcon className="h-4 w-4" />
-                            </button>
-                            )}
+                            {(() => {
+                              const k = `issued-${(invoice as any).invoice_number || (invoice as any).varsym || invoice.id}`;
+                              const hasPdf = !!pdfExistsByKey[k];
+                              if (hasPdf) {
+                                return (
+                                  <button
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      try {
+                                        setPreviewLoadingId(invoice.id as number);
+                                        const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+                                        const idOrNum = encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id));
+                                        const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
+                                        const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
+                                        const resp = await fetch(`${base}/api/accounting/invoices/issued/${idOrNum}/presign${query}`, {
+                                          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                        });
+                                        if (resp.ok) {
+                                          const data = await resp.json();
+                                          if (data?.url) {
+                                            window.open(data.url, '_blank');
+                                            return;
+                                          }
+                                        }
+                                        const ico = companies.find(c => c.id === companyId)?.ico;
+                                        const issueDateParam3 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
+                                        const numOrId = (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
+                                        if (ico && numOrId) {
+                                          const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
+                                          window.open(directUrl, '_blank');
+                                        } else {
+                                          throw new Error('PDF nenájdené');
+                                        }
+                                      } catch (err) {
+                                        alert('PDF nie je dostupné pre túto faktúru');
+                                      } finally {
+                                        setPreviewLoadingId(null);
+                                      }
+                                    }}
+                                    className="text-blue-600 hover:text-blue-900"
+                                    title="Náhľad PDF"
+                                  >
+                                    <EyeIcon className="h-4 w-4" />
+                                  </button>
+                                );
+                              }
+                              if (userRole === 'admin' || userRole === 'accountant') {
+                                return (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPendingUploadInvoice(invoice);
+                                      fileInputRef.current?.click();
+                                    }}
+                                    className="text-blue-600 hover:text-blue-900"
+                                    title="Nahrať PDF"
+                                  >
+                                    <ArrowUpOnSquareIcon className="h-4 w-4" />
+                                  </button>
+                                );
+                              }
+                              return null;
+                            })()}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
