@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { db, isWeekend, isHoliday } = require('../database');
+const db = require('../services/dbCompat'); const { isWeekend, isHoliday } = require('../database');
 const calendarService = require('../services/calendarService');
 const emailService = require('../services/emailService');
 const jwt = require('jsonwebtoken');

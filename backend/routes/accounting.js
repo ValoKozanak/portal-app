@@ -32,7 +32,7 @@ const upload = multer({
 });
 const router = Router();
 const { authenticateToken } = require('./auth');
-const { db } = require('../database');
+const db = require('../services/dbCompat');
 const dropboxService = require('../services/dropboxService');
 const spacesService = require('../services/spacesService');
 
@@ -1059,8 +1059,13 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                    INSERT INTO received_invoices (
                      company_id, invoice_number, supplier_name, supplier_ico, supplier_dic,
                      supplier_address, issue_date, due_date, total_amount, vat_amount,
-                     currency, status, pohoda_id, notes, created_by, created_at, updated_at
-                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     kc0, kc1, kc2, kc3, kc_dph1, kc_dph2, kc_dph3, kc_celkem, var_sym, s_text,
+                     mdb_id, rel_tp_fak, datum, dat_splat, firma, ico, dic, ulice, psc, obec,
+                     mdb_cislo, base_0, base_1, base_2, base_3, vat_0, vat_1, vat_2, vat_3,
+                     varsym, currency, status, pohoda_id, notes, created_by, created_at, updated_at,
+                     kc_likv, kc_u, dat_likv
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
               `, [
                 companyId,
                    row.Cislo || '',
@@ -1072,13 +1077,46 @@ router.post('/refresh-received-invoices/:companyId', authenticateToken, async (r
                    row.DatSplat ? new Date(row.DatSplat).toISOString().split('T')[0] : '',
                    base_amount,
                    vat_total,
+                   parseFloat(row.Kc0) || 0,
+                   parseFloat(row.Kc1) || 0,
+                   parseFloat(row.Kc2) || 0,
+                   parseFloat(row.Kc3) || 0,
+                   parseFloat(row.KcDPH1) || 0,
+                   parseFloat(row.KcDPH2) || 0,
+                   parseFloat(row.KcDPH3) || 0,
+                   parseFloat(row.KcCelkem) || 0,
+                   row.VarSym || '',
+                   row.SText || '',
+                   row.ID || null,
+                   row.RelTpFak || null,
+                   row.Datum || null,
+                   row.DatSplat || null,
+                   row.Firma || '',
+                   row.ICO || '',
+                   row.DIC || '',
+                   row.Ulice || '',
+                   row.PSC || '',
+                   row.Obec || '',
+                   row.Cislo || '',
+                   parseFloat(row.Kc0) || 0,
+                   parseFloat(row.Kc1) || 0,
+                   parseFloat(row.Kc2) || 0,
+                   parseFloat(row.Kc3) || 0,
+                   parseFloat(row.KcDPH1) || 0,
+                   parseFloat(row.KcDPH2) || 0,
+                   parseFloat(row.KcDPH3) || 0,
+                   parseFloat(row.KcDPH3) || 0,
+                   row.VarSym || '',
                    'EUR',
                    'received',
                    null, // pohoda_id
                    row.SText || '',
                    req.user.email,
                    new Date().toISOString(),
-                   new Date().toISOString()
+                   new Date().toISOString(),
+                   parseFloat(row.KcLikv) || 0,
+                   parseFloat(row.KcU) || 0,
+                   row.DatLikv ? new Date(row.DatLikv).toISOString().split('T')[0] : null
               ], function(err) {
     if (err) {
                     console.error('Chyba pri vkladaní prijatej faktúry:', err);
@@ -1798,7 +1836,7 @@ router.get('/invoices/:kind/:invoiceId/presign', authenticateToken, async (req, 
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     let company; let year; let lookupId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1844,7 +1882,7 @@ router.get('/invoices/:kind/:invoiceId/exists', authenticateToken, async (req, r
     const table = kind === 'issued' ? 'issued_invoices' : 'received_invoices';
     let company; let year; let lookupId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1885,15 +1923,9 @@ router.post('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, asyn
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    const rawInvoiceId = String(invoiceId || '').trim();
-    if (!rawInvoiceId || rawInvoiceId.toLowerCase() === 'undefined' || rawInvoiceId.toLowerCase() === 'null') {
-      // Bez platného invoiceId v path nedokážeme určiť kľúč
-      return res.status(400).json({ error: 'Chýba platné invoiceId v URL' });
-    }
-
-    let company; let year; let uploadId = rawInvoiceId;
+    let company; let year; let uploadId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [rawInvoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
 
     if (invoice) {
@@ -1935,14 +1967,9 @@ router.get('/invoices/:kind/:invoiceId/presign-upload', authenticateToken, async
     const table = kind === 'issued' ? 'issued_invoices' : (kind === 'received' ? 'received_invoices' : null);
     if (!table) return res.status(400).json({ error: 'Neplatný typ faktúry' });
 
-    const rawInvoiceId = String(invoiceId || '').trim();
-    if (!rawInvoiceId || rawInvoiceId.toLowerCase() === 'undefined' || rawInvoiceId.toLowerCase() === 'null') {
-      return res.status(400).json({ error: 'Chýba platné invoiceId v URL' });
-    }
-
-    let company; let year; let uploadId = rawInvoiceId;
+    let company; let year; let uploadId = invoiceId;
     let invoice = await new Promise((resolve, reject) => {
-      db.get(`SELECT id, company_id, issue_date as issue_date FROM ${table} WHERE id = ?`, [rawInvoiceId], (err, row) => err ? reject(err) : resolve(row));
+      db.get(`SELECT id, company_id, COALESCE(issue_date, datum) as issue_date FROM ${table} WHERE id = ?`, [invoiceId], (err, row) => err ? reject(err) : resolve(row));
     });
     if (invoice) {
       company = await new Promise((resolve, reject) => {

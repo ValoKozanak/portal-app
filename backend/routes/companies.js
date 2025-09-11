@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../database');
+const db = require('../services/dbCompat');
 const emailService = require('../services/emailService');
 
 const router = express.Router();
@@ -346,7 +346,7 @@ router.patch('/:id/deactivate', (req, res) => {
 router.patch('/:id/activate', (req, res) => {
   const { id } = req.params;
 
-  db.run('UPDATE companies SET status = "active", updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id], function(err) {
+  db.run('UPDATE companies SET status = 'active', updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri aktivácii firmy' });
     }

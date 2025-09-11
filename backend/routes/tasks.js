@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { db } = require('../database');
+const db = require('../services/dbCompat');
 const emailService = require('../services/emailService');
 
 const router = express.Router();

@@ -288,7 +288,7 @@ router.post('/admin/save-settings', async (req, res) => {
       return res.status(400).json({ error: 'Chýbajú povinné parametre' });
     }
 
-    const { db } = require('../database');
+    const db = require('../services/dbCompat');
     
     // Uloženie alebo aktualizácia nastavení
     const query = `
@@ -338,7 +338,7 @@ router.get('/admin/settings/:companyId', async (req, res) => {
       return res.status(400).json({ error: 'Chýba ID firmy' });
     }
 
-    const { db } = require('../database');
+    const db = require('../services/dbCompat');
     
     const query = `
       SELECT ds.*, c.name as company_name, c.ico as company_ico 
@@ -392,7 +392,7 @@ router.get('/admin/settings/:companyId', async (req, res) => {
 // GET /api/dropbox/admin/all-settings - Získanie všetkých Dropbox nastavení
 router.get('/admin/all-settings', async (req, res) => {
   try {
-    const { db } = require('../database');
+    const db = require('../services/dbCompat');
     
     const query = `
       SELECT ds.*, c.name as company_name, c.ico as company_ico 

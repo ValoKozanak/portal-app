@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
+const db = require('../services/dbCompat');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 
 // Databázové pripojenie
 const dbPath = path.join(__dirname, '..', 'portal.db');
-const db = new sqlite3.Database(dbPath);
 
 // Middleware pre autentifikáciu
 const authenticateToken = (req, res, next) => {
