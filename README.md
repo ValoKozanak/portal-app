@@ -77,3 +77,4 @@ portal-app/
 3. Konfigurovať SSL certifikát
 4. Nastaviť environment variables
 5. Backup databázy
+
