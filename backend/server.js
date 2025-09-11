@@ -16,7 +16,6 @@ const dropboxRoutes    = require('./routes/dropbox');
 const hrRoutes         = require('./routes/hr');
 const payrollRoutes    = require('./routes/payroll');
 const accountingRoutes = require('./routes/accounting');
-const toolsRoutes = require('./routes/tools.routes');
 const { db, isWeekend, isHoliday } = require('./database');
 
 const app = express();
@@ -37,7 +36,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // Preflight handler (OPTIONS) – dôležité pre presign-upload a PUT do Spaces
-app.options('*', cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // (voliteľné) log základných info o requeste
 app.use((req, _res, next) => {
@@ -63,18 +62,33 @@ app.use('/api/dropbox',    dropboxRoutes);
 app.use('/api/hr',         hrRoutes);
 app.use('/api/payroll',    payrollRoutes);
 app.use('/api/accounting', accountingRoutes);
-app.use('/api/tools', toolsRoutes);
 
 // --- Healthcheck ---
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
 });
 
+
 // --- Error handler ---
 app.use((err, _req, res, _next) => {
   console.error('❌ Error middleware:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+
+// PG health route (inserted)
+  try {
+    res.json(status);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e && e.message ? e.message : e) });
+  }
+});
+
+
+
+
+const healthpgRoutes = require("./routes/healthpg");
+app.use("/api/healthpg", healthpgRoutes);
 
 // --- 404 ---
 app.use((_req, res) => {
@@ -245,3 +259,16 @@ async function autoCheckoutTick() {
 setInterval(autoCheckoutTick, 2 * 60 * 1000);
 // Spusti po štarte s malým oneskorením
 setTimeout(autoCheckoutTick, 30 * 1000);
+
+// --- PG health endpoint (non-intrusive) ---
+try {
+  app.get('/api/health/pg', async (req, res) => {
+    try {
+      res.json(status);
+    } catch (e) {
+      res.status(500).json({ ok: false, error: String(e && e.message ? e.message : e) });
+    }
+  });
+} catch (e) {
+  // ignore if pg not available
+}

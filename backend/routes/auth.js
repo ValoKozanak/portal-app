@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { db } = require('../database');
+const usePgUsers = process.env.USE_PG_USERS === 'true'; const db = usePgUsers ? require('../services/dbCompat') : require('../database').db;
 const emailService = require('../services/emailService');
 
 const router = express.Router();
@@ -150,7 +150,7 @@ router.post('/create-user', (req, res) => {
 
 // Získanie všetkých účtovníkov
 router.get('/users/accountants', authenticateToken, (req, res) => {
-  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE role = "accountant" AND status = "active" ORDER BY name', [], (err, accountants) => {
+  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE role = 'accountant' AND status = 'active' ORDER BY name', [], (err, accountants) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri načítaní účtovníkov' });
     }
@@ -377,7 +377,7 @@ router.post('/reset-password', (req, res) => {
 
 // Získanie všetkých používateľov
 router.get('/users', authenticateToken, (req, res) => {
-  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE status = "active" ORDER BY name', [], (err, users) => {
+  db.all('SELECT id, email, name, role, status, created_at FROM users WHERE status = 'active' ORDER BY name', [], (err, users) => {
     if (err) {
       return res.status(500).json({ error: 'Chyba pri načítaní používateľov' });
     }
