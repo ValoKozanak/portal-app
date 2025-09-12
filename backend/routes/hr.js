@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../services/dbCompat'); const { isWeekend, isHoliday } = require('../database');
+const db = require('../services/dbCompat');
+const { isWeekend, isHoliday } = require('../utils/dateUtils');
 const calendarService = require('../services/calendarService');
 const emailService = require('../services/emailService');
 const jwt = require('jsonwebtoken');
@@ -1984,10 +1985,7 @@ router.get('/employees/attendance-status/:companyId', authenticateToken, async (
       });
 
       // Kontrola či je dnes pracovný pokoj (sobota, nedeľa alebo sviatok)
-      const isWeekend = new Date(today).getDay() === 0 || new Date(today).getDay() === 6;
-      
-      // Kontrola sviatkov (použijeme existujúcu funkciu z database.js)
-      const { isHoliday } = require('../database.js');
+      const isWeekendToday = isWeekend(new Date(today));
       const isHolidayToday = isHoliday(new Date(today));
 
       let statusDescription = '';
@@ -2013,7 +2011,7 @@ router.get('/employees/attendance-status/:companyId', authenticateToken, async (
         // Dnes je sviatok
         statusDescription = 'Pracovný pokoj - Sviatok';
         statusType = 'holiday';
-      } else if (isWeekend) {
+      } else if (isWeekendToday) {
         // Dnes je víkend
         const dayNames = ['Nedeľa', 'Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok', 'Sobota'];
         const dayName = dayNames[new Date(today).getDay()];

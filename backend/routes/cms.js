@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../services/dbCompat');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 
-// Databázové pripojenie
-const dbPath = path.join(__dirname, '..', 'portal.db');
+// Databázové pripojenie (PG cez dbCompat)
+const db = require('../services/dbCompat');
 
 // Middleware pre autentifikáciu
 const authenticateToken = (req, res, next) => {

@@ -1,63 +1,49 @@
 const fs = require('fs');
-const sqlite3 = require('sqlite3').verbose();
 const { Pool } = require('pg');
-const path = require('path');
 
-const usePg = !!process.env.POSTGRES_URL;
-let pgPool = null;
-let sqliteDb = null;
+let singletonPool = null;
 
 function getPgPool() {
-  if (!usePg) return null;
-  if (pgPool) return pgPool;
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('POSTGRES_URL is not set');
+  }
+  if (singletonPool) return singletonPool;
+
   let ssl;
   if (process.env.PGSSLROOTCERT) {
     try {
       const ca = fs.readFileSync(process.env.PGSSLROOTCERT, 'utf8');
       ssl = { ca, rejectUnauthorized: true };
-    } catch {
+    } catch (_e) {
       ssl = { rejectUnauthorized: false };
     }
   } else {
     ssl = { rejectUnauthorized: false };
   }
-  pgPool = new Pool({
-    connectionString: process.env.POSTGRES_URL,
+
+  singletonPool = new Pool({
+    connectionString,
     ssl,
     max: 5,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 5000
   });
-  return pgPool;
+  return singletonPool;
 }
 
-function getSqlite() {
-  if (sqliteDb) return sqliteDb;
-  const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'databases', 'portal.db');
-  sqliteDb = new sqlite3.Database(dbPath);
-  return sqliteDb;
-}
-
-// Preveď "?" na "$1..$n" pre PG
 function toPgParams(sql, params) {
-  if (!params || params.length === 0) return { sql, params };
+  if (!params || params.length === 0) return { sql, params: [] };
   let idx = 0;
-  const newSql = sql.replace(/\?/g, () => '$' + (++idx));
+  const newSql = String(sql).replace(/\?/g, () => '$' + (++idx));
   return { sql: newSql, params };
 }
 
 async function query(sql, params = []) {
-  if (usePg) {
-    const pool = getPgPool();
-    const q = toPgParams(sql, params);
-    const res = await pool.query(q.sql, q.params);
-    return res.rows;
-  }
-  // SQLite
-  const db = getSqlite();
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows || []));
-  });
+  const pool = getPgPool();
+  const q = toPgParams(sql, params);
+  const res = await pool.query(q.sql, q.params);
+  return res.rows;
 }
 
 async function queryOne(sql, params = []) {
@@ -66,19 +52,12 @@ async function queryOne(sql, params = []) {
 }
 
 async function execute(sql, params = []) {
-  if (usePg) {
-    const pool = getPgPool();
-    const q = toPgParams(sql, params);
-    const res = await pool.query(q.sql, q.params);
-    return { rowCount: res.rowCount };
-  }
-  const db = getSqlite();
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function(err) {
-      if (err) reject(err);
-      else resolve({ lastID: this.lastID, changes: this.changes });
-    });
-  });
+  const pool = getPgPool();
+  const q = toPgParams(sql, params);
+  const res = await pool.query(q.sql, q.params);
+  return { rowCount: res.rowCount };
 }
 
-module.exports = { query, queryOne, execute, getPgPool };
+module.exports = { getPgPool, query, queryOne, execute, toPgParams };
+
+
