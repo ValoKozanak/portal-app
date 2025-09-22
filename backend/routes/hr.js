@@ -59,7 +59,7 @@ router.get('/employees/:companyId', authenticateToken, (req, res) => {
            er.attendance_mode
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
-    LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
+    LEFT JOIN employment_relations er ON e.id = er.employee_id AND CAST(er.is_active AS text) IN ('1','t','true')
     WHERE e.company_id = ?
     ORDER BY e.last_name, e.first_name
   `, [companyId], (err, employees) => {
@@ -327,7 +327,7 @@ router.get('/employees/find/:email', authenticateToken, (req, res) => {
            er.attendance_mode
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
-    LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
+    LEFT JOIN employment_relations er ON e.id = er.employee_id AND CAST(er.is_active AS text) IN ('1','t','true')
     WHERE e.email = ?
   `, [email], (err, employee) => {
     if (err) {
@@ -1214,7 +1214,7 @@ router.get('/attendance-settings/:employeeId', authenticateToken, (req, res) => 
     SELECT er.*, e.first_name, e.last_name, e.email
     FROM employment_relations er
     JOIN employees e ON er.employee_id = e.id
-    WHERE er.employee_id = ? AND er.is_active = 1
+    WHERE er.employee_id = ? AND CAST(er.is_active AS text) IN ('1','t','true')
     ORDER BY er.employment_start_date DESC
     LIMIT 1
   `, [employeeId], (err, settings) => {
@@ -1240,7 +1240,7 @@ router.post('/attendance/auto-create', authenticateToken, (req, res) => {
     FROM employment_relations er
     JOIN employees e ON er.employee_id = e.id
     WHERE er.company_id = ? 
-    AND er.is_active = 1 
+    AND CAST(er.is_active AS text) IN ('1','t','true') 
     AND er.attendance_mode = 'automatic'
     AND er.employment_start_date <= ?
     AND (er.employment_end_date IS NULL OR er.employment_end_date >= ?)
@@ -1547,7 +1547,7 @@ router.post('/attendance/process-automatic', authenticateToken, async (req, res)
         JOIN employment_relations er ON e.id = er.employee_id
         WHERE e.id IN (${employeeIds.map(() => '?').join(',')})
         AND er.company_id = ?
-        AND er.is_active = 1
+        AND CAST(er.is_active AS text) IN ('1','t','true')
         AND er.attendance_mode = 'automatic'
       `, [...employeeIds, companyId], (err, rows) => {
         if (err) reject(err);
@@ -1951,7 +1951,7 @@ router.get('/employees/attendance-status/:companyId', authenticateToken, async (
             ELSE NULL
           END as check_out
         FROM employees e
-        LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
+        LEFT JOIN employment_relations er ON e.id = er.employee_id AND CAST(er.is_active AS text) IN ('1','t','true')
         LEFT JOIN attendance a ON e.id = a.employee_id AND a.date = ? AND a.company_id = ?
         WHERE e.company_id = ? 
         AND e.status = 'active'
@@ -2066,7 +2066,7 @@ router.get('/employees/missing-attendance/:companyId', authenticateToken, async 
           er.break_end_time,
           er.weekly_hours
         FROM employees e
-        LEFT JOIN employment_relations er ON e.id = er.employee_id AND er.is_active = 1
+        LEFT JOIN employment_relations er ON e.id = er.employee_id AND CAST(er.is_active AS text) IN ('1','t','true')
         WHERE e.company_id = ? 
         AND e.status = 'active'
         AND er.attendance_mode = 'manual'
