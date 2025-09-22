@@ -244,8 +244,10 @@ const EmploymentRelationModal: React.FC<EmploymentRelationModalProps> = ({
       newErrors.employment_start_date = 'Dátum začiatku pracovného pomeru je povinný';
     }
 
-    if (!formData.salary || formData.salary.toString().trim() === '' || parseFloat(formData.salary.toString().replace(',', '.')) <= 0) {
-      newErrors.salary = 'Mzda musí byť väčšia ako 0';
+    // Umožniť potvrdiť aj so mzdou 0; validuj len, že je to číslo >= 0
+    const salaryNum = parseFloat(String(formData.salary).replace(',', '.'));
+    if (isNaN(salaryNum) || salaryNum < 0) {
+      newErrors.salary = 'Mzda musí byť číslo >= 0';
     }
 
     setErrors(newErrors);
@@ -262,7 +264,16 @@ const EmploymentRelationModal: React.FC<EmploymentRelationModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      onSave(formData);
+      // Normalizuj mzdu na číslo (backend akceptuje 0)
+      const normalizedSalary = (() => {
+        const n = parseFloat(String(formData.salary).replace(',', '.'));
+        return isNaN(n) ? 0 : n;
+      })();
+
+      onSave({
+        ...formData,
+        salary: normalizedSalary
+      });
       onClose();
     } catch (error) {
       console.error('Chyba pri ukladaní pracovného pomeru:', error);
