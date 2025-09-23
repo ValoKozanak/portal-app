@@ -10,6 +10,7 @@ import { apiService } from '../services/apiService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EditEmployeeModal from '../components/EditEmployeeModal';
 import EmploymentRelationModal from '../components/EmploymentRelationModal';
+import { EmploymentRelation } from '../types/EmploymentRelation';
 
 interface EmployeeCardPageProps {
   userEmail: string;
