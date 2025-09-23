@@ -41,17 +41,18 @@ class PayrollService {
     const p = await apiService.get(`/payroll/periods/${companyId}/current`);
     if (!p) return null;
     if (typeof p !== 'object') return null;
-    if (!('year' in p) || !('month' in p)) return null;
+    if (!('year' in (p as any)) || !('month' in (p as any))) return null;
+    const anyP = p as any;
     return {
-      id: Number(p.id),
-      company_id: Number(p.company_id),
-      year: Number(p.year),
-      month: Number(p.month),
-      is_closed: p.is_closed === true || p.is_closed === 1 || p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0,
-      closed_at: p.closed_at ?? undefined,
-      closed_by: p.closed_by ?? undefined,
-      created_at: String(p.created_at ?? ''),
-      updated_at: String(p.updated_at ?? '')
+      id: Number(anyP.id),
+      company_id: Number(anyP.company_id),
+      year: Number(anyP.year),
+      month: Number(anyP.month),
+      is_closed: anyP.is_closed === true || anyP.is_closed === 1 || anyP.is_closed === '1' || anyP.is_closed === 't' || anyP.is_closed === 'true' ? 1 : 0,
+      closed_at: anyP.closed_at ?? undefined,
+      closed_by: anyP.closed_by ?? undefined,
+      created_at: String(anyP.created_at ?? ''),
+      updated_at: String(anyP.updated_at ?? '')
     };
   }
 
