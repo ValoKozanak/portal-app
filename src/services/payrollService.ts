@@ -40,20 +40,14 @@ class PayrollService {
 
   // Získanie aktuálneho neuzatvoreného obdobia
   async getCurrentPeriod(companyId: number): Promise<PayrollPeriod | null> {
-    const pRaw: any = await apiService.get(`/payroll/periods/${companyId}/current`);
-    if (!pRaw || typeof pRaw !== 'object') return null;
-    const p: any = pRaw;
+    const p = await apiService.get(`/payroll/periods/${companyId}/current`);
+    if (!p) return null;
     return {
       id: Number(p.id),
       company_id: Number(p.company_id),
       year: Number(p.year),
       month: Number(p.month),
-      is_closed:
-        typeof p.is_closed === 'string'
-          ? p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true'
-            ? 1
-            : 0
-          : Number(p.is_closed) || 0,
+      is_closed: typeof p.is_closed === 'string' ? (p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0) : Number(p.is_closed) || 0,
       closed_at: p.closed_at || undefined,
       closed_by: p.closed_by || undefined,
       created_at: p.created_at,
