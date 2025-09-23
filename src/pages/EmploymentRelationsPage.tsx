@@ -169,13 +169,7 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
               <p className="text-gray-600 dark:text-gray-300">Správa pracovných pomerov zamestnancov</p>
             </div>
           </div>
-          <button
-            onClick={handleAddRelation}
-            className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Pridať pracovný pomer
-          </button>
+          {/* Tlačidlo odstránené na žiadosť: vytváranie cez kartu zamestnanca */}
         </div>
 
         {/* Search */}

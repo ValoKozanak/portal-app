@@ -289,7 +289,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                                 onClick={() => setShowAddERModal(true)}
                                 className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                               >
-                                Pracovné pomery
+                                Nový pracovný pomer
                               </button>
                     <button
                       onClick={() => setActiveTab('personal')}
