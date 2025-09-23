@@ -9,6 +9,7 @@ import { hrService, Employee } from '../services/hrService';
 import { apiService } from '../services/apiService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EditEmployeeModal from '../components/EditEmployeeModal';
+import EmploymentRelationModal from '../components/EmploymentRelationModal';
 
 interface EmployeeCardPageProps {
   userEmail: string;
@@ -25,6 +26,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
   const [activeTab, setActiveTab] = useState<'personal'>('personal');
   const [showEditModal, setShowEditModal] = useState(false);
   const [employeeChanges, setEmployeeChanges] = useState<any[]>([]);
+  const [showAddERModal, setShowAddERModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -282,6 +284,12 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                                 <PencilIcon className="h-4 w-4 mr-1" />
                                 Upraviť
                               </button>
+                              <button
+                                onClick={() => setShowAddERModal(true)}
+                                className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                              >
+                                Pracovné pomery
+                              </button>
                     <button
                       onClick={() => setActiveTab('personal')}
                       className={`px-3 py-1 text-sm font-medium rounded-md ${
@@ -328,6 +336,61 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
           onClose={() => setShowEditModal(false)}
           onSave={handleEditEmployee}
           employee={selectedEmployee}
+        />
+      )}
+
+      {/* Employment Relation Modal (Create) */}
+      {selectedEmployee && (
+        <EmploymentRelationModal
+          isOpen={showAddERModal}
+          onClose={() => setShowAddERModal(false)}
+          onSave={async (relationData: EmploymentRelation) => {
+            try {
+              await hrService.addEmploymentRelation({
+                employee_id: Number(selectedEmployee.id),
+                company_id: Number(companyId),
+                position: relationData.position,
+                employment_type: relationData.employment_type === 'dohoda' ? 'contract' : relationData.employment_type,
+                employment_start_date: relationData.employment_start_date,
+                employment_end_date: relationData.employment_termination_date,
+                salary: Number(String(relationData.salary).replace(',', '.')) || 0,
+                weekly_hours: Number(relationData.agreed_weekly_hours) || 40,
+                attendance_mode: relationData.attendance_mode,
+                work_start_time: relationData.work_start_time,
+                work_end_time: relationData.work_end_time,
+                break_start_time: relationData.break_start_time,
+                break_end_time: relationData.break_end_time,
+                is_active: Boolean(relationData.is_active)
+              });
+              setShowAddERModal(false);
+              alert('Pracovný pomer bol úspešne pridaný');
+            } catch (e) {
+              console.error('Chyba pri pridaní pracovného pomeru:', e);
+              alert('Chyba pri pridaní pracovného pomeru');
+            }
+          }}
+          relation={{
+            employee_id: selectedEmployee.id,
+            employee_first_name: selectedEmployee.first_name,
+            employee_last_name: selectedEmployee.last_name,
+            employee_email: selectedEmployee.email,
+            birth_number: selectedEmployee.birth_number || '',
+            position: '',
+            position_name: '',
+            employment_type: 'full_time',
+            employment_start_date: '',
+            is_active: true,
+            salary: 0,
+            agreed_weekly_hours: 40,
+            attendance_mode: 'manual',
+            work_start_time: '08:00',
+            work_end_time: '16:00',
+            break_start_time: '12:00',
+            break_end_time: '12:30',
+            weekly_hours: 40,
+          } as unknown as EmploymentRelation}
+          employees={[selectedEmployee as unknown as Employee]}
+          isEdit={false}
         />
       )}
     </div>
