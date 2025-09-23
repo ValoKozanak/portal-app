@@ -469,7 +469,14 @@ class HRService {
     break_end_time?: string;
     is_active?: boolean;
   }): Promise<{ id: number; message: string }> {
-    return apiService.post('/hr/employment-relations', relationData);
+    const payload = {
+      ...relationData,
+      employee_id: Number(relationData.employee_id),
+      company_id: Number(relationData.company_id),
+      salary: relationData.salary != null ? Number(relationData.salary) : 0,
+      weekly_hours: relationData.weekly_hours != null ? Number(relationData.weekly_hours) : 40,
+    };
+    return apiService.post('/hr/employment-relations', payload);
   }
 
   async updateEmploymentRelation(id: number, relationData: {

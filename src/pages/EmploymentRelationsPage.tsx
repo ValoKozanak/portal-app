@@ -87,20 +87,20 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
       } else {
         // Add new relation
         await hrService.addEmploymentRelation({
-          employee_id: relationData.employee_id,
-          company_id: companyId,
+          employee_id: Number(relationData.employee_id),
+          company_id: Number(companyId),
           position: relationData.position,
           employment_type: relationData.employment_type === 'dohoda' ? 'contract' : relationData.employment_type,
           employment_start_date: relationData.employment_start_date,
           employment_end_date: relationData.employment_termination_date,
-          salary: relationData.salary,
-          weekly_hours: relationData.agreed_weekly_hours,
+          salary: Number(String(relationData.salary).replace(',', '.')) || 0,
+          weekly_hours: Number(relationData.agreed_weekly_hours) || 40,
           attendance_mode: relationData.attendance_mode,
           work_start_time: relationData.work_start_time,
           work_end_time: relationData.work_end_time,
           break_start_time: relationData.break_start_time,
           break_end_time: relationData.break_end_time,
-          is_active: relationData.is_active
+          is_active: Boolean(relationData.is_active)
         });
       }
       
