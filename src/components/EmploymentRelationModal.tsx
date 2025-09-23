@@ -416,15 +416,15 @@ const EmploymentRelationModal: React.FC<EmploymentRelationModalProps> = ({
                 <select
                   id="employee_id"
                   name="employee_id"
-                  value={formData.employee_id}
-                  onChange={(e) => handleEmployeeChange(parseInt(e.target.value))}
+                  value={String(formData.employee_id || '')}
+                  onChange={(e) => handleEmployeeChange(Number(e.target.value))}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
                     errors.employee_id ? 'border-red-300' : 'border-gray-300 dark:border-dark-600'
                   }`}
                 >
                   <option value="">Vyberte zamestnanca</option>
                   {employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
+                    <option key={employee.id} value={String(employee.id)}>
                       {employee.first_name} {employee.last_name} ({employee.email})
                     </option>
                   ))}
