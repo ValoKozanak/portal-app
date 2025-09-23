@@ -20,12 +20,39 @@ class PayrollService {
   // Získanie mzdových období pre firmu
   async getPayrollPeriods(companyId: number, year?: number): Promise<PayrollPeriod[]> {
     const params = year ? `?year=${year}` : '';
-    return apiService.get(`/payroll/periods/${companyId}${params}`);
+    const raw = await apiService.get(`/payroll/periods/${companyId}${params}`);
+    const normalize = (p: any): PayrollPeriod => ({
+      id: Number(p.id),
+      company_id: Number(p.company_id),
+      year: Number(p.year),
+      month: Number(p.month),
+      // backend vracia is_closed rôzne (0/1, true/false, '0'/'1'/'t'), znormalizuj na 0/1
+      is_closed: p.is_closed === true || p.is_closed === 1 || p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0,
+      closed_at: p.closed_at ?? undefined,
+      closed_by: p.closed_by ?? undefined,
+      created_at: String(p.created_at),
+      updated_at: String(p.updated_at)
+    });
+    return Array.isArray(raw) ? raw.map(normalize) : [];
   }
 
   // Získanie aktuálneho neuzatvoreného obdobia
   async getCurrentPeriod(companyId: number): Promise<PayrollPeriod | null> {
-    return apiService.get(`/payroll/periods/${companyId}/current`);
+    const p = await apiService.get(`/payroll/periods/${companyId}/current`);
+    if (!p) return null;
+    if (typeof p !== 'object') return null;
+    if (!('year' in p) || !('month' in p)) return null;
+    return {
+      id: Number(p.id),
+      company_id: Number(p.company_id),
+      year: Number(p.year),
+      month: Number(p.month),
+      is_closed: p.is_closed === true || p.is_closed === 1 || p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0,
+      closed_at: p.closed_at ?? undefined,
+      closed_by: p.closed_by ?? undefined,
+      created_at: String(p.created_at ?? ''),
+      updated_at: String(p.updated_at ?? '')
+    };
   }
 
   // Uzatvorenie mzdového obdobia
