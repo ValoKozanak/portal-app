@@ -1,4 +1,23 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'http://localhost:5000/api';
+// API base URL s fallbackmi pre Netlify/staging
+function resolveApiBase(): string {
+  const envBase = (process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE || '').trim();
+  if (envBase) {
+    const normalized = envBase.replace(/\/$/, '');
+    // Ak už je zadané celé /api(-staging), nepřidávaj /api dvakrát
+    if (/\/api($|\-staging$)/.test(normalized)) return normalized;
+    return `${normalized}/api`;
+  }
+  // Heuristika: Netlify/staging FE → volaj staging backend
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.endsWith('netlify.app') || host.includes('staging')) {
+      return 'https://api.client-portal.sk/api-staging';
+    }
+  }
+  return 'http://localhost:5000/api';
+}
+
+const API_BASE_URL = resolveApiBase();
 
 // Typy pre API
 export interface ApiResponse {
