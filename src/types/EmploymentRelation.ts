@@ -1,16 +1,16 @@
 export interface EmploymentRelation {
   id?: number;
   employee_id: number;
-  // Polia z backend API (JOIN s employees tabu�lkou)
+  // Polia z backend API (JOIN s employees tabu?lkou)
   first_name?: string;
   last_name?: string;
   email?: string;
-  // StarA� polia pre kompatibilitu
+  // StarA? polia pre kompatibilitu
   employee_first_name?: string;
   employee_last_name?: string;
   employee_email?: string;
   
-  // ZA?kladnA� Asdaje
+  // ZA?kladnA? Asdaje
   birth_number: string;
   insurance_company: string;
   insurance_number: string;
@@ -25,10 +25,10 @@ export interface EmploymentRelation {
   probation_end_date?: string;
   fixed_term_contract: boolean;
   departure_date?: string;
-  employment_termination_date?: string; // Ukon�Tenie pracovnA�ho pomeru
+  employment_termination_date?: string; // Ukon?Tenie pracovnA?ho pomeru
   is_active: boolean;
   
-  // MzdovA� Asdaje
+  // MzdovA? Asdaje
   salary: number;
   salary_after_departure: number;
   temporary_work_force: boolean;
@@ -61,7 +61,7 @@ export interface EmploymentRelation {
   overpaid_vacation_days_2year: number;
   overpaid_vacation_days_3year: number;
   
-  // Mzda a prA�mie
+  // Mzda a prA?mie
   salary_type: 'hourly' | 'monthly' | 'task_based';
   holidays_paid: string;
   schedule: string;
@@ -88,7 +88,7 @@ export interface EmploymentRelation {
   varsym_settlement: string;
   specsym_settlement: string;
   
-  // Po�TA�tanA� roky
+  // Po?TA?tanA? roky
   counted_years: number;
   counted_days: number;
   
@@ -97,7 +97,7 @@ export interface EmploymentRelation {
   termination_reason: string;
   other_notice: string;
   
-  // PoistnA�
+  // PoistnA?
   np: boolean;
   sp: boolean;
   ip: boolean;
@@ -108,7 +108,7 @@ export interface EmploymentRelation {
   prfs: boolean;
   zp: boolean;
   
-  // DA�chodkovA� poistenie
+  // DA?chodkovA? poistenie
   pension_company: string;
   varsym_pension: string;
   specsym_pension: string;
@@ -123,12 +123,12 @@ export interface EmploymentRelation {
   oop_application_date?: string;
   oop_termination_date?: string;
   
-  // SystA�movA� polia
+  // SystA?movA? polia
   status: 'active' | 'inactive' | 'terminated';
   created_at?: string;
   updated_at?: string;
   
-  // DochA?dzkovA� nastavenia
+  // DochA?dzkovA? nastavenia
   attendance_mode?: 'manual' | 'automatic';
   work_start_time?: string;
   work_end_time?: string;

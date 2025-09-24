@@ -34,7 +34,7 @@ function OptimizedTable<T>({
   emptyMessage = 'L?iadne dA?ta',
   loading = false
 }: OptimizedTableProps<T>) {
-  // MemoizovanA� zoradenA� dA?ta
+  // MemoizovanA? zoradenA? dA?ta
   const sortedData = useMemo(() => {
     if (!sortBy) return data;
 
@@ -96,7 +96,7 @@ function OptimizedTable<T>({
       <div className={`${className} flex items-center justify-center`} style={{ height }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-500">Na�TA�tavam...</p>
+          <p className="mt-2 text-sm text-gray-500">Na?TA?tavam...</p>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ function OptimizedTable<T>({
       {tableHeader}
       <VirtualizedList
         items={sortedData}
-        height={height - 50} // Odpo�TA�taj header vA?L?ku
+        height={height - 50} // Odpo?TA?taj header vA?L?ku
         itemHeight={itemHeight}
         renderItem={renderRow}
         emptyMessage={emptyMessage}

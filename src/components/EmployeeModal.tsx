@@ -32,7 +32,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     email: '',
     phone: '',
     password: '',
-    // DoplnkovA� polia pre R�S a adresu (prefill z MDB)
+    // DoplnkovA? polia pre R?S a adresu (prefill z MDB)
     birth_number: '',
     permanent_street: '',
     permanent_city: '',
@@ -43,7 +43,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   const [birthNumber, setBirthNumber] = useState('');
   const [prefillLoading, setPrefillLoading] = useState(false);
   const [mdbCandidate, setMdbCandidate] = useState<any | null>(null);
-  // NA?vrh pracovnA�ho pomeru z MDB, ktorA? mA�Lleme upraviLA pred uloLlenA�m
+  // NA?vrh pracovnA?ho pomeru z MDB, ktorA? mA?Lleme upraviLA pred uloLlenA?m
   const [relationDraft, setRelationDraft] = useState<null | {
     position: string;
     employment_type: 'full_time' | 'part_time' | 'contract' | 'intern';
@@ -106,23 +106,23 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         };
         await hrService.updateEmployee(employee!.id, employeeData);
       } else {
-        // Vytvorenie zA?kladnA�ho zA?znamu zamestnanca
+        // Vytvorenie zA?kladnA?ho zA?znamu zamestnanca
         const employeeData = {
           company_id: companyId,
-          employee_id: `EMP${Date.now()}`, // Automaticky generovanA� ID
+          employee_id: `EMP${Date.now()}`, // Automaticky generovanA? ID
           first_name: formData.first_name,
           last_name: formData.last_name,
           email: formData.email,
           phone: formData.phone || undefined,
-          position: 'Zamestnanec', // ZA?kladnA? pozA�cia
+          position: 'Zamestnanec', // ZA?kladnA? pozA?cia
           hire_date: formatDate(new Date()), // DneL?nA? dA?tum
-          employment_type: 'full_time' as const, // ZA?kladnA? typ AsvA�zku
+          employment_type: 'full_time' as const, // ZA?kladnA? typ AsvA?zku
           status: 'active' as const
         };
         
         const created = await hrService.addEmployee(employeeData);
 
-        // Doplnenie R�S a adresy (ak sAs k dispozA�cii) po vytvorenA� zamestnanca
+        // Doplnenie R?S a adresy (ak sAs k dispozA?cii) po vytvorenA? zamestnanca
         try {
           const normalizedRC = (formData.birth_number || birthNumber || '').replace(/[^0-9]/g, '');
           await hrService.updateEmployee(created.id, {
@@ -133,10 +133,10 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             permanent_country: formData.permanent_country || undefined
           } as any);
         } catch (e) {
-          console.warn('Nepodarilo sa doplniLA R�S/adresu po vytvorenA�.', e);
+          console.warn('Nepodarilo sa doplniLA R?S/adresu po vytvorenA?.', e);
         }
 
-        // Ak mA?me nA?vrh pracovnA�ho pomeru, zaloLl ho
+        // Ak mA?me nA?vrh pracovnA?ho pomeru, zaloLl ho
         if (relationDraft && relationDraft.employment_start_date) {
           try {
             await hrService.addEmploymentRelation({
@@ -153,10 +153,10 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           }
         }
         
-        // Vytvorenie pouLlA�vate�lskA�ho As�Ttu pre zamestnanca
+        // Vytvorenie pouLlA?vate?lskA?ho As?Ttu pre zamestnanca
         if (formData.password) {
           try {
-            console.log('dz"� VytvA?ram pouLlA�vate�lskA? As�Tet pre zamestnanca:', formData.email);
+            console.log('dz"? VytvA?ram pouLlA?vate?lskA? As?Tet pre zamestnanca:', formData.email);
             const userData = {
               email: formData.email,
               password: formData.password,
@@ -165,24 +165,24 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               status: 'active',
               phone: formData.phone || undefined
             };
-            console.log('dz"� Odosielam dA?ta:', userData);
+            console.log('dz"? Odosielam dA?ta:', userData);
             await apiService.createUser(userData);
-            console.log('�s. PouLlA�vate�lskA? As�Tet vytvorenA? AsspeL?ne');
+            console.log('?s. PouLlA?vate?lskA? As?Tet vytvorenA? AsspeL?ne');
           } catch (error) {
-            console.error('�tS Chyba pri vytvA?ranA� pouLlA�vate�lskA�ho As�Ttu:', error);
+            console.error('?tS Chyba pri vytvA?ranA? pouLlA?vate?lskA?ho As?Ttu:', error);
             const errorMessage = error instanceof Error ? error.message : 'NeznA?ma chyba';
-            alert('Chyba pri vytvA?ranA� pouLlA�vate�lskA�ho As�Ttu: ' + errorMessage);
+            alert('Chyba pri vytvA?ranA? pouLlA?vate?lskA?ho As?Ttu: ' + errorMessage);
           }
         } else {
-          console.log('�s�d�Z Heslo nie je zadanA�, pouLlA�vate�lskA? As�Tet sa nevytvorA�');
+          console.log('?s?d?Z Heslo nie je zadanA?, pouLlA?vate?lskA? As?Tet sa nevytvorA?');
         }
       }
 
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladanA� zamestnanca:', error);
-      alert('Chyba pri ukladanA� zamestnanca');
+      console.error('Chyba pri ukladanA? zamestnanca:', error);
+      alert('Chyba pri ukladanA? zamestnanca');
     } finally {
       setLoading(false);
     }
@@ -203,7 +203,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {isEdit ? 'UpraviLA zA?kladnA� Asdaje zamestnanca' : 'PridaLA novA�ho zamestnanca a vytvoriLA As�Tet'}
+            {isEdit ? 'UpraviLA zA?kladnA? Asdaje zamestnanca' : 'PridaLA novA?ho zamestnanca a vytvoriLA As?Tet'}
           </h2>
           <button
             onClick={onClose}
@@ -219,7 +219,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             <div className="p-4 rounded-md border border-purple-200 bg-purple-50 dark:bg-dark-700 dark:border-dark-600">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div className="text-sm text-gray-800 dark:text-gray-100">
-                  NaL?li sme Asdaje v MDB pre R�S. ChceL? predvyplniLA formulA?r z POHODA?
+                  NaL?li sme Asdaje v MDB pre R?S. ChceL? predvyplniLA formulA?r z POHODA?
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -241,7 +241,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                       }));
                       setBirthNumber(((e.birth_number as string) || '').replace(/[^0-9]/g, ''));
 
-                      // priprav nA?vrh pracovnA�ho pomeru
+                      // priprav nA?vrh pracovnA?ho pomeru
                       if (Array.isArray(e.employment_relations) && e.employment_relations.length > 0) {
                         const rels = e.employment_relations as any[];
                         const pick = rels.find(r => !r.employment_end_date) || rels[0];
@@ -275,23 +275,23 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               </div>
             </div>
           )}
-          {/* Na�TA�taLA z POHODA (MDB) pod�la R�S */}
+          {/* Na?TA?taLA z POHODA (MDB) pod?la R?S */}
           {!isEdit && (
             <div className="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg space-y-3">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Na�TA�taLA Asdaje z POHODA (MDB)</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Na?TA?taLA Asdaje z POHODA (MDB)</h3>
               <div className="flex flex-col md:flex-row md:items-center gap-3">
                 <input
                   type="text"
                   value={birthNumber}
                   onChange={(e) => setBirthNumber(e.target.value)}
-                  placeholder="RodnA� �TA�slo (bez lomA�tka aj s lomA�tkom)"
+                  placeholder="RodnA? ?TA?slo (bez lomA?tka aj s lomA?tkom)"
                   className="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
                 />
                 <button
                   type="button"
                   onClick={async () => {
                     const normalized = (birthNumber || '').replace(/[^0-9]/g, '');
-                    if (!normalized) { alert('Zadajte rodnA� �TA�slo'); return; }
+                    if (!normalized) { alert('Zadajte rodnA? ?TA?slo'); return; }
                     try {
                       setPrefillLoading(true);
                       const now = new Date().getFullYear();
@@ -301,15 +301,15 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                         try {
                           const r = await hrService.getEmployeeFromMdb(companyId, normalized, y);
                           if (r && r.employee) { found = r.employee; break; }
-                        } catch (_) { /* skAssiLA �ZalL?A� rok */ }
+                        } catch (_) { /* skAssiLA ?ZalL?A? rok */ }
                       }
                       if (found) {
                         setMdbCandidate(found);
                       } else {
-                        alert('Asdaje pre zadanA� R�S neboli nA?jdenA� v poslednA?ch rokoch.');
+                        alert('Asdaje pre zadanA? R?S neboli nA?jdenA? v poslednA?ch rokoch.');
                       }
                     } catch (err) {
-                      alert('Chyba pri na�TA�tanA� z MDB');
+                      alert('Chyba pri na?TA?tanA? z MDB');
                     } finally {
                       setPrefillLoading(false);
                     }
@@ -317,14 +317,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   disabled={prefillLoading}
                   className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
                 >
-                  {prefillLoading ? 'Na�TA�tavam�?�' : 'Na�TA�taLA z MDB'}
+                  {prefillLoading ? 'Na?TA?tavam???' : 'Na?TA?taLA z MDB'}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">H�ladanie prebieha pod�la I�SO aktA�vnej firmy a rodnA�ho �TA�sla v tabu�lke ZAMSK.</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">H?ladanie prebieha pod?la I?SO aktA?vnej firmy a rodnA?ho ?TA?sla v tabu?lke ZAMSK.</p>
             </div>
           )}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">ZA?kladnA� Asdaje zamestnanca</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">ZA?kladnA? Asdaje zamestnanca</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -404,21 +404,21 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   placeholder="Zadajte heslo pre zamestnanca"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Zamestnanec sa bude mA�cLA prihlA?siLA s tA?mto emailom a heslom. 
-                  PersonA?lne Asdaje a pracovnA� pomery sa budAs dop�sL�aLA v sekciA?ch "Karty zamestnancov" a "PracovnA� pomery".
+                  Zamestnanec sa bude mA?cLA prihlA?siLA s tA?mto emailom a heslom. 
+                  PersonA?lne Asdaje a pracovnA? pomery sa budAs dop?sL?aLA v sekciA?ch "Karty zamestnancov" a "PracovnA? pomery".
                 </p>
               </div>
             )}
           </div>
 
-          {/* PersonA?lne Asdaje (R�S) a adresa trvalA�ho pobytu */}
+          {/* PersonA?lne Asdaje (R?S) a adresa trvalA?ho pobytu */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">PersonA?lne Asdaje a adresa</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {!isEdit && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RodnA� �TA�slo</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RodnA? ?TA?slo</label>
                   <input
                     type="text"
                     name="birth_number"
@@ -430,7 +430,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ulica a �TA�slo</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ulica a ?TA?slo</label>
                 <input
                   type="text"
                   name="permanent_street"
@@ -452,7 +452,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PS�S</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PS?S</label>
                 <input
                   type="text"
                   name="permanent_zip"
@@ -463,7 +463,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">L�tA?t</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">L?tA?t</label>
                 <input
                   type="text"
                   name="permanent_country"
@@ -476,13 +476,13 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             </div>
           </div>
 
-          {/* NA?vrh pracovnA�ho pomeru z MDB */}
+          {/* NA?vrh pracovnA?ho pomeru z MDB */}
           {!isEdit && relationDraft && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">NA?vrh pracovnA�ho pomeru (z MDB)</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">NA?vrh pracovnA?ho pomeru (z MDB)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PozA�cia</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PozA?cia</label>
                   <input
                     type="text"
                     value={relationDraft.position}
@@ -491,14 +491,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Typ AsvA�zku</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Typ AsvA?zku</label>
                   <select
                     value={relationDraft.employment_type}
                     onChange={(e) => setRelationDraft(prev => prev ? ({ ...prev, employment_type: e.target.value as any }) : prev)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
                   >
-                    <option value="full_time">PlnA? AsvA�zok</option>
-                    <option value="part_time">SkrA?tenA? AsvA�zok</option>
+                    <option value="full_time">PlnA? AsvA?zok</option>
+                    <option value="part_time">SkrA?tenA? AsvA?zok</option>
                     <option value="contract">Dohoda/kontrakt</option>
                     <option value="intern">StA?Ll</option>
                   </select>
@@ -513,7 +513,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">DA?tum ukon�Tenia</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">DA?tum ukon?Tenia</label>
                   <input
                     type="date"
                     value={relationDraft.employment_end_date || ''}
@@ -522,7 +522,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">TA?LldennA� hodiny</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">TA?LldennA? hodiny</label>
                   <input
                     type="number"
                     min={1}

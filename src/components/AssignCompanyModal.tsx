@@ -52,7 +52,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
       await onAssign(selectedCompany, selectedAccountants);
       onClose();
     } catch (error) {
-      console.error('Chyba pri priradenA� firmy:', error);
+      console.error('Chyba pri priradenA? firmy:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +64,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
     company.owner_email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Zobrazujeme vL?etky firmy, nie len tie bez priradenA?ch As�TtovnA�kov
+  // Zobrazujeme vL?etky firmy, nie len tie bez priradenA?ch As?TtovnA?kov
   const availableCompanies = filteredCompanies;
 
   if (!isOpen) return null;
@@ -74,7 +74,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">PridaLA As�TtovnA�kov k firme</h2>
+          <h2 className="text-xl font-semibold text-gray-900">PridaLA As?TtovnA?kov k firme</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -87,14 +87,14 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
           {/* InformA?cia o many-to-many vzLAahu */}
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <p className="text-sm text-blue-800">
-              dz'? <strong>Many-to-Many vzLAah:</strong> As�TtovnA�k mA�Lle maLA viacero firiem a firma mA�Lle maLA viacero As�TtovnA�kov
+              dz'? <strong>Many-to-Many vzLAah:</strong> As?TtovnA?k mA?Lle maLA viacero firiem a firma mA?Lle maLA viacero As?TtovnA?kov
             </p>
           </div>
 
-          {/* VA?ber As�TtovnA�kov */}
+          {/* VA?ber As?TtovnA?kov */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Vyberte As�TtovnA�kov *
+              Vyberte As?TtovnA?kov *
             </label>
             <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-md p-2">
               {accountants.map((accountant) => (
@@ -121,12 +121,12 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
             </div>
             {selectedAccountants.length > 0 && (
               <div className="mt-2 text-sm text-gray-600">
-                VybranA� As�TtovnA�ci: {selectedAccountants.length}
+                VybranA? As?TtovnA?ci: {selectedAccountants.length}
               </div>
             )}
           </div>
 
-          {/* Vyh�ladA?vanie firiem */}
+          {/* Vyh?ladA?vanie firiem */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Vyberte firmu na priradenie
@@ -134,7 +134,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
             <div className="relative">
               <input
                 type="text"
-                placeholder="H�ladaLA firmy..."
+                placeholder="H?ladaLA firmy..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -168,12 +168,12 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
                           />
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
-                            <p className="text-sm text-gray-600">I�SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                            <p className="text-sm text-gray-600">VlastnA�k: {company.owner_email}</p>
+                            <p className="text-sm text-gray-600">I?SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">VlastnA?k: {company.owner_email}</p>
                             {company.assignedToAccountants && company.assignedToAccountants.length > 0 && (
                               <div className="mt-2">
                                 <p className="text-sm text-green-600 font-medium">
-                                  ULl priradenA� As�TtovnA�ci: {company.assignedToAccountants.length}
+                                  ULl priradenA? As?TtovnA?ci: {company.assignedToAccountants.length}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   {company.assignedToAccountants.join(', ')}
@@ -194,11 +194,11 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
               <div className="p-8 text-center">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  {searchTerm ? 'L?iadne firmy nenA?jdenA�' : 'L?iadne firmy na portA?li'}
+                  {searchTerm ? 'L?iadne firmy nenA?jdenA?' : 'L?iadne firmy na portA?li'}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz' 
+                    ? 'SkAsste zmeniLA vyh?ladA?vacA? vA?raz' 
                     : 'Na portA?li nie sAs Lliadne firmy na priradenie'
                   }
                 </p>
@@ -215,15 +215,15 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
                 return company ? (
                   <div className="text-sm text-blue-800">
                     <p><strong>{company.name}</strong></p>
-                    <p>I�SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                    <p>VlastnA�k: {company.owner_email}</p>
+                    <p>I?SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
+                    <p>VlastnA?k: {company.owner_email}</p>
                   </div>
                 ) : null;
               })()}
             </div>
           )}
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
@@ -237,7 +237,7 @@ const AssignCompanyModal: React.FC<AssignCompanyModalProps> = ({
               disabled={!selectedCompany || selectedAccountants.length === 0 || isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Prira�Zujem...' : `PridaLA As�TtovnA�kov (${selectedAccountants.length})`}
+              {isSubmitting ? 'Prira?Zujem...' : `PridaLA As?TtovnA?kov (${selectedAccountants.length})`}
             </button>
           </div>
         </form>

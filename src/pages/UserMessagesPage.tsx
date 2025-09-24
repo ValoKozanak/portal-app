@@ -38,17 +38,17 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
   const [companyFilter, setCompanyFilter] = useState('all');
   const [senderFilter, setSenderFilter] = useState('all');
 
-  // Na�TA�tanie nepre�TA�tanA?ch sprA?v pouLlA�vate�la
+  // Na?TA?tanie nepre?TA?tanA?ch sprA?v pouLlA?vate?la
   useEffect(() => {
     const loadUnreadMessages = async () => {
       try {
         setLoadingMessages(true);
-        console.log('Na�TA�tavam nepre�TA�tanA� sprA?vy pre:', userEmail);
+        console.log('Na?TA?tavam nepre?TA?tanA? sprA?vy pre:', userEmail);
         const unreadMessages = await apiService.getUnreadMessages(userEmail);
-        console.log('Na�TA�tanA� sprA?vy:', unreadMessages);
+        console.log('Na?TA?tanA? sprA?vy:', unreadMessages);
         setMessages(unreadMessages);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� nepre�TA�tanA?ch sprA?v:', error);
+        console.error('Chyba pri na?TA?tanA? nepre?TA?tanA?ch sprA?v:', error);
       } finally {
         setLoadingMessages(false);
       }
@@ -57,14 +57,14 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
     loadUnreadMessages();
   }, [userEmail]);
 
-  // Ozna�Tenie sprA?vy ako pre�TA�tanA?
+  // Ozna?Tenie sprA?vy ako pre?TA?tanA?
   const handleMarkAsRead = async (messageId: number) => {
     try {
       await apiService.markMessageAsRead(messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
     } catch (error) {
-      console.error('Chyba pri ozna�TenA� sprA?vy ako pre�TA�tanA?:', error);
-      alert('Chyba pri ozna�TenA� sprA?vy ako pre�TA�tanA?: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri ozna?TenA? sprA?vy ako pre?TA?tanA?:', error);
+      alert('Chyba pri ozna?TenA? sprA?vy ako pre?TA?tanA?: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
@@ -74,19 +74,19 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
       await apiService.deleteMessage(messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
     } catch (error) {
-      console.error('Chyba pri mazanA� sprA?vy:', error);
-      alert('Chyba pri mazanA� sprA?vy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri mazanA? sprA?vy:', error);
+      alert('Chyba pri mazanA? sprA?vy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
-  // Ozna�Tenie vL?etkA?ch filtrovanA?ch sprA?v ako pre�TA�tanA�
+  // Ozna?Tenie vL?etkA?ch filtrovanA?ch sprA?v ako pre?TA?tanA?
   const handleMarkAllAsRead = async () => {
     try {
       await Promise.all(filteredMessages.map(msg => apiService.markMessageAsRead(msg.id)));
       setMessages(prev => prev.filter(msg => !filteredMessages.find(fm => fm.id === msg.id)));
     } catch (error) {
-      console.error('Chyba pri ozna�TenA� vL?etkA?ch sprA?v ako pre�TA�tanA�:', error);
-      alert('Chyba pri ozna�TenA� vL?etkA?ch sprA?v ako pre�TA�tanA�: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri ozna?TenA? vL?etkA?ch sprA?v ako pre?TA?tanA?:', error);
+      alert('Chyba pri ozna?TenA? vL?etkA?ch sprA?v ako pre?TA?tanA?: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
@@ -105,7 +105,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
     return matchesSearch && matchesCompany && matchesSender;
   });
 
-  // ZA�skanie unikA?tnych firiem a odosielate�lov pre filter
+  // ZA?skanie unikA?tnych firiem a odosielate?lov pre filter
   const companies = Array.from(new Set(messages.map(msg => msg.company_name).filter(Boolean)));
   const senders = Array.from(new Set(messages.map(msg => msg.sender_email)));
 
@@ -133,12 +133,12 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                SpA�LA do Dashboardu
+                SpA?LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <EnvelopeIcon className="h-8 w-8 text-purple-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Nepre�TA�tanA� sprA?vy</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Nepre?TA?tanA? sprA?vy</h1>
               </div>
             </div>
             {filteredMessages.length > 0 && (
@@ -147,7 +147,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                 className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center transition-colors"
               >
                 <CheckIcon className="h-5 w-5 mr-2" />
-                Ozna�TiLA vL?etky ako pre�TA�tanA�
+                Ozna?TiLA vL?etky ako pre?TA?tanA?
               </button>
             )}
           </div>
@@ -160,12 +160,12 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Zoznam nepre�TA�tanA?ch sprA?v</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Zoznam nepre?TA?tanA?ch sprA?v</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {messages.length} nepre�TA�tanA?ch sprA?v
+                  Celkovo {messages.length} nepre?TA?tanA?ch sprA?v
                   {filteredMessages.length !== messages.length && (
                     <span className="ml-2 text-purple-600">
-                      (ZobrazenA�: {filteredMessages.length})
+                      (ZobrazenA?: {filteredMessages.length})
                     </span>
                   )}
                 </p>
@@ -174,21 +174,21 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
             
             {/* Filtre */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Vyh�ladA?vanie */}
+              {/* Vyh?ladA?vanie */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Vyh�ladaLA sprA?vy..."
+                  placeholder="Vyh?ladaLA sprA?vy..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                 />
               </div>
               
-              {/* Filter pod�la firmy */}
+              {/* Filter pod?la firmy */}
               <div>
                 <select
                   value={companyFilter}
@@ -202,7 +202,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                 </select>
               </div>
               
-              {/* Filter pod�la odosielate�la */}
+              {/* Filter pod?la odosielate?la */}
               <div>
                 <select
                   value={senderFilter}
@@ -236,7 +236,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
             {loadingMessages ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam sprA?vy...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam sprA?vy...</p>
               </div>
             ) : filteredMessages.length > 0 ? (
               <div className="space-y-4">
@@ -247,7 +247,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                         <div className="flex items-center mb-2">
                           <h3 className="text-lg font-medium text-gray-900 mr-3">{message.subject}</h3>
                           <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
-                            Nepre�TA�tanA�
+                            Nepre?TA?tanA?
                           </span>
                         </div>
                         <p className="text-sm text-gray-600 mb-3 line-clamp-3">{message.content}</p>
@@ -278,7 +278,7 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
                           className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center"
                         >
                           <CheckIcon className="h-4 w-4 mr-1" />
-                          Ozna�TiLA ako pre�TA�tanA�
+                          Ozna?TiLA ako pre?TA?tanA?
                         </button>
                         <button 
                           onClick={() => handleDeleteMessage(message.id)}
@@ -296,12 +296,12 @@ const UserMessagesPage: React.FC<UserMessagesPageProps> = ({
               <div className="text-center py-12">
                 <EnvelopeIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {messages.length > 0 ? 'L?iadne sprA?vy nevyhovujAs filtrom' : 'L?iadne nepre�TA�tanA� sprA?vy'}
+                  {messages.length > 0 ? 'L?iadne sprA?vy nevyhovujAs filtrom' : 'L?iadne nepre?TA?tanA? sprA?vy'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {messages.length > 0 
-                    ? 'SkAsste zmeniLA nastavenia filtrov alebo vyh�ladA?vania.'
-                    : 'VL?etky vaL?e sprA?vy sAs pre�TA�tanA�. NovA� sprA?vy sa zobrazia tu.'
+                    ? 'SkAsste zmeniLA nastavenia filtrov alebo vyh?ladA?vania.'
+                    : 'VL?etky vaL?e sprA?vy sAs pre?TA?tanA?. NovA? sprA?vy sa zobrazia tu.'
                   }
                 </p>
               </div>

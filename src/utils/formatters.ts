@@ -23,7 +23,7 @@ export const formatDate = (date: string | Date | null | undefined): string => {
   }).format(dateObj);
 };
 
-// FormA?tovanie �TA�sla
+// FormA?tovanie ?TA?sla
 export const formatNumber = (number: number | null | undefined): string => {
   if (number === null || number === undefined || isNaN(number)) return '-';
   

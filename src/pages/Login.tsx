@@ -45,7 +45,7 @@ const Login: React.FC = () => {
       // Presmerovanie na dashboard
       navigate('/dashboard');
     } catch (error: any) {
-      setError(error.message || 'Chyba pri prihlA?senA�');
+      setError(error.message || 'Chyba pri prihlA?senA?');
     } finally {
       setIsLoading(false);
     }
@@ -53,18 +53,18 @@ const Login: React.FC = () => {
 
   const features = [
     {
-      title: 'Bezpe�TnA? prA�stup',
-      description: 'NajvyL?L?ia AsroveL� ochrany vaL?ich Asdajov',
+      title: 'Bezpe?TnA? prA?stup',
+      description: 'NajvyL?L?ia AsroveL? ochrany vaL?ich Asdajov',
       icon: ShieldCheckIcon
     },
     {
       title: '24/7 dostupnosLA',
-      description: 'PrA�stup k vaL?im dokladom kedyko�lvek',
+      description: 'PrA?stup k vaL?im dokladom kedyko?lvek',
       icon: LockClosedIcon
     },
     {
-      title: 'OsobnA� nastavenia',
-      description: 'PrispA�sobte si portA?l pod�la vaL?ich potrieb',
+      title: 'OsobnA? nastavenia',
+      description: 'PrispA?sobte si portA?l pod?la vaL?ich potrieb',
       icon: UserIcon
     }
   ];
@@ -82,7 +82,7 @@ const Login: React.FC = () => {
             PrihlA?senie do portA?lu
           </h2>
           <p className="text-gray-600">
-            PrihlA?ste sa do klientskA�ho portA?lu a zA�skajte prA�stup k vaL?im dokladom
+            PrihlA?ste sa do klientskA?ho portA?lu a zA?skajte prA?stup k vaL?im dokladom
           </p>
         </div>
       </div>
@@ -162,7 +162,7 @@ const Login: React.FC = () => {
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  ZapamA�taLA si ma
+                  ZapamA?taLA si ma
                 </label>
               </div>
 
@@ -170,7 +170,7 @@ const Login: React.FC = () => {
                 <button 
                   type="button"
                   className="font-medium text-blue-600 hover:text-blue-500"
-                  onClick={() => alert('Funkcia na obnovenie hesla bude dostupnA? v �ZalL?ej verzii.')}
+                  onClick={() => alert('Funkcia na obnovenie hesla bude dostupnA? v ?ZalL?ej verzii.')}
                 >
                   Zabudli ste heslo?
                 </button>
@@ -211,7 +211,7 @@ const Login: React.FC = () => {
             <div className="mt-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  NemA?te As�Tet?{' '}
+                  NemA?te As?Tet?{' '}
                   <Link to="/contact" className="font-medium text-blue-600 hover:text-blue-500">
                     Kontaktujte nA?s
                   </Link>
@@ -226,7 +226,7 @@ const Login: React.FC = () => {
       <div className="mt-12 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-6 px-4 shadow sm:rounded-lg sm:px-10">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-            Pre�To pouLlA�vaLA nA?L? portA?l?
+            Pre?To pouLlA?vaLA nA?L? portA?l?
           </h3>
           <div className="space-y-4">
             {features.map((feature, index) => (
@@ -253,7 +253,7 @@ const Login: React.FC = () => {
           </a>
           {' '}alebo{' '}
           <a href="mailto:info@ucto.sk" className="font-medium text-blue-600 hover:text-blue-500">
-            napA�L?te email
+            napA?L?te email
           </a>
         </p>
       </div>

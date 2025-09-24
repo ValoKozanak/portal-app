@@ -90,7 +90,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       if (result.success) {
         setTestResult({
           success: true,
-          message: 'Spojenie s POHODA mServer je AsspeL?nA�!'
+          message: 'Spojenie s POHODA mServer je AsspeL?nA?!'
         });
       } else {
         setTestResult({
@@ -101,7 +101,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
     } catch (error) {
       setTestResult({
         success: false,
-        message: 'Chyba pri testovanA� spojenia'
+        message: 'Chyba pri testovanA? spojenia'
       });
     } finally {
       setIsLoading(false);
@@ -126,7 +126,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladanA� nastavenA�:', error);
+      console.error('Chyba pri ukladanA? nastavenA?:', error);
     } finally {
       setIsLoading(false);
     }
@@ -147,13 +147,13 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       
       setTestResult({
         success: result.success,
-        message: result.message || (result.success ? 'FaktAsry AsspeL?ne na�TA�tanA�' : 'Chyba pri na�TA�tanA� faktAsr')
+        message: result.message || (result.success ? 'FaktAsry AsspeL?ne na?TA?tanA?' : 'Chyba pri na?TA?tanA? faktAsr')
       });
     } catch (error) {
-      console.error('Chyba pri testovanA� faktAsr:', error);
+      console.error('Chyba pri testovanA? faktAsr:', error);
       setTestResult({
         success: false,
-        message: 'Chyba pri testovanA� faktAsr'
+        message: 'Chyba pri testovanA? faktAsr'
       });
     } finally {
       setIsLoading(false);
@@ -200,9 +200,9 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* ZA?kladnA� nastavenia */}
+          {/* ZA?kladnA? nastavenia */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">ZA?kladnA� nastavenia</h3>
+            <h3 className="text-lg font-medium text-gray-900">ZA?kladnA? nastavenia</h3>
             
             <div className="flex items-center">
               <input
@@ -237,7 +237,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="pohoda_username" className="block text-sm font-medium text-gray-700">
-                  PouLlA�vate�lskA� meno *
+                  PouLlA?vate?lskA? meno *
                 </label>
                 <input
                   type="text"
@@ -261,7 +261,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                   name="pohoda_password"
                   value={formData.pohoda_password}
                   onChange={handleInputChange}
-                  placeholder="�??�??�??�??�??�??�??�??"
+                  placeholder="????????????????????????"
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   required={formData.pohoda_enabled}
                 />
@@ -270,7 +270,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
             <div>
               <label htmlFor="pohoda_ico" className="block text-sm font-medium text-gray-700">
-                I�SO firmy v POHODA *
+                I?SO firmy v POHODA *
               </label>
               <input
                 type="text"
@@ -286,7 +286,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
             <div>
               <label htmlFor="pohoda_year" className="block text-sm font-medium text-gray-700">
-                Rok firmy v POHODA (I�SO_ROK) *
+                Rok firmy v POHODA (I?SO_ROK) *
               </label>
               <input
                 type="text"
@@ -299,7 +299,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                 required={formData.pohoda_enabled}
               />
               <p className="mt-1 text-sm text-gray-500">
-                Ak mA?te viacero firiem s rovnakA?m I�SO, zadajte rok (napr. 2024 pre I�SO_2024)
+                Ak mA?te viacero firiem s rovnakA?m I?SO, zadajte rok (napr. 2024 pre I?SO_2024)
               </p>
             </div>
           </div>
@@ -439,7 +439,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
           <PohodaXmlImportExport companyId={companyId} />
         </div>
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"

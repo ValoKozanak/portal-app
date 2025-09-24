@@ -1,2 +1,0 @@
-/api/*  https://api.client-portal.sk/api-staging/:splat  200!
-/*      /index.html                                      200

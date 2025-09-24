@@ -17,7 +17,7 @@ export interface PayrollPeriodStatus {
 }
 
 class PayrollService {
-  // ZA�skanie mzdovA?ch obdobA� pre firmu
+  // ZA?skanie mzdovA?ch obdobA? pre firmu
   async getPayrollPeriods(companyId: number, year?: number): Promise<PayrollPeriod[]> {
     const params = year ? `?year=${year}` : '';
     const raw = await apiService.get(`/payroll/periods/${companyId}${params}`);
@@ -26,7 +26,7 @@ class PayrollService {
       company_id: Number(p.company_id),
       year: Number(p.year),
       month: Number(p.month),
-      // backend vracia is_closed rA�zne (0/1, true/false, '0'/'1'/'t'), znormalizuj na 0/1
+      // backend vracia is_closed rA?zne (0/1, true/false, '0'/'1'/'t'), znormalizuj na 0/1
       is_closed: p.is_closed === true || p.is_closed === 1 || p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0,
       closed_at: p.closed_at ?? undefined,
       closed_by: p.closed_by ?? undefined,
@@ -36,7 +36,7 @@ class PayrollService {
     return Array.isArray(raw) ? raw.map(normalize) : [];
   }
 
-  // ZA�skanie aktuA?lneho neuzatvorenA�ho obdobia
+  // ZA?skanie aktuA?lneho neuzatvorenA?ho obdobia
   async getCurrentPeriod(companyId: number): Promise<PayrollPeriod | null> {
     const p = await apiService.get(`/payroll/periods/${companyId}/current`);
     if (!p) return null;
@@ -56,7 +56,7 @@ class PayrollService {
     };
   }
 
-  // Uzatvorenie mzdovA�ho obdobia
+  // Uzatvorenie mzdovA?ho obdobia
   async closePayrollPeriod(
     companyId: number, 
     year: number, 
@@ -70,7 +70,7 @@ class PayrollService {
     });
   }
 
-  // Odomknutie mzdovA�ho obdobia
+  // Odomknutie mzdovA?ho obdobia
   async openPayrollPeriod(
     companyId: number, 
     year: number, 
@@ -82,7 +82,7 @@ class PayrollService {
     });
   }
 
-  // Kontrola �Ti je obdobie uzatvorenA�
+  // Kontrola ?Ti je obdobie uzatvorenA?
   async checkPeriodStatus(
     companyId: number, 
     year: number, 
@@ -91,15 +91,15 @@ class PayrollService {
     return apiService.get(`/payroll/periods/${companyId}/check/${year}/${month}`);
   }
 
-  // InicializA?cia obdobA� pre danA? rok (ak chA?bajAs)
+  // InicializA?cia obdobA? pre danA? rok (ak chA?bajAs)
   async initPayrollPeriods(companyId: number, year: number): Promise<PayrollPeriod[]> {
     return apiService.post(`/payroll/periods/${companyId}/init`, { year });
   }
 
-  // PomocnA� metAldy
+  // PomocnA? metAldy
   getMonthName(month: number): string {
     const months = [
-      'JanuA?r', 'FebruA?r', 'Marec', 'AprA�l', 'MA?j', 'JAsn',
+      'JanuA?r', 'FebruA?r', 'Marec', 'AprA?l', 'MA?j', 'JAsn',
       'JAsl', 'August', 'September', 'OktAlber', 'November', 'December'
     ];
     return months[month - 1] || '';
@@ -119,11 +119,11 @@ class PayrollService {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     
-    // MA�Lleme uzatvoriLA len minulA� mesiace
+    // MA?Lleme uzatvoriLA len minulA? mesiace
     return year < currentYear || (year === currentYear && month < currentMonth);
   }
 
-  // VA?platnA� pA?sky �?" ro�TnA? preh�lad z MDB (MZSK)
+  // VA?platnA? pA?sky ??" ro?TnA? preh?lad z MDB (MZSK)
   async getPayslips(
     companyId: number,
     employeeId: number,

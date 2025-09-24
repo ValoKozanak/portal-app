@@ -20,7 +20,7 @@ import {
 import { apiService } from '../services/apiService';
 import { taskService } from '../services/taskService';
 
-// Lazy loading pre novA� strA?nky
+// Lazy loading pre novA? strA?nky
 const AdminUsersPage = React.lazy(() => import('./AdminUsersPage'));
 const AdminCompaniesPage = React.lazy(() => import('./AdminCompaniesPage'));
 const AdminTasksPage = React.lazy(() => import('./AdminTasksPage'));
@@ -67,22 +67,22 @@ const AdminDashboard: React.FC = () => {
 
   const [systemAlerts, setSystemAlerts] = useState([
     { id: 1, type: 'warning', message: 'ZA?lohovanie databA?zy sa nepodarilo', time: '1 hodinu' },
-    { id: 2, type: 'info', message: 'NovA? verzia systA�mu je dostupnA?', time: '2 hodiny' },
-    { id: 3, type: 'error', message: 'KritickA? chyba v systA�me', time: '30 minAst' },
+    { id: 2, type: 'info', message: 'NovA? verzia systA?mu je dostupnA?', time: '2 hodiny' },
+    { id: 3, type: 'error', message: 'KritickA? chyba v systA?me', time: '30 minAst' },
   ]);
 
-  // Na�TA�tanie nepre�TA�tanA?ch sprA?v pre admin
+  // Na?TA?tanie nepre?TA?tanA?ch sprA?v pre admin
   const loadUnreadCounts = async () => {
     try {
-      // Pre admin pouLlA�vame admin@portal.sk ako default
+      // Pre admin pouLlA?vame admin@portal.sk ako default
       const counts = await apiService.getUnreadCounts('admin@portal.sk');
       setUnreadCounts(counts);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� nepre�TA�tanA?ch sprA?v:', error);
+      console.error('Chyba pri na?TA?tanA? nepre?TA?tanA?ch sprA?v:', error);
     }
   };
 
-  // Na�TA�tanie L?tatistA�k
+  // Na?TA?tanie L?tatistA?k
   useEffect(() => {
     const loadStats = async () => {
       try {
@@ -105,10 +105,10 @@ const AdminDashboard: React.FC = () => {
           reports: systemAlerts.length
         });
 
-        // Na�TA�tame aj nepre�TA�tanA� sprA?vy
+        // Na?TA?tame aj nepre?TA?tanA? sprA?vy
         await loadUnreadCounts();
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� L?tatistA�k:', error);
+        console.error('Chyba pri na?TA?tanA? L?tatistA?k:', error);
       }
     };
 
@@ -132,7 +132,7 @@ const AdminDashboard: React.FC = () => {
   // Conditional rendering pre full-screen strA?nky
   if (showUsersPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminUsersPage onBack={() => setShowUsersPage(false)} />
       </React.Suspense>
     );
@@ -142,7 +142,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showCompaniesPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminCompaniesPage onBack={() => setShowCompaniesPage(false)} />
       </React.Suspense>
     );
@@ -150,7 +150,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showTasksPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminTasksPage onBack={() => setShowTasksPage(false)} />
       </React.Suspense>
     );
@@ -158,7 +158,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showFilesPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminFilesPage onBack={() => setShowFilesPage(false)} />
       </React.Suspense>
     );
@@ -166,7 +166,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showDropboxPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminDropboxPage onBack={() => setShowDropboxPage(false)} />
       </React.Suspense>
     );
@@ -174,7 +174,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showMessagesPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminMessagesPage 
           onBack={() => setShowMessagesPage(false)} 
           onMessageAction={loadUnreadCounts}
@@ -185,7 +185,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showSettingsPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminSettingsPage onBack={() => setShowSettingsPage(false)} />
       </React.Suspense>
     );
@@ -193,7 +193,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showPohodaImportPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminPohodaImportPage onBack={() => setShowPohodaImportPage(false)} />
       </React.Suspense>
     );
@@ -201,7 +201,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showPohodaExportPage) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <AdminPohodaExportPage onBack={() => setShowPohodaExportPage(false)} />
       </React.Suspense>
     );
@@ -209,7 +209,7 @@ const AdminDashboard: React.FC = () => {
 
   if (showMdbManagement) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <MdbManagement onBack={() => setShowMdbManagement(false)} />
       </React.Suspense>
     );
@@ -231,7 +231,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* L�tatistickA� karty */}
+        {/* L?tatistickA? karty */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
           <button 
             onClick={() => setShowUsersPage(true)}
@@ -242,7 +242,7 @@ const AdminDashboard: React.FC = () => {
                 <UsersIcon className="h-8 w-8 text-blue-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Celkovo pouLlA�vate�lov</p>
+                <p className="text-sm font-medium text-gray-600">Celkovo pouLlA?vate?lov</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
                 <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
               </div>
@@ -292,7 +292,7 @@ const AdminDashboard: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">SAsbory</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.files}</p>
-                <p className="text-xs text-gray-500 mt-1">Celkovo v systA�me</p>
+                <p className="text-xs text-gray-500 mt-1">Celkovo v systA?me</p>
               </div>
             </div>
           </button>
@@ -307,7 +307,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Dropbox</p>
-                <p className="text-2xl font-bold text-gray-900">�z</p>
+                <p className="text-2xl font-bold text-gray-900">?z</p>
                 <p className="text-xs text-gray-500 mt-1">Cloud AsloLlisko</p>
               </div>
             </div>
@@ -325,8 +325,8 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">SprA?vy</p>
                 <p className="text-2xl font-bold text-gray-900">{unreadCounts.totalUnreadCount}</p>
                 <div className="text-sm text-gray-500">
-                  <div>PrijatA�: {unreadCounts.receivedUnreadCount}</div>
-                  <div>�SakajAsce: {unreadCounts.sentUnreadCount}</div>
+                  <div>PrijatA?: {unreadCounts.receivedUnreadCount}</div>
+                  <div>?SakajAsce: {unreadCounts.sentUnreadCount}</div>
                 </div>
                 <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
               </div>
@@ -371,7 +371,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">POHODA Export</p>
-                <p className="text-2xl font-bold text-gray-900">dz"�</p>
+                <p className="text-2xl font-bold text-gray-900">dz"?</p>
                 <p className="text-xs text-gray-500 mt-1">Export faktAsr a dA?t</p>
               </div>
             </div>
@@ -387,14 +387,14 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">MDB Management</p>
-                <p className="text-2xl font-bold text-gray-900">dz-"d�Z</p>
+                <p className="text-2xl font-bold text-gray-900">dz-"d?Z</p>
                 <p className="text-xs text-gray-500 mt-1">DigitalOcean Spaces</p>
               </div>
             </div>
           </button>
         </div>
 
-        {/* �ZalL?ie informa�TnA� karty */}
+        {/* ?ZalL?ie informa?TnA? karty */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
@@ -404,7 +404,7 @@ const AdminDashboard: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">AdministrA?tori</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.admins}</p>
-                <p className="text-xs text-gray-500 mt-1">AktA�vni admini</p>
+                <p className="text-xs text-gray-500 mt-1">AktA?vni admini</p>
               </div>
             </div>
           </div>
@@ -415,9 +415,9 @@ const AdminDashboard: React.FC = () => {
                 <ExclamationTriangleIcon className="h-8 w-8 text-orange-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">SystA�movA� upozornenia</p>
+                <p className="text-sm font-medium text-gray-600">SystA?movA? upozornenia</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.reports}</p>
-                <p className="text-xs text-gray-500 mt-1">AktA�vne alerty</p>
+                <p className="text-xs text-gray-500 mt-1">AktA?vne alerty</p>
               </div>
             </div>
           </div>
@@ -432,7 +432,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">POHODA mServer</p>
-                <p className="text-2xl font-bold text-gray-900">�sTd�Z</p>
+                <p className="text-2xl font-bold text-gray-900">?sTd?Z</p>
                 <p className="text-xs text-gray-500 mt-1">Nastavenia mServer</p>
               </div>
             </div>
@@ -441,10 +441,10 @@ const AdminDashboard: React.FC = () => {
 
         </div>
 
-        {/* SystA�movA� upozornenia */}
+        {/* SystA?movA? upozornenia */}
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">SystA�movA� upozornenia</h2>
+            <h2 className="text-lg font-semibold text-gray-900">SystA?movA? upozornenia</h2>
           </div>
           <div className="p-6">
             <div className="space-y-4">

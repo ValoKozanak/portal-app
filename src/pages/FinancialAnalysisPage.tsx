@@ -32,14 +32,14 @@ const FinancialAnalysisPage: React.FC = () => {
         setCompany(companyData);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� informA?ciA� o firme:', error);
+      console.error('Chyba pri na?TA?tanA? informA?ciA? o firme:', error);
     }
   };
 
   const loadFinancialAnalysis = async () => {
     // ValidA?cia dA?tumov
     if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateError('DA?tum "Do" nemA�Lle byLA menL?A� ako dA?tum "Od"');
+      setDateError('DA?tum "Do" nemA?Lle byLA menL?A? ako dA?tum "Od"');
       return;
     } else {
       setDateError('');
@@ -56,8 +56,8 @@ const FinancialAnalysisPage: React.FC = () => {
       );
       setAnalysis(data);
     } catch (err) {
-      console.error('Chyba pri na�TA�tanA� finan�Tnej analA?zy:', err);
-      setError('Chyba pri na�TA�tanA� finan�Tnej analA?zy');
+      console.error('Chyba pri na?TA?tanA? finan?Tnej analA?zy:', err);
+      setError('Chyba pri na?TA?tanA? finan?Tnej analA?zy');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -119,7 +119,7 @@ const FinancialAnalysisPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header s navigA?ciou spA�LA */}
+        {/* Header s navigA?ciou spA?LA */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -128,7 +128,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                SpA�LA na As�TtovnA�ctvo
+                SpA?LA na As?TtovnA?ctvo
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -139,7 +139,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 {/* Zobrazenie aktuA?lnej firmy */}
                 {company && (
                   <div className="text-sm text-gray-600 mt-1">
-                    Firma: {company.name} (I�SO: {company.ico})
+                    Firma: {company.name} (I?SO: {company.ico})
                   </div>
                 )}
               </div>
@@ -158,9 +158,9 @@ const FinancialAnalysisPage: React.FC = () => {
           </p>
         </div>
 
-        {/* DA?tumovA� filtre */}
+        {/* DA?tumovA? filtre */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Filtrovanie pod�la obdobia</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Filtrovanie pod?la obdobia</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label htmlFor="dateFrom" className="block text-sm font-medium text-gray-700 mb-1">
@@ -217,7 +217,7 @@ const FinancialAnalysisPage: React.FC = () => {
            {analysis?.filters && (analysis.filters.dateFrom || analysis.filters.dateTo) && (
              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                <p className="text-sm text-blue-800">
-                 <strong>AktA�vne filtre:</strong> 
+                 <strong>AktA?vne filtre:</strong> 
                  {analysis.filters.dateFrom && ` Od: ${analysis.filters.dateFrom}`}
                  {analysis.filters.dateTo && ` Do: ${analysis.filters.dateTo}`}
                </p>
@@ -231,12 +231,12 @@ const FinancialAnalysisPage: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">CelkovA� vA?nosy</p>
+                <p className="text-sm font-medium text-gray-600">CelkovA? vA?nosy</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(analysis.revenue.total)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.revenue.count} As�TtovA?ch skupA�n
+                  {analysis.revenue.count} As?TtovA?ch skupA?n
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
@@ -251,12 +251,12 @@ const FinancialAnalysisPage: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">CelkovA� nA?klady</p>
+                <p className="text-sm font-medium text-gray-600">CelkovA? nA?klady</p>
                 <p className="text-2xl font-bold text-red-600">
                   {formatCurrency(analysis.expenses.total)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.expenses.count} As�TtovA?ch skupA�n
+                  {analysis.expenses.count} As?TtovA?ch skupA?n
                 </p>
               </div>
               <div className="bg-red-100 p-3 rounded-full">
@@ -278,7 +278,7 @@ const FinancialAnalysisPage: React.FC = () => {
                   {formatCurrency(Math.abs(analysis.profit))}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.isProfit ? 'PozitA�vny vA?sledok' : 'NegatA�vny vA?sledok'}
+                  {analysis.isProfit ? 'PozitA?vny vA?sledok' : 'NegatA?vny vA?sledok'}
                 </p>
               </div>
               <div className={`p-3 rounded-full ${analysis.isProfit ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -299,7 +299,7 @@ const FinancialAnalysisPage: React.FC = () => {
           {/* VA?nosy Detail */}
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">VA?nosy (As�Tty 6xx)</h3>
+              <h3 className="text-lg font-medium text-gray-900">VA?nosy (As?Tty 6xx)</h3>
               <p className="text-sm text-gray-600">
                 CelkovA? suma: {formatCurrency(analysis.revenue.total)}
               </p>
@@ -309,7 +309,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      As�Tet
+                      As?Tet
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Suma
@@ -338,7 +338,7 @@ const FinancialAnalysisPage: React.FC = () => {
           {/* NA?klady Detail */}
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">NA?klady (As�Tty 5xx)</h3>
+              <h3 className="text-lg font-medium text-gray-900">NA?klady (As?Tty 5xx)</h3>
               <p className="text-sm text-gray-600">
                 CelkovA? suma: {formatCurrency(analysis.expenses.total)}
               </p>
@@ -348,7 +348,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      As�Tet
+                      As?Tet
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Suma

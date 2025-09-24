@@ -51,9 +51,9 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.ico.trim()) {
-      newErrors.ico = 'I�SO je povinnA�';
+      newErrors.ico = 'I?SO je povinnA?';
     } else if (!/^\d{8}$/.test(formData.ico)) {
-      newErrors.ico = 'I�SO musA� maLA presne 8 �TA�slic';
+      newErrors.ico = 'I?SO musA? maLA presne 8 ?TA?slic';
     }
 
     if (!formData.name.trim()) {
@@ -77,7 +77,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
     }
 
     if (formData.tax_id && !/^\d{10}$/.test(formData.tax_id)) {
-      newErrors.tax_id = 'DI�S musA� maLA presne 10 �TA�slic';
+      newErrors.tax_id = 'DI?S musA? maLA presne 10 ?TA?slic';
     }
 
     setErrors(newErrors);
@@ -97,7 +97,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
       await onSave(company.id, formData);
       onClose();
     } catch (error) {
-      console.error('Chyba pri uloLlenA� firmy:', error);
+      console.error('Chyba pri uloLlenA? firmy:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -141,12 +141,12 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* ZA?kladnA� informA?cie */}
+          {/* ZA?kladnA? informA?cie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* I�SO */}
+            {/* I?SO */}
             <div>
               <label htmlFor="ico" className="block text-sm font-medium text-gray-700 mb-2">
-                I�SO *
+                I?SO *
               </label>
               <input
                 type="text"
@@ -208,11 +208,11 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             )}
           </div>
 
-          {/* ObchodnA? register a I�S DPH */}
+          {/* ObchodnA? register a I?S DPH */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="business_registry" className="block text-sm font-medium text-gray-700 mb-2">
-                �SA�slo obchodnA�ho registra
+                ?SA?slo obchodnA?ho registra
               </label>
               <input
                 type="text"
@@ -227,7 +227,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
 
             <div>
               <label htmlFor="vat_id" className="block text-sm font-medium text-gray-700 mb-2">
-                I�S DPH
+                I?S DPH
               </label>
               <input
                 type="text"
@@ -241,10 +241,10 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             </div>
           </div>
 
-          {/* DI�S */}
+          {/* DI?S */}
           <div>
             <label htmlFor="tax_id" className="block text-sm font-medium text-gray-700 mb-2">
-              DI�S
+              DI?S
             </label>
             <input
               type="text"
@@ -287,7 +287,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             )}
           </div>
 
-          {/* KontaktnA� informA?cie */}
+          {/* KontaktnA? informA?cie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -341,9 +341,9 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o firme</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {company.id}</p>
-              <p><span className="font-medium">VlastnA�k:</span> {company.owner_email}</p>
+              <p><span className="font-medium">VlastnA?k:</span> {company.owner_email}</p>
               <p><span className="font-medium">VytvorenA?:</span> {new Date(company.created_at).toLocaleDateString('sk-SK')}</p>
-              <p><span className="font-medium">PriradenA� As�TtovnA�ci:</span> {company.assignedToAccountants.length}</p>
+              <p><span className="font-medium">PriradenA? As?TtovnA?ci:</span> {company.assignedToAccountants.length}</p>
               {company.assignedToAccountants.length > 0 && (
                 <div className="mt-2">
                   <p className="text-xs text-gray-500">
@@ -353,13 +353,13 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               )}
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <p className="text-xs text-blue-600">
-                  dz'? <strong>Many-to-Many vzLAah:</strong> As�TtovnA�k mA�Lle maLA viacero firiem a firma mA�Lle maLA viacero As�TtovnA�kov
+                  dz'? <strong>Many-to-Many vzLAah:</strong> As?TtovnA?k mA?Lle maLA viacero firiem a firma mA?Lle maLA viacero As?TtovnA?kov
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"

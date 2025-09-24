@@ -40,7 +40,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
   const [tags, setTags] = useState('');
   const [selectedCompanyId, setSelectedCompanyId] = useState<number>(companyId || 0);
 
-  // Pre firmy automaticky nastavA�me ich vlastnAs firmu
+  // Pre firmy automaticky nastavA?me ich vlastnAs firmu
   useEffect(() => {
     if (userRole === 'company' && companyId) {
       setSelectedCompanyId(companyId);
@@ -56,8 +56,8 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
     { id: 'contracts', name: 'Zmluvy', icon: DocumentTextIcon },
     { id: 'reports', name: 'SprA?vy', icon: DocumentTextIcon },
     { id: 'images', name: 'ObrA?zky', icon: PhotoIcon },
-    { id: 'archives', name: 'ArchA�vy', icon: ArchiveBoxIcon },
-    { id: 'other', name: 'OstatnA�', icon: DocumentIcon }
+    { id: 'archives', name: 'ArchA?vy', icon: ArchiveBoxIcon },
+    { id: 'other', name: 'OstatnA?', icon: DocumentIcon }
   ];
 
   const allowedFileTypes = [
@@ -79,11 +79,11 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       
       // ValidA?cia sAsborov
       const validFiles = filesArray.filter(file => {
-        // Kontrola ve�lkosti (10MB = 10 * 1024 * 1024 bytes)
+        // Kontrola ve?lkosti (10MB = 10 * 1024 * 1024 bytes)
         if (file.size > 10 * 1024 * 1024) {
           setUploadErrors(prev => ({
             ...prev,
-            [file.name]: 'SAsbor je prA�liL? ve�lkA? (max. 10MB)'
+            [file.name]: 'SAsbor je prA?liL? ve?lkA? (max. 10MB)'
           }));
           return false;
         }
@@ -136,7 +136,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
-      alert('Vyberte aspoL� jeden sAsbor na nahranie');
+      alert('Vyberte aspoL? jeden sAsbor na nahranie');
       return;
     }
 
@@ -162,7 +162,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         }));
 
         try {
-          // Skuto�TnA� nahrA?vanie sAsboru cez API
+          // Skuto?TnA? nahrA?vanie sAsboru cez API
           const fileData = await apiService.uploadFile(file, selectedCompanyId, 'user@portal.sk', category);
           
           // VolA?me onFileUpload s kompletnA?m objektom sAsboru
@@ -180,7 +180,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       setDescription('');
       setTags('');
       setUploadProgress({});
-      // Modal sa zatvorA� aLl po AsspeL?nom nahratA� vL?etkA?ch sAsborov
+      // Modal sa zatvorA? aLl po AsspeL?nom nahratA? vL?etkA?ch sAsborov
       // onClose() sa volA? v handleFileUpload v FileManager
     }
   };
@@ -225,7 +225,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </div>
           )}
           
-          {/* Pre firmy zobrazA�me informA?ciu o ich firme */}
+          {/* Pre firmy zobrazA?me informA?ciu o ich firme */}
           {userRole === 'company' && companyId && (
             <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
               <p className="text-sm text-blue-800">
@@ -262,7 +262,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
                 <span className="text-primary-600 hover:text-primary-700 font-medium">
                   Kliknite pre vA?ber sAsborov
                 </span>
-                <span className="text-gray-500"> alebo ich sem presuL�te</span>
+                <span className="text-gray-500"> alebo ich sem presuL?te</span>
               </label>
               <input
                 id="file-upload"
@@ -274,7 +274,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              PDF, DOC, XLS, obrA?zky, archA�vy (max. 10MB na sAsbor)
+              PDF, DOC, XLS, obrA?zky, archA?vy (max. 10MB na sAsbor)
             </p>
           </div>
 
@@ -282,7 +282,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           {selectedFiles.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-3">
-                VybranA� sAsbory ({selectedFiles.length})
+                VybranA? sAsbory ({selectedFiles.length})
               </h3>
               <div className="space-y-2">
                 {selectedFiles.map((file, index) => {
@@ -331,7 +331,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Popis (volite�lnA�)
+              Popis (volite?lnA?)
             </label>
             <textarea
               value={description}
@@ -345,14 +345,14 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tagy (volite�lnA�)
+              Tagy (volite?lnA?)
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="dA�leLlitA�, urgent, 2024 (oddelenA� �Tiarkami)"
+              placeholder="dA?leLlitA?, urgent, 2024 (oddelenA? ?Tiarkami)"
             />
           </div>
 

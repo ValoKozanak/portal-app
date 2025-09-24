@@ -33,7 +33,7 @@ const InvoiceDetailPage: React.FC = () => {
         setInvoice(data);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� detailu faktAsry:', error);
+      console.error('Chyba pri na?TA?tanA? detailu faktAsry:', error);
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ const InvoiceDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Na�TA�tavam detail faktAsry...</p>
+          <p className="mt-4 text-gray-600">Na?TA?tavam detail faktAsry...</p>
         </div>
       </div>
     );
@@ -97,7 +97,7 @@ const InvoiceDetailPage: React.FC = () => {
             onClick={() => navigate(-1)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            SpA�LA
+            SpA?LA
           </button>
         </div>
       </div>
@@ -157,7 +157,7 @@ const InvoiceDetailPage: React.FC = () => {
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  {tab === 'basic' && 'ZA?kladnA� Asdaje'}
+                  {tab === 'basic' && 'ZA?kladnA? Asdaje'}
                   {tab === 'vat' && 'Rozpis DPH'}
                   {tab === 'payments' && 'Platby'}
                   {tab === 'notes' && 'PoznA?mky'}
@@ -174,7 +174,7 @@ const InvoiceDetailPage: React.FC = () => {
                   <h3 className="text-lg font-medium text-gray-900 mb-4">InformA?cie o faktAsre</h3>
                   <dl className="space-y-3">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">�SA�slo faktAsry</dt>
+                      <dt className="text-sm font-medium text-gray-500">?SA?slo faktAsry</dt>
                       <dd className="text-sm text-gray-900">{invoice.invoice_number}</dd>
                     </div>
                     <div>
@@ -198,7 +198,7 @@ const InvoiceDetailPage: React.FC = () => {
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    {type === 'issued' ? 'ZA?kaznA�k' : 'DodA?vate�l'}
+                    {type === 'issued' ? 'ZA?kaznA?k' : 'DodA?vate?l'}
                   </h3>
                   <dl className="space-y-3">
                     <div>
@@ -208,13 +208,13 @@ const InvoiceDetailPage: React.FC = () => {
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">I�SO</dt>
+                      <dt className="text-sm font-medium text-gray-500">I?SO</dt>
                       <dd className="text-sm text-gray-900">
                         {type === 'issued' ? (invoice as IssuedInvoice).customer_ico : (invoice as ReceivedInvoice).supplier_ico}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">DI�S</dt>
+                      <dt className="text-sm font-medium text-gray-500">DI?S</dt>
                       <dd className="text-sm text-gray-900">
                         {type === 'issued' ? (invoice as IssuedInvoice).customer_dic : (invoice as ReceivedInvoice).supplier_dic}
                       </dd>
@@ -260,11 +260,11 @@ const InvoiceDetailPage: React.FC = () => {
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc0 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">ZnA�LlenA? 1:</dt>
+                         <dt className="text-sm text-gray-600">ZnA?LlenA? 1:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc1 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">ZnA�LlenA? 2:</dt>
+                         <dt className="text-sm text-gray-600">ZnA?LlenA? 2:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc3 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
@@ -277,11 +277,11 @@ const InvoiceDetailPage: React.FC = () => {
                      <h4 className="font-medium text-gray-900 mb-3">DPH</h4>
                                            <dl className="space-y-1">
                         <div className="flex justify-between">
-                          <dt className="text-sm text-gray-600">1 - ZnA�LlenA? sadzba DPH:</dt>
+                          <dt className="text-sm text-gray-600">1 - ZnA?LlenA? sadzba DPH:</dt>
                           <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc_dph1 || 0)}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-sm text-gray-600">2 - ZnA�LlenA? sadzba DPH:</dt>
+                          <dt className="text-sm text-gray-600">2 - ZnA?LlenA? sadzba DPH:</dt>
                           <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc_dph3 || 0)}</dd>
                         </div>
                         <div className="flex justify-between">

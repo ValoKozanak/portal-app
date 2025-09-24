@@ -43,13 +43,13 @@ const PageLoader = () => (
   </div>
 );
 
-// Komponent pre automatickA� presmerovanie
+// Komponent pre automatickA? presmerovanie
 const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean; userRole: 'admin' | 'accountant' | 'user' | 'employee' | null }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Ak je pouLlA�vate�l prihlA?senA? a nie je na dashboard strA?nke, presmeruj ho
+    // Ak je pouLlA?vate?l prihlA?senA? a nie je na dashboard strA?nke, presmeruj ho
     // Ale nepresmerovA?vaj, ak je na dropbox-callback strA?nke, accounting strA?nkach alebo detail faktAsry
     if (isLoggedIn && 
         location.pathname !== '/dashboard' && 
@@ -65,7 +65,7 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
 });
 
 function App() {
-  // PouLlA�vame localStorage hook pre perzistentnA� dA?ta
+  // PouLlA?vame localStorage hook pre perzistentnA? dA?ta
   const [isLoggedIn, setIsLoggedIn] = useLocalStorage('isLoggedIn', false);
   const [userRole, setUserRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [userEmail, setUserEmail] = useLocalStorage('userEmail', '');
@@ -84,14 +84,14 @@ function App() {
     }
   }, []);
 
-  // Performance monitoring a Service Worker sAs automaticky inicializovanA�
-  // ale momentA?lne ich nepouLlA�vame v UI
+  // Performance monitoring a Service Worker sAs automaticky inicializovanA?
+  // ale momentA?lne ich nepouLlA?vame v UI
 
   const handleLogin = useCallback((role: 'admin' | 'accountant' | 'user' | 'employee', email: string) => {
     setIsLoggedIn(true);
     setUserRole(role);
     setUserEmail(email);
-    // AutomatickA� presmerovanie na dashboard sa rieL?i cez AutoRedirect komponent
+    // AutomatickA? presmerovanie na dashboard sa rieL?i cez AutoRedirect komponent
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
   const handleLogout = useCallback(() => {
@@ -99,7 +99,7 @@ function App() {
     setUserRole(null);
     setUserEmail('');
     apiService.clearToken();
-    // Vy�TistA�me vybranAs firmu pri odhlA?senA�
+    // Vy?TistA?me vybranAs firmu pri odhlA?senA?
     localStorage.removeItem('selectedCompanyId');
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
@@ -116,10 +116,10 @@ function App() {
     password: string;
     confirmPassword: string;
   }) => {
-    // Ozna�T profil ako dokon�TenA?
+    // Ozna?T profil ako dokon?TenA?
     localStorage.setItem(`accountant_${profileData.email}_profile_completed`, 'true');
     
-    // UloLl Asdaje As�TtovnA�ka
+    // UloLl Asdaje As?TtovnA?ka
     localStorage.setItem(`accountant_${profileData.email}_profile`, JSON.stringify({
       name: profileData.name,
       email: profileData.email,
@@ -128,7 +128,7 @@ function App() {
       password: profileData.password // V reA?lnej aplikA?cii by sa heslo hashovalo
     }));
 
-    // PrihlA?s As�TtovnA�ka
+    // PrihlA?s As?TtovnA?ka
     setIsLoggedIn(true);
     setUserRole('accountant');
     setUserEmail(profileData.email);
@@ -136,13 +136,13 @@ function App() {
     setPendingAccountantEmail('');
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
-  // MemoizovanA� hodnoty pre lepL?A� vA?kon
+  // MemoizovanA? hodnoty pre lepL?A? vA?kon
   const dashboardElement = useMemo(() => {
     if (!isLoggedIn) {
       return (
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Pre prA�stup k dashboardu sa prihlA?ste
+            Pre prA?stup k dashboardu sa prihlA?ste
           </h2>
           <button
             onClick={() => setShowLoginModal(true)}

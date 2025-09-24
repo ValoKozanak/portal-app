@@ -50,17 +50,17 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
     try {
       setLoading(true);
       
-      // Na�TA�tanie firiem pouLlA�vate�la
+      // Na?TA?tanie firiem pouLlA?vate?la
       const userCompanies = await apiService.getUserCompanies(userEmail);
       setCompanies(userCompanies);
       
       if (userCompanies.length > 0) {
         setSelectedCompany(userCompanies[0]);
         
-        // Na�TA�tanie zamestnancov pre prvAs firmu
+        // Na?TA?tanie zamestnancov pre prvAs firmu
         const employeesData = await hrService.getEmployees(userCompanies[0].id);
         
-        // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
+        // Na?TA?tanie dochA?dzky a dovoleniek pre kaLldA?ho zamestnanca
         const employeesWithDetails = await Promise.all(
           employeesData.map(async (employee) => {
             try {
@@ -75,7 +75,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
                 leave_requests: leaveRequests.filter(leave => leave.employee_id === employee.id)
               };
             } catch (error) {
-              console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
+              console.error(`Chyba pri na?TA?tanA? detailov pre zamestnanca ${employee.id}:`, error);
               return {
                 ...employee,
                 attendance: [],
@@ -88,7 +88,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
         setEmployees(employeesWithDetails);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
       
       const employeesData = await hrService.getEmployees(companyId);
       
-      // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
+      // Na?TA?tanie dochA?dzky a dovoleniek pre kaLldA?ho zamestnanca
       const employeesWithDetails = await Promise.all(
         employeesData.map(async (employee) => {
           try {
@@ -116,7 +116,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
               leave_requests: leaveRequests.filter(leave => leave.employee_id === employee.id)
             };
           } catch (error) {
-            console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
+            console.error(`Chyba pri na?TA?tanA? detailov pre zamestnanca ${employee.id}:`, error);
             return {
               ...employee,
               attendance: [],
@@ -128,7 +128,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
       
       setEmployees(employeesWithDetails);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? zamestnancov:', error);
     }
   };
 
@@ -137,18 +137,18 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
      
      // Najprv kontrolujeme status zamestnania z databA?zy
      if (employee.status === 'terminated') {
-       return { status: 'terminated', label: 'Ukon�TenA?', color: 'red', icon: XCircleIcon };
+       return { status: 'terminated', label: 'Ukon?TenA?', color: 'red', icon: XCircleIcon };
      }
      
      if (employee.status === 'inactive') {
-       return { status: 'inactive', label: 'NeaktA�vny', color: 'gray', icon: XCircleIcon };
+       return { status: 'inactive', label: 'NeaktA?vny', color: 'gray', icon: XCircleIcon };
      }
      
      if (employee.status === 'on_leave') {
        return { status: 'on_leave', label: 'Na dovolenke', color: 'blue', icon: CalendarIcon };
      }
      
-     // Kontrola dochA?dzky na dneL?nA? deL�
+     // Kontrola dochA?dzky na dneL?nA? deL?
      const todayAttendance = employee.attendance?.find(att => att.date === today);
      
      if (todayAttendance) {
@@ -157,7 +157,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
        } else if (todayAttendance.status === 'late') {
          return { status: 'late', label: 'MeL?kA?', color: 'yellow', icon: ExclamationTriangleIcon };
        } else if (todayAttendance.status === 'absent') {
-         return { status: 'absent', label: 'NeprA�tomnA?', color: 'red', icon: XCircleIcon };
+         return { status: 'absent', label: 'NeprA?tomnA?', color: 'red', icon: XCircleIcon };
        }
      }
      
@@ -184,9 +184,9 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
        return { status: 'sick', label: 'Choroba', color: 'red', icon: XCircleIcon };
      }
      
-     // Ak je aktA�vny ale nemA? zaznamenanAs dochA?dzku, povaLlujeme za neprA�tomnA�ho
+     // Ak je aktA?vny ale nemA? zaznamenanAs dochA?dzku, povaLlujeme za neprA?tomnA?ho
      if (employee.status === 'active') {
-       return { status: 'unknown', label: 'NeprA�tomnA?', color: 'gray', icon: XCircleIcon };
+       return { status: 'unknown', label: 'NeprA?tomnA?', color: 'gray', icon: XCircleIcon };
      }
      
      // Fallback
@@ -245,7 +245,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Na�TA�tavam zamestnancov..." />
+        <LoadingSpinner size="lg" text="Na?TA?tavam zamestnancov..." />
       </div>
     );
   }
@@ -260,16 +260,16 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            SpA�LA na Dashboard
+            SpA?LA na Dashboard
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Zamestnanci</h1>
-            <p className="text-gray-600 dark:text-gray-300">Preh�lad zamestnancov a ich aktuA?lnych stavov</p>
+            <p className="text-gray-600 dark:text-gray-300">Preh?lad zamestnancov a ich aktuA?lnych stavov</p>
           </div>
         </div>
       </div>
 
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 border-l-4 border-green-500">
           <div className="flex items-center">
@@ -329,14 +329,14 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             </select>
           </div>
 
-          {/* Vyh�ladA?vanie */}
+          {/* Vyh?ladA?vanie */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Vyh�ladA?vanie
+              Vyh?ladA?vanie
             </label>
             <input
               type="text"
-              placeholder="H�ladaLA zamestnancov..."
+              placeholder="H?ladaLA zamestnancov..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -361,7 +361,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
                   Zamestnanec
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  PozA�cia
+                  PozA?cia
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Kontakt
@@ -448,11 +448,11 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             <div className="text-center py-8">
               <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                {searchTerm ? 'L?iadni zamestnanci nenA?jdenA�' : 'L?iadni zamestnanci'}
+                {searchTerm ? 'L?iadni zamestnanci nenA?jdenA?' : 'L?iadni zamestnanci'}
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {searchTerm 
-                  ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz' 
+                  ? 'SkAsste zmeniLA vyh?ladA?vacA? vA?raz' 
                   : 'V tejto firme nie sAs Lliadni zamestnanci'
                 }
               </p>

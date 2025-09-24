@@ -18,96 +18,96 @@ import {
 const Services: React.FC = () => {
   const services = [
     {
-      name: 'PodvojnA� As�TtovnA�ctvo',
-      description: 'KompletnA� vedenie As�TtovnA�ctva pre vaL?u firmu s dA�razom na presnosLA a v�TasnosLA.',
+      name: 'PodvojnA? As?TtovnA?ctvo',
+      description: 'KompletnA? vedenie As?TtovnA?ctva pre vaL?u firmu s dA?razom na presnosLA a v?TasnosLA.',
       icon: CalculatorIcon,
       features: [
-        'Vedenie podvojnA�ho As�TtovnA�ctva',
+        'Vedenie podvojnA?ho As?TtovnA?ctva',
         'Spracovanie a archivA?cia dokladov',
-        'Mesa�TnA� vA?kazy a reporty',
-        'Ro�TnA� zAs�Ttovanie',
-        'KomunikA?cia s finan�Tnou sprA?vou',
+        'Mesa?TnA? vA?kazy a reporty',
+        'Ro?TnA? zAs?Ttovanie',
+        'KomunikA?cia s finan?Tnou sprA?vou',
         'Kontrola a oprava chA?b'
       ],
-      price: 'od 150�,�/mesiac',
-      duration: 'Mesa�TnA� spracovanie'
+      price: 'od 150?,?/mesiac',
+      duration: 'Mesa?TnA? spracovanie'
     },
     {
-      name: 'JednoduchA� As�TtovnA�ctvo',
-      description: 'As�TtovnA�ctvo pre SZ�SO a malA� firmy s jednoduchA?m a preh�ladnA?m systA�mom.',
+      name: 'JednoduchA? As?TtovnA?ctvo',
+      description: 'As?TtovnA?ctvo pre SZ?SO a malA? firmy s jednoduchA?m a preh?ladnA?m systA?mom.',
       icon: DocumentTextIcon,
       features: [
-        'JednoduchA� As�TtovnA�ctvo',
-        'DaL�ovA� priznania',
-        'Online prA�stup k dokladom',
-        'OsobnA� poradenstvo',
+        'JednoduchA? As?TtovnA?ctvo',
+        'DaL?ovA? priznania',
+        'Online prA?stup k dokladom',
+        'OsobnA? poradenstvo',
         'KomunikA?cia s Asradmi',
         'RA?chle spracovanie'
       ],
-      price: 'od 80�,�/mesiac',
-      duration: 'Mesa�TnA� spracovanie'
+      price: 'od 80?,?/mesiac',
+      duration: 'Mesa?TnA? spracovanie'
     },
     {
       name: 'Mzdy a personalistika',
-      description: 'KompletnA� spracovanie miezd a personalistika pre vaL?u firmu.',
+      description: 'KompletnA? spracovanie miezd a personalistika pre vaL?u firmu.',
       icon: UserGroupIcon,
       features: [
         'Spracovanie miezd zamestnancov',
-        'KomunikA?cia so SociA?lnou poisLAovL�ou',
-        'KomunikA?cia so zdravotnA?mi poisLAovL�ami',
+        'KomunikA?cia so SociA?lnou poisLAovL?ou',
+        'KomunikA?cia so zdravotnA?mi poisLAovL?ami',
         'Personalistika a HR sluLlby',
-        'Mzdy online - prA�stup pre zamestnancov',
-        'VA?po�Tet dovoleniek a nemocenskA?ch'
+        'Mzdy online - prA?stup pre zamestnancov',
+        'VA?po?Tet dovoleniek a nemocenskA?ch'
       ],
-      price: 'od 15�,�/zamestnanec',
-      duration: 'Mesa�TnA� spracovanie'
+      price: 'od 15?,?/zamestnanec',
+      duration: 'Mesa?TnA? spracovanie'
     },
     {
-      name: 'DaL�ovA� poradenstvo',
-      description: 'ProfesionA?lne daL�ovA� poradenstvo a optimalizA?cia pre vaL?u firmu.',
+      name: 'DaL?ovA? poradenstvo',
+      description: 'ProfesionA?lne daL?ovA? poradenstvo a optimalizA?cia pre vaL?u firmu.',
       icon: ChartBarIcon,
       features: [
-        'DaL�ovA� priznania (DPFO, DPH)',
-        'OptimalizA?cia daL�ovA�ho zaLAaLlenia',
-        'Poradenstvo pri daL�ovA?ch otA?zkach',
-        'Sledovanie legislatA�vnych zmien',
-        'DaL�ovA� plA?novanie',
-        'KomunikA?cia s daL�ovA?mi Asradmi'
+        'DaL?ovA? priznania (DPFO, DPH)',
+        'OptimalizA?cia daL?ovA?ho zaLAaLlenia',
+        'Poradenstvo pri daL?ovA?ch otA?zkach',
+        'Sledovanie legislatA?vnych zmien',
+        'DaL?ovA? plA?novanie',
+        'KomunikA?cia s daL?ovA?mi Asradmi'
       ],
-      price: 'od 200�,�/rok',
-      duration: 'Pod�la potreby'
+      price: 'od 200?,?/rok',
+      duration: 'Pod?la potreby'
     }
   ];
 
   const benefits = [
     {
-      title: 'Online prA�stup 24/7',
-      description: 'Bezpe�TnA? prA�stup k vaL?im dokladom a vA?kazom kedyko�lvek a kdeko�lvek.',
+      title: 'Online prA?stup 24/7',
+      description: 'Bezpe?TnA? prA?stup k vaL?im dokladom a vA?kazom kedyko?lvek a kdeko?lvek.',
       icon: ShieldCheckIcon
     },
     {
-      title: 'KomunikA?cia s As�TtovnA�kom',
-      description: 'Priama komunikA?cia s vaL?A�m As�TtovnA�kom cez portA?l, email alebo telefon.',
+      title: 'KomunikA?cia s As?TtovnA?kom',
+      description: 'Priama komunikA?cia s vaL?A?m As?TtovnA?kom cez portA?l, email alebo telefon.',
       icon: PhoneIcon
     },
     {
-      title: 'Bezpe�TnA? prenos dokumentov',
-      description: 'Bezpe�TnA� nahrA?vanie a prenos dokumentov s najvyL?L?ou AsrovL�ou ochrany.',
+      title: 'Bezpe?TnA? prenos dokumentov',
+      description: 'Bezpe?TnA? nahrA?vanie a prenos dokumentov s najvyL?L?ou AsrovL?ou ochrany.',
       icon: ShieldCheckIcon
     },
     {
       title: 'RA?chle spracovanie',
-      description: 'GarantovanA� termA�ny spracovania vaL?ich dokladov a vA?kazov.',
+      description: 'GarantovanA? termA?ny spracovania vaL?ich dokladov a vA?kazov.',
       icon: ClockIcon
     },
     {
-      title: 'TransparentnA� ceny',
-      description: 'JasnA� a transparentnA� ceny bez skrytA?ch poplatkov.',
+      title: 'TransparentnA? ceny',
+      description: 'JasnA? a transparentnA? ceny bez skrytA?ch poplatkov.',
       icon: CurrencyDollarIcon
     },
     {
-      title: 'OsobnA� poradenstvo',
-      description: 'OsobnA� poradenstvo a konzultA?cie pre vaL?u firmu.',
+      title: 'OsobnA? poradenstvo',
+      description: 'OsobnA? poradenstvo a konzultA?cie pre vaL?u firmu.',
       icon: UserGroupIcon
     }
   ];
@@ -121,17 +121,17 @@ const Services: React.FC = () => {
     {
       step: '2',
       title: 'Dohoda o spoluprA?ci',
-      description: 'PodpA�sanie zmluvy a dohoda o podmienkach spoluprA?ce.'
+      description: 'PodpA?sanie zmluvy a dohoda o podmienkach spoluprA?ce.'
     },
     {
       step: '3',
       title: 'Nastavenie portA?lu',
-      description: 'Vytvorenie prA�stupu do klientskA�ho portA?lu a nastavenie.'
+      description: 'Vytvorenie prA?stupu do klientskA?ho portA?lu a nastavenie.'
     },
     {
       step: '4',
-      title: 'Za�Tiatok spoluprA?ce',
-      description: 'Za�Tiatok spracovania vaL?ich dokladov a vA?kazov.'
+      title: 'Za?Tiatok spoluprA?ce',
+      description: 'Za?Tiatok spracovania vaL?ich dokladov a vA?kazov.'
     }
   ];
 
@@ -145,8 +145,8 @@ const Services: React.FC = () => {
               NaL?e sluLlby
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              KompletnA� rieL?enia v oblasti As�TtovnA�ctva, miezd a daL�ovA�ho poradenstva. 
-              Poskytujeme profesionA?lne sluLlby s dA�razom na kvalitu a spo�lahlivosLA.
+              KompletnA? rieL?enia v oblasti As?TtovnA?ctva, miezd a daL?ovA?ho poradenstva. 
+              Poskytujeme profesionA?lne sluLlby s dA?razom na kvalitu a spo?lahlivosLA.
             </p>
           </div>
         </div>
@@ -157,10 +157,10 @@ const Services: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              KompletnA� rieL?enia pre vaL?u firmu
+              KompletnA? rieL?enia pre vaL?u firmu
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Vyberte si sluLlby, ktorA� najlepL?ie vyhovujAs potrebA?m vaL?ej firmy
+              Vyberte si sluLlby, ktorA? najlepL?ie vyhovujAs potrebA?m vaL?ej firmy
             </p>
           </div>
           
@@ -229,10 +229,10 @@ const Services: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Pre�To si vybraLA naL?e sluLlby?
+              Pre?To si vybraLA naL?e sluLlby?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              VA?hody, ktorA� zA�skate s naL?imi sluLlbami
+              VA?hody, ktorA? zA?skate s naL?imi sluLlbami
             </p>
           </div>
           
@@ -255,10 +255,10 @@ const Services: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ako za�TaLA spoluprA?cu?
+              Ako za?TaLA spoluprA?cu?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              JednoduchA? proces za�Tiatku spoluprA?ce v 4 krokoch
+              JednoduchA? proces za?Tiatku spoluprA?ce v 4 krokoch
             </p>
           </div>
           
@@ -281,7 +281,7 @@ const Services: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">
-              PripravenA� za�TaLA spoluprA?cu?
+              PripravenA? za?TaLA spoluprA?cu?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
               Kontaktujte nA?s a dohodneme si bezplatnAs konzultA?ciu pre vaL?u firmu

@@ -33,7 +33,7 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
 }) => {
   const statCards = [
     {
-      name: 'PouLlA�vatelia',
+      name: 'PouLlA?vatelia',
       value: stats.users,
       icon: UsersIcon,
       color: 'bg-blue-500',
@@ -71,7 +71,7 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => (
           <div key={stat.name} className="bg-white rounded-lg shadow p-6">
@@ -90,7 +90,7 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
               }`}>
                 {stat.change}
               </span>
-              <span className="text-sm text-gray-500 ml-1">z minulA�ho mesiaca</span>
+              <span className="text-sm text-gray-500 ml-1">z minulA?ho mesiaca</span>
             </div>
           </div>
         ))}
@@ -98,10 +98,10 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
 
       {/* Graf a aktivita */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* AktA�vne Aslohy */}
+        {/* AktA?vne Aslohy */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">AktA�vne Aslohy</h3>
+            <h3 className="text-lg font-medium text-gray-900">AktA?vne Aslohy</h3>
           </div>
           <div className="p-6">
             {recentTasks.length > 0 ? (
@@ -130,15 +130,15 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">L?iadne aktA�vne Aslohy</p>
+              <p className="text-gray-500 text-center py-4">L?iadne aktA?vne Aslohy</p>
             )}
           </div>
         </div>
 
-        {/* PoslednA� dokumenty */}
+        {/* PoslednA? dokumenty */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">PoslednA� dokumenty</h3>
+            <h3 className="text-lg font-medium text-gray-900">PoslednA? dokumenty</h3>
           </div>
           <div className="p-6">
             {recentFiles.length > 0 ? (
@@ -165,10 +165,10 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
         </div>
       </div>
 
-      {/* SystA�movA� informA?cie */}
+      {/* SystA?movA? informA?cie */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">SystA�movA� informA?cie</h3>
+          <h3 className="text-lg font-medium text-gray-900">SystA?movA? informA?cie</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -179,12 +179,12 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
             </div>
             <div className="text-center">
               <UsersIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">AktA�vni pouLlA�vatelia</p>
+              <p className="text-sm text-gray-600">AktA?vni pouLlA?vatelia</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.users}</p>
             </div>
             <div className="text-center">
               <BuildingOfficeIcon className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">SpracovanA� firmy</p>
+              <p className="text-sm text-gray-600">SpracovanA? firmy</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.companies}</p>
             </div>
           </div>

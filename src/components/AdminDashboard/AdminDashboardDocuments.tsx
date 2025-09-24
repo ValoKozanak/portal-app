@@ -40,7 +40,7 @@ const AdminDashboardDocuments: React.FC<AdminDashboardDocumentsProps> = ({
           <div className="mb-4">
             <input
               type="text"
-              placeholder="H�ladaLA dokumenty..."
+              placeholder="H?ladaLA dokumenty..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -50,7 +50,7 @@ const AdminDashboardDocuments: React.FC<AdminDashboardDocumentsProps> = ({
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500">Na�TA�tavam dokumenty...</p>
+              <p className="mt-2 text-gray-500">Na?TA?tavam dokumenty...</p>
             </div>
           ) : files.length > 0 ? (
             <div className="overflow-x-auto">
@@ -98,7 +98,7 @@ const AdminDashboardDocuments: React.FC<AdminDashboardDocumentsProps> = ({
           ) : (
             <div className="text-center py-8">
               <DocumentTextIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">L?iadne dokumenty neboli nA?jdenA�</p>
+              <p className="text-gray-500">L?iadne dokumenty neboli nA?jdenA?</p>
             </div>
           )}
         </div>

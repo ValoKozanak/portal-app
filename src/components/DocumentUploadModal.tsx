@@ -48,8 +48,8 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         allowedTypes: category.allowedTypes
       })));
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� kategAlriA�:', error);
-      setError('Nepodarilo sa na�TA�taLA kategAlrie dokumentov');
+      console.error('Chyba pri na?TA?tanA? kategAlriA?:', error);
+      setError('Nepodarilo sa na?TA?taLA kategAlrie dokumentov');
     }
   };
 
@@ -63,7 +63,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     }
 
     if (file.size > 10 * 1024 * 1024) { // 10MB
-      setError('SAsbor je prA�liL? ve�lkA?. MaximA?lna ve�lkosLA je 10MB.');
+      setError('SAsbor je prA?liL? ve?lkA?. MaximA?lna ve?lkosLA je 10MB.');
       return;
     }
 
@@ -123,8 +123,8 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       setDescription('');
       onClose();
     } catch (error: any) {
-      console.error('Chyba pri nahrA?vanA� dokumentu:', error);
-      setError(error.message || 'Chyba pri nahrA?vanA� dokumentu');
+      console.error('Chyba pri nahrA?vanA? dokumentu:', error);
+      setError(error.message || 'Chyba pri nahrA?vanA? dokumentu');
     } finally {
       setIsUploading(false);
     }
@@ -183,7 +183,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             </select>
             {selectedCategory && (
               <p className="text-sm text-gray-500 mt-1">
-                PodporovanA� formA?ty: {categories.find(cat => cat.id === selectedCategory)?.allowedTypes.join(', ')}
+                PodporovanA? formA?ty: {categories.find(cat => cat.id === selectedCategory)?.allowedTypes.join(', ')}
               </p>
             )}
           </div>
@@ -224,7 +224,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
                 <div className="space-y-2">
                   <DocumentArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto" />
                   <p className="text-sm text-gray-600">
-                    PresuL�te sAsbor sem alebo kliknite na vA?ber
+                    PresuL?te sAsbor sem alebo kliknite na vA?ber
                   </p>
                   <input
                     type="file"
@@ -247,7 +247,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Popis (volite�lnA�)
+              Popis (volite?lnA?)
             </label>
             <textarea
               value={description}
@@ -268,12 +268,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 
           {/* Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">InformA?cie o nahrA?vanA�</h4>
+            <h4 className="text-sm font-medium text-blue-900 mb-2">InformA?cie o nahrA?vanA?</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>�?? Dokument sa nahraje do organizovanA�ho folderu</li>
-              <li>�?? MaximA?lna ve�lkosLA sAsboru: 10MB</li>
-              <li>�?? Admin dostane notifikA?ciu o novom dokumente</li>
-              <li>�?? Dokument bude dostupnA? pre priradenA�ho As�TtovnA�ka</li>
+              <li>??? Dokument sa nahraje do organizovanA?ho folderu</li>
+              <li>??? MaximA?lna ve?lkosLA sAsboru: 10MB</li>
+              <li>??? Admin dostane notifikA?ciu o novom dokumente</li>
+              <li>??? Dokument bude dostupnA? pre priradenA?ho As?TtovnA?ka</li>
             </ul>
           </div>
         </div>

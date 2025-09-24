@@ -23,8 +23,8 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // Tu mA�Llete poslaLA error do error tracking sluLlby
-    // napr. Sentry, LogRocket, at�Z.
+    // Tu mA?Llete poslaLA error do error tracking sluLlby
+    // napr. Sentry, LogRocket, at?Z.
   }
 
   render() {
@@ -53,10 +53,10 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <div className="mt-4 text-center">
               <h3 className="text-lg font-medium text-gray-900">
-                Nie�To sa pokazilo
+                Nie?To sa pokazilo
               </h3>
               <p className="mt-2 text-sm text-gray-500">
-                Nastala neo�TakA?vanA? chyba. SkAsste obnoviLA strA?nku.
+                Nastala neo?TakA?vanA? chyba. SkAsste obnoviLA strA?nku.
               </p>
               <div className="mt-4">
                 <button

@@ -64,13 +64,13 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
     }
   }, [isOpen, leaveRequest]);
 
-  // VA?po�Tet pracovnA?ch dnA� s aktuA?lnym kalendA?rom
+  // VA?po?Tet pracovnA?ch dnA? s aktuA?lnym kalendA?rom
   const calculateDays = async (startDate: string, endDate: string): Promise<number> => {
     try {
       return await CalendarService.calculateWorkingDays(startDate, endDate);
     } catch (error) {
-      console.error('�tS Chyba pri vA?po�Tte pracovnA?ch dnA�:', error);
-      // Fallback na zA?kladnA? vA?po�Tet
+      console.error('?tS Chyba pri vA?po?Tte pracovnA?ch dnA?:', error);
+      // Fallback na zA?kladnA? vA?po?Tet
       return CalendarService.calculateBasicWorkingDays(startDate, endDate);
     }
   };
@@ -79,7 +79,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
       
-      // Automaticky vypo�TA�taLA po�Tet dnA�
+      // Automaticky vypo?TA?taLA po?Tet dnA?
       if (newData.start_date && newData.end_date) {
         calculateDays(newData.start_date, newData.end_date).then(days => {
           setFormData(current => ({
@@ -111,7 +111,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
 
       if (isEdit) {
         // Pre editA?ciu by sme potrebovali endpoint na update
-        alert('EditA?cia dovoleniek zatia�l nie je implementovanA?');
+        alert('EditA?cia dovoleniek zatia?l nie je implementovanA?');
       } else {
         await hrService.addLeaveRequest(leaveData);
       }
@@ -119,8 +119,8 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladanA� Lliadosti o dovolenku:', error);
-      alert('Chyba pri ukladanA� Lliadosti o dovolenku');
+      console.error('Chyba pri ukladanA? Lliadosti o dovolenku:', error);
+      alert('Chyba pri ukladanA? Lliadosti o dovolenku');
     } finally {
       setLoading(false);
     }
@@ -177,17 +177,17 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               >
                 <option value="vacation">Dovolenka</option>
                 <option value="sick_leave">PN</option>
-                <option value="personal_leave">OsobnA� vo�lno</option>
+                <option value="personal_leave">OsobnA? vo?lno</option>
                 <option value="maternity_leave">MaterskA? dovolenka</option>
                 <option value="paternity_leave">OtcovskA? dovolenka</option>
-                <option value="unpaid_leave">NeplatenA� vo�lno</option>
+                <option value="unpaid_leave">NeplatenA? vo?lno</option>
               </select>
             </div>
 
-            {/* Po�Tet dnA� (automaticky) */}
+            {/* Po?Tet dnA? (automaticky) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Po�Tet dnA�
+                Po?Tet dnA?
               </label>
               {formData.start_date && formData.end_date ? (
                 <input
@@ -199,21 +199,21 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                 />
               ) : (
                 <div className="text-sm text-gray-500 dark:text-gray-400 py-2">
-                  Vyberte za�Tiatok a koniec dovolenky. Po�Tet dnA� sa spo�TA�ta automaticky.
+                  Vyberte za?Tiatok a koniec dovolenky. Po?Tet dnA? sa spo?TA?ta automaticky.
                 </div>
               )}
             </div>
 
-            {/* Za�Tiatok dovolenky */}
+            {/* Za?Tiatok dovolenky */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Za�Tiatok dovolenky *
+                Za?Tiatok dovolenky *
               </label>
               <DatePicker
                 value={formData.start_date}
                 onChange={(date) => handleDateChange('start_date', date)}
                 min={formatDate(new Date())}
-                placeholder="Vyberte dA?tum za�Tiatku"
+                placeholder="Vyberte dA?tum za?Tiatku"
                 className="w-full"
               />
             </div>
@@ -233,10 +233,10 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
             </div>
           </div>
 
-          {/* DA�vod */}
+          {/* DA?vod */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              DA�vod
+              DA?vod
             </label>
             <textarea
               name="reason"
@@ -244,7 +244,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               onChange={handleInputChange}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
-              placeholder="PopA�L?te dA�vod Lliadosti o dovolenku..."
+              placeholder="PopA?L?te dA?vod Lliadosti o dovolenku..."
             />
           </div>
 
@@ -266,9 +266,9 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                   </span>
                 </div>
                 <div>
-                  <span className="text-blue-700 dark:text-blue-300">Po�Tet dnA�:</span>
+                  <span className="text-blue-700 dark:text-blue-300">Po?Tet dnA?:</span>
                   <span className="ml-2 text-blue-900 dark:text-blue-100">
-                    {formData.total_days} dnA�
+                    {formData.total_days} dnA?
                   </span>
                 </div>
                 <div>

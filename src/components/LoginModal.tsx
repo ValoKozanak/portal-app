@@ -26,10 +26,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
       // PouLlijeme API pre prihlA?senie
       const response = await apiService.login(credentials.email, credentials.password);
       
-      // UloLlA�me token
+      // UloLlA?me token
       apiService.setToken(response.token);
       
-      // PrihlA?sime pouLlA�vate�la
+      // PrihlA?sime pouLlA?vate?la
       onLogin(response.user.role as 'admin' | 'accountant' | 'user' | 'employee', credentials.email);
       onClose();
     } catch (error: any) {
@@ -109,12 +109,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
           </button>
 
           <div className="mt-6 p-4 bg-gray-50 dark:bg-dark-700 rounded-md">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Testovacie As�Tty:</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Testovacie As?Tty:</h3>
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p><strong>Admin:</strong> admin@portal.sk / admin123</p>
-              <p><strong>As�TtovnA�k:</strong> accountant@portal.sk / accountant123</p>
-              <p><strong>NovA? As�TtovnA�k:</strong> novy.ucetovnik@portal.sk / ucetovnik123</p>
-              <p><strong>PouLlA�vate�l:</strong> user@portal.sk / user123</p>
+              <p><strong>As?TtovnA?k:</strong> accountant@portal.sk / accountant123</p>
+              <p><strong>NovA? As?TtovnA?k:</strong> novy.ucetovnik@portal.sk / ucetovnik123</p>
+              <p><strong>PouLlA?vate?l:</strong> user@portal.sk / user123</p>
             </div>
           </div>
         </form>

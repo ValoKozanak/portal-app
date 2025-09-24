@@ -1,18 +1,18 @@
 // src/services/apiService.ts
 
 // =========================
-// Base URL (ENV) �?" JEDINAt zdroj pravdy
+// Base URL (ENV) ??" JEDINAt zdroj pravdy
 // =========================
 const envBase =
-  process.env.REACT_APP_API_BASE ||        // preferovanA� (Netlify: /api)
+  process.env.REACT_APP_API_BASE ||        // preferovanA? (Netlify: /api)
   process.env.REACT_APP_API_URL  ||        // legacy fallback, ak by niekde ostalo
   '/api';
 
 export const API_BASE_URL = envBase.replace(/\/$/, ''); // bez trailing /
-export const API_ORIGIN = ''; // nepouLlA�vaj pevnA? host
+export const API_ORIGIN = ''; // nepouLlA?vaj pevnA? host
 
 // =========================
-// PomocnA� funkcie
+// PomocnA? funkcie
 // =========================
 const withLeadingSlash = (endpoint: string) =>
   endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -113,7 +113,7 @@ class ApiService {
 
   setToken(token: string) {
     this.token = token;
-    // udrLl kompatibilitu s historickA?mi k�lAs�Tmi
+    // udrLl kompatibilitu s historickA?mi k?lAs?Tmi
     localStorage.setItem('token', token);
     localStorage.setItem('auth_token', token);
   }
@@ -154,7 +154,7 @@ class ApiService {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        // skAss pre�TA�taLA JSON chybu, inak text
+        // skAss pre?TA?taLA JSON chybu, inak text
         let errMsg = `HTTP ${response.status}`;
         try {
           if (isJsonResponse(response)) {
@@ -177,13 +177,13 @@ class ApiService {
       if (isJsonResponse(response)) {
         return (await response.json()) as T;
       } else {
-        // ne-JSON odpove�Z (napr. text)
+        // ne-JSON odpove?Z (napr. text)
         const txt = await response.text();
-        // @ts-ignore �?" nechA?me caller rozhodnAsLA
+        // @ts-ignore ??" nechA?me caller rozhodnAsLA
         return txt as unknown as T;
       }
     } catch (error) {
-      // centralizovanA� logovanie
+      // centralizovanA? logovanie
       console.error('API request error:', { url, endpoint: ep, error });
       throw error;
     }
@@ -204,7 +204,7 @@ class ApiService {
   }
 
   async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    // bez Content-Type �?" boundary nastavA� prehliada�T
+    // bez Content-Type ??" boundary nastavA? prehliada?T
     return this.request<T>(endpoint, {
       method: 'POST',
       body: formData,

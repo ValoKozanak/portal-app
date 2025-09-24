@@ -19,13 +19,13 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       setSelectedFile(file);
       setUploadResult(null);
     } else {
-      alert('ProsA�m vyberte XML sAsbor');
+      alert('ProsA?m vyberte XML sAsbor');
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      alert('ProsA�m vyberte XML sAsbor');
+      alert('ProsA?m vyberte XML sAsbor');
       return;
     }
 
@@ -37,7 +37,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       
       setUploadResult({
         success: result.success,
-        message: result.message || 'Upload dokon�TenA?',
+        message: result.message || 'Upload dokon?TenA?',
         details: result.data
       });
       
@@ -50,7 +50,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       console.error('Chyba pri upload:', error);
       setUploadResult({
         success: false,
-        message: 'Chyba pri nahrA?vanA� XML sAsboru'
+        message: 'Chyba pri nahrA?vanA? XML sAsboru'
       });
     } finally {
       setIsUploading(false);
@@ -105,7 +105,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
               <p className="mt-1 text-sm text-gray-500">
-                PodporovanA� sAs len XML sAsbory exportovanA� z POHODA
+                PodporovanA? sAs len XML sAsbory exportovanA? z POHODA
               </p>
             </div>
             
@@ -140,7 +140,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
               <p className="text-sm font-medium">{uploadResult.message}</p>
               {uploadResult.details && (
                 <div className="mt-2 text-xs">
-                  <p>ImportovanA�: {uploadResult.details.imported}</p>
+                  <p>ImportovanA?: {uploadResult.details.imported}</p>
                   <p>Chyby: {uploadResult.details.errors?.length || 0}</p>
                   {uploadResult.details.errors && uploadResult.details.errors.length > 0 && (
                     <ul className="mt-1 list-disc list-inside">

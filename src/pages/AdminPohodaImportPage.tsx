@@ -36,7 +36,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
   const importTypes: ImportType[] = [
     {
       id: 'issued-invoices',
-      name: 'VydanA� faktAsry',
+      name: 'VydanA? faktAsry',
       description: 'Import vydanA?ch faktAsr z POHODA XML sAsborov',
       icon: DocumentTextIcon,
       color: 'text-blue-600',
@@ -45,7 +45,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     },
     {
       id: 'received-invoices',
-      name: 'PrijatA� faktAsry',
+      name: 'PrijatA? faktAsry',
       description: 'Import prijatA?ch faktAsr z POHODA XML sAsborov',
       icon: DocumentArrowDownIcon,
       color: 'text-green-600',
@@ -53,7 +53,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     },
     {
       id: 'bank-transactions',
-      name: 'BankovA� pohyby',
+      name: 'BankovA? pohyby',
       description: 'Import bankovA?ch pohybov z POHODA XML sAsborov',
       icon: BanknotesIcon,
       color: 'text-yellow-600',
@@ -61,8 +61,8 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     },
     {
       id: 'cash-transactions',
-      name: 'PokladL�a',
-      description: 'Import pokladL�ovA?ch pohybov z POHODA XML sAsborov',
+      name: 'PokladL?a',
+      description: 'Import pokladL?ovA?ch pohybov z POHODA XML sAsborov',
       icon: CreditCardIcon,
       color: 'text-purple-600',
       status: 'coming-soon'
@@ -86,7 +86,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     {
       id: 'settings',
       name: 'Nastavenia',
-      description: 'Import nastavenA� z POHODA XML sAsborov',
+      description: 'Import nastavenA? z POHODA XML sAsborov',
       icon: CogIcon,
       color: 'text-gray-600',
       status: 'coming-soon'
@@ -105,7 +105,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
         setSelectedCompany(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� firiem:', error);
+      console.error('Chyba pri na?TA?tanA? firiem:', error);
     }
   };
 
@@ -117,7 +117,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     setImportStatus(prev => ({ ...prev, [importType.id]: 'importing' }));
 
     try {
-      // Tu by sa implementoval konkrA�tny import
+      // Tu by sa implementoval konkrA?tny import
       // Pre teraz len simulujeme
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -186,8 +186,8 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
                 POHODA Import - InformA?cie
               </h3>
               <div className="mt-2 text-sm text-blue-700">
-                <p>Importujte dA?ta z POHODA XML sAsborov do systA�mu. Vyberte typ importu a firmu.</p>
-                <p className="mt-1">DostupnA� sAs rA�zne typy importov pre faktAsry, pohyby a �ZalL?ie dA?ta.</p>
+                <p>Importujte dA?ta z POHODA XML sAsborov do systA?mu. Vyberte typ importu a firmu.</p>
+                <p className="mt-1">DostupnA? sAs rA?zne typy importov pre faktAsry, pohyby a ?ZalL?ie dA?ta.</p>
               </div>
             </div>
           </div>
@@ -257,7 +257,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
                   ) : (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">
-                        {importType.status === 'coming-soon' ? '�Soskoro dostupnA�' : 'NedostupnA�'}
+                        {importType.status === 'coming-soon' ? '?Soskoro dostupnA?' : 'NedostupnA?'}
                       </span>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                         {importType.status === 'coming-soon' ? 'SOON' : 'N/A'}
@@ -274,11 +274,11 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
         <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-yellow-800 mb-2">Pokyny pre import</h3>
           <ul className="text-sm text-yellow-700 space-y-1">
-            <li>�?? XML sAsbory musia byLA vo formA?te POHODA dataPack</li>
-            <li>�?? Import sa vykonA?va pre vybranAs firmu</li>
-            <li>�?? ExistujAsce zA?znamy sa aktualizujAs pod�la ID</li>
-            <li>�?? Import je bezpe�TnA? - dA?ta sa nemazajAs</li>
-            <li>�?? Po importe sa zobrazA� sAshrn vA?sledkov</li>
+            <li>??? XML sAsbory musia byLA vo formA?te POHODA dataPack</li>
+            <li>??? Import sa vykonA?va pre vybranAs firmu</li>
+            <li>??? ExistujAsce zA?znamy sa aktualizujAs pod?la ID</li>
+            <li>??? Import je bezpe?TnA? - dA?ta sa nemazajAs</li>
+            <li>??? Po importe sa zobrazA? sAshrn vA?sledkov</li>
           </ul>
         </div>
       </div>

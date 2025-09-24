@@ -23,7 +23,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
   const [selectedPeriod, setSelectedPeriod] = useState<PayrollPeriod | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Na�TA�tanie mzdovA?ch obdobA�
+  // Na?TA?tanie mzdovA?ch obdobA?
   const loadPeriods = async () => {
     try {
       setLoading(true);
@@ -34,12 +34,12 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
           await payrollService.initPayrollPeriods(companyId, selectedYear);
           data = await payrollService.getPayrollPeriods(companyId, selectedYear);
         } catch (e) {
-          console.error('InicializA?cia mzdovA?ch obdobA� zlyhala:', e);
+          console.error('InicializA?cia mzdovA?ch obdobA? zlyhala:', e);
         }
       }
       setPeriods(data || []);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� mzdovA?ch obdobA�:', error);
+      console.error('Chyba pri na?TA?tanA? mzdovA?ch obdobA?:', error);
     } finally {
       setLoading(false);
     }
@@ -51,13 +51,13 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
     }
   }, [isOpen, selectedYear]);
 
-  // Kontrola oprA?vnenA� na editA?ciu
+  // Kontrola oprA?vnenA? na editA?ciu
   const canEdit = userRole === 'admin' || userRole === 'accountant';
 
   // Uzatvorenie/odomknutie obdobia
   const handleTogglePeriod = async (period: PayrollPeriod) => {
     if (!canEdit) {
-      alert('NemA?te oprA?vnenie na Aspravu mzdovA?ch obdobA�. Kontaktujte administrA?tora alebo As�TtovnA�ka.');
+      alert('NemA?te oprA?vnenie na Aspravu mzdovA?ch obdobA?. Kontaktujte administrA?tora alebo As?TtovnA?ka.');
       return;
     }
 
@@ -70,7 +70,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
       } else {
         // Uzatvorenie
         if (!payrollService.canClosePeriod(period.year, period.month)) {
-          alert('Nie je moLlnA� uzatvoriLA aktuA?lne alebo budAsce obdobie!');
+          alert('Nie je moLlnA? uzatvoriLA aktuA?lne alebo budAsce obdobie!');
           return;
         }
         await payrollService.closePayrollPeriod(companyId, period.year, period.month, userEmail);
@@ -106,7 +106,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
           <div className="flex items-center space-x-3">
             <CalendarIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              As�TtovnA� obdobia
+              As?TtovnA? obdobia
             </h2>
           </div>
           <button
@@ -137,11 +137,11 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
             </select>
           </div>
 
-          {/* Tabu�lka obdobA� */}
+          {/* Tabu?lka obdobA? */}
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">Na�TA�tavam...</p>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">Na?TA?tavam...</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -155,7 +155,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      UzatvorenA�
+                      UzatvorenA?
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Akcie
@@ -166,7 +166,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                   {periods.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        L?iadne mzdovA� obdobia pre vybranA? rok
+                        L?iadne mzdovA? obdobia pre vybranA? rok
                       </td>
                     </tr>
                   ) : (
@@ -192,7 +192,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                               ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                               : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                           }`}>
-                            {period.is_closed ? 'UzatvorenA�' : 'OtvorenA�'}
+                            {period.is_closed ? 'UzatvorenA?' : 'OtvorenA?'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -243,10 +243,10 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
         {/* Footer */}
         <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-dark-600">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            * MA�Llete uzatvoriLA len minulA� mesiace
+            * MA?Llete uzatvoriLA len minulA? mesiace
             {!canEdit && (
               <span className="block mt-1 text-orange-600">
-                ** Len administrA?tori a As�TtovnA�ci mA�Llu upravovaLA obdobia
+                ** Len administrA?tori a As?TtovnA?ci mA?Llu upravovaLA obdobia
               </span>
             )}
           </div>

@@ -20,7 +20,7 @@ const AccountantMessagesPage: React.FC<AccountantMessagesPageProps> = ({ userEma
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">SpA�LA do Dashboard</span>
+                <span className="font-medium">SpA?LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">

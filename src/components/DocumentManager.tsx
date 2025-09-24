@@ -49,7 +49,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
   const [previewDocument, setPreviewDocument] = useState<DocumentData | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  // Kontrola oprA?vnenA� pre nahrA?vanie a mazanie dokumentov
+  // Kontrola oprA?vnenA? pre nahrA?vanie a mazanie dokumentov
   const canManageDocuments = userRole === 'admin' || 
     (userRole === 'accountant' && assignedAccountants.includes(userEmail));
 
@@ -57,7 +57,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
     { id: 'all', name: 'VL?etky dokumenty', icon: FolderOpenIcon },
     { id: 'vykazy', name: 'VA?kazy', icon: DocumentTextIcon },
     { id: 'zmluvy', name: 'Zmluvy', icon: DocumentIcon },
-    { id: 'ostatne', name: 'OstatnA�', icon: DocumentIcon }
+    { id: 'ostatne', name: 'OstatnA?', icon: DocumentIcon }
   ];
 
   const filteredDocuments = documents.filter(document => {
@@ -164,7 +164,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
             Dokumenty
           </h2>
           <p className="text-gray-600 mt-1">
-            {canManageDocuments ? 'OrganizovanA� dokumenty vo folderoch' : 'Zobrazenie dokumentov (len na �TA�tanie)'}
+            {canManageDocuments ? 'OrganizovanA? dokumenty vo folderoch' : 'Zobrazenie dokumentov (len na ?TA?tanie)'}
           </p>
         </div>
         
@@ -203,13 +203,13 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
         })}
       </div>
 
-      {/* Filtre a vyh�ladA?vanie */}
+      {/* Filtre a vyh?ladA?vanie */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Vyh�ladaLA dokumenty..."
+            placeholder="Vyh?ladaLA dokumenty..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -248,7 +248,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
           <p className="text-gray-500">
             {searchTerm || selectedCategory !== 'all' 
               ? 'NenaL?li sa Lliadne dokumenty s vybranA?mi filtrami.'
-              : 'Zatia�l neboli nahranA� Lliadne dokumenty.'
+              : 'Zatia?l neboli nahranA? Lliadne dokumenty.'
             }
           </p>
         </div>
@@ -279,7 +279,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                         <button
                           onClick={() => handleDocumentPreview(document)}
                           className="text-gray-600 hover:text-gray-700 p-1"
-                          title="NA?h�lad"
+                          title="NA?h?lad"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
@@ -343,7 +343,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                       <button
                         onClick={() => handleDocumentPreview(document)}
                         className="text-gray-600 hover:text-gray-700 p-1"
-                        title="NA?h�lad"
+                        title="NA?h?lad"
                       >
                         <EyeIcon className="h-4 w-4" />
                       </button>

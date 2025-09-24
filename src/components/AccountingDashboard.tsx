@@ -47,7 +47,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
       
 
       
-      // Na�TA�tanie vL?etkA?ch dA?t paralelne
+      // Na?TA?tanie vL?etkA?ch dA?t paralelne
       const [
         statsData,
         issuedInvoicesData,
@@ -63,7 +63,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
       setReceivedInvoices(receivedInvoicesData);
       
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� As�TtovnA�ckych dA?t:', error);
+      console.error('Chyba pri na?TA?tanA? As?TtovnA?ckych dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -73,20 +73,20 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
     loadData();
   }, [loadData]);
 
-  // Na�TA�tanie adresA?ra firiem
+  // Na?TA?tanie adresA?ra firiem
   const loadDirectory = async () => {
     try {
       setDirectoryLoading(true);
       const directoryData = await accountingService.getDirectory(companyId);
       setDirectoryCompanies(directoryData.companies);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� adresA?ra:', error);
+      console.error('Chyba pri na?TA?tanA? adresA?ra:', error);
     } finally {
       setDirectoryLoading(false);
     }
   };
 
-  // Na�TA�tanie adresA?ra ke�Z sa prepne na kartu
+  // Na?TA?tanie adresA?ra ke?Z sa prepne na kartu
   useEffect(() => {
     if (activeTab === 'directory') {
       loadDirectory();
@@ -123,7 +123,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
   // Render functions
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
           <div className="flex items-center">
@@ -131,7 +131,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
               <DocumentTextIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">VydanA� faktAsry</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">VydanA? faktAsry</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {stats?.issued_invoices.total_count || 0}
               </p>
@@ -150,7 +150,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
               <ArrowDownIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">PrijatA� faktAsry</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">PrijatA? faktAsry</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {stats?.received_invoices.total_count || 0}
               </p>
@@ -177,7 +177,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
           </div>
           <div className="mt-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              PrA�jmy: {formatCurrency(stats?.bank.total_income || 0)}
+              PrA?jmy: {formatCurrency(stats?.bank.total_income || 0)}
             </p>
           </div>
         </div>
@@ -188,7 +188,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
               <BanknotesIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">PokladL�a</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">PokladL?a</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency((stats?.cash.total_income || 0) - (stats?.cash.total_expense || 0))}
               </p>
@@ -196,7 +196,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
           </div>
           <div className="mt-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              PrA�jmy: {formatCurrency(stats?.cash.total_income || 0)}
+              PrA?jmy: {formatCurrency(stats?.cash.total_income || 0)}
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">NajnovL?ie vydanA� faktAsry</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">NajnovL?ie vydanA? faktAsry</h3>
           </div>
           <div className="p-6">
             {issuedInvoices.length > 0 ? (
@@ -234,7 +234,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
               </div>
             ) : (
               <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                L?iadne vydanA� faktAsry
+                L?iadne vydanA? faktAsry
               </p>
             )}
           </div>
@@ -250,7 +250,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
   const renderReceivedInvoices = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">PrijatA� faktAsry</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">PrijatA? faktAsry</h2>
       </div>
 
       <div className="bg-white dark:bg-dark-800 shadow rounded-lg overflow-hidden">
@@ -259,10 +259,10 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
             <thead className="bg-gray-50 dark:bg-dark-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  �SA�slo faktAsry
+                  ?SA?slo faktAsry
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  DodA?vate�l
+                  DodA?vate?l
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   DA?tum vystavenia
@@ -338,7 +338,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
             disabled={directoryLoading}
             className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {directoryLoading ? 'Na�TA�tavam...' : 'ObnoviLA'}
+            {directoryLoading ? 'Na?TA?tavam...' : 'ObnoviLA'}
           </button>
         </div>
       </div>
@@ -357,10 +357,10 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                     NA?zov firmy
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    I�SO
+                    I?SO
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    DI�S
+                    DI?S
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Adresa
@@ -372,7 +372,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    BankovA? As�Tet
+                    BankovA? As?Tet
                   </th>
                 </tr>
               </thead>
@@ -430,7 +430,7 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">As�TtovnA�ctvo</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">As?TtovnA?ctvo</h1>
           <p className="text-gray-600 dark:text-gray-300">SprA?va faktAsr, pokladne a banky</p>
         </div>
       </div>
@@ -440,9 +440,9 @@ const AccountingDashboard: React.FC<AccountingDashboardProps> = ({ companyId, us
         <div className="px-4">
           <div className="flex space-x-8 overflow-x-auto">
                          {[
-               { id: 'overview', name: 'Preh�lad', icon: ChartBarIcon },
-               { id: 'issued-invoices', name: 'VydanA� faktAsry', icon: DocumentTextIcon },
-               { id: 'received-invoices', name: 'PrijatA� faktAsry', icon: ArrowDownIcon },
+               { id: 'overview', name: 'Preh?lad', icon: ChartBarIcon },
+               { id: 'issued-invoices', name: 'VydanA? faktAsry', icon: DocumentTextIcon },
+               { id: 'received-invoices', name: 'PrijatA? faktAsry', icon: ArrowDownIcon },
                { id: 'directory', name: 'AdresA?r', icon: BuildingOfficeIcon }
              ].map((tab) => (
               <button

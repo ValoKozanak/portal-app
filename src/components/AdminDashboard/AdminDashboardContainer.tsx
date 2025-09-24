@@ -7,44 +7,44 @@ const AdminDashboardContainer: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Na�TA�tanie pouLlA�vate�lov
+  // Na?TA?tanie pouLlA?vate?lov
   const loadUsers = async () => {
     console.log('dz"" Loading users...');
     try {
       setLoading(true);
       setError(null);
       const data = await apiService.getAllUsers();
-      console.log('�s. Users loaded:', data);
+      console.log('?s. Users loaded:', data);
       console.log('dz"T First 3 users:', data.slice(0, 3));
       setUsers(data);
     } catch (error) {
-      console.error('�tS Error loading users:', error);
-      setError('Chyba pri na�TA�tanA� pouLlA�vate�lov');
+      console.error('?tS Error loading users:', error);
+      setError('Chyba pri na?TA?tanA? pouLlA?vate?lov');
     } finally {
       setLoading(false);
-      console.log('dzZ� Loading finished');
+      console.log('dzZ? Loading finished');
     }
   };
 
-  // Na�TA�tanie pri mount
+  // Na?TA?tanie pri mount
   useEffect(() => {
     loadUsers();
   }, []);
 
   // Funkcia na zobrazenie role
   const getRoleDisplay = (role: string) => {
-    console.log('dzZ� getRoleDisplay called with role:', role, 'type:', typeof role);
+    console.log('dzZ? getRoleDisplay called with role:', role, 'type:', typeof role);
     switch (role) {
       case 'admin':
         return { text: 'Admin', color: 'bg-red-100 text-red-800' };
       case 'accountant':
-        return { text: 'As�TtovnA�k', color: 'bg-blue-100 text-blue-800' };
+        return { text: 'As?TtovnA?k', color: 'bg-blue-100 text-blue-800' };
       case 'employee':
         return { text: 'Zamestnanec', color: 'bg-purple-100 text-purple-800' };
       case 'user':
-        return { text: 'PouLlA�vate�l', color: 'bg-green-100 text-green-800' };
+        return { text: 'PouLlA?vate?l', color: 'bg-green-100 text-green-800' };
       default:
-        console.log('�s�d�Z Unknown role:', role);
+        console.log('?s?d?Z Unknown role:', role);
         return { text: role || 'NeznA?ma', color: 'bg-gray-100 text-gray-800' };
     }
   };
@@ -52,7 +52,7 @@ const AdminDashboardContainer: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Na�TA�tavam pouLlA�vate�lov..." />
+        <LoadingSpinner size="lg" text="Na?TA?tavam pouLlA?vate?lov..." />
       </div>
     );
   }
@@ -79,7 +79,7 @@ const AdminDashboardContainer: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard - PouLlA�vatelia</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard - PouLlA?vatelia</h1>
               <button
             onClick={loadUsers}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -91,7 +91,7 @@ const AdminDashboardContainer: React.FC = () => {
         {/* Debug Info */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <h3 className="text-sm font-medium text-yellow-800 mb-2">Debug Info:</h3>
-          <p className="text-sm text-yellow-700">Celkovo pouLlA�vate�lov: {users.length}</p>
+          <p className="text-sm text-yellow-700">Celkovo pouLlA?vate?lov: {users.length}</p>
           {users.slice(0, 3).map(user => (
             <p key={user.id} className="text-xs text-yellow-600">
               {user.name} ({user.email}) - Rola: "{user.role}" - Status: "{user.status}"
@@ -113,7 +113,7 @@ const AdminDashboardContainer: React.FC = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
               {users.map((user) => {
-                console.log('dz'� Rendering user:', user.name, 'with role:', user.role);
+                console.log('dz'? Rendering user:', user.name, 'with role:', user.role);
                 const roleDisplay = getRoleDisplay(user.role);
                 return (
                         <tr key={user.id} className="hover:bg-gray-50">
@@ -136,7 +136,7 @@ const AdminDashboardContainer: React.FC = () => {
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                               user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                             }`}>
-                              {user.status === 'active' ? 'AktA�vny' : 'NeaktA�vny'}
+                              {user.status === 'active' ? 'AktA?vny' : 'NeaktA?vny'}
                             </span>
                           </td>
                         </tr>
@@ -148,7 +148,7 @@ const AdminDashboardContainer: React.FC = () => {
             
         {users.length === 0 && (
                 <div className="text-center py-8">
-            <p className="text-gray-500">L?iadni pouLlA�vatelia neboli nA?jdenA�</p>
+            <p className="text-gray-500">L?iadni pouLlA?vatelia neboli nA?jdenA?</p>
                 </div>
               )}
             </div>

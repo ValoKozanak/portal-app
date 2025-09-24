@@ -13,18 +13,18 @@ export interface WorkCalendar {
 }
 
 export class CalendarService {
-  // ZA�skanie pracovnA�ho kalendA?ra pre rok
+  // ZA?skanie pracovnA?ho kalendA?ra pre rok
   static async getWorkCalendar(year: number): Promise<WorkCalendar> {
     return apiService.get(`/hr/work-calendar/${year}`);
   }
 
-  // Kontrola �Ti je deL� vA�kend
+  // Kontrola ?Ti je deL? vA?kend
   static isWeekend(date: Date): boolean {
     const day = date.getDay();
-    return day === 0 || day === 6; // 0 = nede�la, 6 = sobota
+    return day === 0 || day === 6; // 0 = nede?la, 6 = sobota
   }
 
-  // Kontrola �Ti je deL� sviatok
+  // Kontrola ?Ti je deL? sviatok
   static isHoliday(date: Date, holidays: Holiday[]): boolean {
     // PouLlijeme lokA?lny dA?tum namiesto UTC aby sme prediL?li posunu
     const year = date.getFullYear();
@@ -34,22 +34,22 @@ export class CalendarService {
     return holidays.some(holiday => holiday.date === dateString);
   }
 
-  // VA?po�Tet pracovnA?ch dnA� s aktuA?lnym kalendA?rom
+  // VA?po?Tet pracovnA?ch dnA? s aktuA?lnym kalendA?rom
   static async calculateWorkingDays(startDate: string, endDate: string): Promise<number> {
     try {
       const start = new Date(startDate);
       const end = new Date(endDate);
       const year = start.getFullYear();
 
-      // ZA�skanie aktuA?lneho kalendA?ra
+      // ZA?skanie aktuA?lneho kalendA?ra
       const calendar = await this.getWorkCalendar(year);
 
       let workingDays = 0;
       const current = new Date(start);
 
-      // Iterujeme cez kaLldA? deL� v rozsahu
+      // Iterujeme cez kaLldA? deL? v rozsahu
       while (current <= end) {
-        // Ak nie je vA�kend a nie je sviatok, po�TA�tame ako pracovnA? deL�
+        // Ak nie je vA?kend a nie je sviatok, po?TA?tame ako pracovnA? deL?
         if (!this.isWeekend(current) && !this.isHoliday(current, calendar.holidays)) {
           workingDays++;
         }
@@ -59,14 +59,14 @@ export class CalendarService {
       return workingDays;
 
     } catch (error) {
-      console.error('�tS Chyba pri vA?po�Tte pracovnA?ch dnA�:', error);
+      console.error('?tS Chyba pri vA?po?Tte pracovnA?ch dnA?:', error);
       
-      // Fallback na zA?kladnA? vA?po�Tet
+      // Fallback na zA?kladnA? vA?po?Tet
       return this.calculateBasicWorkingDays(startDate, endDate);
     }
   }
 
-  // ZA?kladnA? vA?po�Tet pracovnA?ch dnA� (fallback)
+  // ZA?kladnA? vA?po?Tet pracovnA?ch dnA? (fallback)
   static calculateBasicWorkingDays(startDate: string, endDate: string): number {
     if (!startDate || !endDate) return 0;
     
@@ -86,7 +86,7 @@ export class CalendarService {
     return workingDays;
   }
 
-  // ZA�skanie nA?zvu sviatku pre dA?tum
+  // ZA?skanie nA?zvu sviatku pre dA?tum
   static getHolidayName(date: Date, holidays: Holiday[]): string | null {
     // PouLlijeme lokA?lny dA?tum namiesto UTC aby sme prediL?li posunu
     const year = date.getFullYear();
@@ -97,7 +97,7 @@ export class CalendarService {
     return holiday ? holiday.title : null;
   }
 
-  // ZA�skanie vL?etkA?ch sviatkov v rozsahu dA?tumov
+  // ZA?skanie vL?etkA?ch sviatkov v rozsahu dA?tumov
   static getHolidaysInRange(startDate: string, endDate: string, holidays: Holiday[]): Holiday[] {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -118,7 +118,7 @@ export class CalendarService {
     });
   }
 
-  // ZA�skanie informA?ciA� o dni (pracovnA?/nepracovnA?, sviatok)
+  // ZA?skanie informA?ciA? o dni (pracovnA?/nepracovnA?, sviatok)
   static getDayInfo(date: Date, holidays: Holiday[]): {
     isWorkingDay: boolean;
     isWeekend: boolean;

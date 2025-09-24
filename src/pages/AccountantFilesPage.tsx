@@ -32,12 +32,12 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
           const companyFiles = await apiService.getCompanyFiles(company.id);
           allDocuments.push(...companyFiles);
         } catch (error) {
-          console.error(`Chyba pri na�TA�tanA� dokumentov pre firmu ${company.id}:`, error);
+          console.error(`Chyba pri na?TA?tanA? dokumentov pre firmu ${company.id}:`, error);
         }
       }
       setDocuments(allDocuments);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t As?TtovnA?ka:', error);
     } finally {
       setLoadingDocuments(false);
     }
@@ -45,7 +45,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
 
   const handleUploadFile = () => {
     if (companies.length === 0) {
-      alert('NemA?te priradenA� Lliadne firmy. Kontaktujte administrA?tora.');
+      alert('NemA?te priradenA? Lliadne firmy. Kontaktujte administrA?tora.');
       return;
     }
     setShowFileUploadModal(true);
@@ -61,8 +61,8 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
       await loadAccountantData();
       setShowFileUploadModal(false);
     } catch (error) {
-      console.error('Chyba pri nahrA?vanA� sAsboru:', error);
-      alert('Chyba pri nahrA?vanA� sAsboru');
+      console.error('Chyba pri nahrA?vanA? sAsboru:', error);
+      alert('Chyba pri nahrA?vanA? sAsboru');
     }
   };
 
@@ -72,8 +72,8 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
         await apiService.deleteFile(fileId);
         setDocuments(prev => prev.filter(doc => doc.id !== fileId));
       } catch (error) {
-        console.error('Chyba pri mazanA� dokumentu:', error);
-        alert('Chyba pri mazanA� dokumentu');
+        console.error('Chyba pri mazanA? dokumentu:', error);
+        alert('Chyba pri mazanA? dokumentu');
       }
     }
   };
@@ -90,7 +90,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">SpA�LA do Dashboard</span>
+                <span className="font-medium">SpA?LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -136,7 +136,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
             {loadingDocuments ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam sAsbory...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam sAsbory...</p>
               </div>
             ) : documents.length > 0 ? (
               <div className="space-y-4">
@@ -155,13 +155,13 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
                             <span>Typ: {document.file_type}</span>
                           </div>
                           <div className="flex items-center">
-                            <span>Ve�lkosLA: {(document.file_size / 1024).toFixed(1)} KB</span>
+                            <span>Ve?lkosLA: {(document.file_size / 1024).toFixed(1)} KB</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex flex-col items-end space-y-2 ml-4">
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                          NahranA�
+                          NahranA?
                         </span>
                       </div>
                     </div>
@@ -175,7 +175,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
                           onClick={() => handleFilePreview(document)}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          NA?h�lad
+                          NA?h?lad
                         </button>
                         <button
                           onClick={() => window.open(`/api/files/download/${document.id}`, '_blank')}
@@ -197,14 +197,14 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
             ) : companies.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA� firmy</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA? firmy</h3>
                 <p className="mt-1 text-sm text-gray-500">Kontaktujte administrA?tora, aby vA?m priradil firmy.</p>
               </div>
             ) : (
               <div className="text-center py-12">
                 <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne sAsbory</h3>
-                <p className="mt-1 text-sm text-gray-500">Zatia�l nemA?te Lliadne nahranA� sAsbory</p>
+                <p className="mt-1 text-sm text-gray-500">Zatia?l nemA?te Lliadne nahranA? sAsbory</p>
               </div>
             )}
           </div>

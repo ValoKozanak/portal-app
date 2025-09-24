@@ -27,7 +27,7 @@ import DropboxIntegration from './DropboxIntegration';
 import HRDashboard from './HRDashboard';
 import PayrollPeriodsModal from './PayrollPeriodsModal';
 import PayslipDetailModal from './PayslipDetailModal';
-// import AccountingDashboard from './AccountingDashboard'; // ULl sa nepouLlA�va
+// import AccountingDashboard from './AccountingDashboard'; // ULl sa nepouLlA?va
 
 import { apiService } from '../services/apiService';
 import { Company as ApiCompany, FileData } from '../services/apiService';
@@ -35,7 +35,7 @@ import { hrService } from '../services/hrService';
 import { accountingService } from '../services/accountingService';
 import { payrollService } from '../services/payrollService';
 
-// PouLlA�vame API typy, ale zachovA?vame kompatibilitu s existujAscimi komponentmi
+// PouLlA?vame API typy, ale zachovA?vame kompatibilitu s existujAscimi komponentmi
 type Company = ApiCompany;
 
 interface CompanyDashboardProps {
@@ -48,7 +48,7 @@ interface CompanyDashboardProps {
 const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, userEmail, userRole = 'company' }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  // VA?platnA� pA?sky (firma)
+  // VA?platnA? pA?sky (firma)
   const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
   const [payslipsMonth, setPayslipsMonth] = useState<number | ''>('');
   const [payslipsEmployeeId, setPayslipsEmployeeId] = useState<number | 'all'>('all');
@@ -67,21 +67,21 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   }>>([]);
   const [showPayslipModal, setShowPayslipModal] = useState(false);
   const [payslipModalEmployeeId, setPayslipModalEmployeeId] = useState<number | null>(null);
-  // HR zamestnanci (raw) pre vA?platnA� pA?sky
+  // HR zamestnanci (raw) pre vA?platnA? pA?sky
   const [hrEmployeesRaw, setHrEmployeesRaw] = useState<any[]>([]);
 
 
 
 
 
-  // Skuto�TnA� zamestnanci firmy z HR modulu
+  // Skuto?TnA? zamestnanci firmy z HR modulu
   const [companyEmployees, setCompanyEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
 
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loadingInvoices, setLoadingInvoices] = useState(true);
 
-  // Na�TA�tavame skuto�TnA� sprA?vy cez MessagesList komponent
+  // Na?TA?tavame skuto?TnA? sprA?vy cez MessagesList komponent
   const [, setUnreadMessagesCount] = useState(0);
   const [unreadCounts, setUnreadCounts] = useState({
     receivedUnreadCount: 0,
@@ -89,11 +89,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     totalUnreadCount: 0
   });
 
-  // SAsbory pre firmu - na�TA�tanA� z fileService
+  // SAsbory pre firmu - na?TA?tanA? z fileService
   const [files, setFiles] = useState<FileData[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
 
-  // Aslohy pre firmu - na�TA�tanA� z taskService
+  // Aslohy pre firmu - na?TA?tanA? z taskService
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
@@ -110,28 +110,28 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   // State pre PayrollPeriodsModal
   const [showPayrollPeriodsModal, setShowPayrollPeriodsModal] = useState(false);
 
-  // Funkcia na na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v pre konkrA�tnu firmu
+  // Funkcia na na?TA?tanie po?Ttu nepre?TA?tanA?ch sprA?v pre konkrA?tnu firmu
   const loadUnreadMessagesCount = useCallback(async () => {
     try {
       const unreadCount = await apiService.getCompanyUnreadCount(company.id);
       setUnreadMessagesCount(unreadCount);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� po�Ttu nepre�TA�tanA?ch sprA?v pre firmu:', error);
+      console.error('Chyba pri na?TA?tanA? po?Ttu nepre?TA?tanA?ch sprA?v pre firmu:', error);
     }
   }, [company.id]);
 
-  // Funkcia na na�TA�tanie rozlA�L?enA?ch po�Ttov nepre�TA�tanA?ch sprA?v pre konkrA�tnu firmu
+  // Funkcia na na?TA?tanie rozlA?L?enA?ch po?Ttov nepre?TA?tanA?ch sprA?v pre konkrA?tnu firmu
   const loadUnreadCounts = useCallback(async () => {
     try {
       const counts = await apiService.getCompanyUnreadCounts(company.id);
       setUnreadCounts(counts);
       setUnreadMessagesCount(counts.totalUnreadCount);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� rozlA�L?enA?ch po�Ttov sprA?v pre firmu:', error);
+      console.error('Chyba pri na?TA?tanA? rozlA?L?enA?ch po?Ttov sprA?v pre firmu:', error);
     }
   }, [company.id]);
 
-  // Funkcia na na�TA�tanie zamestnancov firmy z HR modulu
+  // Funkcia na na?TA?tanie zamestnancov firmy z HR modulu
   const loadEmployees = useCallback(async () => {
     try {
       setLoadingEmployees(true);
@@ -144,19 +144,19 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         name: `${emp.first_name} ${emp.last_name}`,
         email: emp.email,
         role: emp.position,
-        department: emp.department || 'NeL?pecifikovanA�'
+        department: emp.department || 'NeL?pecifikovanA?'
       }));
       
       setCompanyEmployees(convertedEmployees);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? zamestnancov:', error);
       setCompanyEmployees([]);
     } finally {
       setLoadingEmployees(false);
     }
   }, [company.id]);
 
-  // Funkcia na otvorenie modalu pre kontaktovanie As�TtovnA�ka
+  // Funkcia na otvorenie modalu pre kontaktovanie As?TtovnA?ka
   const handleContactAccountant = (accountantEmail: string) => {
     setSelectedAccountant(accountantEmail);
     setShowMessageModal(true);
@@ -169,11 +169,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   const handleEmptyTrash = async () => {
     try {
       await apiService.emptyTrash(company.id);
-      // Refresh sAsborov po vyprA?zdnenA� kA�L?a
+      // Refresh sAsborov po vyprA?zdnenA? kA?L?a
       const updatedFiles = await apiService.getCompanyFiles(company.id);
       setFiles(updatedFiles);
     } catch (error) {
-      console.error('Chyba pri vyprA?zdL�ovanA� kA�L?a:', error);
+      console.error('Chyba pri vyprA?zdL?ovanA? kA?L?a:', error);
     }
   };
 
@@ -187,7 +187,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       await apiService.deleteFile(fileId);
       setFiles(prev => prev.filter(file => file.id !== fileId));
     } catch (error) {
-      console.error('Chyba pri mazanA� sAsboru:', error);
+      console.error('Chyba pri mazanA? sAsboru:', error);
     }
   };
 
@@ -203,8 +203,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Chyba pri sLAahovanA� sAsboru:', error);
-      alert('Chyba pri sLAahovanA� sAsboru');
+      console.error('Chyba pri sLAahovanA? sAsboru:', error);
+      alert('Chyba pri sLAahovanA? sAsboru');
     }
   };
 
@@ -212,7 +212,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     try {
       await apiService.previewFile(file.id);
     } catch (error) {
-      console.error('Chyba pri nA?h�lade sAsboru:', error);
+      console.error('Chyba pri nA?h?lade sAsboru:', error);
     }
   };
 
@@ -232,7 +232,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       await apiService.deleteTask(parseInt(taskId));
       setTasks(prev => prev.filter(task => task.id !== taskId));
     } catch (error) {
-      console.error('Chyba pri mazanA� Aslohy:', error);
+      console.error('Chyba pri mazanA? Aslohy:', error);
     }
   };
 
@@ -245,7 +245,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           description: task.description,
           status: task.status,
           priority: task.priority,
-          assigned_to: task.assignedToEmail || task.assignedTo, // PouLlA�vame email ak je dostupnA?
+          assigned_to: task.assignedToEmail || task.assignedTo, // PouLlA?vame email ak je dostupnA?
           due_date: task.dueDate,
           category: task.category,
           estimated_hours: task.estimatedHours
@@ -260,7 +260,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           description: task.description,
           status: task.status,
           priority: task.priority,
-          assigned_to: task.assignedToEmail || task.assignedTo, // PouLlA�vame email ak je dostupnA?
+          assigned_to: task.assignedToEmail || task.assignedTo, // PouLlA?vame email ak je dostupnA?
           due_date: task.dueDate,
           category: task.category,
           estimated_hours: task.estimatedHours,
@@ -271,10 +271,10 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         
         await apiService.createTask(apiTaskData);
         
-        // Po vytvorenA� Aslohy znovu na�TA�tame vL?etky Aslohy z API
-        console.log('CompanyDashboard: Znovu na�TA�tavam Aslohy po vytvorenA� novej Aslohy');
+        // Po vytvorenA? Aslohy znovu na?TA?tame vL?etky Aslohy z API
+        console.log('CompanyDashboard: Znovu na?TA?tavam Aslohy po vytvorenA? novej Aslohy');
         const companyTasks = await apiService.getCompanyTasks(company.id);
-        console.log('CompanyDashboard: Na�TA�tanA� Aslohy po vytvorenA�:', companyTasks);
+        console.log('CompanyDashboard: Na?TA?tanA? Aslohy po vytvorenA?:', companyTasks);
         
         // Konvertujeme API Task na TaskModal Task
         const convertedTasks: Task[] = companyTasks.map(apiTask => ({
@@ -295,7 +295,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       setShowTaskModal(false);
       setEditingTask(null);
     } catch (error) {
-      console.error('Chyba pri ukladanA� Aslohy:', error);
+      console.error('Chyba pri ukladanA? Aslohy:', error);
     }
   };
 
@@ -319,12 +319,12 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       overdue: 'bg-red-100 text-red-800',
     };
     const labels = {
-      pending: '�SakajAsce',
-      completed: 'Dokon�TenA�',
-      in_progress: 'V spracovanA�',
-      cancelled: 'ZruL?enA�',
-      unpaid: 'NezaplatenA�',
-      paid: 'ZaplatenA�',
+      pending: '?SakajAsce',
+      completed: 'Dokon?TenA?',
+      in_progress: 'V spracovanA?',
+      cancelled: 'ZruL?enA?',
+      unpaid: 'NezaplatenA?',
+      paid: 'ZaplatenA?',
       overdue: 'Po splatnosti',
     };
     return (
@@ -342,7 +342,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       urgent: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: 'NA�zka',
+      low: 'NA?zka',
       medium: 'StrednA?',
       high: 'VysokA?',
       urgent: 'UrgentnA?',
@@ -354,7 +354,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     );
   };
 
-  // L�tatistiky
+  // L?tatistiky
   const stats = {
     totalFiles: files.length,
     documentFiles: files.filter(f => f.category === 'documents').length,
@@ -364,7 +364,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     pendingTasks: tasks.filter(t => t.status === 'pending').length,
     completedTasks: tasks.filter(t => t.status === 'completed').length,
     totalInvoices: invoices.length,
-    // Len nezaplatenA� faktAsry od DIVIDENDA s.r.o.
+    // Len nezaplatenA? faktAsry od DIVIDENDA s.r.o.
     unpaidInvoices: invoices.filter(i => {
       const isUnpaid = (i.kc_likv && parseFloat(i.kc_likv) > 0) || i.status === 'unpaid' || i.status === 'overdue';
       const isDividenda = i.supplier_name?.includes('DIVIDENDA') || i.supplier_name?.includes('36543039');
@@ -380,7 +380,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
   
 
-  // Na�TA�tanie sAsborov, Asloh a dokumentov pri otvorenA� dashboardu
+  // Na?TA?tanie sAsborov, Asloh a dokumentov pri otvorenA? dashboardu
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -388,14 +388,14 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         setLoadingTasks(true);
         setLoadingInvoices(true);
         
-        // Na�TA�tanie sAsborov
+        // Na?TA?tanie sAsborov
         const companyFiles = await apiService.getCompanyFiles(company.id);
         setFiles(companyFiles);
         
-        // Na�TA�tanie Asloh
+        // Na?TA?tanie Asloh
         const companyTasks = await apiService.getCompanyTasks(company.id);
         
-        // Na�TA�tanie prijatA?ch faktAsr
+        // Na?TA?tanie prijatA?ch faktAsr
         const receivedInvoices = await accountingService.getReceivedInvoices(company.id, { limit: 1000 });
         setInvoices(receivedInvoices);
         
@@ -413,17 +413,17 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           createdBy: apiTask.created_by,
           category: 'other', // Default kategAlria
         }));
-        console.log('CompanyDashboard: KonvertovanA� Aslohy:', convertedTasks);
+        console.log('CompanyDashboard: KonvertovanA? Aslohy:', convertedTasks);
         setTasks(convertedTasks);
 
-        // Na�TA�tanie rozlA�L?enA?ch po�Ttov nepre�TA�tanA?ch sprA?v
+        // Na?TA?tanie rozlA?L?enA?ch po?Ttov nepre?TA?tanA?ch sprA?v
         await loadUnreadCounts();
 
-        // Na�TA�tanie zamestnancov
+        // Na?TA?tanie zamestnancov
         await loadEmployees();
 
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� dA?t:', error);
+        console.error('Chyba pri na?TA?tanA? dA?t:', error);
         console.error('Error details:', error);
       } finally {
         setLoadingFiles(false);
@@ -435,7 +435,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     loadData();
   }, [company.id, loadUnreadMessagesCount, loadUnreadCounts, loadEmployees]);
 
-  // AutomatickA� aktualizA?cie po�Ttu sprA?v kaLldA?ch 30 sekAsnd
+  // AutomatickA? aktualizA?cie po?Ttu sprA?v kaLldA?ch 30 sekAsnd
   useEffect(() => {
     const interval = setInterval(() => {
       loadUnreadCounts();
@@ -444,7 +444,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     return () => clearInterval(interval);
   }, [loadUnreadCounts]);
 
-  // Na�TA�tanie vA?platnA?ch pA?sok pod�la filtrov
+  // Na?TA?tanie vA?platnA?ch pA?sok pod?la filtrov
   useEffect(() => {
     const loadPayslips = async () => {
       if (activeTab !== 'hr-payslips' && activeTab !== 'payslips') return;
@@ -458,7 +458,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           employeeId: number; name: string; month?: number; gross?: number; net?: number; settlement?: number; workedDays?: number; workedHours?: number; socialInsurance?: number; healthInsurance?: number;
         }> = [];
 
-        // Ak je zvolenA? konkrA�tny mesiac -> na�TA�taj detail za mesiac pre kaLldA�ho
+        // Ak je zvolenA? konkrA?tny mesiac -> na?TA?taj detail za mesiac pre kaLldA?ho
         if (payslipsMonth) {
           await Promise.all(targetEmployees.map(async (emp) => {
             try {
@@ -477,11 +477,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                 healthInsurance: p.healthInsurance || 0,
               });
             } catch (_) {
-              // Bez pA?du �?" zamestnanec mA�Lle nemaLA vA?platu v danom mesiaci
+              // Bez pA?du ??" zamestnanec mA?Lle nemaLA vA?platu v danom mesiaci
             }
           }));
         } else {
-          // Inak ro�TnA? preh�lad pre kaLldA�ho zamestnanca (sumA?r)
+          // Inak ro?TnA? preh?lad pre kaLldA?ho zamestnanca (sumA?r)
           await Promise.all(targetEmployees.map(async (emp) => {
             try {
               const data = await payrollService.getPayslips(company.id, emp.id, payslipsYear);
@@ -500,7 +500,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           }));
         }
 
-        // Zoradenie pod�la mena
+        // Zoradenie pod?la mena
         rows.sort((a, b) => a.name.localeCompare(b.name, 'sk'));
         setPayslipsRows(rows);
       } finally {
@@ -512,7 +512,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center">
@@ -538,7 +538,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Aslohy</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
-              <p className="text-sm text-gray-500">{stats.pendingTasks} �TakajAscich</p>
+              <p className="text-sm text-gray-500">{stats.pendingTasks} ?TakajAscich</p>
               <p className="text-xs text-green-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -553,9 +553,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <CurrencyDollarIcon className="h-8 w-8 text-yellow-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">NezaplatenA� faktAsry</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">NezaplatenA? faktAsry</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.unpaidInvoices}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.totalAmount.toFixed(2)} �,� celkovo</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.totalAmount.toFixed(2)} ?,? celkovo</p>
               <p className="text-xs text-yellow-600 mt-1">DIVIDENDA s.r.o. - kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -573,8 +573,8 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <p className="text-sm font-medium text-gray-600">SprA?vy</p>
               <p className="text-2xl font-bold text-gray-900">{unreadCounts.totalUnreadCount}</p>
               <div className="text-sm text-gray-500">
-                <div>PrijatA�: {unreadCounts.receivedUnreadCount}</div>
-                <div>OdoslanA�: {unreadCounts.sentUnreadCount}</div>
+                <div>PrijatA?: {unreadCounts.receivedUnreadCount}</div>
+                <div>OdoslanA?: {unreadCounts.sentUnreadCount}</div>
               </div>
               <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
@@ -599,7 +599,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">HR, Personalistika a mzdy</p>
               <p className="text-2xl font-bold text-gray-900">dz'A</p>
-              <p className="text-sm text-gray-500">SprA?va �ludskA?ch zdrojov</p>
+              <p className="text-sm text-gray-500">SprA?va ?ludskA?ch zdrojov</p>
               <p className="text-xs text-orange-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -616,7 +616,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Aslohy</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
-              <p className="text-sm text-gray-500">{stats.pendingTasks} �TakajAscich</p>
+              <p className="text-sm text-gray-500">{stats.pendingTasks} ?TakajAscich</p>
               <p className="text-xs text-green-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -648,9 +648,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <CalendarIcon className="h-8 w-8 text-purple-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">As�TtovnA� obdobie</p>
+              <p className="text-sm font-medium text-gray-600">As?TtovnA? obdobie</p>
               <p className="text-2xl font-bold text-gray-900">dz".</p>
-              <p className="text-sm text-gray-500">MzdovA� obdobia</p>
+              <p className="text-sm text-gray-500">MzdovA? obdobia</p>
               <p className="text-xs text-purple-600 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -662,7 +662,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   const renderCompanyPayslips = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">VA?platnA� pA?sky</h2>
+        <h2 className="text-2xl font-bold text-gray-900">VA?platnA? pA?sky</h2>
         <div className="flex items-center space-x-3">
           <label className="text-sm text-gray-600">Rok</label>
           <select
@@ -700,29 +700,29 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         </div>
       </div>
 
-      {/* SAshrnnA� karty pod�la aktuA?lneho filtra */}
+      {/* SAshrnnA? karty pod?la aktuA?lneho filtra */}
       {!payslipsLoading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-green-700">�SistA? mzda spolu</p>
+            <p className="text-sm text-green-700">?SistA? mzda spolu</p>
             <p className="text-2xl font-bold text-green-900">
-              {payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} �,�
+              {payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} ?,?
             </p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-blue-700">HrubA? mzda spolu</p>
             <p className="text-2xl font-bold text-blue-900">
-              {payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} �,�
+              {payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} ?,?
             </p>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-sm text-purple-700">VyplatenA� spolu</p>
+            <p className="text-sm text-purple-700">VyplatenA? spolu</p>
             <p className="text-2xl font-bold text-purple-900">
-              {payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} �,�
+              {payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} ?,?
             </p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-sm text-yellow-700">Po�Tet zA?znamov</p>
+            <p className="text-sm text-yellow-700">Po?Tet zA?znamov</p>
             <p className="text-2xl font-bold text-yellow-900">{payslipsRows.length}</p>
           </div>
         </div>
@@ -730,7 +730,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {payslipsLoading ? (
-          <div className="p-6">Na�TA�tavam...</div>
+          <div className="p-6">Na?TA?tavam...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -741,11 +741,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mesiac</th>
                   )}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HrubA?</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">�SistA?</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VyplatenA�</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">?SistA?</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VyplatenA?</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ZP</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OdpracovanA� (dni / h)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OdpracovanA? (dni / h)</th>
                   {payslipsMonth && (
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akcie</th>
                   )}
@@ -758,11 +758,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                     {payslipsMonth && (
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.month}</td>
                     )}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.gross || 0).toFixed(2)} �,�</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.net || 0).toFixed(2)} �,�</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.settlement || 0).toFixed(2)} �,�</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.socialInsurance || 0).toFixed(2)} �,�</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.healthInsurance || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.gross || 0).toFixed(2)} ?,?</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.net || 0).toFixed(2)} ?,?</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.settlement || 0).toFixed(2)} ?,?</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.socialInsurance || 0).toFixed(2)} ?,?</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(row.healthInsurance || 0).toFixed(2)} ?,?</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.workedDays || 0} / {row.workedHours || 0}</td>
                     {payslipsMonth && (
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -778,7 +778,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                 ))}
                 {payslipsRows.length === 0 && (
                   <tr>
-                    <td className="px-6 py-4 text-sm text-gray-500" colSpan={payslipsMonth ? 9 : 7}>L?iadne dA?ta pre zvolenA� filtre.</td>
+                    <td className="px-6 py-4 text-sm text-gray-500" colSpan={payslipsMonth ? 9 : 7}>L?iadne dA?ta pre zvolenA? filtre.</td>
                   </tr>
                 )}
               </tbody>
@@ -809,7 +809,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         {loadingTasks ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Na�TA�tavam Aslohy...</p>
+            <p className="mt-4 text-gray-600">Na?TA?tavam Aslohy...</p>
           </div>
         ) : (
           <>
@@ -862,7 +862,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                 <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne Aslohy</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Zatia�l neboli vytvorenA� Lliadne Aslohy pre tAsto firmu.
+                  Zatia?l neboli vytvorenA? Lliadne Aslohy pre tAsto firmu.
                 </p>
                 <button
                   onClick={handleAddTask}
@@ -884,16 +884,16 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
     return (
       <div className="text-center py-12 bg-white rounded-lg shadow-md">
         <CalculatorIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">As�TtovnA�ctvo</h3>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">As?TtovnA?ctvo</h3>
         <p className="mt-1 text-sm text-gray-500">
-          Pre prA�stup k As�TtovnA�ctvu kliknite na tla�Tidlo niLlL?ie.
+          Pre prA?stup k As?TtovnA?ctvu kliknite na tla?Tidlo niLlL?ie.
         </p>
         <div className="mt-6">
           <button
             onClick={() => navigate('/accounting')}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
-            OtvoriLA As�TtovnA�ctvo
+            OtvoriLA As?TtovnA?ctvo
           </button>
         </div>
       </div>
@@ -903,9 +903,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
   const renderAccountants = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-900">PriradenA� As�TtovnA�ci</h2>
+        <h2 className="text-lg font-semibold text-gray-900">PriradenA? As?TtovnA?ci</h2>
         <div className="text-sm text-gray-500">
-          {company.assignedToAccountants?.length || 0} As�TtovnA�kov priradenA?ch k firme
+          {company.assignedToAccountants?.length || 0} As?TtovnA?kov priradenA?ch k firme
         </div>
       </div>
 
@@ -916,7 +916,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    As�TtovnA�k
+                    As?TtovnA?k
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Email
@@ -925,7 +925,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    PoslednA� prihlA?senie
+                    PoslednA? prihlA?senie
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Akcie
@@ -934,14 +934,14 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {company.assignedToAccountants.map((accountantEmail, index) => {
-                  // SimulovanA� dA?ta pre As�TtovnA�ka (v reA?lnej aplikA?cii by sa na�TA�tali z databA?zy)
+                  // SimulovanA? dA?ta pre As?TtovnA?ka (v reA?lnej aplikA?cii by sa na?TA?tali z databA?zy)
                   const accountant = {
                     id: index + 1,
                     name: accountantEmail.includes('@') ? accountantEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : accountantEmail,
                     email: accountantEmail,
                     status: 'active',
                     lastLogin: '1 hodinu',
-                    department: 'As�TtovnA�ctvo'
+                    department: 'As?TtovnA?ctvo'
                   };
 
                   return (
@@ -966,7 +966,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          AktA�vny
+                          AktA?vny
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -990,9 +990,9 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
       ) : (
         <div className="text-center py-12 bg-white rounded-lg shadow-md">
           <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadni priradenA� As�TtovnA�ci</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadni priradenA? As?TtovnA?ci</h3>
           <p className="mt-1 text-sm text-gray-500">
-            K tejto firme zatia�l nie sAs priradenA� Lliadni As�TtovnA�ci.
+            K tejto firme zatia?l nie sAs priradenA? Lliadni As?TtovnA?ci.
           </p>
         </div>
       )}
@@ -1042,11 +1042,11 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{company.name} - Dashboard</h1>
-              <p className="text-gray-600">I�SO: {company.ico} | OR: {company.business_registry}</p>
+              <p className="text-gray-600">I?SO: {company.ico} | OR: {company.business_registry}</p>
             </div>
             <div className="text-right">
               <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
-                <p className="text-sm font-medium text-blue-800">AktA�vna firma</p>
+                <p className="text-sm font-medium text-blue-800">AktA?vna firma</p>
                 <p className="text-xs text-blue-600">{company.name}</p>
               </div>
             </div>
@@ -1057,13 +1057,13 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: 'overview', name: 'Preh�lad', icon: ChartBarIcon },
+              { id: 'overview', name: 'Preh?lad', icon: ChartBarIcon },
               { id: 'tasks', name: 'Aslohy', icon: ClipboardDocumentListIcon },
               { id: 'files', name: 'SAsbory', icon: FolderIcon },
               { id: 'dropbox', name: 'Dropbox', icon: CloudIcon },
               { id: 'hr', name: 'HR', icon: UsersIcon },
-              { id: 'accountants', name: 'As�TtovnA�ci', icon: UserIcon },
-              { id: 'accounting', name: 'As�TtovnA�ctvo', icon: DocumentTextIcon },
+              { id: 'accountants', name: 'As?TtovnA?ci', icon: UserIcon },
+              { id: 'accounting', name: 'As?TtovnA?ctvo', icon: DocumentTextIcon },
               { id: 'messages', name: 'SprA?vy', icon: EnvelopeIcon },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1105,7 +1105,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               {loadingFiles ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">Na�TA�tavam sAsbory...</p>
+                  <p className="mt-4 text-gray-600">Na?TA?tavam sAsbory...</p>
                 </div>
               ) : (
                 <FileManager
@@ -1137,7 +1137,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
               })()}
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Dropbox sAsbory</h2>
-                <p className="text-sm text-gray-600 mt-1">VaL?e zdie�lanA� sAsbory v Dropboxe</p>
+                <p className="text-sm text-gray-600 mt-1">VaL?e zdie?lanA? sAsbory v Dropboxe</p>
               </div>
               <div className="p-6">
                 <DropboxIntegration
@@ -1150,7 +1150,7 @@ const CompanyDashboard: React.FC<CompanyDashboardProps> = ({ company, onClose, u
                   companyICO={company.ico}
                   onFileSelect={(file) => {
                     console.log('Selected Dropbox file:', file);
-                    // Tu mA�Lleme implementovaLA logiku pre import sAsboru z Dropbox
+                    // Tu mA?Lleme implementovaLA logiku pre import sAsboru z Dropbox
                   }}
                 />
               </div>

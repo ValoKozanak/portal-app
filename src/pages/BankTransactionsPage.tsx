@@ -18,7 +18,7 @@ interface BankTransaction {
   debet: number;
   zostatok: number;
   typ: 'kredit' | 'debet';
-  firma?: string; // Volite�lnA� pole
+  firma?: string; // Volite?lnA? pole
 }
 
 interface BankTransactionsData {
@@ -70,19 +70,19 @@ const BankTransactionsPage: React.FC = () => {
       setError(null);
 
       if (!accountNumber) {
-        setError('ChA?ba �TA�slo As�Ttu');
+        setError('ChA?ba ?TA?slo As?Ttu');
         return;
       }
 
-      console.log('dzZ� Na�TA�tavam transakcie pre As�Tet:', accountNumber);
+      console.log('dzZ? Na?TA?tavam transakcie pre As?Tet:', accountNumber);
 
       const data = await accountingService.getBankTransactions(Number(companyId), accountNumber);
-      console.log('dzZ� Transakcie na�TA�tanA�:', data);
+      console.log('dzZ? Transakcie na?TA?tanA?:', data);
 
       setTransactionsData(data);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� transakciA�:', error);
-      setError('Chyba pri na�TA�tanA� transakciA�');
+      console.error('Chyba pri na?TA?tanA? transakciA?:', error);
+      setError('Chyba pri na?TA?tanA? transakciA?');
     } finally {
       setLoading(false);
     }
@@ -122,32 +122,32 @@ const BankTransactionsPage: React.FC = () => {
   };
 
   const filteredTransactions = transactionsData?.transactions?.filter(transaction => {
-    // Filtrovanie pod�la dA?tumu
+    // Filtrovanie pod?la dA?tumu
     if (filters.datum && !transaction.datum.includes(filters.datum)) {
       return false;
     }
     
-    // Filtrovanie pod�la popisu
+    // Filtrovanie pod?la popisu
     if (filters.popis && !transaction.popis.toLowerCase().includes(filters.popis.toLowerCase())) {
       return false;
     }
     
-    // Filtrovanie pod�la firmy
+    // Filtrovanie pod?la firmy
     if (filters.firma && (!transaction.firma || !transaction.firma.toLowerCase().includes(filters.firma.toLowerCase()))) {
       return false;
     }
     
-    // Filtrovanie pod�la kreditu
+    // Filtrovanie pod?la kreditu
     if (filters.kredit && !transaction.kredit.toString().includes(filters.kredit)) {
       return false;
     }
     
-    // Filtrovanie pod�la debetu
+    // Filtrovanie pod?la debetu
     if (filters.debet && !transaction.debet.toString().includes(filters.debet)) {
       return false;
     }
     
-    // Filtrovanie pod�la zostatku
+    // Filtrovanie pod?la zostatku
     if (filters.zostatok && !transaction.zostatok.toString().includes(filters.zostatok)) {
       return false;
     }
@@ -192,7 +192,7 @@ const BankTransactionsPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                SpA�LA na BankovAs knihu
+                SpA?LA na BankovAs knihu
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -214,20 +214,20 @@ const BankTransactionsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {transactionsData && (
           <>
-            {/* InformA?cie o As�Tte */}
+            {/* InformA?cie o As?Tte */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                InformA?cie o As�Tte
+                InformA?cie o As?Tte
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">�SA�slo As�Ttu</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">?SA?slo As?Ttu</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {transactionsData.account.accountNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">NA?zov As�Ttu</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">NA?zov As?Ttu</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {transactionsData.account.accountName}
                   </p>
@@ -244,7 +244,7 @@ const BankTransactionsPage: React.FC = () => {
             {/* SAshrn */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                SAshrn transakciA�
+                SAshrn transakciA?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
@@ -284,7 +284,7 @@ const BankTransactionsPage: React.FC = () => {
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-purple-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Po�Tet transakciA�</p>
+                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Po?Tet transakciA?</p>
                       <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                         {transactionsData.summary.transactionCount}
                       </p>
@@ -294,7 +294,7 @@ const BankTransactionsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabu�lka transakciA� s filtrovacA�mi poliami v hlavi�Tke */}
+            {/* Tabu?lka transakciA? s filtrovacA?mi poliami v hlavi?Tke */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -305,7 +305,7 @@ const BankTransactionsPage: React.FC = () => {
                   className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <FunnelIcon className="h-4 w-4 mr-1" />
-                  Vy�TistiLA filtre
+                  Vy?TistiLA filtre
                 </button>
               </div>
               <div className="overflow-x-auto">

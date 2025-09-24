@@ -20,7 +20,7 @@ const AccountantDropboxPage: React.FC<AccountantDropboxPageProps> = ({ userEmail
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">SpA�LA do Dashboard</span>
+                <span className="font-medium">SpA?LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -38,7 +38,7 @@ const AccountantDropboxPage: React.FC<AccountantDropboxPageProps> = ({ userEmail
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dropbox integrA?cia</h1>
           <p className="text-gray-600 mt-2">
-            SprA?va sAsborov cez Dropbox pre vL?etky priradenA� firmy
+            SprA?va sAsborov cez Dropbox pre vL?etky priradenA? firmy
           </p>
         </div>
 

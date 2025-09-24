@@ -45,7 +45,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     companies: 0,
   });
 
-  // AktualizA?cia L?tatistA�k na zA?klade po�Ttu firiem
+  // AktualizA?cia L?tatistA?k na zA?klade po?Ttu firiem
   useEffect(() => {
     setStats(prev => ({
       ...prev,
@@ -53,17 +53,17 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     }));
   }, [companies.length]);
 
-  // Na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v
+  // Na?TA?tanie po?Ttu nepre?TA?tanA?ch sprA?v
   const loadUnreadMessagesCount = async () => {
     try {
       const unreadCount = await apiService.getUnreadCount(userEmail);
       setUnreadMessagesCount(unreadCount);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� po�Ttu nepre�TA�tanA?ch sprA?v:', error);
+      console.error('Chyba pri na?TA?tanA? po?Ttu nepre?TA?tanA?ch sprA?v:', error);
     }
   };
 
-  // Na�TA�tanie Asloh As�TtovnA�ka
+  // Na?TA?tanie Asloh As?TtovnA?ka
   const loadAccountantTasks = async () => {
     try {
       const accountantTasks = await apiService.getAccountantTasks(userEmail);
@@ -77,18 +77,18 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         completed: completedTasks.length,
       }));
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� Asloh As�TtovnA�ka:', error);
+      console.error('Chyba pri na?TA?tanA? Asloh As?TtovnA?ka:', error);
     }
   };
 
-  // Na�TA�tanie firiem priradenA?ch As�TtovnA�kovi
+  // Na?TA?tanie firiem priradenA?ch As?TtovnA?kovi
   useEffect(() => {
     const loadAccountantData = async () => {
       try {
         const assignedCompanies = await apiService.getAccountantCompanies(userEmail);
         setCompanies(assignedCompanies);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
+        console.error('Chyba pri na?TA?tanA? dA?t As?TtovnA?ka:', error);
       } finally {
         setLoadingCompanies(false);
       }
@@ -99,7 +99,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     loadAccountantTasks();
   }, [userEmail]);
 
-  // AutomatickA� aktualizA?cie po�Ttu nepre�TA�tanA?ch sprA?v kaLldA?ch 30 sekAsnd
+  // AutomatickA? aktualizA?cie po?Ttu nepre?TA?tanA?ch sprA?v kaLldA?ch 30 sekAsnd
   useEffect(() => {
     const interval = setInterval(() => {
       loadUnreadMessagesCount();
@@ -110,7 +110,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
 
 
 
-  // Ak sa mA? zobraziLA Dropbox strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Dropbox strA?nka, zobrazA?me ju na celAs obrazovku
   if (showDropboxPage) {
     return (
       <AccountantDropboxPage
@@ -120,7 +120,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   }
 
-  // Ak sa mA? zobraziLA Tasks strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Tasks strA?nka, zobrazA?me ju na celAs obrazovku
   if (showTasksPage) {
     return (
       <AccountantTasksPage
@@ -130,7 +130,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   }
 
-  // Ak sa mA? zobraziLA Files strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Files strA?nka, zobrazA?me ju na celAs obrazovku
   if (showFilesPage) {
     return (
       <AccountantFilesPage
@@ -140,7 +140,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   }
 
-  // Ak sa mA? zobraziLA Companies strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Companies strA?nka, zobrazA?me ju na celAs obrazovku
   if (showCompaniesPage) {
     return (
       <AccountantCompaniesPage
@@ -150,7 +150,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   }
 
-  // Ak sa mA? zobraziLA Calendar strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Calendar strA?nka, zobrazA?me ju na celAs obrazovku
   if (showCalendarPage) {
     return (
       <AccountantCalendarPage
@@ -160,7 +160,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
     );
   }
 
-  // Ak sa mA? zobraziLA Messages strA?nka, zobrazA�me ju na celAs obrazovku
+  // Ak sa mA? zobraziLA Messages strA?nka, zobrazA?me ju na celAs obrazovku
   if (showMessagesPage) {
     return (
       <AccountantMessagesPage
@@ -176,7 +176,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard As�TtovnA�ka</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard As?TtovnA?ka</h1>
             <p className="text-gray-600 mt-2">SprA?va priradenA?ch firiem a Asloh</p>
           </div>
           <div className="flex items-center space-x-4">
@@ -191,7 +191,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
         </div>
       </div>
 
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
 
 
@@ -207,7 +207,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               <p className="text-sm font-medium text-gray-600">Aslohy</p>
               <p className="text-2xl font-bold text-gray-900">{stats.tasks}</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
-              <p className="text-sm text-gray-500">{stats.pending} �TakajAscich</p>
+              <p className="text-sm text-gray-500">{stats.pending} ?TakajAscich</p>
             </div>
           </div>
         </button>
@@ -221,7 +221,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               <CheckCircleIcon className="h-8 w-8 text-green-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Dokon�TenA�</p>
+              <p className="text-sm font-medium text-gray-600">Dokon?TenA?</p>
               <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
@@ -238,7 +238,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">SAsbory</p>
-                             <p className="text-2xl font-bold text-gray-900">�z</p>
+                             <p className="text-2xl font-bold text-gray-900">?z</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -253,7 +253,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               <BuildingOfficeIcon className="h-8 w-8 text-purple-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">PriradenA� firmy</p>
+              <p className="text-sm font-medium text-gray-600">PriradenA? firmy</p>
               <p className="text-2xl font-bold text-gray-900">{stats.companies}</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
@@ -270,7 +270,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">KalendA?r</p>
-                             <p className="text-2xl font-bold text-gray-900">�z</p>
+                             <p className="text-2xl font-bold text-gray-900">?z</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -286,7 +286,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Dropbox</p>
-              <p className="text-2xl font-bold text-gray-900">�z</p>
+              <p className="text-2xl font-bold text-gray-900">?z</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>
@@ -305,7 +305,7 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
               {unreadMessagesCount > 0 && (
-                <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} nepre�TA�tanA?ch</p>
+                <p className="text-sm text-indigo-600 font-medium">{unreadMessagesCount} nepre?TA?tanA?ch</p>
               )}
             </div>
           </div>
@@ -320,8 +320,8 @@ const AccountantDashboard: React.FC<AccountantDashboardProps> = ({ userEmail }) 
               <CalculatorIcon className="h-8 w-8 text-green-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">As�TtovnA�ctvo</p>
-              <p className="text-2xl font-bold text-gray-900">�z</p>
+              <p className="text-sm font-medium text-gray-600">As?TtovnA?ctvo</p>
+              <p className="text-2xl font-bold text-gray-900">?z</p>
               <p className="text-xs text-gray-500 mt-1">Kliknite pre zobrazenie</p>
             </div>
           </div>

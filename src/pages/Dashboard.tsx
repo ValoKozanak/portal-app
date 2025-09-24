@@ -36,10 +36,10 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) => {
   const [userProfile, setUserProfile] = useState({
-    name: 'PouLlA�vate�l',
+    name: 'PouLlA?vate?l',
     email: userEmail,
     phone: '+421 123 456 789',
-    bio: 'AktA�vny pouLlA�vate�l portA?lu s zA?ujmom o dokumenty a Aslohy.'
+    bio: 'AktA?vny pouLlA?vate?l portA?lu s zA?ujmom o dokumenty a Aslohy.'
   });
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
@@ -58,17 +58,17 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const [showEmployeesPage, setShowEmployeesPage] = useState(false);
   const [employeesCount, setEmployeesCount] = useState({ working: 0, notWorking: 0, total: 0 });
 
-  // Na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v
+  // Na?TA?tanie po?Ttu nepre?TA?tanA?ch sprA?v
   const loadUnreadMessagesCount = useCallback(async () => {
     try {
       const count = await apiService.getUnreadCount(userEmail);
       setUnreadMessagesCount(count);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� po�Ttu nepre�TA�tanA?ch sprA?v:', error);
+      console.error('Chyba pri na?TA?tanA? po?Ttu nepre?TA?tanA?ch sprA?v:', error);
     }
   }, [userEmail]);
 
-  // Na�TA�tanie po�Ttu zamestnancov
+  // Na?TA?tanie po?Ttu zamestnancov
   const loadEmployeesCount = useCallback(async () => {
     try {
       const userCompanies = await apiService.getUserCompanies(userEmail);
@@ -81,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           const employees = await hrService.getEmployees(company.id);
           totalEmployees += employees.length;
           
-          // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
+          // Na?TA?tanie dochA?dzky a dovoleniek pre kaLldA?ho zamestnanca
           const today = formatDate(new Date());
           
           for (const employee of employees) {
@@ -94,14 +94,14 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               const employeeAttendance = attendance.filter(att => att.employee_id === employee.id);
               const employeeLeaveRequests = leaveRequests.filter(leave => leave.employee_id === employee.id);
               
-              // PouLlA�vame rovnakAs logiku ako v UserEmployeesPage
+              // PouLlA?vame rovnakAs logiku ako v UserEmployeesPage
               // Najprv kontrolujeme status zamestnania z databA?zy
               if (employee.status === 'terminated' || employee.status === 'inactive') {
                 totalNotWorking++;
               } else if (employee.status === 'on_leave') {
                 totalNotWorking++;
               } else {
-                // Kontrola dochA?dzky na dneL?nA? deL�
+                // Kontrola dochA?dzky na dneL?nA? deL?
                 const todayAttendance = employeeAttendance.find(att => att.date === today);
                 
                 if (todayAttendance && todayAttendance.status === 'present') {
@@ -120,19 +120,19 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                 }
               }
             } catch (error) {
-              console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
-              // Ak sa nepodarA� na�TA�taLA Asdaje, povaLlujeme za neprA�tomnA�ho
+              console.error(`Chyba pri na?TA?tanA? detailov pre zamestnanca ${employee.id}:`, error);
+              // Ak sa nepodarA? na?TA?taLA Asdaje, povaLlujeme za neprA?tomnA?ho
               totalNotWorking++;
             }
           }
         } catch (error) {
-          console.error(`Chyba pri na�TA�tanA� zamestnancov pre firmu ${company.id}:`, error);
+          console.error(`Chyba pri na?TA?tanA? zamestnancov pre firmu ${company.id}:`, error);
         }
       }
 
       setEmployeesCount({ working: totalWorking, notWorking: totalNotWorking, total: totalEmployees });
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� po�Ttu zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? po?Ttu zamestnancov:', error);
     }
   }, [userEmail]);
 
@@ -141,7 +141,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     loadEmployeesCount();
   }, [loadUnreadMessagesCount, loadEmployeesCount]);
 
-  // Na�TA�tanie Asloh pouLlA�vate�la
+  // Na?TA?tanie Asloh pouLlA?vate?la
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -164,7 +164,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         
         setTasks(convertedTasks);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� Asloh:', error);
+        console.error('Chyba pri na?TA?tanA? Asloh:', error);
       } finally {
         setLoadingTasks(false);
       }
@@ -177,7 +177,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
 
 
 
-  // Na�TA�tanie firiem z API
+  // Na?TA?tanie firiem z API
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         const userCompanies = await apiService.getUserCompanies(userEmail);
         setCompanies(userCompanies);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� firiem:', error);
+        console.error('Chyba pri na?TA?tanA? firiem:', error);
       } finally {
         setLoading(false);
       }
@@ -194,7 +194,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     loadCompanies();
   }, [userEmail]);
 
-  // Po na�TA�tanA� firiem automaticky otvorA�me dashboard vybranej firmy (ak je uloLlenA? v localStorage)
+  // Po na?TA?tanA? firiem automaticky otvorA?me dashboard vybranej firmy (ak je uloLlenA? v localStorage)
   useEffect(() => {
     try {
       const savedId = localStorage.getItem('selectedCompanyId');
@@ -242,15 +242,15 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           status: 'active'
         };
         
-        // Kontrola povinnA?ch polA�
+        // Kontrola povinnA?ch polA?
         if (!companyData.name || !companyData.ico || !companyData.address || !companyData.authorized_person) {
-          alert('ChA?bajAs povinnA� Asdaje: nA?zov firmy, I�SO, adresa alebo oprA?vnenA? osoba');
+          alert('ChA?bajAs povinnA? Asdaje: nA?zov firmy, I?SO, adresa alebo oprA?vnenA? osoba');
           return;
         }
         
         console.log('VytvA?ram firmu s dA?tami:', companyData);
         const response = await apiService.createCompany(companyData);
-        console.log('Odpove�Z z API:', response);
+        console.log('Odpove?Z z API:', response);
         const newCompany = { ...company, id: response.companyId, owner_email: userEmail, status: 'active' };
         setCompanies((prev: Company[]) => [...prev, newCompany]);
         setShowCompanyModal(false);
@@ -258,8 +258,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         setIsEditingCompany(false);
       }
     } catch (error) {
-      console.error('Chyba pri ukladanA� firmy:', error);
-      alert('Chyba pri ukladanA� firmy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri ukladanA? firmy:', error);
+      alert('Chyba pri ukladanA? firmy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
@@ -273,7 +273,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     setSelectedCompany(null);
   };
 
-  // Ak je vybranA? firma, zobrazA�me dashboard firmy
+  // Ak je vybranA? firma, zobrazA?me dashboard firmy
   if (selectedCompany) {
     return (
       <CompanyDashboard
@@ -285,7 +285,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazenA? strA?nka Asloh, zobrazA�me ju
+  // Ak je zobrazenA? strA?nka Asloh, zobrazA?me ju
   if (showTasksPage) {
     return (
       <UserTasksPage
@@ -295,7 +295,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazenA? strA?nka sprA?v, zobrazA�me ju
+  // Ak je zobrazenA? strA?nka sprA?v, zobrazA?me ju
   if (showMessagesPage) {
     return (
       <UserMessagesPage
@@ -305,7 +305,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazenA? strA?nka zamestnancov, zobrazA�me ju
+  // Ak je zobrazenA? strA?nka zamestnancov, zobrazA?me ju
   if (showEmployeesPage) {
     return (
       <UserEmployeesPage
@@ -381,7 +381,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <EnvelopeIcon className="h-8 w-8 text-purple-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Nepre�TA�tanA� sprA?vy</p>
+              <p className="text-sm font-medium text-gray-600">Nepre?TA?tanA? sprA?vy</p>
               <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
           </div>
         </div>
@@ -393,7 +393,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <CheckCircleIcon className="h-8 w-8 text-green-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">AktA�vne firmy</p>
+              <p className="text-sm font-medium text-gray-600">AktA?vne firmy</p>
               <p className="text-2xl font-bold text-gray-900">
                 {companies.filter(c => c.status === 'active').length}
               </p>
@@ -412,7 +412,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">VaL?e Aslohy</p>
               <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
-              <p className="text-sm text-gray-500">{tasks.filter(t => t.status === 'pending').length} �TakajAscich</p>
+              <p className="text-sm text-gray-500">{tasks.filter(t => t.status === 'pending').length} ?TakajAscich</p>
             </div>
           </div>
         </div>
@@ -428,7 +428,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           {loading ? (
                <div className="text-center py-12">
                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Na�TA�tavam vaL?e firmy...</p>
+              <p className="mt-4 text-gray-600">Na?TA?tavam vaL?e firmy...</p>
                </div>
           ) : companies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -444,7 +444,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                       <div className="space-y-2 text-sm text-gray-600">
                            <div className="flex items-center">
                           <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                          <span>I�SO: {company.ico}</span>
+                          <span>I?SO: {company.ico}</span>
                            </div>
                            <div className="flex items-center">
                           <EnvelopeIcon className="h-4 w-4 mr-2" />
@@ -462,7 +462,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         company.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {company.status === 'active' ? 'AktA�vna' : 'NeaktA�vna'}
+                        {company.status === 'active' ? 'AktA?vna' : 'NeaktA?vna'}
                          </span>
                        </div>
                      </div>
@@ -492,7 +492,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <BuildingOfficeIcon className="mx-auto h-16 w-16 text-gray-400" />
               <h3 className="mt-4 text-lg font-medium text-gray-900">NemA?te Lliadne firmy</h3>
               <p className="mt-2 text-sm text-gray-500 mb-6">
-                Pre prA?cu v portA?li potrebujete vytvoriLA aspoL� jednu firmu.
+                Pre prA?cu v portA?li potrebujete vytvoriLA aspoL? jednu firmu.
               </p>
               <button
                 onClick={handleAddCompany}
@@ -511,7 +511,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                PridaLA �ZalL?iu firmu
+                PridaLA ?ZalL?iu firmu
               </button>
                </div>
              )}
