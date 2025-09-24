@@ -1,4 +1,4 @@
-﻿// Guard: blokuj pokazené URL pri push/replaceState (napr. ~and~, //?/)
+// Guard: blokuj pokazené URL pri push/replaceState (napr. ~and~, //?/)
 (function () {
   const origReplace = history.replaceState.bind(history);
   const origPush = history.pushState.bind(history);
