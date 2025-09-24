@@ -45,7 +45,7 @@ const LazyLoad: React.FC<LazyLoadProps> = ({
 
   useEffect(() => {
     if (isVisible) {
-      // Simuluj loading time pre lepší UX
+      // Simuluj loading time pre lepL?A� UX
       const timer = setTimeout(() => {
         setIsLoaded(true);
       }, 100);
@@ -56,7 +56,7 @@ const LazyLoad: React.FC<LazyLoadProps> = ({
 
   const defaultPlaceholder = (
     <div className="flex items-center justify-center p-8">
-      <LoadingSpinner size="md" text="Načítavam..." />
+      <LoadingSpinner size="md" text="Na�TA�tavam..." />
     </div>
   );
 
@@ -68,6 +68,7 @@ const LazyLoad: React.FC<LazyLoadProps> = ({
 };
 
 export default React.memo(LazyLoad);
+
 
 
 

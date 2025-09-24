@@ -18,33 +18,33 @@ import {
 const Clients: React.FC = () => {
   const portalFeatures = [
     {
-      title: 'Nahrávanie dokladov',
-      description: 'Bezpečné nahrávanie faktúr, účteniek a ďalších dokladov cez portál.',
+      title: 'NahrA?vanie dokladov',
+      description: 'Bezpe�TnA� nahrA?vanie faktAsr, As�Tteniek a �ZalL?A�ch dokladov cez portA?l.',
       icon: DocumentTextIcon
     },
     {
-      title: 'Prehľad platieb',
-      description: 'Priehľadný prehľad všetkých platieb, faktúr a záväzkov.',
+      title: 'Preh�lad platieb',
+      description: 'Prieh�ladnA? preh�lad vL?etkA?ch platieb, faktAsr a zA?vA�zkov.',
       icon: ChartBarIcon
     },
     {
-      title: 'Komunikácia s účtovníkom',
-      description: 'Priama komunikácia s vaším účtovníkom cez chat alebo správy.',
+      title: 'KomunikA?cia s As�TtovnA�kom',
+      description: 'Priama komunikA?cia s vaL?A�m As�TtovnA�kom cez chat alebo sprA?vy.',
       icon: PhoneIcon
     },
     {
-      title: 'Online správy',
-      description: 'Prístup k mesačným a ročným správam kedykoľvek.',
+      title: 'Online sprA?vy',
+      description: 'PrA�stup k mesa�TnA?m a ro�TnA?m sprA?vam kedyko�lvek.',
       icon: DocumentTextIcon
     },
     {
-      title: 'Bezpečný prístup',
-      description: 'Najvyššia úroveň bezpečnosti a ochrany vašich údajov.',
+      title: 'Bezpe�TnA? prA�stup',
+      description: 'NajvyL?L?ia AsroveL� bezpe�Tnosti a ochrany vaL?ich Asdajov.',
       icon: LockClosedIcon
     },
     {
-      title: '24/7 dostupnosť',
-      description: 'Prístup k vašim dokladom a informáciám kedykoľvek.',
+      title: '24/7 dostupnosLA',
+      description: 'PrA�stup k vaL?im dokladom a informA?ciA?m kedyko�lvek.',
       icon: ClockIcon
     }
   ];
@@ -52,45 +52,45 @@ const Clients: React.FC = () => {
   const workflow = [
     {
       step: '1',
-      title: 'Registrácia a nastavenie',
-      description: 'Vytvorenie účtu a nastavenie prístupu do klientského portálu.'
+      title: 'RegistrA?cia a nastavenie',
+      description: 'Vytvorenie As�Ttu a nastavenie prA�stupu do klientskA�ho portA?lu.'
     },
     {
       step: '2',
-      title: 'Nahrávanie dokladov',
-      description: 'Bezpečné nahrávanie faktúr a dokladov cez portál.'
+      title: 'NahrA?vanie dokladov',
+      description: 'Bezpe�TnA� nahrA?vanie faktAsr a dokladov cez portA?l.'
     },
     {
       step: '3',
-      title: 'Spracovanie účtovníkom',
-      description: 'Váš účtovník spracuje nahrané doklady a pripraví výkazy.'
+      title: 'Spracovanie As�TtovnA�kom',
+      description: 'VA?L? As�TtovnA�k spracuje nahranA� doklady a pripravA� vA?kazy.'
     },
     {
       step: '4',
-      title: 'Prehľad a komunikácia',
-      description: 'Prístup k spracovaným výkazom a komunikácia s účtovníkom.'
+      title: 'Preh�lad a komunikA?cia',
+      description: 'PrA�stup k spracovanA?m vA?kazom a komunikA?cia s As�TtovnA�kom.'
     }
   ];
 
   const benefits = [
     {
-      title: 'Úspora času',
-      description: 'Ušetríte čas na cestách a osobných stretnutiach.',
+      title: 'Asspora �Tasu',
+      description: 'UL?etrA�te �Tas na cestA?ch a osobnA?ch stretnutiach.',
       icon: ClockIcon
     },
     {
-      title: 'Prehľadnosť',
-      description: 'Všetky vaše doklady a výkazy na jednom mieste.',
+      title: 'Preh�ladnosLA',
+      description: 'VL?etky vaL?e doklady a vA?kazy na jednom mieste.',
       icon: ChartBarIcon
     },
     {
-      title: 'Bezpečnosť',
-      description: 'Najvyššia úroveň ochrany vašich citlivých údajov.',
+      title: 'Bezpe�TnosLA',
+      description: 'NajvyL?L?ia AsroveL� ochrany vaL?ich citlivA?ch Asdajov.',
       icon: ShieldCheckIcon
     },
     {
       title: 'Flexibilita',
-      description: 'Prístup k vašim údajom kedykoľvek a kdekoľvek.',
+      description: 'PrA�stup k vaL?im Asdajom kedyko�lvek a kdeko�lvek.',
       icon: ComputerDesktopIcon
     }
   ];
@@ -105,8 +105,8 @@ const Clients: React.FC = () => {
               Pre klientov
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Zistite, ako funguje komunikácia s účtovníkom a aké výhody 
-              prináša náš klientský portál pre vašu firmu.
+              Zistite, ako funguje komunikA?cia s As�TtovnA�kom a akA� vA?hody 
+              prinA?L?a nA?L? klientskA? portA?l pre vaL?u firmu.
             </p>
           </div>
         </div>
@@ -118,22 +118,22 @@ const Clients: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Ako funguje komunikácia s účtovníkom?
+                Ako funguje komunikA?cia s As�TtovnA�kom?
               </h2>
               <div className="space-y-4 text-lg text-gray-600">
                 <p>
-                  Naša komunikácia je založená na princípe transparentnosti a 
-                  spoľahlivosti. Každý klient má priradeného účtovníka, ktorý 
-                  sa stará o jeho účtovníctvo.
+                  NaL?a komunikA?cia je zaloLlenA? na princA�pe transparentnosti a 
+                  spo�lahlivosti. KaLldA? klient mA? priradenA�ho As�TtovnA�ka, ktorA? 
+                  sa starA? o jeho As�TtovnA�ctvo.
                 </p>
                 <p>
-                  Komunikácia prebieha cez náš bezpečný klientský portál, 
-                  kde môžete nahrávať doklady, komunikovať s účtovníkom 
-                  a sledovať stav spracovania.
+                  KomunikA?cia prebieha cez nA?L? bezpe�TnA? klientskA? portA?l, 
+                  kde mA�Llete nahrA?vaLA doklady, komunikovaLA s As�TtovnA�kom 
+                  a sledovaLA stav spracovania.
                 </p>
                 <p>
-                  Okrem portálu môžete komunikovať aj telefonicky alebo 
-                  emailom - váš účtovník je vždy dostupný pre vaše otázky.
+                  Okrem portA?lu mA�Llete komunikovaLA aj telefonicky alebo 
+                  emailom - vA?L? As�TtovnA�k je vLldy dostupnA? pre vaL?e otA?zky.
                 </p>
               </div>
             </div>
@@ -144,8 +144,8 @@ const Clients: React.FC = () => {
                     <PhoneIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Telefonická komunikácia</h3>
-                    <p className="text-gray-600">Priama komunikácia s vaším účtovníkom</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">TelefonickA? komunikA?cia</h3>
+                    <p className="text-gray-600">Priama komunikA?cia s vaL?A�m As�TtovnA�kom</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -153,8 +153,8 @@ const Clients: React.FC = () => {
                     <EnvelopeIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email komunikácia</h3>
-                    <p className="text-gray-600">Rýchla komunikácia cez email</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Email komunikA?cia</h3>
+                    <p className="text-gray-600">RA?chla komunikA?cia cez email</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -162,8 +162,8 @@ const Clients: React.FC = () => {
                     <ComputerDesktopIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Klientský portál</h3>
-                    <p className="text-gray-600">Bezpečná komunikácia cez portál</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">KlientskA? portA?l</h3>
+                    <p className="text-gray-600">Bezpe�TnA? komunikA?cia cez portA?l</p>
                   </div>
                 </div>
               </div>
@@ -177,10 +177,10 @@ const Clients: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Výhody klientského portálu
+              VA?hody klientskA�ho portA?lu
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Moderné riešenie pre efektívnu komunikáciu a správu vašich dokladov
+              ModernA� rieL?enie pre efektA�vnu komunikA?ciu a sprA?vu vaL?ich dokladov
             </p>
           </div>
           
@@ -206,7 +206,7 @@ const Clients: React.FC = () => {
               Ako pracujeme
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Jednoduchý proces spolupráce v 4 krokoch
+              JednoduchA? proces spoluprA?ce v 4 krokoch
             </p>
           </div>
           
@@ -228,13 +228,13 @@ const Clients: React.FC = () => {
                 <PlayIcon className="h-12 w-12 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Video návod: Ako používať klientský portál
+                Video nA?vod: Ako pouLlA�vaLA klientskA? portA?l
               </h3>
               <p className="text-gray-600 mb-4">
-                Pozrite si krátke video, ktoré vám ukáže, ako jednoducho používať náš portál
+                Pozrite si krA?tke video, ktorA� vA?m ukA?Lle, ako jednoducho pouLlA�vaLA nA?L? portA?l
               </p>
               <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                Prehrať video
+                PrehraLA video
               </button>
             </div>
           </div>
@@ -246,10 +246,10 @@ const Clients: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Prečo používať klientský portál?
+              Pre�To pouLlA�vaLA klientskA? portA?l?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Výhody, ktoré získate s používaním nášho portálu
+              VA?hody, ktorA� zA�skate s pouLlA�vanA�m nA?L?ho portA?lu
             </p>
           </div>
           
@@ -272,23 +272,23 @@ const Clients: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">
-              Pripravení začať používať portál?
+              PripravenA� za�TaLA pouLlA�vaLA portA?l?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Prihláste sa do klientského portálu a objavte všetky jeho možnosti
+              PrihlA?ste sa do klientskA�ho portA?lu a objavte vL?etky jeho moLlnosti
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/login"
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
               >
-                Prihlásiť sa do portálu
+                PrihlA?siLA sa do portA?lu
               </Link>
               <Link
                 to="/contact"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
               >
-                Kontaktovať nás
+                KontaktovaLA nA?s
               </Link>
             </div>
           </div>
@@ -299,3 +299,4 @@ const Clients: React.FC = () => {
 };
 
 export default Clients;
+

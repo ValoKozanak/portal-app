@@ -1,7 +1,7 @@
-// Simulovaný File Service - pripravený na AWS S3 integráciu
-// Pre aktiváciu S3: nainštalujte @aws-sdk/client-s3 a odkomentujte S3 kód
+// SimulovanA? File Service - pripravenA? na AWS S3 integrA?ciu
+// Pre aktivA?ciu S3: nainL?talujte @aws-sdk/client-s3 a odkomentujte S3 kAld
 
-// AWS S3 konfigurácia (pre budúcu integráciu)
+// AWS S3 konfigurA?cia (pre budAscu integrA?ciu)
 const s3Config = {
   region: process.env.REACT_APP_AWS_REGION || 'eu-central-1',
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
@@ -9,7 +9,7 @@ const s3Config = {
   bucketName: process.env.REACT_APP_S3_BUCKET_NAME || 'portal-files'
 };
 
-// Simulované úložisko súborov (v reálnej aplikácii by to bolo S3)
+// SimulovanA� AsloLlisko sAsborov (v reA?lnej aplikA?cii by to bolo S3)
 const fileStorage = new Map<string, FileData>();
 
 export interface FileData {
@@ -23,8 +23,8 @@ export interface FileData {
   companyId: number;
   description?: string;
   tags?: string[];
-  s3Key?: string; // S3 kľúč pre súbor
-  url?: string; // Pre-signed URL pre sťahovanie
+  s3Key?: string; // S3 k�lAs�T pre sAsbor
+  url?: string; // Pre-signed URL pre sLAahovanie
 }
 
 export interface UploadProgress {
@@ -34,14 +34,14 @@ export interface UploadProgress {
 }
 
 class FileService {
-  // Generovanie S3 kľúča pre súbor
+  // Generovanie S3 k�lAs�Ta pre sAsbor
   private generateS3Key(companyId: number, category: string, fileName: string): string {
     const timestamp = Date.now();
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
     return `companies/${companyId}/${category}/${timestamp}_${sanitizedFileName}`;
   }
 
-  // Nahrávanie súboru (simulované - pripravené na S3)
+  // NahrA?vanie sAsboru (simulovanA� - pripravenA� na S3)
   async uploadFile(
     file: File, 
     companyId: number, 
@@ -52,7 +52,7 @@ class FileService {
     try {
       const s3Key = this.generateS3Key(companyId, category, file.name);
       
-      // Simulácia progress tracking
+      // SimulA?cia progress tracking
       if (onProgress) {
         const simulateProgress = () => {
           let progress = 0;
@@ -72,7 +72,7 @@ class FileService {
         simulateProgress();
       }
 
-      // Simulácia nahrávania
+      // SimulA?cia nahrA?vania
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const fileData: FileData = {
@@ -87,41 +87,41 @@ class FileService {
         description: metadata.description,
         tags: metadata.tags,
         s3Key: s3Key,
-        url: `https://simulated-s3.com/${s3Key}` // Simulovaný URL
+        url: `https://simulated-s3.com/${s3Key}` // SimulovanA? URL
       };
 
-      // Uloženie do simulovaného úložiska
+      // UloLlenie do simulovanA�ho AsloLliska
       fileStorage.set(fileData.id, fileData);
 
-      // Uloženie metadát do databázy (tu by bolo API volanie)
+      // UloLlenie metadA?t do databA?zy (tu by bolo API volanie)
       await this.saveFileMetadata(fileData);
 
       return fileData;
     } catch (error) {
-      console.error('Chyba pri nahrávaní súboru:', error);
-      throw new Error('Nepodarilo sa nahrať súbor');
+      console.error('Chyba pri nahrA?vanA� sAsboru:', error);
+      throw new Error('Nepodarilo sa nahraLA sAsbor');
     }
   }
 
-  // Generovanie pre-signed URL pre sťahovanie (simulované)
+  // Generovanie pre-signed URL pre sLAahovanie (simulovanA�)
   async getDownloadUrl(s3Key: string, fileName: string): Promise<string> {
     try {
-      // Simulácia oneskorenia
+      // SimulA?cia oneskorenia
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // V simulovanom prostredí vrátime blob URL pre stiahnutie
-      // V reálnej aplikácii by tu bolo generovanie pre-signed URL z S3
+      // V simulovanom prostredA� vrA?time blob URL pre stiahnutie
+      // V reA?lnej aplikA?cii by tu bolo generovanie pre-signed URL z S3
       return `blob:simulated-s3/${s3Key}`;
     } catch (error) {
-      console.error('Chyba pri generovaní download URL:', error);
-      throw new Error('Nepodarilo sa vygenerovať odkaz na sťahovanie');
+      console.error('Chyba pri generovanA� download URL:', error);
+      throw new Error('Nepodarilo sa vygenerovaLA odkaz na sLAahovanie');
     }
   }
 
-  // Nová metóda pre simulované sťahovanie súboru
+  // NovA? metAlda pre simulovanA� sLAahovanie sAsboru
   async downloadFile(s3Key: string, fileName: string): Promise<void> {
     try {
-      // Nájdeme súbor v simulovanom úložisku
+      // NA?jdeme sAsbor v simulovanom AsloLlisku
       let fileData: FileData | undefined;
       for (const [id, file] of Array.from(fileStorage.entries())) {
         if (file.s3Key === s3Key) {
@@ -131,18 +131,18 @@ class FileService {
       }
 
       if (!fileData) {
-        throw new Error('Súbor nebol nájdený');
+        throw new Error('SAsbor nebol nA?jdenA?');
       }
 
-      // Simulácia oneskorenia
+      // SimulA?cia oneskorenia
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Vytvoríme simulovaný obsah súboru podľa typu
+      // VytvorA�me simulovanA? obsah sAsboru pod�la typu
       let fileContent: string;
       let mimeType: string;
 
       if (fileData.type.includes('pdf')) {
-        // Simulovaný PDF obsah
+        // SimulovanA? PDF obsah
         fileContent = `%PDF-1.4
 1 0 obj
 <<
@@ -176,7 +176,7 @@ stream
 BT
 /F1 12 Tf
 72 720 Td
-(Simulovaný PDF súbor: ${fileName}) Tj
+(SimulovanA? PDF sAsbor: ${fileName}) Tj
 ET
 endstream
 endobj
@@ -198,68 +198,68 @@ startxref
 %%EOF`;
         mimeType = 'application/pdf';
       } else if (fileData.type.includes('image')) {
-        // Pre obrázky vytvoríme jednoduchý SVG
+        // Pre obrA?zky vytvorA�me jednoduchA? SVG
         fileContent = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="300" fill="#f0f0f0"/>
   <text x="200" y="150" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">
-    Simulovaný obrázok: ${fileName}
+    SimulovanA? obrA?zok: ${fileName}
   </text>
 </svg>`;
         mimeType = 'image/svg+xml';
       } else if (fileData.type.includes('text') || fileData.type.includes('document')) {
-        // Pre textové súbory
-        fileContent = `Simulovaný textový súbor: ${fileName}
+        // Pre textovA� sAsbory
+        fileContent = `SimulovanA? textovA? sAsbor: ${fileName}
 
-Tento súbor bol vytvorený v simulovanom prostredí.
-Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}
-Veľkosť: ${fileData.size} bajtov
-Kategória: ${fileData.category}
+Tento sAsbor bol vytvorenA? v simulovanom prostredA�.
+DA?tum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}
+Ve�lkosLA: ${fileData.size} bajtov
+KategAlria: ${fileData.category}
 
-Obsah súboru:
+Obsah sAsboru:
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
 nisi ut aliquip ex ea commodo consequat.`;
         mimeType = 'text/plain';
       } else {
-        // Pre ostatné typy
-        fileContent = `Simulovaný súbor: ${fileName}
+        // Pre ostatnA� typy
+        fileContent = `SimulovanA? sAsbor: ${fileName}
 Typ: ${fileData.type}
-Veľkosť: ${fileData.size} bajtov
-Kategória: ${fileData.category}
-Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
+Ve�lkosLA: ${fileData.size} bajtov
+KategAlria: ${fileData.category}
+DA?tum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
         mimeType = 'application/octet-stream';
       }
 
-      // Vytvoríme blob s reálnym obsahom
+      // VytvorA�me blob s reA?lnym obsahom
       const blob = new Blob([fileContent], { 
         type: mimeType
       });
       
-      // Vytvoríme URL pre blob
+      // VytvorA�me URL pre blob
       const url = window.URL.createObjectURL(blob);
       
-      // Vytvoríme dočasný link pre sťahovanie
+      // VytvorA�me do�TasnA? link pre sLAahovanie
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       
-      // Vyčistíme
+      // Vy�TistA�me
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
     } catch (error) {
-      console.error('Chyba pri sťahovaní súboru:', error);
-      throw new Error('Nepodarilo sa stiahnuť súbor');
+      console.error('Chyba pri sLAahovanA� sAsboru:', error);
+      throw new Error('Nepodarilo sa stiahnuLA sAsbor');
     }
   }
 
-  // Nová metóda pre otvorenie súboru v prehliadači
+  // NovA? metAlda pre otvorenie sAsboru v prehliada�Ti
   async openFileInBrowser(s3Key: string, fileName: string): Promise<void> {
     try {
-      // Nájdeme súbor v simulovanom úložisku
+      // NA?jdeme sAsbor v simulovanom AsloLlisku
       let fileData: FileData | undefined;
       for (const [id, file] of Array.from(fileStorage.entries())) {
         if (file.s3Key === s3Key) {
@@ -269,10 +269,10 @@ Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
       }
 
       if (!fileData) {
-        throw new Error('Súbor nebol nájdený');
+        throw new Error('SAsbor nebol nA?jdenA?');
       }
 
-      // Vytvoríme simulovaný obsah súboru (rovnaký ako pri sťahovaní)
+      // VytvorA�me simulovanA? obsah sAsboru (rovnakA? ako pri sLAahovanA�)
       let fileContent: string;
       let mimeType: string;
 
@@ -310,7 +310,7 @@ stream
 BT
 /F1 12 Tf
 72 720 Td
-(Simulovaný PDF súbor: ${fileName}) Tj
+(SimulovanA? PDF sAsbor: ${fileName}) Tj
 ET
 endstream
 endobj
@@ -335,55 +335,55 @@ startxref
         fileContent = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="300" fill="#f0f0f0"/>
   <text x="200" y="150" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">
-    Simulovaný obrázok: ${fileName}
+    SimulovanA? obrA?zok: ${fileName}
   </text>
 </svg>`;
         mimeType = 'image/svg+xml';
       } else if (fileData.type.includes('text') || fileData.type.includes('document')) {
-        fileContent = `Simulovaný textový súbor: ${fileName}
+        fileContent = `SimulovanA? textovA? sAsbor: ${fileName}
 
-Tento súbor bol vytvorený v simulovanom prostredí.
-Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}
-Veľkosť: ${fileData.size} bajtov
-Kategória: ${fileData.category}
+Tento sAsbor bol vytvorenA? v simulovanom prostredA�.
+DA?tum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}
+Ve�lkosLA: ${fileData.size} bajtov
+KategAlria: ${fileData.category}
 
-Obsah súboru:
+Obsah sAsboru:
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
 nisi ut aliquip ex ea commodo consequat.`;
         mimeType = 'text/plain';
       } else {
-        fileContent = `Simulovaný súbor: ${fileName}
+        fileContent = `SimulovanA? sAsbor: ${fileName}
 Typ: ${fileData.type}
-Veľkosť: ${fileData.size} bajtov
-Kategória: ${fileData.category}
-Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
+Ve�lkosLA: ${fileData.size} bajtov
+KategAlria: ${fileData.category}
+DA?tum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
         mimeType = 'application/octet-stream';
       }
 
-      // Vytvoríme blob
+      // VytvorA�me blob
       const blob = new Blob([fileContent], { type: mimeType });
       const url = window.URL.createObjectURL(blob);
 
-      // Otvoríme v novom okne/tabe
+      // OtvorA�me v novom okne/tabe
       const newWindow = window.open(url, '_blank');
       
-      // Vyčistíme URL po chvíli
+      // Vy�TistA�me URL po chvA�li
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
       }, 1000);
 
     } catch (error) {
-      console.error('Chyba pri otváraní súboru:', error);
-      throw new Error('Nepodarilo sa otvoriť súbor');
+      console.error('Chyba pri otvA?ranA� sAsboru:', error);
+      throw new Error('Nepodarilo sa otvoriLA sAsbor');
     }
   }
 
-  // Nová metóda pre získanie URL pre náhľad
+  // NovA? metAlda pre zA�skanie URL pre nA?h�lad
   async getPreviewUrl(s3Key: string, fileName: string): Promise<string> {
     try {
-      // Nájdeme súbor v simulovanom úložisku
+      // NA?jdeme sAsbor v simulovanom AsloLlisku
       let fileData: FileData | undefined;
       for (const [id, file] of Array.from(fileStorage.entries())) {
         if (file.s3Key === s3Key) {
@@ -393,10 +393,10 @@ Dátum vytvorenia: ${new Date().toLocaleDateString('sk-SK')}`;
       }
 
       if (!fileData) {
-        throw new Error('Súbor nebol nájdený');
+        throw new Error('SAsbor nebol nA?jdenA?');
       }
 
-      // Vytvoríme simulovaný obsah súboru
+      // VytvorA�me simulovanA? obsah sAsboru
       let fileContent: string;
       let mimeType: string;
 
@@ -434,7 +434,7 @@ stream
 BT
 /F1 12 Tf
 72 720 Td
-(Simulovaný PDF súbor: ${fileName}) Tj
+(SimulovanA? PDF sAsbor: ${fileName}) Tj
 ET
 endstream
 endobj
@@ -459,32 +459,32 @@ startxref
         fileContent = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="300" fill="#f0f0f0"/>
   <text x="200" y="150" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">
-    Simulovaný obrázok: ${fileName}
+    SimulovanA? obrA?zok: ${fileName}
   </text>
 </svg>`;
         mimeType = 'image/svg+xml';
       } else {
-        // Pre ostatné typy vrátime prázdny string - nepodporujeme náhľad
+        // Pre ostatnA� typy vrA?time prA?zdny string - nepodporujeme nA?h�lad
         return '';
       }
 
-      // Vytvoríme blob a URL
+      // VytvorA�me blob a URL
       const blob = new Blob([fileContent], { type: mimeType });
       return window.URL.createObjectURL(blob);
 
     } catch (error) {
-      console.error('Chyba pri generovaní náhľadu:', error);
-      throw new Error('Nepodarilo sa vygenerovať náhľad');
+      console.error('Chyba pri generovanA� nA?h�ladu:', error);
+      throw new Error('Nepodarilo sa vygenerovaLA nA?h�lad');
     }
   }
 
-  // Mazanie súboru (simulované)
+  // Mazanie sAsboru (simulovanA�)
   async deleteFile(s3Key: string): Promise<void> {
     try {
-      // Simulácia mazania z S3
+      // SimulA?cia mazania z S3
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mazanie z simulovaného úložiska
+      // Mazanie z simulovanA�ho AsloLliska
       for (const [id, file] of Array.from(fileStorage.entries())) {
         if (file.s3Key === s3Key) {
           fileStorage.delete(id);
@@ -492,36 +492,36 @@ startxref
         }
       }
       
-      // Mazanie metadát z databázy (tu by bolo API volanie)
+      // Mazanie metadA?t z databA?zy (tu by bolo API volanie)
       await this.deleteFileMetadata(s3Key);
     } catch (error) {
-      console.error('Chyba pri mazaní súboru:', error);
-      throw new Error('Nepodarilo sa vymazať súbor');
+      console.error('Chyba pri mazanA� sAsboru:', error);
+      throw new Error('Nepodarilo sa vymazaLA sAsbor');
     }
   }
 
-  // Získanie súborov pre firmu (simulované)
+  // ZA�skanie sAsborov pre firmu (simulovanA�)
   async getCompanyFiles(companyId: number): Promise<FileData[]> {
     try {
-      // Simulácia API volania
+      // SimulA?cia API volania
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Vrátime súbory z simulovaného úložiska pre danú firmu
+      // VrA?time sAsbory z simulovanA�ho AsloLliska pre danAs firmu
       const companyFiles = Array.from(fileStorage.values()).filter(
         file => file.companyId === companyId
       );
       
       return companyFiles;
     } catch (error) {
-      console.error('Chyba pri získavaní súborov:', error);
-      throw new Error('Nepodarilo sa načítať súbory');
+      console.error('Chyba pri zA�skavanA� sAsborov:', error);
+      throw new Error('Nepodarilo sa na�TA�taLA sAsbory');
     }
   }
 
-  // Uloženie metadát do databázy
+  // UloLlenie metadA?t do databA?zy
   private async saveFileMetadata(fileData: FileData): Promise<void> {
     try {
-      // API volanie na uloženie metadát
+      // API volanie na uloLlenie metadA?t
       const response = await fetch('/api/files', {
         method: 'POST',
         headers: {
@@ -531,38 +531,38 @@ startxref
       });
 
       if (!response.ok) {
-        throw new Error('Nepodarilo sa uložiť metadáta súboru');
+        throw new Error('Nepodarilo sa uloLliLA metadA?ta sAsboru');
       }
     } catch (error) {
-      console.error('Chyba pri ukladaní metadát:', error);
+      console.error('Chyba pri ukladanA� metadA?t:', error);
       throw error;
     }
   }
 
-  // Mazanie metadát z databázy
+  // Mazanie metadA?t z databA?zy
   private async deleteFileMetadata(s3Key: string): Promise<void> {
     try {
-      // API volanie na mazanie metadát
+      // API volanie na mazanie metadA?t
       const response = await fetch(`/api/files/${encodeURIComponent(s3Key)}`, {
         method: 'DELETE'
       });
 
       if (!response.ok) {
-        throw new Error('Nepodarilo sa vymazať metadáta súboru');
+        throw new Error('Nepodarilo sa vymazaLA metadA?ta sAsboru');
       }
     } catch (error) {
-      console.error('Chyba pri mazaní metadát:', error);
+      console.error('Chyba pri mazanA� metadA?t:', error);
       throw error;
     }
   }
 
-  // Kontrola veľkosti súboru
+  // Kontrola ve�lkosti sAsboru
   validateFileSize(file: File, maxSizeMB: number = 10): boolean {
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     return file.size <= maxSizeBytes;
   }
 
-  // Kontrola typu súboru
+  // Kontrola typu sAsboru
   validateFileType(file: File, allowedTypes: string[]): boolean {
     return allowedTypes.includes(file.type);
   }
@@ -571,17 +571,17 @@ startxref
 export const fileService = new FileService();
 
 /*
-=== INŠTRUKCIE PRE AWS S3 INTEGRÁCIU ===
+=== INL�TRUKCIE PRE AWS S3 INTEGRA�CIU ===
 
-1. Nainštalujte AWS SDK v3:
+1. NainL?talujte AWS SDK v3:
    npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
 
-2. Odkomentujte a upravte S3 kód:
-   - Nahraďte simulované úložisko skutočným S3 klientom
-   - Odkomentujte S3 upload/delete operácie
-   - Nastavte správne environment premenné
+2. Odkomentujte a upravte S3 kAld:
+   - Nahra�Zte simulovanA� AsloLlisko skuto�TnA?m S3 klientom
+   - Odkomentujte S3 upload/delete operA?cie
+   - Nastavte sprA?vne environment premennA�
 
-3. Príklad S3 integrácie:
+3. PrA�klad S3 integrA?cie:
    import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
    import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -593,7 +593,7 @@ export const fileService = new FileService();
      }
    });
 
-4. Environment premenné (.env):
+4. Environment premennA� (.env):
    REACT_APP_AWS_REGION=eu-central-1
    REACT_APP_AWS_ACCESS_KEY_ID=your_access_key_id
    REACT_APP_AWS_SECRET_ACCESS_KEY=your_secret_access_key
@@ -609,3 +609,4 @@ export const fileService = new FileService();
      }
    ]
 */
+

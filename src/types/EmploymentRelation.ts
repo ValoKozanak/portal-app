@@ -1,16 +1,16 @@
 export interface EmploymentRelation {
   id?: number;
   employee_id: number;
-  // Polia z backend API (JOIN s employees tabuľkou)
+  // Polia z backend API (JOIN s employees tabu�lkou)
   first_name?: string;
   last_name?: string;
   email?: string;
-  // Staré polia pre kompatibilitu
+  // StarA� polia pre kompatibilitu
   employee_first_name?: string;
   employee_last_name?: string;
   employee_email?: string;
   
-  // Základné údaje
+  // ZA?kladnA� Asdaje
   birth_number: string;
   insurance_company: string;
   insurance_number: string;
@@ -25,10 +25,10 @@ export interface EmploymentRelation {
   probation_end_date?: string;
   fixed_term_contract: boolean;
   departure_date?: string;
-  employment_termination_date?: string; // Ukončenie pracovného pomeru
+  employment_termination_date?: string; // Ukon�Tenie pracovnA�ho pomeru
   is_active: boolean;
   
-  // Mzdové údaje
+  // MzdovA� Asdaje
   salary: number;
   salary_after_departure: number;
   temporary_work_force: boolean;
@@ -61,7 +61,7 @@ export interface EmploymentRelation {
   overpaid_vacation_days_2year: number;
   overpaid_vacation_days_3year: number;
   
-  // Mzda a prémie
+  // Mzda a prA�mie
   salary_type: 'hourly' | 'monthly' | 'task_based';
   holidays_paid: string;
   schedule: string;
@@ -78,7 +78,7 @@ export interface EmploymentRelation {
   specsym_life_insurance: string;
   risky_work: boolean;
   
-  // Výplata
+  // VA?plata
   advance: number;
   payment: number;
   advance_2: number;
@@ -88,16 +88,16 @@ export interface EmploymentRelation {
   varsym_settlement: string;
   specsym_settlement: string;
   
-  // Počítané roky
+  // Po�TA�tanA� roky
   counted_years: number;
   counted_days: number;
   
-  // Oznámenia
+  // OznA?menia
   organization_notice: string;
   termination_reason: string;
   other_notice: string;
   
-  // Poistné
+  // PoistnA�
   np: boolean;
   sp: boolean;
   ip: boolean;
@@ -108,7 +108,7 @@ export interface EmploymentRelation {
   prfs: boolean;
   zp: boolean;
   
-  // Dôchodkové poistenie
+  // DA�chodkovA� poistenie
   pension_company: string;
   varsym_pension: string;
   specsym_pension: string;
@@ -116,19 +116,19 @@ export interface EmploymentRelation {
   maximum: number;
   pension_contribution_percentage: number;
   
-  // Identifikácia
+  // IdentifikA?cia
   identification_number: string;
   workplace_code: string;
   classification_code: string;
   oop_application_date?: string;
   oop_termination_date?: string;
   
-  // Systémové polia
+  // SystA�movA� polia
   status: 'active' | 'inactive' | 'terminated';
   created_at?: string;
   updated_at?: string;
   
-  // Dochádzkové nastavenia
+  // DochA?dzkovA� nastavenia
   attendance_mode?: 'manual' | 'automatic';
   work_start_time?: string;
   work_end_time?: string;
@@ -136,3 +136,4 @@ export interface EmploymentRelation {
   break_end_time?: string;
   weekly_hours?: number;
 }
+

@@ -21,50 +21,50 @@ const FAQ: React.FC = () => {
 
   const faqs = [
     {
-      question: 'Ako odovzdávať doklady?',
-      answer: 'Doklady môžete odovzdávať niekoľkými spôsobmi: 1) Cez klientský portál - bezpečné nahrávanie faktúr a dokladov, 2) Emailom - pošlite nám doklady na náš email, 3) Osobne - môžete nám doklady priniesť do kancelárie. Najrýchlejší a najbezpečnejší spôsob je cez náš klientský portál.'
+      question: 'Ako odovzdA?vaLA doklady?',
+      answer: 'Doklady mA�Llete odovzdA?vaLA nieko�lkA?mi spA�sobmi: 1) Cez klientskA? portA?l - bezpe�TnA� nahrA?vanie faktAsr a dokladov, 2) Emailom - poL?lite nA?m doklady na nA?L? email, 3) Osobne - mA�Llete nA?m doklady priniesLA do kancelA?rie. NajrA?chlejL?A� a najbezpe�TnejL?A� spA�sob je cez nA?L? klientskA? portA?l.'
     },
     {
-      question: 'Koľko stojí spracovanie účtovníctva?',
-      answer: 'Ceny sa líšia podľa typu služby a veľkosti firmy. Jednoduché účtovníctvo pre SZČO stojí od 80€/mesiac, podvojné účtovníctvo od 150€/mesiac, mzdy od 15€/zamestnanec. Presnú cenu vám vypočítame po bezplatnej konzultácii vašich potrieb.'
+      question: 'Ko�lko stojA� spracovanie As�TtovnA�ctva?',
+      answer: 'Ceny sa lA�L?ia pod�la typu sluLlby a ve�lkosti firmy. JednoduchA� As�TtovnA�ctvo pre SZ�SO stojA� od 80�,�/mesiac, podvojnA� As�TtovnA�ctvo od 150�,�/mesiac, mzdy od 15�,�/zamestnanec. PresnAs cenu vA?m vypo�TA�tame po bezplatnej konzultA?cii vaL?ich potrieb.'
     },
     {
-      question: 'Aké sú termíny pre daňové priznania?',
-      answer: 'Termíny pre daňové priznania sa líšia podľa typu: DPFO (daň z príjmov fyzických osôb) - do 31.3. nasledujúceho roku, DPH (daň z pridanej hodnoty) - mesačné alebo štvrťročné podľa obratu, daň z príjmov právnických osôb - do 31.3. nasledujúceho roku. Všetky termíny vám pripomenieme v dostatočnom predstihu.'
+      question: 'AkA� sAs termA�ny pre daL�ovA� priznania?',
+      answer: 'TermA�ny pre daL�ovA� priznania sa lA�L?ia pod�la typu: DPFO (daL� z prA�jmov fyzickA?ch osA�b) - do 31.3. nasledujAsceho roku, DPH (daL� z pridanej hodnoty) - mesa�TnA� alebo L?tvrLAro�TnA� pod�la obratu, daL� z prA�jmov prA?vnickA?ch osA�b - do 31.3. nasledujAsceho roku. VL?etky termA�ny vA?m pripomenieme v dostato�Tnom predstihu.'
     },
     {
-      question: 'Ako funguje online komunikácia?',
-      answer: 'Online komunikácia prebieha cez náš bezpečný klientský portál. Môžete nám posielať správy, nahrávať doklady, sledovať stav spracovania a komunikovať s vaším účtovníkom. Portál je dostupný 24/7 a všetky údaje sú chránené najvyššou úrovňou bezpečnosti.'
+      question: 'Ako funguje online komunikA?cia?',
+      answer: 'Online komunikA?cia prebieha cez nA?L? bezpe�TnA? klientskA? portA?l. MA�Llete nA?m posielaLA sprA?vy, nahrA?vaLA doklady, sledovaLA stav spracovania a komunikovaLA s vaL?A�m As�TtovnA�kom. PortA?l je dostupnA? 24/7 a vL?etky Asdaje sAs chrA?nenA� najvyL?L?ou AsrovL�ou bezpe�Tnosti.'
     },
     {
-      question: 'Môžem zmeniť účtovníka?',
-      answer: 'Áno, môžete zmeniť účtovníka kedykoľvek. Proces je jednoduchý - stačí nás kontaktovať a dohodneme si prechod na nového účtovníka. Všetky vaše údaje a doklady zostanú v bezpečí a budú prenesené k novému účtovníkovi.'
+      question: 'MA�Llem zmeniLA As�TtovnA�ka?',
+      answer: 'A�no, mA�Llete zmeniLA As�TtovnA�ka kedyko�lvek. Proces je jednoduchA? - sta�TA� nA?s kontaktovaLA a dohodneme si prechod na novA�ho As�TtovnA�ka. VL?etky vaL?e Asdaje a doklady zostanAs v bezpe�TA� a budAs prenesenA� k novA�mu As�TtovnA�kovi.'
     },
     {
-      question: 'Ako dlho trvá spracovanie dokladov?',
-      answer: 'Štandardne spracovávame doklady do 3-5 pracovných dní. Pri urgentných príležitostiach môžeme spracovanie urýchliť. Všetky termíny sú dohodnuté vopred a dodržiavame ich. O stave spracovania vás informujeme cez portál.'
+      question: 'Ako dlho trvA? spracovanie dokladov?',
+      answer: 'L�tandardne spracovA?vame doklady do 3-5 pracovnA?ch dnA�. Pri urgentnA?ch prA�leLlitostiach mA�Lleme spracovanie urA?chliLA. VL?etky termA�ny sAs dohodnutA� vopred a dodrLliavame ich. O stave spracovania vA?s informujeme cez portA?l.'
     },
     {
-      question: 'Poskytujete poradenstvo pri daňových otázkach?',
-      answer: 'Áno, poskytujeme komplexné daňové poradenstvo. Naši daňoví poradcovia vám pomôžu s optimalizáciou daňového zaťaženia, daňovým plánovaním, riešením daňových otázok a sledovaním legislatívnych zmien. Poradenstvo je súčasťou našich služieb.'
+      question: 'Poskytujete poradenstvo pri daL�ovA?ch otA?zkach?',
+      answer: 'A�no, poskytujeme komplexnA� daL�ovA� poradenstvo. NaL?i daL�ovA� poradcovia vA?m pomA�Llu s optimalizA?ciou daL�ovA�ho zaLAaLlenia, daL�ovA?m plA?novanA�m, rieL?enA�m daL�ovA?ch otA?zok a sledovanA�m legislatA�vnych zmien. Poradenstvo je sAs�TasLAou naL?ich sluLlieb.'
     },
     {
-      question: 'Ako zabezpečujete bezpečnosť údajov?',
-      answer: 'Bezpečnosť vašich údajov je naša priorita. Používame najnovšie technológie šifrovania, máme certifikáty ISO 27001 pre bezpečnosť informácií, dodržiavame GDPR a máme prísne interné postupy na ochranu údajov. Všetky údaje sú uložené na bezpečných serveroch.'
+      question: 'Ako zabezpe�Tujete bezpe�TnosLA Asdajov?',
+      answer: 'Bezpe�TnosLA vaL?ich Asdajov je naL?a priorita. PouLlA�vame najnovL?ie technolAlgie L?ifrovania, mA?me certifikA?ty ISO 27001 pre bezpe�TnosLA informA?ciA�, dodrLliavame GDPR a mA?me prA�sne internA� postupy na ochranu Asdajov. VL?etky Asdaje sAs uloLlenA� na bezpe�TnA?ch serveroch.'
     },
     {
-      question: 'Môžem pristupovať k mojim dokladom online?',
-      answer: 'Áno, cez náš klientský portál máte 24/7 prístup k všetkým vašim dokladom, výkazom a správam. Môžete si ich prezeráť, sťahovať a tlačiť kedykoľvek potrebujete. Portál je dostupný z počítača aj mobilného zariadenia.'
+      question: 'MA�Llem pristupovaLA k mojim dokladom online?',
+      answer: 'A�no, cez nA?L? klientskA? portA?l mA?te 24/7 prA�stup k vL?etkA?m vaL?im dokladom, vA?kazom a sprA?vam. MA�Llete si ich prezerA?LA, sLAahovaLA a tla�TiLA kedyko�lvek potrebujete. PortA?l je dostupnA? z po�TA�ta�Ta aj mobilnA�ho zariadenia.'
     },
     {
-      question: 'Ako začať spoluprácu?',
-      answer: 'Začiatok spolupráce je jednoduchý: 1) Kontaktujte nás telefonicky alebo emailom, 2) Dohodneme si bezplatnú konzultáciu, 3) Podpíšeme zmluvu o spolupráci, 4) Vytvoríme vám prístup do klientského portálu, 5) Začneme spracovávať vaše doklady.'
+      question: 'Ako za�TaLA spoluprA?cu?',
+      answer: 'Za�Tiatok spoluprA?ce je jednoduchA?: 1) Kontaktujte nA?s telefonicky alebo emailom, 2) Dohodneme si bezplatnAs konzultA?ciu, 3) PodpA�L?eme zmluvu o spoluprA?ci, 4) VytvorA�me vA?m prA�stup do klientskA�ho portA?lu, 5) Za�Tneme spracovA?vaLA vaL?e doklady.'
     }
   ];
 
   const categories = [
     {
-      title: 'Všeobecné otázky',
+      title: 'VL?eobecnA� otA?zky',
       questions: [0, 1, 9]
     },
     {
@@ -76,15 +76,15 @@ const FAQ: React.FC = () => {
       questions: [1]
     },
     {
-      title: 'Daňové otázky',
+      title: 'DaL�ovA� otA?zky',
       questions: [2, 6]
     },
     {
-      title: 'Technické otázky',
+      title: 'TechnickA� otA?zky',
       questions: [3, 7]
     },
     {
-      title: 'Spolupráca',
+      title: 'SpoluprA?ca',
       questions: [4]
     }
   ];
@@ -96,11 +96,11 @@ const FAQ: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-              Často kladené otázky
+              �Sasto kladenA� otA?zky
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Odpovede na najčastejšie otázky našich klientov. 
-              Ak nenájdete odpoveď, neváhajte nás kontaktovať.
+              Odpovede na naj�TastejL?ie otA?zky naL?ich klientov. 
+              Ak nenA?jdete odpove�Z, nevA?hajte nA?s kontaktovaLA.
             </p>
           </div>
         </div>
@@ -144,10 +144,10 @@ const FAQ: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Otázky podľa kategórií
+              OtA?zky pod�la kategAlriA�
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Nájdite rýchlo odpoveď na vašu otázku
+              NA?jdite rA?chlo odpove�Z na vaL?u otA?zku
             </p>
           </div>
           
@@ -177,11 +177,11 @@ const FAQ: React.FC = () => {
       <div className="py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Nenašli ste odpoveď?
+            NenaL?li ste odpove�Z?
           </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Ak ste nenašli odpoveď na vašu otázku, neváhajte nás kontaktovať. 
-            Naši odborníci vám radi pomôžu.
+            Ak ste nenaL?li odpove�Z na vaL?u otA?zku, nevA?hajte nA?s kontaktovaLA. 
+            NaL?i odbornA�ci vA?m radi pomA�Llu.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -190,7 +190,7 @@ const FAQ: React.FC = () => {
                 <PhoneIcon className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Telefonicky</h3>
-              <p className="text-gray-600 mb-4">Zavolajte nám a dohodneme si konzultáciu</p>
+              <p className="text-gray-600 mb-4">Zavolajte nA?m a dohodneme si konzultA?ciu</p>
               <a href="tel:+421123456789" className="text-blue-600 font-semibold hover:text-blue-800">
                 +421 123 456 789
               </a>
@@ -201,7 +201,7 @@ const FAQ: React.FC = () => {
                 <EnvelopeIcon className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Emailom</h3>
-              <p className="text-gray-600 mb-4">Napíšte nám a odpovieme vám do 24 hodín</p>
+              <p className="text-gray-600 mb-4">NapA�L?te nA?m a odpovieme vA?m do 24 hodA�n</p>
               <a href="mailto:info@ucto.sk" className="text-blue-600 font-semibold hover:text-blue-800">
                 info@ucto.sk
               </a>
@@ -213,7 +213,7 @@ const FAQ: React.FC = () => {
               to="/contact"
               className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
-              Kontaktovať nás
+              KontaktovaLA nA?s
             </Link>
           </div>
         </div>
@@ -223,3 +223,4 @@ const FAQ: React.FC = () => {
 };
 
 export default FAQ;
+

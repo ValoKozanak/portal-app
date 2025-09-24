@@ -26,9 +26,9 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">História zmien</h2>
+            <h2 className="text-xl font-semibold text-gray-900">HistAlria zmien</h2>
             <p className="text-sm text-gray-600 mt-1">
-              {section} → {field}
+              {section} �?' {field}
             </p>
           </div>
           <button
@@ -44,9 +44,9 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
             {history.length === 0 ? (
               <div className="text-center py-8">
                 <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadna história</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadna histAlria</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  Pre toto pole ešte neboli vykonané žiadne zmeny.
+                  Pre toto pole eL?te neboli vykonanA� Lliadne zmeny.
                 </p>
               </div>
             ) : (
@@ -61,7 +61,7 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
                           </span>
                           {index === 0 && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Aktuálna
+                              AktuA?lna
                             </span>
                           )}
                         </div>
@@ -88,10 +88,10 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
                         <button
                           onClick={() => onRestore(item.id)}
                           className="ml-4 flex items-center text-sm text-blue-600 hover:text-blue-700"
-                          title="Obnoviť túto verziu"
+                          title="ObnoviLA tAsto verziu"
                         >
                           <ArrowPathIcon className="h-4 w-4 mr-1" />
-                          Obnoviť
+                          ObnoviLA
                         </button>
                       )}
                     </div>
@@ -107,7 +107,7 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
           >
-            Zavrieť
+            ZavrieLA
           </button>
         </div>
       </div>
@@ -116,3 +116,4 @@ const CmsHistoryModal: React.FC<CmsHistoryModalProps> = ({
 };
 
 export default CmsHistoryModal;
+

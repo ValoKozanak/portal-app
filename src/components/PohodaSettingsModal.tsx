@@ -90,18 +90,18 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       if (result.success) {
         setTestResult({
           success: true,
-          message: 'Spojenie s POHODA mServer je úspešné!'
+          message: 'Spojenie s POHODA mServer je AsspeL?nA�!'
         });
       } else {
         setTestResult({
           success: false,
-          message: result.error || 'Nepodarilo sa pripojiť k POHODA mServer'
+          message: result.error || 'Nepodarilo sa pripojiLA k POHODA mServer'
         });
       }
     } catch (error) {
       setTestResult({
         success: false,
-        message: 'Chyba pri testovaní spojenia'
+        message: 'Chyba pri testovanA� spojenia'
       });
     } finally {
       setIsLoading(false);
@@ -126,7 +126,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladaní nastavení:', error);
+      console.error('Chyba pri ukladanA� nastavenA�:', error);
     } finally {
       setIsLoading(false);
     }
@@ -147,13 +147,13 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       
       setTestResult({
         success: result.success,
-        message: result.message || (result.success ? 'Faktúry úspešne načítané' : 'Chyba pri načítaní faktúr')
+        message: result.message || (result.success ? 'FaktAsry AsspeL?ne na�TA�tanA�' : 'Chyba pri na�TA�tanA� faktAsr')
       });
     } catch (error) {
-      console.error('Chyba pri testovaní faktúr:', error);
+      console.error('Chyba pri testovanA� faktAsr:', error);
       setTestResult({
         success: false,
-        message: 'Chyba pri testovaní faktúr'
+        message: 'Chyba pri testovanA� faktAsr'
       });
     } finally {
       setIsLoading(false);
@@ -169,13 +169,13 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       
       setTestResult({
         success: result.success,
-        message: result.message || (result.success ? 'Synchronizácia úspešná' : 'Chyba pri synchronizácii')
+        message: result.message || (result.success ? 'SynchronizA?cia AsspeL?nA?' : 'Chyba pri synchronizA?cii')
       });
     } catch (error) {
-      console.error('Chyba pri synchronizácii:', error);
+      console.error('Chyba pri synchronizA?cii:', error);
       setTestResult({
         success: false,
-        message: 'Chyba pri synchronizácii faktúr'
+        message: 'Chyba pri synchronizA?cii faktAsr'
       });
     } finally {
       setIsLoading(false);
@@ -189,7 +189,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">
-            Nastavenia POHODA integrácie
+            Nastavenia POHODA integrA?cie
           </h2>
           <button
             onClick={onClose}
@@ -200,9 +200,9 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Základné nastavenia */}
+          {/* ZA?kladnA� nastavenia */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Základné nastavenia</h3>
+            <h3 className="text-lg font-medium text-gray-900">ZA?kladnA� nastavenia</h3>
             
             <div className="flex items-center">
               <input
@@ -214,7 +214,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="pohoda_enabled" className="ml-2 block text-sm text-gray-900">
-                Povoliť POHODA integráciu
+                PovoliLA POHODA integrA?ciu
               </label>
             </div>
 
@@ -237,7 +237,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="pohoda_username" className="block text-sm font-medium text-gray-700">
-                  Používateľské meno *
+                  PouLlA�vate�lskA� meno *
                 </label>
                 <input
                   type="text"
@@ -261,7 +261,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                   name="pohoda_password"
                   value={formData.pohoda_password}
                   onChange={handleInputChange}
-                  placeholder="••••••••"
+                  placeholder="�??�??�??�??�??�??�??�??"
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   required={formData.pohoda_enabled}
                 />
@@ -270,7 +270,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
             <div>
               <label htmlFor="pohoda_ico" className="block text-sm font-medium text-gray-700">
-                IČO firmy v POHODA *
+                I�SO firmy v POHODA *
               </label>
               <input
                 type="text"
@@ -286,7 +286,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 
             <div>
               <label htmlFor="pohoda_year" className="block text-sm font-medium text-gray-700">
-                Rok firmy v POHODA (IČO_ROK) *
+                Rok firmy v POHODA (I�SO_ROK) *
               </label>
               <input
                 type="text"
@@ -299,7 +299,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                 required={formData.pohoda_enabled}
               />
               <p className="mt-1 text-sm text-gray-500">
-                Ak máte viacero firiem s rovnakým IČO, zadajte rok (napr. 2024 pre IČO_2024)
+                Ak mA?te viacero firiem s rovnakA?m I�SO, zadajte rok (napr. 2024 pre I�SO_2024)
               </p>
             </div>
           </div>
@@ -315,7 +315,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
           {!formData.pohoda_enabled && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
               <p className="text-sm text-gray-600">
-                Pre použitie mServer integrácie najprv povolte POHODA integráciu vyššie.
+                Pre pouLlitie mServer integrA?cie najprv povolte POHODA integrA?ciu vyL?L?ie.
               </p>
             </div>
           )}
@@ -324,7 +324,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="text-md font-medium text-blue-800 mb-2">Testovanie mServer spojenia</h4>
                   <p className="text-sm text-blue-700 mb-3">
-                    Testujte pripojenie k POHODA mServer pre automatickú synchronizáciu faktúr.
+                    Testujte pripojenie k POHODA mServer pre automatickAs synchronizA?ciu faktAsr.
                   </p>
                   
                   <div className="space-y-2">
@@ -335,17 +335,17 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                           Testujem...
                         </>
                       ) : (
-                        'Testovať spojenie'
+                        'TestovaLA spojenie'
                       )}
                     </button>
                     <button type="button" onClick={handleTestInvoices} disabled={!formData.pohoda_enabled || !canTestConnection()} className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
                       {isLoading ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Testujem faktúry...
+                          Testujem faktAsry...
                         </>
                       ) : (
-                        'Testovať faktúry'
+                        'TestovaLA faktAsry'
                       )}
                     </button>
                     <button type="button" onClick={handleSyncInvoices} disabled={!formData.pohoda_enabled || !canTestConnection()} className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -355,7 +355,7 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                           Synchronizujem...
                         </>
                       ) : (
-                        'Synchronizovať faktúry'
+                        'SynchronizovaLA faktAsry'
                       )}
                     </button>
                   </div>
@@ -380,10 +380,10 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Synchronizácia */}
+                {/* SynchronizA?cia */}
                 {formData.pohoda_enabled && (
                   <div className="space-y-4">
-                    <h4 className="text-md font-medium text-gray-700">Automatická synchronizácia</h4>
+                    <h4 className="text-md font-medium text-gray-700">AutomatickA? synchronizA?cia</h4>
                     
                     <div className="flex items-center">
                       <input
@@ -395,14 +395,14 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="auto_sync" className="ml-2 block text-sm text-gray-900">
-                        Automatická synchronizácia
+                        AutomatickA? synchronizA?cia
                       </label>
                     </div>
 
                     {formData.auto_sync && (
                       <div>
                         <label htmlFor="sync_frequency" className="block text-sm font-medium text-gray-700">
-                          Frekvencia synchronizácie
+                          Frekvencia synchronizA?cie
                         </label>
                         <select
                           id="sync_frequency"
@@ -411,10 +411,10 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
                           onChange={handleInputChange}
                           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         >
-                          <option value="hourly">Každú hodinu</option>
+                          <option value="hourly">KaLldAs hodinu</option>
                           <option value="daily">Denne</option>
-                          <option value="weekly">Týždenne</option>
-                          <option value="manual">Manuálne</option>
+                          <option value="weekly">TA?Lldenne</option>
+                          <option value="manual">ManuA?lne</option>
                         </select>
                       </div>
                     )}
@@ -432,28 +432,28 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
             <h4 className="text-md font-medium text-yellow-800 mb-2">XML Import/Export</h4>
             <p className="text-sm text-yellow-700">
-              Manuálny import/export faktúr cez XML súbory. Funguje s demo aj plnou verziou POHODA.
+              ManuA?lny import/export faktAsr cez XML sAsbory. Funguje s demo aj plnou verziou POHODA.
             </p>
           </div>
           
           <PohodaXmlImportExport companyId={companyId} />
         </div>
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading ? 'Ukladám...' : 'Uložiť nastavenia'}
+              {isLoading ? 'UkladA?m...' : 'UloLliLA nastavenia'}
             </button>
           </div>
         </form>
@@ -463,3 +463,4 @@ const PohodaSettingsModal: React.FC<PohodaSettingsModalProps> = ({
 };
 
 export default PohodaSettingsModal;
+

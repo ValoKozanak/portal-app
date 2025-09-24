@@ -27,11 +27,11 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
     status: 'active' as 'active' | 'inactive' | 'terminated' | 'on_leave',
     termination_date: '',
     termination_reason: '',
-    // Personálne údaje
+    // PersonA?lne Asdaje
     birth_name: '',
     title_before: '',
     title_after: '',
-    gender: '' as '' | 'muž' | 'žena',
+    gender: '' as '' | 'muLl' | 'Llena',
     birth_date: '',
     birth_number: '',
     birth_place: '',
@@ -43,19 +43,19 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
     is_statutory: false,
     employee_bonus: false,
     bonus_months: '',
-    // Adresa trvalého pobytu
+    // Adresa trvalA�ho pobytu
     permanent_street: '',
     permanent_number: '',
     permanent_city: '',
     permanent_zip: '',
     permanent_country: 'Slovensko',
-    // Kontaktná adresa
+    // KontaktnA? adresa
     contact_street: '',
     contact_number: '',
     contact_city: '',
     contact_zip: '',
     contact_country: 'Slovensko',
-    // Cudzinecké údaje
+    // CudzineckA� Asdaje
     is_foreigner: false,
     foreigner_country: '',
     residence_permit_number: '',
@@ -82,7 +82,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         status: employee.status || 'active',
         termination_date: employee.termination_date || '',
         termination_reason: employee.termination_reason || '',
-        // Personálne údaje
+        // PersonA?lne Asdaje
         birth_name: employee.birth_name || '',
         title_before: employee.title_before || '',
         title_after: employee.title_after || '',
@@ -98,19 +98,19 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         is_statutory: employee.is_statutory || false,
         employee_bonus: employee.employee_bonus || false,
         bonus_months: employee.bonus_months?.toString() || '',
-        // Adresa trvalého pobytu
+        // Adresa trvalA�ho pobytu
         permanent_street: employee.permanent_street || '',
         permanent_number: employee.permanent_number || '',
         permanent_city: employee.permanent_city || '',
         permanent_zip: employee.permanent_zip || '',
         permanent_country: employee.permanent_country || 'Slovensko',
-        // Kontaktná adresa
+        // KontaktnA? adresa
         contact_street: employee.contact_street || '',
         contact_number: employee.contact_number || '',
         contact_city: employee.contact_city || '',
         contact_zip: employee.contact_zip || '',
         contact_country: employee.contact_country || 'Slovensko',
-        // Cudzinecké údaje
+        // CudzineckA� Asdaje
         is_foreigner: employee.is_foreigner || false,
         foreigner_country: employee.foreigner_country || '',
         residence_permit_number: employee.residence_permit_number || '',
@@ -150,29 +150,29 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'Meno je povinné';
+      newErrors.first_name = 'Meno je povinnA�';
     }
 
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'Priezvisko je povinné';
+      newErrors.last_name = 'Priezvisko je povinnA�';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (!formData.position.trim()) {
-      newErrors.position = 'Pozícia je povinná';
+      newErrors.position = 'PozA�cia je povinnA?';
     }
 
     if (formData.status === 'terminated' && !formData.termination_date) {
-      newErrors.termination_date = 'Dátum ukončenia je povinný pri ukončení zamestnania';
+      newErrors.termination_date = 'DA?tum ukon�Tenia je povinnA? pri ukon�TenA� zamestnania';
     }
 
     if (formData.status === 'terminated' && !formData.termination_reason.trim()) {
-      newErrors.termination_reason = 'Dôvod ukončenia je povinný';
+      newErrors.termination_reason = 'DA�vod ukon�Tenia je povinnA?';
     }
 
     setErrors(newErrors);
@@ -199,7 +199,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         salary: formData.salary ? parseFloat(formData.salary) : undefined,
         employment_type: formData.employment_type,
         status: formData.status,
-        // Personálne údaje
+        // PersonA?lne Asdaje
         birth_name: formData.birth_name.trim() || undefined,
         title_before: formData.title_before.trim() || undefined,
         title_after: formData.title_after.trim() || undefined,
@@ -215,19 +215,19 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         is_statutory: formData.is_statutory,
         employee_bonus: formData.employee_bonus,
         bonus_months: formData.bonus_months ? parseInt(formData.bonus_months) : undefined,
-        // Adresa trvalého pobytu
+        // Adresa trvalA�ho pobytu
         permanent_street: formData.permanent_street.trim() || undefined,
         permanent_number: formData.permanent_number.trim() || undefined,
         permanent_city: formData.permanent_city.trim() || undefined,
         permanent_zip: formData.permanent_zip.trim() || undefined,
         permanent_country: formData.permanent_country.trim() || undefined,
-        // Kontaktná adresa
+        // KontaktnA? adresa
         contact_street: formData.contact_street.trim() || undefined,
         contact_number: formData.contact_number.trim() || undefined,
         contact_city: formData.contact_city.trim() || undefined,
         contact_zip: formData.contact_zip.trim() || undefined,
         contact_country: formData.contact_country.trim() || undefined,
-        // Cudzinecké údaje
+        // CudzineckA� Asdaje
         is_foreigner: formData.is_foreigner,
         foreigner_country: formData.foreigner_country.trim() || undefined,
         residence_permit_number: formData.residence_permit_number.trim() || undefined,
@@ -238,12 +238,12 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         tax_identification_number: formData.tax_identification_number.trim() || undefined
       };
 
-      // Ak je zamestnanec ukončený, pridaj dátum ukončenia
+      // Ak je zamestnanec ukon�TenA?, pridaj dA?tum ukon�Tenia
       if (formData.status === 'terminated') {
         employeeData.termination_date = formData.termination_date;
         employeeData.termination_reason = formData.termination_reason.trim();
         
-        // Ak uplynul dátum ukončenia, automaticky nastav status na 'inactive'
+        // Ak uplynul dA?tum ukon�Tenia, automaticky nastav status na 'inactive'
         if (formData.termination_date && new Date(formData.termination_date) <= new Date()) {
           employeeData.status = 'inactive';
         }
@@ -252,7 +252,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       await onSave(employeeData);
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladaní zamestnanca:', error);
+      console.error('Chyba pri ukladanA� zamestnanca:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -271,7 +271,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       status: 'active',
       termination_date: '',
       termination_reason: '',
-      // Personálne údaje
+      // PersonA?lne Asdaje
       birth_name: '',
       title_before: '',
       title_after: '',
@@ -287,19 +287,19 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
       is_statutory: false,
       employee_bonus: false,
       bonus_months: '',
-      // Adresa trvalého pobytu
+      // Adresa trvalA�ho pobytu
       permanent_street: '',
       permanent_number: '',
       permanent_city: '',
       permanent_zip: '',
       permanent_country: 'Slovensko',
-      // Kontaktná adresa
+      // KontaktnA? adresa
       contact_street: '',
       contact_number: '',
       contact_city: '',
       contact_zip: '',
       contact_country: 'Slovensko',
-      // Cudzinecké údaje
+      // CudzineckA� Asdaje
       is_foreigner: false,
       foreigner_country: '',
       residence_permit_number: '',
@@ -321,7 +321,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Upraviť zamestnanca
+            UpraviLA zamestnanca
           </h2>
           <button
             onClick={handleClose}
@@ -332,7 +332,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Základné informácie */}
+          {/* ZA?kladnA� informA?cie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -393,7 +393,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Telefón
+                TelefAln
               </label>
               <input
                 type="tel"
@@ -407,7 +407,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
             <div>
               <label htmlFor="position" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Pozícia *
+                PozA�cia *
               </label>
               <input
                 type="text"
@@ -440,7 +440,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
             <div>
               <label htmlFor="salary" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Mzda (€)
+                Mzda (�,�)
               </label>
               <input
                 type="number"
@@ -456,7 +456,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
             <div>
               <label htmlFor="employment_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Typ úväzku
+                Typ AsvA�zku
               </label>
               <select
                 id="employment_type"
@@ -465,10 +465,10 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
               >
-                <option value="full_time">Plný úväzok</option>
-                <option value="part_time">Čiastočný úväzok</option>
+                <option value="full_time">PlnA? AsvA�zok</option>
+                <option value="part_time">�Siasto�TnA? AsvA�zok</option>
                 <option value="contract">Dohoda</option>
-                <option value="intern">Stáž</option>
+                <option value="intern">StA?Ll</option>
               </select>
             </div>
 
@@ -483,23 +483,23 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
               >
-                <option value="active">Aktívny</option>
-                <option value="inactive">Neaktívny</option>
-                <option value="terminated">Ukončený</option>
+                <option value="active">AktA�vny</option>
+                <option value="inactive">NeaktA�vny</option>
+                <option value="terminated">Ukon�TenA?</option>
                 <option value="on_leave">Na dovolenke</option>
               </select>
             </div>
           </div>
 
-          {/* Personálne údaje */}
+          {/* PersonA?lne Asdaje */}
           <div className="border-t border-gray-200 dark:border-dark-600 pt-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Personálne údaje
+              PersonA?lne Asdaje
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="birth_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Rodné priezvisko
+                  RodnA� priezvisko
                 </label>
                 <input
                   type="text"
@@ -551,14 +551,14 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Vyberte pohlavie</option>
-                  <option value="muž">Muž</option>
-                  <option value="žena">Žena</option>
+                  <option value="muLl">MuLl</option>
+                  <option value="Llena">L?ena</option>
                 </select>
               </div>
 
               <div>
                 <label htmlFor="birth_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Dátum narodenia
+                  DA?tum narodenia
                 </label>
                 <input
                   type="date"
@@ -572,7 +572,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="birth_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Rodné číslo
+                  RodnA� �TA�slo
                 </label>
                 <input
                   type="text"
@@ -600,7 +600,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Národnosť
+                  NA?rodnosLA
                 </label>
                 <input
                   type="text"
@@ -614,7 +614,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="citizenship" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Štát občianstvo
+                  L�tA?t ob�Tianstvo
                 </label>
                 <input
                   type="text"
@@ -642,7 +642,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="marital_status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Rodinný stav
+                  RodinnA? stav
                 </label>
                 <input
                   type="text"
@@ -656,7 +656,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="bonus_months" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Mesiacov pre zam. prémiu
+                  Mesiacov pre zam. prA�miu
                 </label>
                 <input
                   type="number"
@@ -682,7 +682,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="is_partner" className="ml-2 block text-sm text-gray-900 dark:text-white">
-                  Spoločník
+                  Spolo�TnA�k
                 </label>
               </div>
 
@@ -696,7 +696,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="is_statutory" className="ml-2 block text-sm text-gray-900 dark:text-white">
-                  Štatutár
+                  L�tatutA?r
                 </label>
               </div>
 
@@ -710,16 +710,16 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="employee_bonus" className="ml-2 block text-sm text-gray-900 dark:text-white">
-                  Zamestnanecká prémia
+                  ZamestnaneckA? prA�mia
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Adresa trvalého pobytu */}
+          {/* Adresa trvalA�ho pobytu */}
           <div className="border-t border-gray-200 dark:border-dark-600 pt-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Adresa trvalého pobytu
+              Adresa trvalA�ho pobytu
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -738,7 +738,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="permanent_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo popisné
+                  �SA�slo popisnA�
                 </label>
                 <input
                   type="text"
@@ -766,7 +766,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="permanent_zip" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  PSČ
+                  PS�S
                 </label>
                 <input
                   type="text"
@@ -780,7 +780,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="permanent_country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Štát
+                  L�tA?t
                 </label>
                 <input
                   type="text"
@@ -794,10 +794,10 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </div>
           </div>
 
-          {/* Kontaktná adresa */}
+          {/* KontaktnA? adresa */}
           <div className="border-t border-gray-200 dark:border-dark-600 pt-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Kontaktná adresa
+              KontaktnA? adresa
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -816,7 +816,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="contact_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo popisné
+                  �SA�slo popisnA�
                 </label>
                 <input
                   type="text"
@@ -844,7 +844,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="contact_zip" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  PSČ
+                  PS�S
                 </label>
                 <input
                   type="text"
@@ -858,7 +858,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="contact_country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Štát
+                  L�tA?t
                 </label>
                 <input
                   type="text"
@@ -872,10 +872,10 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </div>
           </div>
 
-          {/* Cudzinecké údaje */}
+          {/* CudzineckA� Asdaje */}
           <div className="border-t border-gray-200 dark:border-dark-600 pt-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Cudzinecké údaje
+              CudzineckA� Asdaje
             </h3>
             
             <div className="flex items-center mb-6">
@@ -895,7 +895,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="foreigner_country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Štát (cudzinec)
+                  L�tA?t (cudzinec)
                 </label>
                 <input
                   type="text"
@@ -909,7 +909,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="residence_permit_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo povolenia k pobytu
+                  �SA�slo povolenia k pobytu
                 </label>
                 <input
                   type="text"
@@ -923,7 +923,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="social_insurance_sr" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo soc. poist. v SR
+                  �SA�slo soc. poist. v SR
                 </label>
                 <input
                   type="text"
@@ -937,7 +937,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="social_insurance_foreign" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo soc. poist. v zahraničí
+                  �SA�slo soc. poist. v zahrani�TA�
                 </label>
                 <input
                   type="text"
@@ -951,7 +951,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="health_insurance_sr" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Číslo zdrav. poist. v SR
+                  �SA�slo zdrav. poist. v SR
                 </label>
                 <input
                   type="text"
@@ -965,7 +965,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
               <div>
                 <label htmlFor="tax_identification_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Identifikačné číslo na daňové účely
+                  Identifika�TnA� �TA�slo na daL�ovA� As�Tely
                 </label>
                 <input
                   type="text"
@@ -993,25 +993,25 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </div>
           </div>
 
-                     {/* Sekcia pre ukončenie zamestnania */}
+                     {/* Sekcia pre ukon�Tenie zamestnania */}
            {formData.status === 'terminated' && (
              <div className="border-t border-gray-200 dark:border-dark-600 pt-6">
                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                 Údaje o ukončení zamestnania
+                 Asdaje o ukon�TenA� zamestnania
                </h3>
                
-                               {/* Informácia o existujúcom dátume ukončenia */}
+                               {/* InformA?cia o existujAscom dA?tume ukon�Tenia */}
                 {formData.termination_date && (
                   <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
                     <div className="flex">
                       <CalendarIcon className="h-5 w-5 text-blue-400" />
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                          Dátum ukončenia: {new Date(formData.termination_date).toLocaleDateString('sk-SK')}
+                          DA?tum ukon�Tenia: {new Date(formData.termination_date).toLocaleDateString('sk-SK')}
                         </h3>
                         {formData.termination_reason && (
                           <div className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                            <p><strong>Dôvod:</strong> {formData.termination_reason}</p>
+                            <p><strong>DA�vod:</strong> {formData.termination_reason}</p>
                           </div>
                         )}
                       </div>
@@ -1019,19 +1019,19 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                   </div>
                 )}
                 
-                {/* Upozornenie o uplynutí lehoty */}
+                {/* Upozornenie o uplynutA� lehoty */}
                 {formData.termination_date && new Date(formData.termination_date) <= new Date() && (
                   <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
                     <div className="flex">
                       <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                          Dátum ukončenia uplynul
+                          DA?tum ukon�Tenia uplynul
                         </h3>
                         <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
                           <p>
-                            Dátum ukončenia zamestnania ({new Date(formData.termination_date).toLocaleDateString('sk-SK')}) už uplynul. 
-                            Po uložení sa status zamestnanca automaticky zmení na "Neaktívny".
+                            DA?tum ukon�Tenia zamestnania ({new Date(formData.termination_date).toLocaleDateString('sk-SK')}) uLl uplynul. 
+                            Po uloLlenA� sa status zamestnanca automaticky zmenA� na "NeaktA�vny".
                           </p>
                         </div>
                       </div>
@@ -1041,7 +1041,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="termination_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Dátum ukončenia *
+                    DA?tum ukon�Tenia *
                   </label>
                   <input
                     type="date"
@@ -1060,7 +1060,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 
                 <div className="md:col-span-2">
                   <label htmlFor="termination_reason" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Dôvod ukončenia *
+                    DA�vod ukon�Tenia *
                   </label>
                   <textarea
                     id="termination_reason"
@@ -1071,7 +1071,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
                     className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white ${
                       errors.termination_reason ? 'border-red-300' : 'border-gray-300 dark:border-dark-600'
                     }`}
-                    placeholder="Zadajte dôvod ukončenia zamestnania..."
+                    placeholder="Zadajte dA�vod ukon�Tenia zamestnania..."
                   />
                   {errors.termination_reason && (
                     <p className="mt-1 text-sm text-red-600">{errors.termination_reason}</p>
@@ -1081,21 +1081,21 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </div>
           )}
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-dark-600">
             <button
               type="button"
               onClick={handleClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Ukladám...' : 'Uložiť zmeny'}
+              {isSubmitting ? 'UkladA?m...' : 'UloLliLA zmeny'}
             </button>
           </div>
         </form>
@@ -1105,3 +1105,4 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 };
 
 export default EditEmployeeModal;
+

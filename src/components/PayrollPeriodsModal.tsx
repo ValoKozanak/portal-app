@@ -23,23 +23,23 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
   const [selectedPeriod, setSelectedPeriod] = useState<PayrollPeriod | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Načítanie mzdových období
+  // Na�TA�tanie mzdovA?ch obdobA�
   const loadPeriods = async () => {
     try {
       setLoading(true);
       let data = await payrollService.getPayrollPeriods(companyId, selectedYear);
       if (!data || data.length === 0) {
         try {
-          // inicializuj obdobia na serveri (ak ešte neexistujú)
+          // inicializuj obdobia na serveri (ak eL?te neexistujAs)
           await payrollService.initPayrollPeriods(companyId, selectedYear);
           data = await payrollService.getPayrollPeriods(companyId, selectedYear);
         } catch (e) {
-          console.error('Inicializácia mzdových období zlyhala:', e);
+          console.error('InicializA?cia mzdovA?ch obdobA� zlyhala:', e);
         }
       }
       setPeriods(data || []);
     } catch (error) {
-      console.error('Chyba pri načítaní mzdových období:', error);
+      console.error('Chyba pri na�TA�tanA� mzdovA?ch obdobA�:', error);
     } finally {
       setLoading(false);
     }
@@ -51,13 +51,13 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
     }
   }, [isOpen, selectedYear]);
 
-  // Kontrola oprávnení na editáciu
+  // Kontrola oprA?vnenA� na editA?ciu
   const canEdit = userRole === 'admin' || userRole === 'accountant';
 
   // Uzatvorenie/odomknutie obdobia
   const handleTogglePeriod = async (period: PayrollPeriod) => {
     if (!canEdit) {
-      alert('Nemáte oprávnenie na úpravu mzdových období. Kontaktujte administrátora alebo účtovníka.');
+      alert('NemA?te oprA?vnenie na Aspravu mzdovA?ch obdobA�. Kontaktujte administrA?tora alebo As�TtovnA�ka.');
       return;
     }
 
@@ -70,13 +70,13 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
       } else {
         // Uzatvorenie
         if (!payrollService.canClosePeriod(period.year, period.month)) {
-          alert('Nie je možné uzatvoriť aktuálne alebo budúce obdobie!');
+          alert('Nie je moLlnA� uzatvoriLA aktuA?lne alebo budAsce obdobie!');
           return;
         }
         await payrollService.closePayrollPeriod(companyId, period.year, period.month, userEmail);
       }
       
-      // Obnovenie dát
+      // Obnovenie dA?t
       await loadPeriods();
     } catch (error) {
       console.error('Chyba pri zmene stavu obdobia:', error);
@@ -86,7 +86,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
     }
   };
 
-  // Generovanie rokov pre výber
+  // Generovanie rokov pre vA?ber
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
@@ -106,7 +106,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
           <div className="flex items-center space-x-3">
             <CalendarIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Účtovné obdobia
+              As�TtovnA� obdobia
             </h2>
           </div>
           <button
@@ -119,7 +119,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          {/* Výber roku */}
+          {/* VA?ber roku */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rok
@@ -137,11 +137,11 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
             </select>
           </div>
 
-          {/* Tabuľka období */}
+          {/* Tabu�lka obdobA� */}
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500 dark:text-gray-400">Načítavam...</p>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">Na�TA�tavam...</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -155,7 +155,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Uzatvorené
+                      UzatvorenA�
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Akcie
@@ -166,7 +166,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                   {periods.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        Žiadne mzdové obdobia pre vybraný rok
+                        L?iadne mzdovA� obdobia pre vybranA? rok
                       </td>
                     </tr>
                   ) : (
@@ -180,7 +180,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                               </div>
                               {payrollService.isCurrentPeriod(period.year, period.month) && (
                                 <div className="text-xs text-blue-600 dark:text-blue-400">
-                                  Aktuálne obdobie
+                                  AktuA?lne obdobie
                                 </div>
                               )}
                             </div>
@@ -192,7 +192,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                               ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                               : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                           }`}>
-                            {period.is_closed ? 'Uzatvorené' : 'Otvorené'}
+                            {period.is_closed ? 'UzatvorenA�' : 'OtvorenA�'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -223,7 +223,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
                               ) : (
                                 <LockClosedIcon className="w-3 h-3 mr-1" />
                               )}
-                              {period.is_closed ? 'Odomknúť' : 'Uzatvoriť'}
+                              {period.is_closed ? 'OdomknAsLA' : 'UzatvoriLA'}
                             </button>
                           ) : (
                             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -243,10 +243,10 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
         {/* Footer */}
         <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-dark-600">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            * Môžete uzatvoriť len minulé mesiace
+            * MA�Llete uzatvoriLA len minulA� mesiace
             {!canEdit && (
               <span className="block mt-1 text-orange-600">
-                ** Len administrátori a účtovníci môžu upravovať obdobia
+                ** Len administrA?tori a As�TtovnA�ci mA�Llu upravovaLA obdobia
               </span>
             )}
           </div>
@@ -254,7 +254,7 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 dark:bg-dark-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-400 dark:hover:bg-dark-500"
           >
-            Zavrieť
+            ZavrieLA
           </button>
         </div>
       </div>
@@ -263,3 +263,4 @@ const PayrollPeriodsModal: React.FC<PayrollPeriodsModalProps> = ({
 };
 
 export default PayrollPeriodsModal;
+

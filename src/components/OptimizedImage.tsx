@@ -39,14 +39,14 @@ export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
     },
     ref
   ) => {
-    // Ak máme low res verziu, použijeme progressive loading
+    // Ak mA?me low res verziu, pouLlijeme progressive loading
     const progressiveImage = useProgressiveImage(
       lowResSrc || src,
       src,
       { placeholder, fallback }
     );
 
-    // Inak použijeme obyčajný lazy loading
+    // Inak pouLlijeme oby�TajnA? lazy loading
     const lazyImage = useImageOptimization(src, {
       threshold,
       rootMargin,
@@ -101,7 +101,7 @@ export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
 
 OptimizedImage.displayName = 'OptimizedImage';
 
-// Komponent pre batch loading obrázkov
+// Komponent pre batch loading obrA?zkov
 interface BatchImageProps {
   images: string[];
   renderImage: (src: string, loaded: boolean) => React.ReactNode;
@@ -131,7 +131,7 @@ export const BatchImageLoader: React.FC<BatchImageProps> = ({
   );
 };
 
-// Komponent pre image gallery s virtualizáciou
+// Komponent pre image gallery s virtualizA?ciou
 interface ImageGalleryProps {
   images: string[];
   itemHeight?: number;
@@ -160,3 +160,4 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     </div>
   );
 };
+

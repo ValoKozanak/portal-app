@@ -18,7 +18,7 @@ interface BankTransaction {
   debet: number;
   zostatok: number;
   typ: 'kredit' | 'debet';
-  firma?: string; // Voliteľné pole
+  firma?: string; // Volite�lnA� pole
 }
 
 interface BankTransactionsData {
@@ -70,19 +70,19 @@ const BankTransactionsPage: React.FC = () => {
       setError(null);
 
       if (!accountNumber) {
-        setError('Chýba číslo účtu');
+        setError('ChA?ba �TA�slo As�Ttu');
         return;
       }
 
-      console.log('🏦 Načítavam transakcie pre účet:', accountNumber);
+      console.log('dzZ� Na�TA�tavam transakcie pre As�Tet:', accountNumber);
 
       const data = await accountingService.getBankTransactions(Number(companyId), accountNumber);
-      console.log('🏦 Transakcie načítané:', data);
+      console.log('dzZ� Transakcie na�TA�tanA�:', data);
 
       setTransactionsData(data);
     } catch (error) {
-      console.error('Chyba pri načítaní transakcií:', error);
-      setError('Chyba pri načítaní transakcií');
+      console.error('Chyba pri na�TA�tanA� transakciA�:', error);
+      setError('Chyba pri na�TA�tanA� transakciA�');
     } finally {
       setLoading(false);
     }
@@ -122,32 +122,32 @@ const BankTransactionsPage: React.FC = () => {
   };
 
   const filteredTransactions = transactionsData?.transactions?.filter(transaction => {
-    // Filtrovanie podľa dátumu
+    // Filtrovanie pod�la dA?tumu
     if (filters.datum && !transaction.datum.includes(filters.datum)) {
       return false;
     }
     
-    // Filtrovanie podľa popisu
+    // Filtrovanie pod�la popisu
     if (filters.popis && !transaction.popis.toLowerCase().includes(filters.popis.toLowerCase())) {
       return false;
     }
     
-    // Filtrovanie podľa firmy
+    // Filtrovanie pod�la firmy
     if (filters.firma && (!transaction.firma || !transaction.firma.toLowerCase().includes(filters.firma.toLowerCase()))) {
       return false;
     }
     
-    // Filtrovanie podľa kreditu
+    // Filtrovanie pod�la kreditu
     if (filters.kredit && !transaction.kredit.toString().includes(filters.kredit)) {
       return false;
     }
     
-    // Filtrovanie podľa debetu
+    // Filtrovanie pod�la debetu
     if (filters.debet && !transaction.debet.toString().includes(filters.debet)) {
       return false;
     }
     
-    // Filtrovanie podľa zostatku
+    // Filtrovanie pod�la zostatku
     if (filters.zostatok && !transaction.zostatok.toString().includes(filters.zostatok)) {
       return false;
     }
@@ -192,7 +192,7 @@ const BankTransactionsPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Späť na Bankovú knihu
+                SpA�LA na BankovAs knihu
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -203,31 +203,31 @@ const BankTransactionsPage: React.FC = () => {
                 onClick={handleRefresh}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Obnoviť
+                ObnoviLA
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hlavný obsah */}
+      {/* HlavnA? obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {transactionsData && (
           <>
-            {/* Informácie o účte */}
+            {/* InformA?cie o As�Tte */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Informácie o účte
+                InformA?cie o As�Tte
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Číslo účtu</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">�SA�slo As�Ttu</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {transactionsData.account.accountNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Názov účtu</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">NA?zov As�Ttu</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {transactionsData.account.accountName}
                   </p>
@@ -241,17 +241,17 @@ const BankTransactionsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Súhrn */}
+            {/* SAshrn */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Súhrn transakcií
+                SAshrn transakciA�
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-blue-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Aktuálny zostatok</p>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">AktuA?lny zostatok</p>
                       <p className={`text-2xl font-bold ${transactionsData.summary.currentBalance >= 0 ? 'text-blue-900 dark:text-blue-100' : 'text-red-600 dark:text-red-400'}`}>
                         {formatCurrency(transactionsData.summary.currentBalance)}
                       </p>
@@ -262,7 +262,7 @@ const BankTransactionsPage: React.FC = () => {
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-green-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-green-600 dark:text-green-400">Celkový kredit</p>
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">CelkovA? kredit</p>
                       <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                         {formatCurrency(transactionsData.summary.totalCredit)}
                       </p>
@@ -273,7 +273,7 @@ const BankTransactionsPage: React.FC = () => {
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-red-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-red-600 dark:text-red-400">Celkový debet</p>
+                      <p className="text-sm font-medium text-red-600 dark:text-red-400">CelkovA? debet</p>
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                         {formatCurrency(transactionsData.summary.totalDebit)}
                       </p>
@@ -284,7 +284,7 @@ const BankTransactionsPage: React.FC = () => {
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-purple-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Počet transakcií</p>
+                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Po�Tet transakciA�</p>
                       <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                         {transactionsData.summary.transactionCount}
                       </p>
@@ -294,7 +294,7 @@ const BankTransactionsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabuľka transakcií s filtrovacími poliami v hlavičke */}
+            {/* Tabu�lka transakciA� s filtrovacA�mi poliami v hlavi�Tke */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -305,7 +305,7 @@ const BankTransactionsPage: React.FC = () => {
                   className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <FunnelIcon className="h-4 w-4 mr-1" />
-                  Vyčistiť filtre
+                  Vy�TistiLA filtre
                 </button>
               </div>
               <div className="overflow-x-auto">
@@ -313,7 +313,7 @@ const BankTransactionsPage: React.FC = () => {
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Dátum
+                        DA?tum
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Popis
@@ -338,7 +338,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.datum}
                           onChange={(e) => handleFilterChange('datum', e.target.value)}
-                          placeholder="Filtrovať dátum..."
+                          placeholder="FiltrovaLA dA?tum..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -347,7 +347,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.popis}
                           onChange={(e) => handleFilterChange('popis', e.target.value)}
-                          placeholder="Filtrovať popis..."
+                          placeholder="FiltrovaLA popis..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -356,7 +356,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.firma}
                           onChange={(e) => handleFilterChange('firma', e.target.value)}
-                          placeholder="Filtrovať firmu..."
+                          placeholder="FiltrovaLA firmu..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -365,7 +365,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.kredit}
                           onChange={(e) => handleFilterChange('kredit', e.target.value)}
-                          placeholder="Filtrovať kredit..."
+                          placeholder="FiltrovaLA kredit..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -374,7 +374,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.debet}
                           onChange={(e) => handleFilterChange('debet', e.target.value)}
-                          placeholder="Filtrovať debet..."
+                          placeholder="FiltrovaLA debet..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -383,7 +383,7 @@ const BankTransactionsPage: React.FC = () => {
                           type="text"
                           value={filters.zostatok}
                           onChange={(e) => handleFilterChange('zostatok', e.target.value)}
-                          placeholder="Filtrovať zostatok..."
+                          placeholder="FiltrovaLA zostatok..."
                           className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                         />
                       </th>
@@ -426,3 +426,4 @@ const BankTransactionsPage: React.FC = () => {
 };
 
 export default BankTransactionsPage;
+

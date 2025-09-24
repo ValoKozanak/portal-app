@@ -18,71 +18,71 @@ import {
 const Home: React.FC = () => {
   const services = [
     {
-      name: 'Podvojné účtovníctvo',
-      description: 'Kompletné vedenie účtovníctva, spracovanie dokladov a reporting pre vašu firmu.',
+      name: 'PodvojnA� As�TtovnA�ctvo',
+      description: 'KompletnA� vedenie As�TtovnA�ctva, spracovanie dokladov a reporting pre vaL?u firmu.',
       icon: CalculatorIcon,
-      features: ['Vedenie účtovníctva', 'Spracovanie dokladov', 'Mesačné výkazy', 'Ročné zúčtovanie']
+      features: ['Vedenie As�TtovnA�ctva', 'Spracovanie dokladov', 'Mesa�TnA� vA?kazy', 'Ro�TnA� zAs�Ttovanie']
     },
     {
-      name: 'Jednoduché účtovníctvo',
-      description: 'Účtovníctvo pre SZČO a malé firmy s jednoduchým a prehľadným systémom.',
+      name: 'JednoduchA� As�TtovnA�ctvo',
+      description: 'As�TtovnA�ctvo pre SZ�SO a malA� firmy s jednoduchA?m a preh�ladnA?m systA�mom.',
       icon: DocumentTextIcon,
-      features: ['Jednoduché účtovníctvo', 'Daňové priznania', 'Online prístup', 'Osobné poradenstvo']
+      features: ['JednoduchA� As�TtovnA�ctvo', 'DaL�ovA� priznania', 'Online prA�stup', 'OsobnA� poradenstvo']
     },
     {
       name: 'Mzdy a personalistika',
-      description: 'Spracovanie miezd, komunikácia so Sociálnou a zdravotnými poisťovňami.',
+      description: 'Spracovanie miezd, komunikA?cia so SociA?lnou a zdravotnA?mi poisLAovL�ami.',
       icon: UserGroupIcon,
-      features: ['Spracovanie miezd', 'Komunikácia s poisťovňami', 'Personalistika', 'Mzdy online']
+      features: ['Spracovanie miezd', 'KomunikA?cia s poisLAovL�ami', 'Personalistika', 'Mzdy online']
     },
     {
-      name: 'Daňové poradenstvo',
-      description: 'Daňové priznania, optimalizácia a poradenstvo v oblasti daní.',
+      name: 'DaL�ovA� poradenstvo',
+      description: 'DaL�ovA� priznania, optimalizA?cia a poradenstvo v oblasti danA�.',
       icon: ChartBarIcon,
-      features: ['Daňové priznania', 'Optimalizácia daní', 'Poradenstvo', 'Legislatívne zmeny']
+      features: ['DaL�ovA� priznania', 'OptimalizA?cia danA�', 'Poradenstvo', 'LegislatA�vne zmeny']
     }
   ];
 
   const benefits = [
     {
-      title: 'Online prístup',
-      description: '24/7 prístup k vašim dokladom a výkazom cez bezpečný klientský portál.',
+      title: 'Online prA�stup',
+      description: '24/7 prA�stup k vaL?im dokladom a vA?kazom cez bezpe�TnA? klientskA? portA?l.',
       icon: ShieldCheckIcon
     },
     {
-      title: 'Komunikácia s účtovníkom',
-      description: 'Priama komunikácia s vaším účtovníkom cez portál alebo telefonicky.',
+      title: 'KomunikA?cia s As�TtovnA�kom',
+      description: 'Priama komunikA?cia s vaL?A�m As�TtovnA�kom cez portA?l alebo telefonicky.',
       icon: PhoneIcon
     },
     {
-      title: 'Bezpečný prenos dokumentov',
-      description: 'Bezpečné nahrávanie a prenos dokumentov s najvyššou úrovňou ochrany.',
+      title: 'Bezpe�TnA? prenos dokumentov',
+      description: 'Bezpe�TnA� nahrA?vanie a prenos dokumentov s najvyL?L?ou AsrovL�ou ochrany.',
       icon: ShieldCheckIcon
     },
     {
-      title: 'Rýchle spracovanie',
-      description: 'Rýchle spracovanie vašich dokladov s garantovanými termínmi.',
+      title: 'RA?chle spracovanie',
+      description: 'RA?chle spracovanie vaL?ich dokladov s garantovanA?mi termA�nmi.',
       icon: ClockIcon
     }
   ];
 
   const testimonials = [
     {
-      name: 'Peter Novák',
-      company: 'Novák s.r.o.',
-      text: 'Profesionálny prístup a rýchle spracovanie. Odporúčam všetkým podnikateľom.',
+      name: 'Peter NovA?k',
+      company: 'NovA?k s.r.o.',
+      text: 'ProfesionA?lny prA�stup a rA?chle spracovanie. OdporAs�Tam vL?etkA?m podnikate�lom.',
       rating: 5
     },
     {
-      name: 'Mária Kováčová',
-      company: 'Kováčová Consulting',
-      text: 'Výborná komunikácia a online prístup k dokladom. Ušetrili sme veľa času.',
+      name: 'MA?ria KovA?�TovA?',
+      company: 'KovA?�TovA? Consulting',
+      text: 'VA?bornA? komunikA?cia a online prA�stup k dokladom. UL?etrili sme ve�la �Tasu.',
       rating: 5
     },
     {
-      name: 'Ján Svoboda',
+      name: 'JA?n Svoboda',
       company: 'Svoboda Trading',
-      text: 'Spoľahlivé účtovníctvo a daňové poradenstvo. Dlhodobá spolupráca.',
+      text: 'Spo�lahlivA� As�TtovnA�ctvo a daL�ovA� poradenstvo. DlhodobA? spoluprA?ca.',
       rating: 5
     }
   ];
@@ -99,25 +99,25 @@ const Home: React.FC = () => {
               </div>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-              Vaše účtovníctvo –{' '}
-              <span className="text-yellow-300">naša starosť</span>
+              VaL?e As�TtovnA�ctvo �?"{' '}
+              <span className="text-yellow-300">naL?a starosLA</span>
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-10">
-              Profesionálne účtovníctvo a daňové poradenstvo pre vašu firmu. 
-              Poskytujeme kompletný servis s dôrazom na spoľahlivosť, presnosť a moderné riešenia.
+              ProfesionA?lne As�TtovnA�ctvo a daL�ovA� poradenstvo pre vaL?u firmu. 
+              Poskytujeme kompletnA? servis s dA�razom na spo�lahlivosLA, presnosLA a modernA� rieL?enia.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/contact"
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
               >
-                Stať sa klientom
+                StaLA sa klientom
               </Link>
               <Link
                 to="/contact"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
               >
-                Kontaktovať účtovníka
+                KontaktovaLA As�TtovnA�ka
               </Link>
             </div>
           </div>
@@ -129,10 +129,10 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Naše služby
+              NaL?e sluLlby
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Poskytujeme kompletný servis v oblasti účtovníctva, miezd a daňového poradenstva
+              Poskytujeme kompletnA? servis v oblasti As�TtovnA�ctva, miezd a daL�ovA�ho poradenstva
             </p>
           </div>
           
@@ -163,10 +163,10 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Prečo si vybrať nás?
+              Pre�To si vybraLA nA?s?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Moderné riešenia a profesionálny prístup pre vašu firmu
+              ModernA� rieL?enia a profesionA?lny prA�stup pre vaL?u firmu
             </p>
           </div>
           
@@ -189,10 +189,10 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Čo hovoria naši klienti
+              �So hovoria naL?i klienti
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Spokojnosť našich klientov je naša najväčšia odmena
+              SpokojnosLA naL?ich klientov je naL?a najvA��TL?ia odmena
             </p>
           </div>
           
@@ -220,23 +220,23 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">
-              Pripravení začať spoluprácu?
+              PripravenA� za�TaLA spoluprA?cu?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Kontaktujte nás a dohodneme si bezplatnú konzultáciu pre vašu firmu
+              Kontaktujte nA?s a dohodneme si bezplatnAs konzultA?ciu pre vaL?u firmu
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/contact"
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
               >
-                Kontaktovať nás
+                KontaktovaLA nA?s
               </Link>
               <Link
                 to="/login"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
               >
-                Prihlásiť sa do portálu
+                PrihlA?siLA sa do portA?lu
               </Link>
             </div>
           </div>
@@ -247,4 +247,5 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 

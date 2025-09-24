@@ -60,15 +60,15 @@ const BankPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      console.log('🏦 Načítavam bankové dáta pre companyId:', companyId);
+      console.log('dzZ� Na�TA�tavam bankovA� dA?ta pre companyId:', companyId);
       
       const data = await accountingService.getBankAccounts(Number(companyId));
-      console.log('🏦 Bankové dáta načítané:', data);
+      console.log('dzZ� BankovA� dA?ta na�TA�tanA�:', data);
       
       setBankData(data);
     } catch (error) {
-      console.error('Chyba pri načítaní bankových účtov:', error);
-      setError('Chyba pri načítaní bankových účtov');
+      console.error('Chyba pri na�TA�tanA� bankovA?ch As�Ttov:', error);
+      setError('Chyba pri na�TA�tanA� bankovA?ch As�Ttov');
     } finally {
       setLoading(false);
     }
@@ -122,39 +122,39 @@ const BankPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Späť na Účtovníctvo
+                SpA�LA na As�TtovnA�ctvo
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Banková kniha - {bankData?.company?.name}
+                BankovA? kniha - {bankData?.company?.name}
               </h1>
               <button
                 onClick={handleRefresh}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Obnoviť
+                ObnoviLA
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hlavný obsah */}
+      {/* HlavnA? obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {bankData && bankData.accounts && bankData.accounts.length > 0 ? (
           <>
-            {/* Súhrn */}
+            {/* SAshrn */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Súhrn bankových účtov
+                SAshrn bankovA?ch As�Ttov
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-blue-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Celkový zostatok</p>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">CelkovA? zostatok</p>
                       <p className={`text-2xl font-bold ${bankData.summary.totalBalance >= 0 ? 'text-blue-900 dark:text-blue-100' : 'text-red-600 dark:text-red-400'}`}>
                         {formatCurrency(bankData.summary.totalBalance)}
                       </p>
@@ -165,7 +165,7 @@ const BankPage: React.FC = () => {
                   <div className="flex items-center">
                     <PlusIcon className="h-8 w-8 text-green-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-green-600 dark:text-green-400">Celkový kredit</p>
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">CelkovA? kredit</p>
                       <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                         {formatCurrency(bankData.summary.totalCredit)}
                       </p>
@@ -176,7 +176,7 @@ const BankPage: React.FC = () => {
                   <div className="flex items-center">
                     <MinusIcon className="h-8 w-8 text-red-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-red-600 dark:text-red-400">Celkový debet</p>
+                      <p className="text-sm font-medium text-red-600 dark:text-red-400">CelkovA? debet</p>
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                         {formatCurrency(bankData.summary.totalDebit)}
                       </p>
@@ -187,7 +187,7 @@ const BankPage: React.FC = () => {
                   <div className="flex items-center">
                     <BanknotesIcon className="h-8 w-8 text-purple-500" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Počet účtov</p>
+                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Po�Tet As�Ttov</p>
                       <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                         {bankData.summary.accountCount}
                       </p>
@@ -197,11 +197,11 @@ const BankPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabuľka bankových účtov */}
+            {/* Tabu�lka bankovA?ch As�Ttov */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  Bankové účty
+                  BankovA� As�Tty
                 </h3>
               </div>
               <div className="overflow-x-auto">
@@ -209,10 +209,10 @@ const BankPage: React.FC = () => {
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Číslo účtu
+                        �SA�slo As�Ttu
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Názov účtu
+                        NA?zov As�Ttu
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Banka
@@ -260,7 +260,7 @@ const BankPage: React.FC = () => {
                             className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           >
                             <EyeIcon className="h-4 w-4 mr-1" />
-                            Zobraziť
+                            ZobraziLA
                           </button>
                         </td>
                       </tr>
@@ -276,10 +276,10 @@ const BankPage: React.FC = () => {
               <BanknotesIcon className="h-8 w-8 text-yellow-500" />
               <div className="ml-3">
                 <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">
-                  Žiadne bankové účty
+                  L?iadne bankovA� As�Tty
                 </h3>
                 <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                  {bankData?.message || 'Firma nemá žiadne bankové účty (221) v účtovníctve.'}
+                  {bankData?.message || 'Firma nemA? Lliadne bankovA� As�Tty (221) v As�TtovnA�ctve.'}
                 </div>
               </div>
             </div>
@@ -291,3 +291,4 @@ const BankPage: React.FC = () => {
 };
 
 export default BankPage;
+

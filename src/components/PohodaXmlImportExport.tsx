@@ -19,13 +19,13 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       setSelectedFile(file);
       setUploadResult(null);
     } else {
-      alert('Prosím vyberte XML súbor');
+      alert('ProsA�m vyberte XML sAsbor');
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      alert('Prosím vyberte XML súbor');
+      alert('ProsA�m vyberte XML sAsbor');
       return;
     }
 
@@ -37,7 +37,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       
       setUploadResult({
         success: result.success,
-        message: result.message || 'Upload dokončený',
+        message: result.message || 'Upload dokon�TenA?',
         details: result.data
       });
       
@@ -50,7 +50,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       console.error('Chyba pri upload:', error);
       setUploadResult({
         success: false,
-        message: 'Chyba pri nahrávaní XML súboru'
+        message: 'Chyba pri nahrA?vanA� XML sAsboru'
       });
     } finally {
       setIsUploading(false);
@@ -75,7 +75,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       
     } catch (error) {
       console.error('Chyba pri exporte:', error);
-      alert('Chyba pri exporte XML súboru');
+      alert('Chyba pri exporte XML sAsboru');
     } finally {
       setIsExporting(false);
     }
@@ -90,12 +90,12 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
       <div className="space-y-6">
         {/* Import sekcia */}
         <div className="border rounded-lg p-4">
-          <h4 className="text-md font-medium text-gray-700 mb-3">Import faktúr z POHODA XML</h4>
+          <h4 className="text-md font-medium text-gray-700 mb-3">Import faktAsr z POHODA XML</h4>
           
           <div className="space-y-3">
             <div>
               <label htmlFor="xml-file-input" className="block text-sm font-medium text-gray-700 mb-1">
-                Vyberte XML súbor z POHODA
+                Vyberte XML sAsbor z POHODA
               </label>
               <input
                 id="xml-file-input"
@@ -105,14 +105,14 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Podporované sú len XML súbory exportované z POHODA
+                PodporovanA� sAs len XML sAsbory exportovanA� z POHODA
               </p>
             </div>
             
             {selectedFile && (
               <div className="bg-blue-50 p-3 rounded-md">
                 <p className="text-sm text-blue-700">
-                  <strong>Vybraný súbor:</strong> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  <strong>VybranA? sAsbor:</strong> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                 </p>
               </div>
             )}
@@ -125,10 +125,10 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
               {isUploading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Nahrávam...
+                  NahrA?vam...
                 </>
               ) : (
-                'Nahrať XML súbor'
+                'NahraLA XML sAsbor'
               )}
             </button>
           </div>
@@ -140,7 +140,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
               <p className="text-sm font-medium">{uploadResult.message}</p>
               {uploadResult.details && (
                 <div className="mt-2 text-xs">
-                  <p>Importované: {uploadResult.details.imported}</p>
+                  <p>ImportovanA�: {uploadResult.details.imported}</p>
                   <p>Chyby: {uploadResult.details.errors?.length || 0}</p>
                   {uploadResult.details.errors && uploadResult.details.errors.length > 0 && (
                     <ul className="mt-1 list-disc list-inside">
@@ -157,13 +157,13 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
 
         {/* Export sekcia */}
         <div className="border rounded-lg p-4">
-          <h4 className="text-md font-medium text-gray-700 mb-3">Export faktúr do POHODA XML</h4>
+          <h4 className="text-md font-medium text-gray-700 mb-3">Export faktAsr do POHODA XML</h4>
           
           <div className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-1">
-                  Dátum od
+                  DA?tum od
                 </label>
                 <input
                   id="date-from"
@@ -176,7 +176,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
               
               <div>
                 <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-1">
-                  Dátum do
+                  DA?tum do
                 </label>
                 <input
                   id="date-to"
@@ -189,7 +189,7 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
             </div>
             
             <p className="text-sm text-gray-500">
-              Ak nevyberiete dátumy, exportujú sa všetky faktúry
+              Ak nevyberiete dA?tumy, exportujAs sa vL?etky faktAsry
             </p>
             
             <button
@@ -203,18 +203,18 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
                   Exportujem...
                 </>
               ) : (
-                'Exportovať do XML'
+                'ExportovaLA do XML'
               )}
             </button>
           </div>
         </div>
 
-        {/* Informácie */}
+        {/* InformA?cie */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h4 className="text-md font-medium text-yellow-800 mb-2">Ako to funguje</h4>
           <div className="text-sm text-yellow-700 space-y-1">
-            <p><strong>Import:</strong> Exportujte faktúry z POHODA do XML súboru a nahrajte ich tu</p>
-            <p><strong>Export:</strong> Stiahnite faktúry v POHODA XML formáte pre import do POHODA</p>
+            <p><strong>Import:</strong> Exportujte faktAsry z POHODA do XML sAsboru a nahrajte ich tu</p>
+            <p><strong>Export:</strong> Stiahnite faktAsry v POHODA XML formA?te pre import do POHODA</p>
             <p><strong>Kompatibilita:</strong> Funguje s demo aj plnou verziou POHODA</p>
           </div>
         </div>
@@ -224,3 +224,4 @@ const PohodaXmlImportExport: React.FC<PohodaXmlImportExportProps> = ({ companyId
 };
 
 export default PohodaXmlImportExport;
+

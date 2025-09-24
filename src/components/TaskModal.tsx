@@ -39,14 +39,14 @@ interface TaskModalProps {
     name: string;
     assignedToAccountants?: string[];
   };
-  // Nové props pre účtovníka
+  // NovA� props pre As�TtovnA�ka
   isAccountant?: boolean;
   assignedCompanies?: Array<{
     id: number;
     name: string;
     ico: string;
   }>;
-  userEmail?: string; // Email prihláseného používateľa
+  userEmail?: string; // Email prihlA?senA�ho pouLlA�vate�la
 }
 
 export interface Employee {
@@ -93,21 +93,21 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Kategórie úloh
+  // KategAlrie Asloh
   const taskCategories = [
-    { id: 'accounting', name: 'Účtovníctvo' },
-    { id: 'tax', name: 'Daňové záležitosti' },
-    { id: 'legal', name: 'Právne záležitosti' },
+    { id: 'accounting', name: 'As�TtovnA�ctvo' },
+    { id: 'tax', name: 'DaL�ovA� zA?leLlitosti' },
+    { id: 'legal', name: 'PrA?vne zA?leLlitosti' },
     { id: 'hr', name: 'Personalistika' },
-    { id: 'operations', name: 'Operácie' },
+    { id: 'operations', name: 'OperA?cie' },
     { id: 'marketing', name: 'Marketing' },
     { id: 'it', name: 'IT podpora' },
-    { id: 'other', name: 'Ostatné' },
+    { id: 'other', name: 'OstatnA�' },
   ];
 
-  // Naplnenie formulára pri editácii
+  // Naplnenie formulA?ra pri editA?cii
   useEffect(() => {
-    if (!isOpen) return; // Neresetuj ak nie je modal otvorený
+    if (!isOpen) return; // Neresetuj ak nie je modal otvorenA?
     
     if (task) {
       setFormData({
@@ -120,12 +120,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
         category: task.category,
         estimatedHours: task.estimatedHours?.toString() || '',
       });
-      // Nastaviť firmu ak je dostupná
+      // NastaviLA firmu ak je dostupnA?
       if (task.companyId) {
         setSelectedCompanyId(task.companyId);
       }
     } else {
-      // Reset formulára pre novú úlohu
+      // Reset formulA?ra pre novAs Aslohu
       setFormData({
         title: '',
         description: '',
@@ -136,7 +136,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         category: '',
         estimatedHours: '',
       });
-      // Nastaviť prvú firmu ako default pre účtovníka
+      // NastaviLA prvAs firmu ako default pre As�TtovnA�ka
       if (isAccountant && assignedCompanies.length > 0) {
         setSelectedCompanyId(assignedCompanies[0].id);
       } else {
@@ -144,42 +144,42 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
     }
     setErrors({});
-  }, [task, isOpen, isAccountant]); // Odstránené assignedCompanies z závislostí
+  }, [task, isOpen, isAccountant]); // OdstrA?nenA� assignedCompanies z zA?vislostA�
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Názov úlohy je povinný';
+      newErrors.title = 'NA?zov Aslohy je povinnA?';
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = 'Popis úlohy je povinný';
+      newErrors.description = 'Popis Aslohy je povinnA?';
     }
 
     if (!formData.assignedTo) {
-      newErrors.assignedTo = 'Priradenie zamestnanca je povinné';
+      newErrors.assignedTo = 'Priradenie zamestnanca je povinnA�';
     }
 
     if (!formData.dueDate) {
-      newErrors.dueDate = 'Termín dokončenia je povinný';
+      newErrors.dueDate = 'TermA�n dokon�Tenia je povinnA?';
     } else {
       const dueDate = new Date(formData.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
       if (dueDate < today) {
-        newErrors.dueDate = 'Termín nemôže byť v minulosti';
+        newErrors.dueDate = 'TermA�n nemA�Lle byLA v minulosti';
       }
     }
 
     if (!formData.category) {
-      newErrors.category = 'Kategória je povinná';
+      newErrors.category = 'KategAlria je povinnA?';
     }
 
-    // Pre účtovníka kontrolujeme aj vybranú firmu
+    // Pre As�TtovnA�ka kontrolujeme aj vybranAs firmu
     if (isAccountant && !selectedCompanyId) {
-      newErrors.company = 'Výber firmy je povinný';
+      newErrors.company = 'VA?ber firmy je povinnA?';
     }
 
     setErrors(newErrors);
@@ -196,7 +196,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Pre účtovníkov používame generické hodnoty pre assignedTo, ale email účtovníka pre assignedToEmail
+      // Pre As�TtovnA�kov pouLlA�vame generickA� hodnoty pre assignedTo, ale email As�TtovnA�ka pre assignedToEmail
       const assignedToEmail = isAccountant ? userEmail : formData.assignedTo;
       const assignedToName = isAccountant 
         ? formData.assignedTo 
@@ -204,17 +204,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
           ? formData.assignedTo.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
           : formData.assignedTo);
       
-      // Určiť companyId a companyName
+      // Ur�TiLA companyId a companyName
       let companyId: number | undefined;
       let companyName: string | undefined;
 
       if (isAccountant && selectedCompanyId) {
-        // Pre účtovníka používame vybranú firmu
+        // Pre As�TtovnA�ka pouLlA�vame vybranAs firmu
         companyId = selectedCompanyId as number;
         const selectedCompany = assignedCompanies.find(c => c.id === selectedCompanyId);
         companyName = selectedCompany?.name;
       } else if (company) {
-        // Pre ostatných používame company prop
+        // Pre ostatnA?ch pouLlA�vame company prop
         companyId = company.id;
         companyName = company.name;
       }
@@ -229,7 +229,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         dueDate: formData.dueDate,
         category: formData.category,
         estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined,
-        createdBy: userEmail || 'Aktuálny používateľ',
+        createdBy: userEmail || 'AktuA?lny pouLlA�vate�l',
         companyId: companyId,
         companyName: companyName,
       };
@@ -237,8 +237,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
       await onSave(taskData);
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladaní úlohy:', error);
-      setErrors({ submit: 'Nepodarilo sa uložiť úlohu' });
+      console.error('Chyba pri ukladanA� Aslohy:', error);
+      setErrors({ submit: 'Nepodarilo sa uloLliLA Aslohu' });
     } finally {
       setIsSubmitting(false);
     }
@@ -252,7 +252,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       return newData;
     });
     
-    // Vyčistiť chybu pre dané pole
+    // Vy�TistiLA chybu pre danA� pole
     setErrors(prev => {
       if (prev[field]) {
         const newErrors = { ...prev };
@@ -265,7 +265,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Kontrola či sú dostupné firmy
+  // Kontrola �Ti sAs dostupnA� firmy
   if (!isAccountant && !company) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -275,13 +275,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
               Chyba
             </h2>
             <p className="text-gray-600 mb-6">
-              Pre vytvorenie úlohy musíte mať aspoň jednu firmu. Najprv vytvorte firmu.
+              Pre vytvorenie Aslohy musA�te maLA aspoL� jednu firmu. Najprv vytvorte firmu.
             </p>
             <button
               onClick={onClose}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
             >
-              Zavrieť
+              ZavrieLA
             </button>
           </div>
         </div>
@@ -295,7 +295,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {task ? 'Upraviť úlohu' : 'Nová úloha'}
+            {task ? 'UpraviLA Aslohu' : 'NovA? Asloha'}
           </h2>
           <button
             onClick={onClose}
@@ -307,10 +307,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Názov úlohy */}
+          {/* NA?zov Aslohy */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Názov úlohy *
+              NA?zov Aslohy *
             </label>
             <input
               type="text"
@@ -320,7 +320,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                 errors.title ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Zadajte názov úlohy"
+              placeholder="Zadajte nA?zov Aslohy"
             />
             {errors.title && (
               <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -330,7 +330,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           {/* Popis */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Popis úlohy *
+              Popis Aslohy *
             </label>
             <textarea
               id="description"
@@ -340,18 +340,18 @@ const TaskModal: React.FC<TaskModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                 errors.description ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Podrobný popis úlohy..."
+              placeholder="PodrobnA? popis Aslohy..."
             />
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">{errors.description}</p>
             )}
           </div>
 
-          {/* Kategória a Priorita */}
+          {/* KategAlria a Priorita */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Kategória *
+                KategAlria *
               </label>
               <select
                 id="category"
@@ -361,7 +361,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   errors.category ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
-                <option value="">Vyberte kategóriu</option>
+                <option value="">Vyberte kategAlriu</option>
                 {taskCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -383,19 +383,19 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(e) => handleInputChange('priority', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="low">Nízka</option>
-                <option value="medium">Stredná</option>
-                <option value="high">Vysoká</option>
-                <option value="urgent">Urgentná</option>
+                <option value="low">NA�zka</option>
+                <option value="medium">StrednA?</option>
+                <option value="high">VysokA?</option>
+                <option value="urgent">UrgentnA?</option>
               </select>
             </div>
           </div>
 
-          {/* Výber firmy pre účtovníka */}
+          {/* VA?ber firmy pre As�TtovnA�ka */}
           {isAccountant && (
             <div>
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                Priradiť firme *
+                PriradiLA firme *
               </label>
               <select
                 id="company"
@@ -408,7 +408,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 <option value="">Vyberte firmu</option>
                 {assignedCompanies.map((company) => (
                   <option key={company.id} value={company.id}>
-                    {company.name} (IČO: {company.ico})
+                    {company.name} (I�SO: {company.ico})
                   </option>
                 ))}
               </select>
@@ -418,11 +418,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           )}
 
-          {/* Priradenie a Termín */}
+          {/* Priradenie a TermA�n */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-700 mb-2">
-                {isAccountant ? 'Priradiť zamestnancovi firmy' : 'Priradiť zamestnancovi'} *
+                {isAccountant ? 'PriradiLA zamestnancovi firmy' : 'PriradiLA zamestnancovi'} *
               </label>
               <select
                 id="assignedTo"
@@ -435,14 +435,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 {isAccountant ? (
                   <>
                     <option value="">Vyberte zamestnanca firmy</option>
-                    <option value="owner">Vlastník firmy</option>
-                    <option value="manager">Manažér</option>
+                    <option value="owner">VlastnA�k firmy</option>
+                    <option value="manager">ManaLlA�r</option>
                     <option value="employee">Zamestnanec</option>
-                    <option value="accountant">Účtovník</option>
+                    <option value="accountant">As�TtovnA�k</option>
                   </>
                 ) : (
                   <>
-                    <option value="">Vyberte účtovníka</option>
+                    <option value="">Vyberte As�TtovnA�ka</option>
                     {company && company.assignedToAccountants && company.assignedToAccountants.length > 0 ? (
                       company.assignedToAccountants.map((accountantEmail, index) => {
                         const accountantName = accountantEmail.includes('@') 
@@ -450,13 +450,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
                           : accountantEmail;
                         return (
                           <option key={index} value={accountantEmail}>
-                            {accountantName} - Účtovník ({accountantEmail})
+                            {accountantName} - As�TtovnA�k ({accountantEmail})
                           </option>
                         );
                       })
                     ) : (
                       <option value="" disabled>
-                        Žiadni priradení účtovníci
+                        L?iadni priradenA� As�TtovnA�ci
                       </option>
                     )}
                   </>
@@ -469,7 +469,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
             <div>
               <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-2">
-                Termín dokončenia *
+                TermA�n dokon�Tenia *
               </label>
               <div className="relative">
                 <input
@@ -489,10 +489,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           </div>
 
-          {/* Odhadované hodiny */}
+          {/* OdhadovanA� hodiny */}
           <div>
             <label htmlFor="estimatedHours" className="block text-sm font-medium text-gray-700 mb-2">
-              Odhadované hodiny
+              OdhadovanA� hodiny
             </label>
             <input
               type="number"
@@ -502,11 +502,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
               min="0"
               step="0.5"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Napríklad: 8"
+              placeholder="NaprA�klad: 8"
             />
           </div>
 
-          {/* Status (len pri editácii) */}
+          {/* Status (len pri editA?cii) */}
           {task && (
             <div>
               <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
@@ -518,36 +518,36 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(e) => handleInputChange('status', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="pending">Čakajúca</option>
-                <option value="in_progress">V spracovaní</option>
-                <option value="completed">Dokončená</option>
-                <option value="cancelled">Zrušená</option>
+                <option value="pending">�SakajAsca</option>
+                <option value="in_progress">V spracovanA�</option>
+                <option value="completed">Dokon�TenA?</option>
+                <option value="cancelled">ZruL?enA?</option>
               </select>
             </div>
           )}
 
-          {/* Chyba pri odosielaní */}
+          {/* Chyba pri odosielanA� */}
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
               <p className="text-sm text-red-600">{errors.submit}</p>
             </div>
           )}
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Ukladám...' : (task ? 'Uložiť zmeny' : 'Vytvoriť úlohu')}
+              {isSubmitting ? 'UkladA?m...' : (task ? 'UloLliLA zmeny' : 'VytvoriLA Aslohu')}
             </button>
           </div>
         </form>
@@ -557,3 +557,4 @@ const TaskModal: React.FC<TaskModalProps> = ({
 };
 
 export default TaskModal;
+

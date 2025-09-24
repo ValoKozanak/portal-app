@@ -49,25 +49,25 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     priority: 'all'
   });
 
-  // Konvertovanie úloh na kalendárne udalosti
+  // Konvertovanie Asloh na kalendA?rne udalosti
   const calendarEvents = useMemo(() => {
     return tasks
       .filter(task => {
-        // Filtrovanie podľa firmy
+        // Filtrovanie pod�la firmy
         if (filters.companyId !== 'all' && task.company_id !== parseInt(filters.companyId)) {
           return false;
         }
-        // Filtrovanie podľa stavu
+        // Filtrovanie pod�la stavu
         if (filters.status !== 'all' && task.status !== filters.status) {
           return false;
         }
-        // Filtrovanie podľa priority
+        // Filtrovanie pod�la priority
         if (filters.priority !== 'all' && task.priority !== filters.priority) {
           return false;
         }
         return true;
       })
-      .filter(task => task.due_date) // Len úlohy s termínom
+      .filter(task => task.due_date) // Len Aslohy s termA�nom
       .map(task => ({
         id: task.id,
         title: task.title,
@@ -77,7 +77,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       }));
   }, [tasks, filters]);
 
-  // Získanie udalostí pre vybraný dátum
+  // ZA�skanie udalostA� pre vybranA? dA?tum
   useEffect(() => {
     if (!selectedDate) return;
     const eventsForDate = calendarEvents.filter(event =>
@@ -86,7 +86,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     setSelectedEvents(eventsForDate);
   }, [selectedDate, calendarEvents]);
 
-  // Funkcia pre získanie udalostí pre konkrétny dátum (pre react-calendar)
+  // Funkcia pre zA�skanie udalostA� pre konkrA�tny dA?tum (pre react-calendar)
   const tileContent = ({ date }: { date: Date }) => {
     const eventsForDate = calendarEvents.filter(event =>
       isSameDay(event.date, date)
@@ -113,7 +113,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     );
   };
 
-  // Funkcia pre získanie CSS tried pre dátum (pre react-calendar)
+  // Funkcia pre zA�skanie CSS tried pre dA?tum (pre react-calendar)
   const tileClassName = ({ date }: { date: Date }) => {
     const eventsForDate = calendarEvents.filter(event =>
       isSameDay(event.date, date)
@@ -178,7 +178,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <CalendarIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-800">Kalendár úloh</h2>
+          <h2 className="text-xl font-semibold text-gray-800">KalendA?r Asloh</h2>
         </div>
         
         {/* Filtre */}
@@ -194,7 +194,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             onChange={(e) => setFilters(prev => ({ ...prev, companyId: e.target.value }))}
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">Všetky firmy</option>
+            <option value="all">VL?etky firmy</option>
             {companies.map(company => (
               <option key={company.id} value={company.id}>
                 {company.name}
@@ -208,11 +208,11 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">Všetky stavy</option>
-            <option value="pending">Čakajúce</option>
-            <option value="in_progress">V riešení</option>
-            <option value="completed">Dokončené</option>
-            <option value="cancelled">Zrušené</option>
+            <option value="all">VL?etky stavy</option>
+            <option value="pending">�SakajAsce</option>
+            <option value="in_progress">V rieL?enA�</option>
+            <option value="completed">Dokon�TenA�</option>
+            <option value="cancelled">ZruL?enA�</option>
           </select>
 
           {/* Priorita */}
@@ -221,26 +221,26 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">Všetky priority</option>
-            <option value="urgent">Urgentné</option>
-            <option value="high">Vysoké</option>
-            <option value="medium">Stredné</option>
-            <option value="low">Nízke</option>
+            <option value="all">VL?etky priority</option>
+            <option value="urgent">UrgentnA�</option>
+            <option value="high">VysokA�</option>
+            <option value="medium">StrednA�</option>
+            <option value="low">NA�zke</option>
           </select>
 
-          {/* Vymazať filtre */}
+          {/* VymazaLA filtre */}
           <button
             onClick={clearFilters}
             className="flex items-center space-x-1 px-2 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
           >
             <XMarkIcon className="w-4 h-4" />
-            <span>Vymazať</span>
+            <span>VymazaLA</span>
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kalendár */}
+        {/* KalendA?r */}
         <div className="lg:col-span-2">
           <Calendar
             onChange={(value) => setSelectedDate(value as Date)}
@@ -257,38 +257,38 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             <div className="flex flex-wrap gap-4 text-xs">
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>Urgentné</span>
+                <span>UrgentnA�</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                <span>Vysoké</span>
+                <span>VysokA�</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>V riešení</span>
+                <span>V rieL?enA�</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Dokončené</span>
+                <span>Dokon�TenA�</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                <span>Ostatné</span>
+                <span>OstatnA�</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Udalosti pre vybraný dátum */}
+        {/* Udalosti pre vybranA? dA?tum */}
         <div className="lg:col-span-1">
           <div className="bg-gray-50 rounded-lg p-4">
                          <h3 className="text-lg font-medium text-gray-800 mb-4">
-               {selectedDate ? format(selectedDate, 'EEEE, d. MMMM yyyy', { locale: sk }) : 'Vyberte dátum'}
+               {selectedDate ? format(selectedDate, 'EEEE, d. MMMM yyyy', { locale: sk }) : 'Vyberte dA?tum'}
              </h3>
             
             {selectedEvents.length === 0 ? (
               <p className="text-gray-500 text-center py-8">
-                Žiadne úlohy na tento dátum
+                L?iadne Aslohy na tento dA?tum
               </p>
             ) : (
               <div className="space-y-3">
@@ -374,3 +374,4 @@ const CalendarComponent: React.FC<CalendarProps> = ({
 };
 
 export default CalendarComponent;
+

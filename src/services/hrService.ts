@@ -20,16 +20,16 @@ export interface Employee {
   manager_first_name?: string;
   manager_last_name?: string;
   
-  // Pracovné pomery
+  // PracovnA� pomery
   employment_start_date?: string;
   employment_end_date?: string;
   attendance_mode?: 'manual' | 'automatic';
   
-  // Personálne údaje
+  // PersonA?lne Asdaje
   birth_name?: string;
   title_before?: string;
   title_after?: string;
-  gender?: 'muž' | 'žena';
+  gender?: 'muLl' | 'Llena';
   birth_date?: string;
   birth_number?: string;
   birth_place?: string;
@@ -42,21 +42,21 @@ export interface Employee {
   employee_bonus?: boolean;
   bonus_months?: number;
   
-  // Adresa trvalého pobytu
+  // Adresa trvalA�ho pobytu
   permanent_street?: string;
   permanent_number?: string;
   permanent_city?: string;
   permanent_zip?: string;
   permanent_country?: string;
   
-  // Kontaktná adresa
+  // KontaktnA? adresa
   contact_street?: string;
   contact_number?: string;
   contact_city?: string;
   contact_zip?: string;
   contact_country?: string;
   
-  // Cudzinecké údaje
+  // CudzineckA� Asdaje
   is_foreigner?: boolean;
   foreigner_country?: string;
   residence_permit_number?: string;
@@ -84,7 +84,7 @@ export interface Attendance {
   first_name: string;
   last_name: string;
   employee_id_code: string;
-  employee_name?: string; // Pre zobrazenie všetkých zamestnancov
+  employee_name?: string; // Pre zobrazenie vL?etkA?ch zamestnancov
   created_at: string;
   updated_at: string;
 }
@@ -202,7 +202,7 @@ class HRService {
     return apiService.delete(`/hr/employees/${id}`);
   }
 
-  // Dochádzka
+  // DochA?dzka
   async getAttendance(companyId: number, employeeId?: number, startDate?: string, endDate?: string): Promise<Attendance[]> {
     let url = `/hr/attendance/${companyId}`;
     
@@ -262,7 +262,7 @@ class HRService {
     return apiService.put(`/hr/leave-requests/${id}/status`, { status, approved_by: approvedBy });
   }
 
-  // Pracovné zmeny
+  // PracovnA� zmeny
   async getWorkShifts(companyId: number): Promise<WorkShift[]> {
     return apiService.get(`/hr/work-shifts/${companyId}`);
   }
@@ -289,37 +289,37 @@ class HRService {
     return apiService.post('/hr/hr-events', eventData);
   }
 
-  // Hľadanie zamestnanca podľa emailu
+  // H�ladanie zamestnanca pod�la emailu
   async findEmployeeByEmail(email: string): Promise<Employee> {
     return apiService.get(`/hr/employees/find/${encodeURIComponent(email)}`);
   }
 
-  // Aktualizácia company_id zamestnanca
+  // AktualizA?cia company_id zamestnanca
   async updateEmployeeCompany(employeeId: number, companyId: number): Promise<{ message: string }> {
     return apiService.put(`/hr/employees/${employeeId}/company`, { company_id: companyId });
   }
 
-  // Štatistiky
+  // L�tatistiky
   async getHRStats(companyId: number): Promise<HRStats> {
     return apiService.get(`/hr/hr-stats/${companyId}`);
   }
 
-  // Pomocné funkcie
+  // PomocnA� funkcie
   getEmploymentTypeLabel(type: string): string {
     const types = {
-      'full_time': 'Plný úväzok',
-      'part_time': 'Čiastočný úväzok',
+      'full_time': 'PlnA? AsvA�zok',
+      'part_time': '�Siasto�TnA? AsvA�zok',
       'contract': 'Dohoda',
-      'intern': 'Stáž'
+      'intern': 'StA?Ll'
     };
     return types[type as keyof typeof types] || type;
   }
 
   getStatusLabel(status: string): string {
     const statuses = {
-      'active': 'Aktívny',
-      'inactive': 'Neaktívny',
-      'terminated': 'Ukončený',
+      'active': 'AktA�vny',
+      'inactive': 'NeaktA�vny',
+      'terminated': 'Ukon�TenA?',
       'on_leave': 'Na dovolenke'
     };
     return statuses[status as keyof typeof statuses] || status;
@@ -329,21 +329,21 @@ class HRService {
     const types = {
       'vacation': 'Dovolenka',
       'sick_leave': 'PN',
-      'personal_leave': 'Osobné voľno',
-      'maternity_leave': 'Materská dovolenka',
-      'paternity_leave': 'Otcovská dovolenka',
-      'unpaid_leave': 'Neplatené voľno'
+      'personal_leave': 'OsobnA� vo�lno',
+      'maternity_leave': 'MaterskA? dovolenka',
+      'paternity_leave': 'OtcovskA? dovolenka',
+      'unpaid_leave': 'NeplatenA� vo�lno'
     };
     return types[type as keyof typeof types] || type;
   }
 
   getEventTypeLabel(type: string): string {
     const types = {
-      'hire': 'Nábor',
-      'termination': 'Ukončenie',
-      'promotion': 'Povýšenie',
+      'hire': 'NA?bor',
+      'termination': 'Ukon�Tenie',
+      'promotion': 'PovA?L?enie',
       'salary_change': 'Zmena mzdy',
-      'position_change': 'Zmena pozície',
+      'position_change': 'Zmena pozA�cie',
       'warning': 'Upozornenie',
       'recognition': 'Uznanie'
     };
@@ -352,13 +352,13 @@ class HRService {
 
   getAttendanceStatusLabel(status: string): string {
     const statuses = {
-      'present': 'Prítomný',
-      'absent': 'Neprítomný',
-      'late': 'Meškanie',
-      'early_leave': 'Predčasný odchod',
+      'present': 'PrA�tomnA?',
+      'absent': 'NeprA�tomnA?',
+      'late': 'MeL?kanie',
+      'early_leave': 'Pred�TasnA? odchod',
       'sick_leave': 'PN',
       'vacation': 'Dovolenka',
-      'holiday': 'Pracovné voľno'
+      'holiday': 'PracovnA� vo�lno'
     };
     return statuses[status as keyof typeof statuses] || status;
   }
@@ -377,7 +377,7 @@ class HRService {
 
   formatTime(time: string): string {
     if (!time) return '';
-    return time.substring(0, 5); // Zobrazí len HH:MM
+    return time.substring(0, 5); // ZobrazA� len HH:MM
   }
 
   formatDate(date: string): string {
@@ -388,7 +388,7 @@ class HRService {
     return new Date(dateTime).toLocaleString('sk-SK');
   }
 
-  // API pre správu zmien personálnych údajov
+  // API pre sprA?vu zmien personA?lnych Asdajov
   async createEmployeeChange(changeData: {
     employee_id: number;
     field_name: string;
@@ -420,7 +420,7 @@ class HRService {
     return apiService.patch(`/hr/employees/${employeeId}/update-field`, { field_name: fieldName, new_value: newValue });
   }
 
-  // Dochádzkové nastavenia
+  // DochA?dzkovA� nastavenia
   async getAttendanceSettings(employeeId: number): Promise<any> {
     return apiService.get(`/hr/attendance-settings/${employeeId}`);
   }
@@ -429,12 +429,12 @@ class HRService {
     return apiService.post('/hr/attendance/auto-create', { companyId, date });
   }
 
-  // Aktualizácia dochádzky s typom
+  // AktualizA?cia dochA?dzky s typom
   async addAttendanceWithType(attendanceData: Omit<Attendance, 'id' | 'created_at' | 'updated_at' | 'first_name' | 'last_name' | 'employee_id_code'> & { attendance_type: 'manual' | 'automatic' }): Promise<{ id: number; message: string }> {
     return apiService.post('/hr/attendance', attendanceData);
   }
 
-  // Úprava/vytvorenie dochádzky pre konkrétny deň (s kontrolou oprávnení na serveri)
+  // Asprava/vytvorenie dochA?dzky pre konkrA�tny deL� (s kontrolou oprA?vnenA� na serveri)
   async updateAttendanceDay(payload: {
     employee_id: number;
     company_id: number;
@@ -448,7 +448,7 @@ class HRService {
     return apiService.put('/hr/attendance/day', payload);
   }
 
-  // Pracovné pomery
+  // PracovnA� pomery
   async getEmploymentRelations(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employment-relations/${companyId}`);
   }
@@ -469,7 +469,14 @@ class HRService {
     break_end_time?: string;
     is_active?: boolean;
   }): Promise<{ id: number; message: string }> {
-    return apiService.post('/hr/employment-relations', relationData);
+    const payload = {
+      ...relationData,
+      employee_id: Number(relationData.employee_id),
+      company_id: Number(relationData.company_id),
+      salary: relationData.salary != null ? Number(relationData.salary) : 0,
+      weekly_hours: relationData.weekly_hours != null ? Number(relationData.weekly_hours) : 40,
+    };
+    return apiService.post('/hr/employment-relations', payload);
   }
 
   async updateEmploymentRelation(id: number, relationData: {
@@ -489,7 +496,7 @@ class HRService {
     return apiService.put(`/hr/employment-relations/${id}`, relationData);
   }
 
-  // Automatické prepočítanie dochádzky
+  // AutomatickA� prepo�TA�tanie dochA?dzky
   async getEmployeesWithAutomaticAttendance(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employees/automatic-attendance/${companyId}`);
   }
@@ -508,27 +515,27 @@ class HRService {
     });
   }
 
-  // Získanie prítomných zamestnancov dnes
+  // ZA�skanie prA�tomnA?ch zamestnancov dnes
   async getPresentEmployeesToday(companyId: number): Promise<Attendance[]> {
     return apiService.get(`/hr/attendance/present-today/${companyId}`);
   }
 
-  // Získanie neprítomných zamestnancov dnes
+  // ZA�skanie neprA�tomnA?ch zamestnancov dnes
   async getAbsentEmployeesToday(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/attendance/absent-today/${companyId}`);
   }
 
-  // Získanie všetkých aktívnych zamestnancov s informáciou o dochádzke
+  // ZA�skanie vL?etkA?ch aktA�vnych zamestnancov s informA?ciou o dochA?dzke
   async getEmployeesAttendanceStatus(companyId: number): Promise<EmployeeAttendanceStatus[]> {
     return apiService.get(`/hr/employees/attendance-status/${companyId}`);
   }
 
-  // Získanie zamestnancov s chýbajúcou dochádzkou
+  // ZA�skanie zamestnancov s chA?bajAscou dochA?dzkou
   async getEmployeesWithMissingAttendance(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employees/missing-attendance/${companyId}`);
   }
 
-  // Zaznamenanie dochádzky
+  // Zaznamenanie dochA?dzky
   async recordAttendance(attendanceData: {
     employee_id: number;
     company_id: number;
@@ -545,3 +552,4 @@ class HRService {
 }
 
 export const hrService = new HRService();
+

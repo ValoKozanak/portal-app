@@ -17,18 +17,46 @@ export interface PayrollPeriodStatus {
 }
 
 class PayrollService {
-  // Získanie mzdových období pre firmu
+  // ZA�skanie mzdovA?ch obdobA� pre firmu
   async getPayrollPeriods(companyId: number, year?: number): Promise<PayrollPeriod[]> {
     const params = year ? `?year=${year}` : '';
-    return apiService.get(`/payroll/periods/${companyId}${params}`);
+    const raw = await apiService.get(`/payroll/periods/${companyId}${params}`);
+    const normalize = (p: any): PayrollPeriod => ({
+      id: Number(p.id),
+      company_id: Number(p.company_id),
+      year: Number(p.year),
+      month: Number(p.month),
+      // backend vracia is_closed rA�zne (0/1, true/false, '0'/'1'/'t'), znormalizuj na 0/1
+      is_closed: p.is_closed === true || p.is_closed === 1 || p.is_closed === '1' || p.is_closed === 't' || p.is_closed === 'true' ? 1 : 0,
+      closed_at: p.closed_at ?? undefined,
+      closed_by: p.closed_by ?? undefined,
+      created_at: String(p.created_at),
+      updated_at: String(p.updated_at)
+    });
+    return Array.isArray(raw) ? raw.map(normalize) : [];
   }
 
-  // Získanie aktuálneho neuzatvoreného obdobia
+  // ZA�skanie aktuA?lneho neuzatvorenA�ho obdobia
   async getCurrentPeriod(companyId: number): Promise<PayrollPeriod | null> {
-    return apiService.get(`/payroll/periods/${companyId}/current`);
+    const p = await apiService.get(`/payroll/periods/${companyId}/current`);
+    if (!p) return null;
+    if (typeof p !== 'object') return null;
+    if (!('year' in (p as any)) || !('month' in (p as any))) return null;
+    const anyP = p as any;
+    return {
+      id: Number(anyP.id),
+      company_id: Number(anyP.company_id),
+      year: Number(anyP.year),
+      month: Number(anyP.month),
+      is_closed: anyP.is_closed === true || anyP.is_closed === 1 || anyP.is_closed === '1' || anyP.is_closed === 't' || anyP.is_closed === 'true' ? 1 : 0,
+      closed_at: anyP.closed_at ?? undefined,
+      closed_by: anyP.closed_by ?? undefined,
+      created_at: String(anyP.created_at ?? ''),
+      updated_at: String(anyP.updated_at ?? '')
+    };
   }
 
-  // Uzatvorenie mzdového obdobia
+  // Uzatvorenie mzdovA�ho obdobia
   async closePayrollPeriod(
     companyId: number, 
     year: number, 
@@ -42,7 +70,7 @@ class PayrollService {
     });
   }
 
-  // Odomknutie mzdového obdobia
+  // Odomknutie mzdovA�ho obdobia
   async openPayrollPeriod(
     companyId: number, 
     year: number, 
@@ -54,7 +82,7 @@ class PayrollService {
     });
   }
 
-  // Kontrola či je obdobie uzatvorené
+  // Kontrola �Ti je obdobie uzatvorenA�
   async checkPeriodStatus(
     companyId: number, 
     year: number, 
@@ -63,16 +91,16 @@ class PayrollService {
     return apiService.get(`/payroll/periods/${companyId}/check/${year}/${month}`);
   }
 
-  // Inicializácia období pre daný rok (ak chýbajú)
+  // InicializA?cia obdobA� pre danA? rok (ak chA?bajAs)
   async initPayrollPeriods(companyId: number, year: number): Promise<PayrollPeriod[]> {
     return apiService.post(`/payroll/periods/${companyId}/init`, { year });
   }
 
-  // Pomocné metódy
+  // PomocnA� metAldy
   getMonthName(month: number): string {
     const months = [
-      'Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún',
-      'Júl', 'August', 'September', 'Október', 'November', 'December'
+      'JanuA?r', 'FebruA?r', 'Marec', 'AprA�l', 'MA?j', 'JAsn',
+      'JAsl', 'August', 'September', 'OktAlber', 'November', 'December'
     ];
     return months[month - 1] || '';
   }
@@ -91,11 +119,11 @@ class PayrollService {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     
-    // Môžeme uzatvoriť len minulé mesiace
+    // MA�Lleme uzatvoriLA len minulA� mesiace
     return year < currentYear || (year === currentYear && month < currentMonth);
   }
 
-  // Výplatné pásky – ročný prehľad z MDB (MZSK)
+  // VA?platnA� pA?sky �?" ro�TnA? preh�lad z MDB (MZSK)
   async getPayslips(
     companyId: number,
     employeeId: number,
@@ -163,3 +191,4 @@ class PayrollService {
 }
 
 export const payrollService = new PayrollService();
+

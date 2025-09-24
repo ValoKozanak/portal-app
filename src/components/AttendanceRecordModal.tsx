@@ -50,11 +50,11 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
   const loadEmployeesWithMissingAttendance = async () => {
     try {
       setLoading(true);
-      // Získame zamestnancov s manuálnou dochádzkou, ktorí nemajú zaznamenanú dochádzku
+      // ZA�skame zamestnancov s manuA?lnou dochA?dzkou, ktorA� nemajAs zaznamenanAs dochA?dzku
       const employeesData = await hrService.getEmployeesWithMissingAttendance(companyId);
       setEmployees(employeesData);
     } catch (error) {
-      console.error('Chyba pri načítaní zamestnancov:', error);
+      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       setSelectedDate(employee.missing_dates[0]);
     }
     
-    // Automaticky nastavíme pracovné časy podľa nastavení zamestnanca
+    // Automaticky nastavA�me pracovnA� �Tasy pod�la nastavenA� zamestnanca
     if (employee.work_start_time) {
       setStartTime(employee.work_start_time);
     }
@@ -74,7 +74,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       setEndTime(employee.work_end_time);
     }
     
-    // Vypočítame prestávku v minútach
+    // Vypo�TA�tame prestA?vku v minAstach
     if (employee.break_start_time && employee.break_end_time) {
       const breakStart = new Date(`2000-01-01T${employee.break_start_time}`);
       const breakEnd = new Date(`2000-01-01T${employee.break_end_time}`);
@@ -85,7 +85,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
 
   const handleSubmit = async () => {
     if (!selectedEmployee || !selectedDate) {
-      alert('Vyberte zamestnanca a dátum');
+      alert('Vyberte zamestnanca a dA?tum');
       return;
     }
 
@@ -101,15 +101,15 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
         end_time: attendanceType === 'present' ? endTime : null,
         break_minutes: attendanceType === 'present' ? breakMinutes : 0,
         note: note,
-        recorded_by: 'hr_manager' // TODO: použiť skutočné ID prihláseného používateľa
+        recorded_by: 'hr_manager' // TODO: pouLliLA skuto�TnA� ID prihlA?senA�ho pouLlA�vate�la
       };
 
       await hrService.recordAttendance(attendanceData);
       
-      // Obnoviť zoznam zamestnancov
+      // ObnoviLA zoznam zamestnancov
       await loadEmployeesWithMissingAttendance();
       
-      // Reset formulára
+      // Reset formulA?ra
       setSelectedEmployee(null);
       setSelectedDate('');
       setAttendanceType('present');
@@ -119,10 +119,10 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       setNote('');
       
       onSuccess();
-      alert('Dochádzka bola úspešne zaznamenaná');
+      alert('DochA?dzka bola AsspeL?ne zaznamenanA?');
     } catch (error) {
-      console.error('Chyba pri zaznamenávaní dochádzky:', error);
-      alert('Chyba pri zaznamenávaní dochádzky');
+      console.error('Chyba pri zaznamenA?vanA� dochA?dzky:', error);
+      alert('Chyba pri zaznamenA?vanA� dochA?dzky');
     } finally {
       setSubmitting(false);
     }
@@ -135,7 +135,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Zaznamenať dochádzku
+            ZaznamenaLA dochA?dzku
           </h2>
           <button
             onClick={onClose}
@@ -149,16 +149,16 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">Načítavam zamestnancov...</p>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">Na�TA�tavam zamestnancov...</p>
             </div>
           ) : employees.length === 0 ? (
             <div className="text-center py-8">
               <ExclamationTriangleIcon className="w-12 h-12 text-green-500 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Všetci zamestnanci majú zaznamenanú dochádzku
+                VL?etci zamestnanci majAs zaznamenanAs dochA?dzku
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Všetci zamestnanci s manuálnou dochádzkou majú dnes zaznamenanú dochádzku.
+                VL?etci zamestnanci s manuA?lnou dochA?dzkou majAs dnes zaznamenanAs dochA?dzku.
               </p>
             </div>
           ) : (
@@ -166,7 +166,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
               {/* Zoznam zamestnancov */}
               <div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                  Zamestnanci bez dochádzky
+                  Zamestnanci bez dochA?dzky
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {employees.map((employee) => (
@@ -194,7 +194,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                         <div className="text-right">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
                             <ClockIcon className="w-3 h-3 mr-1" />
-                            {employee.missing_dates.length} dní
+                            {employee.missing_dates.length} dnA�
                           </span>
                         </div>
                       </div>
@@ -203,18 +203,18 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                 </div>
               </div>
 
-              {/* Formulár pre zaznamenanie dochádzky */}
+              {/* FormulA?r pre zaznamenanie dochA?dzky */}
               {selectedEmployee && (
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                    Zaznamenať dochádzku pre {selectedEmployee.first_name} {selectedEmployee.last_name}
+                    ZaznamenaLA dochA?dzku pre {selectedEmployee.first_name} {selectedEmployee.last_name}
                   </h3>
                   
                   <div className="space-y-4">
-                    {/* Dátum */}
+                    {/* DA?tum */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Dátum
+                        DA?tum
                       </label>
                       <select
                         value={selectedDate}
@@ -229,29 +229,29 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                       </select>
                     </div>
 
-                    {/* Typ dochádzky */}
+                    {/* Typ dochA?dzky */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Typ dochádzky
+                        Typ dochA?dzky
                       </label>
                       <select
                         value={attendanceType}
                         onChange={(e) => setAttendanceType(e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-dark-700 dark:text-white"
                       >
-                        <option value="present">Prítomný</option>
-                        <option value="absent">Neprítomný</option>
+                        <option value="present">PrA�tomnA?</option>
+                        <option value="absent">NeprA�tomnA?</option>
                         <option value="leave">Dovolenka</option>
                         <option value="sick_leave">PN</option>
                       </select>
                     </div>
 
-                    {/* Časy (len pre prítomných) */}
+                    {/* �Sasy (len pre prA�tomnA?ch) */}
                     {attendanceType === 'present' && (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Príchod
+                            PrA�chod
                           </label>
                           <input
                             type="time"
@@ -274,11 +274,11 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                       </div>
                     )}
 
-                    {/* Prestávka (len pre prítomných) */}
+                    {/* PrestA?vka (len pre prA�tomnA?ch) */}
                     {attendanceType === 'present' && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Prestávka (minúty)
+                          PrestA?vka (minAsty)
                         </label>
                         <input
                           type="number"
@@ -291,34 +291,34 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                       </div>
                     )}
 
-                    {/* Poznámka */}
+                    {/* PoznA?mka */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Poznámka
+                        PoznA?mka
                       </label>
                       <textarea
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-dark-700 dark:text-white"
-                        placeholder="Voliteľná poznámka k dochádzke..."
+                        placeholder="Volite�lnA? poznA?mka k dochA?dzke..."
                       />
                     </div>
 
-                    {/* Tlačidlá */}
+                    {/* Tla�TidlA? */}
                     <div className="flex space-x-3 pt-4">
                       <button
                         onClick={handleSubmit}
                         disabled={submitting}
                         className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {submitting ? 'Zaznamenávam...' : 'Zaznamenať dochádzku'}
+                        {submitting ? 'ZaznamenA?vam...' : 'ZaznamenaLA dochA?dzku'}
                       </button>
                       <button
                         onClick={onClose}
                         className="px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700"
                       >
-                        Zrušiť
+                        ZruL?iLA
                       </button>
                     </div>
                   </div>
@@ -333,3 +333,4 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
 };
 
 export default AttendanceRecordModal;
+

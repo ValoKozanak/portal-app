@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -24,10 +24,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Skontrolujeme, či je používateľ prihlásený
+    // Skontrolujeme, ÄŤi je pouĹľĂ­vateÄľ prihlĂˇsenĂ˝
     const token = localStorage.getItem("token");
     if (token) {
-      // Tu by sme mali validovať token s backendom
+      // Tu by sme mali validovaĹĄ token s backendom
       const userData = localStorage.getItem("user");
       if (userData) {
         setUser(JSON.parse(userData));
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Prihlásenie zlyhalo");
+        throw new Error(error.error || "PrihlĂˇsenie zlyhalo");
       }
 
       const data = await response.json();
@@ -80,3 +80,4 @@ export function useAuth() {
   }
   return context;
 }
+

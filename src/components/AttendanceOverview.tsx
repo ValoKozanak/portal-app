@@ -9,9 +9,9 @@ import { CalendarService } from '../services/calendarService';
 
 interface AttendanceOverviewProps {
   companyId: number;
-  employeeId?: number; // Voliteľné - ak nie je uvedené, zobrazí všetkých zamestnancov
+  employeeId?: number; // Volite�lnA� - ak nie je uvedenA�, zobrazA� vL?etkA?ch zamestnancov
   employeeName?: string;
-  isCompanyView?: boolean; // Pre rozlíšenie medzi pohľadom firmy a zamestnanca
+  isCompanyView?: boolean; // Pre rozlA�L?enie medzi poh�ladom firmy a zamestnanca
 }
 
 type PeriodType = 'year' | 'month' | 'custom' | 'week';
@@ -43,10 +43,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   const canEdit = userRole === 'admin' || userRole === 'accountant' || userRole === 'user';
 
   const periodOptions: PeriodOption[] = [
-    { value: 'week', label: 'Tento týždeň' },
+    { value: 'week', label: 'Tento tA?LldeL�' },
     { value: 'month', label: 'Tento mesiac' },
     { value: 'year', label: 'Tento rok' },
-    { value: 'custom', label: 'Vlastné obdobie' }
+    { value: 'custom', label: 'VlastnA� obdobie' }
   ];
 
   useEffect(() => {
@@ -84,7 +84,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setSelectedEmployee(employeesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní zamestnancov:', error);
+      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
     }
   };
 
@@ -92,7 +92,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     const result: string[] = [];
     const [sy, sm, sd] = start.split('-').map((v) => parseInt(v, 10));
     const [ey, em, ed] = end.split('-').map((v) => parseInt(v, 10));
-    // Vytvárame dátumy v lokálnom čase, aby sme sa vyhli UTC posunom
+    // VytvA?rame dA?tumy v lokA?lnom �Tase, aby sme sa vyhli UTC posunom
     const s = new Date(sy, sm - 1, sd);
     const e = new Date(ey, em - 1, ed);
     const cur = new Date(s);
@@ -132,7 +132,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         total_hours: undefined,
         break_minutes: 0,
         status,
-        notes: status === 'holiday' ? 'Pracovný pokoj' : undefined,
+        notes: status === 'holiday' ? 'PracovnA? pokoj' : undefined,
         first_name: '',
         last_name: '',
         employee_id_code: '',
@@ -150,7 +150,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 
     switch (selectedPeriod) {
       case 'week': {
-        // Začiatok týždňa (pondelok) – korektne aj pre nedeľu
+        // Za�Tiatok tA?LldL�a (pondelok) �?" korektne aj pre nede�lu
         const day = now.getDay() === 0 ? 7 : now.getDay();
         start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
         end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -158,21 +158,21 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       }
       case 'month':
         start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Posledný deň mesiaca
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // PoslednA? deL� mesiaca
         break;
       case 'year':
         start = new Date(now.getFullYear(), 0, 1);
         end = new Date(now.getFullYear(), 11, 31); // 31. december
         break;
       case 'custom':
-        // Použije aktuálne hodnoty startDate a endDate
+        // PouLlije aktuA?lne hodnoty startDate a endDate
         return;
       default:
         start = new Date(now.getFullYear(), now.getMonth(), 1);
         end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     }
 
-    // Použiť lokálne dátumové formátovanie namiesto toISOString()
+    // PouLliLA lokA?lne dA?tumovA� formA?tovanie namiesto toISOString()
     const formatDate = (date: Date): string => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -190,7 +190,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     setLoading(true);
     try {
       if (showAllEmployees) {
-        // Načítanie dochádzky pre všetkých zamestnancov
+        // Na�TA�tanie dochA?dzky pre vL?etkA?ch zamestnancov
         const allAttendanceData = await Promise.all(
           employees.map(async (emp) => {
             try {
@@ -205,20 +205,20 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 employee_name: `${emp.first_name} ${emp.last_name}`
               }));
             } catch (error) {
-              console.error(`Chyba pri načítaní dochádzky pre zamestnanca ${emp.id}:`, error);
+              console.error(`Chyba pri na�TA�tanA� dochA?dzky pre zamestnanca ${emp.id}:`, error);
               return [];
             }
           })
         );
         
-        // Spojenie všetkých dochádzok do jedného poľa
+        // Spojenie vL?etkA?ch dochA?dzok do jednA�ho po�la
         const combinedAttendance = allAttendanceData.flat();
         setAttendance(combinedAttendance);
       } else {
         const targetEmployeeId = employeeId || selectedEmployee;
         if (!targetEmployeeId) return;
 
-        // Kontrola duplicitných záznamov
+        // Kontrola duplicitnA?ch zA?znamov
         try {
           const duplicates = await hrService.checkAttendanceDuplicates(
             companyId,
@@ -227,10 +227,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             endDate
           );
           if (duplicates.duplicates && duplicates.duplicates.length > 0) {
-            console.warn('Nájdené duplicitné záznamy dochádzky:', duplicates.duplicates);
+            console.warn('NA?jdenA� duplicitnA� zA?znamy dochA?dzky:', duplicates.duplicates);
           }
         } catch (error) {
-          console.error('Chyba pri kontrole duplicitných záznamov:', error);
+          console.error('Chyba pri kontrole duplicitnA?ch zA?znamov:', error);
         }
 
         const attendanceData = await hrService.getAttendance(
@@ -242,7 +242,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setAttendance(attendanceData);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní dochádzky:', error);
+      console.error('Chyba pri na�TA�tanA� dochA?dzky:', error);
     } finally {
       setLoading(false);
     }
@@ -257,23 +257,23 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     let lateDays: number;
     
          if (showAllEmployees) {
-       // Pre všetkých zamestnancov počítame podľa kalendára
-       // Počítame pracovné dni v období pomocou CalendarService
+       // Pre vL?etkA?ch zamestnancov po�TA�tame pod�la kalendA?ra
+       // Po�TA�tame pracovnA� dni v obdobA� pomocou CalendarService
        const workingDaysInPeriod = await CalendarService.calculateWorkingDays(startDate, endDate);
        
-       totalDays = workingDaysInPeriod; // Celkový počet pracovných dní v období
+       totalDays = workingDaysInPeriod; // CelkovA? po�Tet pracovnA?ch dnA� v obdobA�
        
-       // Počítame dni pracovného voľna ako celkové pracovné dni mínus neprítomné dni
+       // Po�TA�tame dni pracovnA�ho vo�lna ako celkovA� pracovnA� dni mA�nus neprA�tomnA� dni
        const totalAbsentDays = attendance.filter(a => a.status === 'absent').length;
-       presentDays = totalAbsentDays; // Dni pracovného voľna = neprítomné dni
-       absentDays = totalDays - totalAbsentDays; // Prítomné dni = celkové dni mínus neprítomné dni
+       presentDays = totalAbsentDays; // Dni pracovnA�ho vo�lna = neprA�tomnA� dni
+       absentDays = totalDays - totalAbsentDays; // PrA�tomnA� dni = celkovA� dni mA�nus neprA�tomnA� dni
        lateDays = attendance.filter(a => a.status === 'late').length;
     } else {
-      // Pre individuálneho zamestnanca počítame pracovné dni v období
+      // Pre individuA?lneho zamestnanca po�TA�tame pracovnA� dni v obdobA�
       const workingDaysInPeriod = await CalendarService.calculateWorkingDays(startDate, endDate);
       totalDays = workingDaysInPeriod;
       
-      // Počítame unikátne dni s dochádzkou (aby sme eliminovali duplicity)
+      // Po�TA�tame unikA?tne dni s dochA?dzkou (aby sme eliminovali duplicity)
       const presentDates = new Set(
         attendance
           .filter(a => a.status === 'present')
@@ -285,13 +285,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
           .map(a => a.date)
       );
       
-      // Počítame dni s dochádzkou (prítomné + meškanie)
+      // Po�TA�tame dni s dochA?dzkou (prA�tomnA� + meL?kanie)
       const daysWithAttendance = new Set();
       presentDates.forEach(date => daysWithAttendance.add(date));
       lateDates.forEach(date => daysWithAttendance.add(date));
       presentDays = daysWithAttendance.size;
       
-      // Neprítomné dni = celkové pracovné dni mínus dni s dochádzkou
+      // NeprA�tomnA� dni = celkovA� pracovnA� dni mA�nus dni s dochA?dzkou
       absentDays = Math.max(0, totalDays - presentDays);
       lateDays = lateDates.size;
     }
@@ -300,10 +300,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     const totalBreakMinutes = attendance.reduce((sum, a) => sum + (a.break_minutes || 0), 0);
     
     const averageHours = totalDays > 0 ? totalHours / totalDays : 0;
-    // Účasť = (dni s dochádzkou / celkové pracovné dni) * 100
+    // As�TasLA = (dni s dochA?dzkou / celkovA� pracovnA� dni) * 100
     const attendanceRate = totalDays > 0 ? Math.min(100, (presentDays / totalDays) * 100) : 0;
     
-    // Debug informácie
+    // Debug informA?cie
     console.log('Attendance Overview Debug:', {
       attendanceLength: attendance.length,
       totalHours,
@@ -318,7 +318,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       lateDates: showAllEmployees ? 'N/A' : new Set(attendance.filter(a => a.status === 'late').map(a => a.date)).size
     });
 
-    // Pre všetkých zamestnancov pridáme informáciu o počte zamestnancov
+    // Pre vL?etkA?ch zamestnancov pridA?me informA?ciu o po�Tte zamestnancov
     const uniqueEmployees = showAllEmployees 
       ? new Set(attendance.map(a => a.employee_name)).size 
       : 1;
@@ -348,12 +348,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     if (!timeString) return '-';
     
     try {
-      // Ak je to už čas v formáte HH:MM, vráť ho
+      // Ak je to uLl �Tas v formA?te HH:MM, vrA?LA ho
       if (timeString.match(/^\d{2}:\d{2}$/)) {
         return timeString;
       }
       
-      // Ak je to dátum, skús ho spracovať
+      // Ak je to dA?tum, skAss ho spracovaLA
       const date = new Date(timeString);
       if (isNaN(date.getTime())) {
         return '-';
@@ -365,17 +365,17 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         hour12: false
       });
     } catch (error) {
-      console.error('Chyba pri formátovaní času:', timeString, error);
+      console.error('Chyba pri formA?tovanA� �Tasu:', timeString, error);
       return '-';
     }
   };
 
   const [stats, setStats] = useState<any>(null);
 
-  // Zobrazenie stavov len pre tabuľku (bez zmeny globálnych prekladov)
+  // Zobrazenie stavov len pre tabu�lku (bez zmeny globA?lnych prekladov)
   const getDisplayStatusLabel = (status: Attendance['status']): string => {
-    if (status === 'present') return 'Odpracované';
-    if (status === 'absent') return 'Neodpracované';
+    if (status === 'present') return 'OdpracovanA�';
+    if (status === 'absent') return 'NeodpracovanA�';
     return hrService.getAttendanceStatusLabel(status as unknown as string);
   };
 
@@ -397,7 +397,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Prehľad dochádzky
+            Preh�lad dochA?dzky
           </h3>
           {employeeName && (
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -406,7 +406,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
           )}
         </div>
 
-        {/* Výber obdobia */}
+        {/* VA?ber obdobia */}
         <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
           <div className="flex items-center space-x-2">
             <CalendarIcon className="w-5 h-5 text-gray-400" />
@@ -443,12 +443,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
       </div>
 
-      {/* Výber zamestnanca pre firmu */}
+      {/* VA?ber zamestnanca pre firmu */}
       {isCompanyView && employees.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Zobrazenie dochádzky
+              Zobrazenie dochA?dzky
             </label>
             <div className="flex items-center space-x-4">
               <label className="flex items-center">
@@ -459,7 +459,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   onChange={() => setShowAllEmployees(false)}
                   className="mr-2"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Individuálne</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">IndividuA?lne</span>
               </label>
               <label className="flex items-center">
                 <input
@@ -469,7 +469,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   onChange={() => setShowAllEmployees(true)}
                   className="mr-2"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Všetci zamestnanci</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">VL?etci zamestnanci</span>
               </label>
             </div>
           </div>
@@ -490,14 +490,14 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
       )}
 
-      {/* Štatistiky */}
+      {/* L�tatistiky */}
       {stats && (
         <div className={`grid grid-cols-2 md:grid-cols-4 ${showAllEmployees ? 'lg:grid-cols-5' : ''} gap-4 mb-6`}>
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <div className="flex items-center">
               <ChartBarIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Účasť</p>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">As�TasLA</p>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                   {stats.attendanceRate.toFixed(1)}%
                 </p>
@@ -509,7 +509,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Celkové hodiny</p>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">CelkovA� hodiny</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                   {(() => {
                     const hours = stats.totalHours;
@@ -526,7 +526,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Priemerné hodiny</p>
+                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">PriemernA� hodiny</p>
                 <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
                   {(() => {
                     const hours = stats.averageHours;
@@ -543,7 +543,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Prestávky</p>
+                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">PrestA?vky</p>
                 <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                   {(() => {
                     const totalMinutes = Math.round(stats.totalBreakMinutes);
@@ -572,35 +572,35 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
       )}
 
-             {/* Detailné štatistiky */}
+             {/* DetailnA� L?tatistiky */}
        {stats && (
          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
            <div className="text-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalDays}</p>
              <p className="text-sm text-gray-500 dark:text-gray-400">
-               {showAllEmployees ? 'Celkovo pracovných dní' : 'Celkovo dní'}
+               {showAllEmployees ? 'Celkovo pracovnA?ch dnA�' : 'Celkovo dnA�'}
              </p>
            </div>
            <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.presentDays}</p>
              <p className="text-sm text-green-600 dark:text-green-400">
-               {showAllEmployees ? 'Dni pracovného voľna' : 'Prítomné dni'}
+               {showAllEmployees ? 'Dni pracovnA�ho vo�lna' : 'PrA�tomnA� dni'}
              </p>
            </div>
            <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.absentDays}</p>
              <p className="text-sm text-red-600 dark:text-red-400">
-               {showAllEmployees ? 'Prítomné dni' : 'Neprítomné dni'}
+               {showAllEmployees ? 'PrA�tomnA� dni' : 'NeprA�tomnA� dni'}
              </p>
            </div>
            <div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.lateDays}</p>
-             <p className="text-sm text-yellow-600 dark:text-yellow-400">Meškania</p>
+             <p className="text-sm text-yellow-600 dark:text-yellow-400">MeL?kania</p>
            </div>
          </div>
        )}
 
-      {/* Tabuľka dochádzky */}
+      {/* Tabu�lka dochA?dzky */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
           <thead className="bg-gray-50 dark:bg-dark-700">
@@ -611,10 +611,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 </th>
               )}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Dátum
+                DA?tum
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Príchod
+                PrA�chod
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Odchod
@@ -623,7 +623,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 Hodiny
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Prestávky
+                PrestA?vky
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Stav
@@ -637,13 +637,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             {loading ? (
               <tr>
                 <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  Načítavam...
+                  Na�TA�tavam...
                 </td>
               </tr>
             ) : (!showAllEmployees && (buildDisplayRows().length === 0)) || (showAllEmployees && attendance.length === 0) ? (
               <tr>
                 <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  Žiadne záznamy dochádzky pre vybrané obdobie
+                  L?iadne zA?znamy dochA?dzky pre vybranA� obdobie
                 </td>
               </tr>
             ) : (
@@ -712,7 +712,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                         }}
                         className="hover:underline"
                       >
-                        Upraviť
+                        UpraviLA
                       </button>
                     </td>
                   )}
@@ -727,7 +727,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       {editModalOpen && editDay && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-dark-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Upraviť deň {new Date(editDay.date).toLocaleDateString('sk-SK')}</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">UpraviLA deL� {new Date(editDay.date).toLocaleDateString('sk-SK')}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stav</label>
@@ -736,8 +736,8 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   onChange={(e) => setEditDay(prev => prev ? { ...prev, status: e.target.value as any } : prev)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
                 >
-                  <option value="present">Prítomný</option>
-                  <option value="absent">Neprítomný</option>
+                  <option value="present">PrA�tomnA?</option>
+                  <option value="absent">NeprA�tomnA?</option>
                   <option value="vacation">Dovolenka</option>
                   <option value="sick_leave">PN</option>
                 </select>
@@ -745,7 +745,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
               {editDay.status === 'present' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Príchod</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PrA�chod</label>
                     <input type="time" value={(editDay.start_time || '').slice(0,5)} onChange={(e)=> setEditDay(prev => prev ? { ...prev, start_time: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
                   </div>
                   <div>
@@ -753,17 +753,17 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                     <input type="time" value={(editDay.end_time || '').slice(0,5)} onChange={(e)=> setEditDay(prev => prev ? { ...prev, end_time: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prestávka (min)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PrestA?vka (min)</label>
                     <input type="number" min={0} value={editDay.break_minutes || 0} onChange={(e)=> setEditDay(prev => prev ? { ...prev, break_minutes: Number(e.target.value) } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
                   </div>
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Poznámka</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PoznA?mka</label>
                 <input type="text" value={editDay.note || ''} onChange={(e)=> setEditDay(prev => prev ? { ...prev, note: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
-                <button onClick={()=>{ setEditModalOpen(false); setEditDay(null); }} className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-700">Zrušiť</button>
+                <button onClick={()=>{ setEditModalOpen(false); setEditDay(null); }} className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-700">ZruL?iLA</button>
                 <button
                   onClick={async ()=>{
                     if (!editDay) return;
@@ -785,12 +785,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                       setEditDay(null);
                       await loadAttendance();
                     } catch (e: any) {
-                      alert(e?.message || 'Chyba pri ukladaní dochádzky');
+                      alert(e?.message || 'Chyba pri ukladanA� dochA?dzky');
                     }
                   }}
                   className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
                 >
-                  Uložiť
+                  UloLliLA
                 </button>
               </div>
             </div>
@@ -802,3 +802,4 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 };
 
 export default AttendanceOverview;
+

@@ -44,7 +44,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
       }));
       setAssignedTasks(convertedTasks);
     } catch (error) {
-      console.error('Chyba pri načítaní dát účtovníka:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
     } finally {
       setLoadingTasks(false);
     }
@@ -62,12 +62,12 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">Späť do Dashboard</span>
+                <span className="font-medium">SpA�LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -78,9 +78,9 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Kalendár úloh</h1>
+          <h1 className="text-3xl font-bold text-gray-900">KalendA?r Asloh</h1>
           <p className="text-gray-600 mt-2">
-            Prehľad úloh zo všetkých priradených firiem
+            Preh�lad Asloh zo vL?etkA?ch priradenA?ch firiem
           </p>
         </div>
 
@@ -90,7 +90,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam kalendár...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam kalendA?r...</p>
               </div>
             ) : (
               <CalendarComponent
@@ -104,7 +104,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
                   priority: task.priority,
                   assigned_to: task.assignedTo,
                   company_id: task.companyId || 0,
-                  company_name: task.companyName || 'Neznáma firma',
+                  company_name: task.companyName || 'NeznA?ma firma',
                   created_by: task.createdBy,
                   due_date: task.dueDate,
                   created_at: task.createdAt,
@@ -124,3 +124,4 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
 };
 
 export default AccountantCalendarPage;
+

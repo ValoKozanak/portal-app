@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Navbar } from "@/components/navigation/Navbar";
@@ -24,42 +24,42 @@ export function Dashboard() {
                 Vitajte, {user.name}!
               </h1>
               <p className="text-gray-600">
-                Role: {user.role === 'admin' ? 'Administrátor' : 
-                       user.role === 'accountant' ? 'Účtovník' : 'Používateľ'}
+                Role: {user.role === 'admin' ? 'AdministrĂˇtor' : 
+                       user.role === 'accountant' ? 'ĂšÄŤtovnĂ­k' : 'PouĹľĂ­vateÄľ'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <DashboardCard
                 title="Moje firmy"
-                description="Správa vašich firiem"
+                description="SprĂˇva vaĹˇich firiem"
                 href="/companies"
-                icon="🏢"
+                icon="đźŹ˘"
               />
               <DashboardCard
                 title="Dokumenty"
-                description="Správa dokumentov"
+                description="SprĂˇva dokumentov"
                 href="/documents"
-                icon="📄"
+                icon="đź“„"
               />
               <DashboardCard
-                title="Úlohy"
-                description="Správa úloh a zadaní"
+                title="Ăšlohy"
+                description="SprĂˇva Ăşloh a zadanĂ­"
                 href="/tasks"
-                icon="✅"
+                icon="âś…"
               />
               <DashboardCard
-                title="Správy"
-                description="Komunikácia s účtovníkom"
+                title="SprĂˇvy"
+                description="KomunikĂˇcia s ĂşÄŤtovnĂ­kom"
                 href="/messages"
-                icon="💬"
+                icon="đź’¬"
               />
               {user.role === 'admin' && (
                 <DashboardCard
-                  title="Administrácia"
-                  description="Správa používateľov a systému"
+                  title="AdministrĂˇcia"
+                  description="SprĂˇva pouĹľĂ­vateÄľov a systĂ©mu"
                   href="/admin"
-                  icon="⚙️"
+                  icon="âš™ď¸Ź"
                 />
               )}
             </div>
@@ -106,10 +106,11 @@ function DashboardCard({
             href={href}
             className="font-medium text-blue-700 hover:text-blue-900"
           >
-            Zobraziť
+            ZobraziĹĄ
           </a>
         </div>
       </div>
     </div>
   );
 }
+

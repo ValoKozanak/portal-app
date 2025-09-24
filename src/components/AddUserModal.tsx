@@ -33,14 +33,14 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Načítanie firiem
+  // Na�TA�tanie firiem
   useEffect(() => {
     const loadCompanies = async () => {
       try {
         const companiesData = await apiService.getAllCompanies();
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri načítaní firiem:', error);
+        console.error('Chyba pri na�TA�tanA� firiem:', error);
       }
     };
 
@@ -69,34 +69,34 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinné';
+      newErrors.name = 'Meno je povinnA�';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Meno musí mať aspoň 2 znaky';
+      newErrors.name = 'Meno musA� maLA aspoL� 2 znaky';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Heslo je povinné';
+      newErrors.password = 'Heslo je povinnA�';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Heslo musí mať aspoň 6 znakov';
+      newErrors.password = 'Heslo musA� maLA aspoL� 6 znakov';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Heslá sa nezhodujú';
+      newErrors.confirmPassword = 'HeslA? sa nezhodujAs';
     }
 
     if (formData.phone && !/^\+?[\d\s\-()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Neplatný formát telefónu';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnu';
     }
 
-    // Validácia firmy pre zamestnancov
+    // ValidA?cia firmy pre zamestnancov
     if (formData.role === 'employee' && !formData.companyId) {
-      newErrors.companyId = 'Firma je povinná pre zamestnancov';
+      newErrors.companyId = 'Firma je povinnA? pre zamestnancov';
     }
 
     setErrors(newErrors);
@@ -112,7 +112,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 
     setIsLoading(true);
 
-    // Simulácia pridania používateľa
+    // SimulA?cia pridania pouLlA�vate�la
     setTimeout(() => {
       const { confirmPassword, ...userData } = formData;
       onAddUser(userData);
@@ -153,7 +153,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Pridať nového používateľa</h2>
+          <h2 className="text-xl font-semibold text-gray-900">PridaLA novA�ho pouLlA�vate�la</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -217,7 +217,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   errors.password ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Minimálne 6 znakov"
+                placeholder="MinimA?lne 6 znakov"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -226,7 +226,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Potvrďte heslo *
+                Potvr�Zte heslo *
               </label>
               <input
                 type="password"
@@ -246,7 +246,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Telefón
+                TelefAln
               </label>
               <input
                 type="tel"
@@ -275,11 +275,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="user">Používateľ</option>
-                <option value="accountant">Účtovník (Moderátor)</option>
+                <option value="user">PouLlA�vate�l</option>
+                <option value="accountant">As�TtovnA�k (ModerA?tor)</option>
                 <option value="employee">Zamestnanec</option>
-                <option value="moderator">Moderátor</option>
-                <option value="admin">Administrátor</option>
+                <option value="moderator">ModerA?tor</option>
+                <option value="admin">AdministrA?tor</option>
               </select>
             </div>
 
@@ -294,12 +294,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="active">Aktívny</option>
-                <option value="inactive">Neaktívny</option>
+                <option value="active">AktA�vny</option>
+                <option value="inactive">NeaktA�vny</option>
               </select>
             </div>
 
-            {/* Výber firmy pre zamestnancov */}
+            {/* VA?ber firmy pre zamestnancov */}
             {formData.role === 'employee' && (
               <div>
                 <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-2">
@@ -334,14 +334,14 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Pridávam...' : 'Pridať používateľa'}
+              {isLoading ? 'PridA?vam...' : 'PridaLA pouLlA�vate�la'}
             </button>
           </div>
         </form>
@@ -351,3 +351,4 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 };
 
 export default AddUserModal;
+

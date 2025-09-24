@@ -48,20 +48,20 @@ const FileManager: React.FC<FileManagerProps> = ({
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const categories = [
-    { id: 'all', name: 'Všetky súbory' },
+    { id: 'all', name: 'VL?etky sAsbory' },
     { id: 'documents', name: 'Dokumenty' },
-    { id: 'invoices', name: 'Faktúry' },
+    { id: 'invoices', name: 'FaktAsry' },
     { id: 'contracts', name: 'Zmluvy' },
-    { id: 'reports', name: 'Správy' },
-    { id: 'images', name: 'Obrázky' },
-    { id: 'archives', name: 'Archívy' },
-    { id: 'other', name: 'Ostatné' }
+    { id: 'reports', name: 'SprA?vy' },
+    { id: 'images', name: 'ObrA?zky' },
+    { id: 'archives', name: 'ArchA�vy' },
+    { id: 'other', name: 'OstatnA�' }
   ];
 
 
 
   const filteredFiles = files.filter(file => {
-    // Kontrola, či file a file.original_name existujú
+    // Kontrola, �Ti file a file.original_name existujAs
     if (!file || !file.original_name) {
       return false;
     }
@@ -97,16 +97,16 @@ const FileManager: React.FC<FileManagerProps> = ({
     });
   };
 
-  // Funkcia na preklad kategórií z anglického kódu na slovenský názov
+  // Funkcia na preklad kategAlriA� z anglickA�ho kAldu na slovenskA? nA?zov
   const getCategoryName = (categoryCode: string) => {
     const categoryMap: Record<string, string> = {
       'documents': 'Dokumenty',
-      'invoices': 'Faktúry',
+      'invoices': 'FaktAsry',
       'contracts': 'Zmluvy',
-      'reports': 'Správy',
-      'images': 'Obrázky',
-      'archives': 'Archívy',
-      'other': 'Ostatné'
+      'reports': 'SprA?vy',
+      'images': 'ObrA?zky',
+      'archives': 'ArchA�vy',
+      'other': 'OstatnA�'
     };
     return categoryMap[categoryCode] || categoryCode;
   };
@@ -131,8 +131,8 @@ const FileManager: React.FC<FileManagerProps> = ({
         onFileDownload(file);
       }
     } catch (error) {
-      console.error('Chyba pri sťahovaní súboru:', error);
-      alert('Nepodarilo sa stiahnuť súbor');
+      console.error('Chyba pri sLAahovanA� sAsboru:', error);
+      alert('Nepodarilo sa stiahnuLA sAsbor');
     } finally {
       setDownloadingFiles(prev => {
         const newSet = new Set(prev);
@@ -143,8 +143,8 @@ const FileManager: React.FC<FileManagerProps> = ({
   };
 
   const handleFileDelete = async (file: FileData) => {
-    const fileName = file.original_name || 'Neznámy súbor';
-    if (!window.confirm(`Naozaj chcete vymazať súbor "${fileName}"?`)) {
+    const fileName = file.original_name || 'NeznA?my sAsbor';
+    if (!window.confirm(`Naozaj chcete vymazaLA sAsbor "${fileName}"?`)) {
       return;
     }
 
@@ -153,8 +153,8 @@ const FileManager: React.FC<FileManagerProps> = ({
     try {
       onFileDelete(file.id);
     } catch (error) {
-      console.error('Chyba pri mazaní súboru:', error);
-      alert('Nepodarilo sa vymazať súbor');
+      console.error('Chyba pri mazanA� sAsboru:', error);
+      alert('Nepodarilo sa vymazaLA sAsbor');
     } finally {
       setDeletingFiles(prev => {
         const newSet = new Set(prev);
@@ -174,7 +174,7 @@ const FileManager: React.FC<FileManagerProps> = ({
     return acc;
   }, {} as Record<string, number>);
 
-  // Debug informácie (dočasné)
+  // Debug informA?cie (do�TasnA�)
   console.log('Files:', files.length);
   console.log('Filtered files:', filteredFiles.length);
   console.log('Selected category:', selectedCategory);
@@ -192,23 +192,23 @@ const FileManager: React.FC<FileManagerProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Správa súborov</h2>
+          <h2 className="text-lg font-semibold text-gray-900">SprA?va sAsborov</h2>
           <p className="text-sm text-gray-500">
-            {files.length} súborov • {formatFileSize(totalSize)} celkovo
+            {files.length} sAsborov �?? {formatFileSize(totalSize)} celkovo
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
           {userRole === 'admin' && onEmptyTrash && (
             <button
               onClick={() => {
-                if (window.confirm('Naozaj chcete vyprázdniť kôš? Táto akcia je nevratná.')) {
+                if (window.confirm('Naozaj chcete vyprA?zdniLA kA�L?? TA?to akcia je nevratnA?.')) {
                   onEmptyTrash();
                 }
               }}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center"
             >
               <TrashIcon className="h-4 w-4 mr-2" />
-              Vyprázdniť kôš
+              VyprA?zdniLA kA�L?
             </button>
           )}
           <button
@@ -216,7 +216,7 @@ const FileManager: React.FC<FileManagerProps> = ({
             className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
           >
             <DocumentArrowUpIcon className="h-5 w-5 mr-2" />
-            Nahrať súbory
+            NahraLA sAsbory
           </button>
         </div>
       </div>
@@ -229,7 +229,7 @@ const FileManager: React.FC<FileManagerProps> = ({
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Hľadať súbory..."
+              placeholder="H�ladaLA sAsbory..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -284,11 +284,11 @@ const FileManager: React.FC<FileManagerProps> = ({
         return filteredFiles.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <DocumentIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne súbory</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne sAsbory</h3>
             <p className="mt-1 text-sm text-gray-500">
               {searchTerm || selectedCategory !== 'all' 
-                ? 'Nenašli sa žiadne súbory s vybranými filtrami.'
-                : 'Zatiaľ neboli nahrané žiadne súbory.'
+                ? 'NenaL?li sa Lliadne sAsbory s vybranA?mi filtrami.'
+                : 'Zatia�l neboli nahranA� Lliadne sAsbory.'
               }
             </p>
             {!searchTerm && selectedCategory === 'all' && (
@@ -296,7 +296,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                 onClick={() => setShowUploadModal(true)}
                 className="mt-4 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
               >
-                Nahrať prvý súbor
+                NahraLA prvA? sAsbor
               </button>
             )}
           </div>
@@ -321,10 +321,10 @@ const FileManager: React.FC<FileManagerProps> = ({
                     
                     <div className={`flex-1 min-w-0 ${viewMode === 'list' ? '' : 'mb-4'}`}>
                       <h3 className={`font-medium text-gray-900 truncate ${viewMode === 'list' ? 'text-sm' : 'text-lg'}`}>
-                        {file.original_name || 'Neznámy súbor'}
+                        {file.original_name || 'NeznA?my sAsbor'}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.file_size || 0)} • {formatDate(file.created_at || new Date().toISOString())}
+                        {formatFileSize(file.file_size || 0)} �?? {formatDate(file.created_at || new Date().toISOString())}
                       </p>
                       <p className="text-xs text-blue-600 font-medium">
                         {getCategoryName(file.category || 'other')}
@@ -335,7 +335,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                       <button
                         onClick={() => handleFilePreview(file)}
                         className="text-primary-600 hover:text-primary-700"
-                        title="Náhľad"
+                        title="NA?h�lad"
                       >
                         <EyeIcon className="h-5 w-5" />
                       </button>
@@ -343,7 +343,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                         onClick={() => handleFileDownload(file)}
                         disabled={isDownloading}
                         className={`text-blue-600 hover:text-blue-700 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title={isDownloading ? 'Sťahujem...' : 'Stiahnuť'}
+                        title={isDownloading ? 'SLAahujem...' : 'StiahnuLA'}
                       >
                         <CloudArrowDownIcon className="h-5 w-5" />
                       </button>
@@ -351,7 +351,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                         onClick={() => handleFileDelete(file)}
                         disabled={isDeleting}
                         className={`text-red-600 hover:text-red-700 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title={isDeleting ? 'Mažem...' : 'Vymazať'}
+                        title={isDeleting ? 'MaLlem...' : 'VymazaLA'}
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -389,3 +389,4 @@ const FileManager: React.FC<FileManagerProps> = ({
  };
 
 export default FileManager;
+

@@ -43,14 +43,14 @@ const PageLoader = () => (
   </div>
 );
 
-// Komponent pre automatické presmerovanie
+// Komponent pre automatickA� presmerovanie
 const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean; userRole: 'admin' | 'accountant' | 'user' | 'employee' | null }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Ak je používateľ prihlásený a nie je na dashboard stránke, presmeruj ho
-    // Ale nepresmerovávaj, ak je na dropbox-callback stránke, accounting stránkach alebo detail faktúry
+    // Ak je pouLlA�vate�l prihlA?senA? a nie je na dashboard strA?nke, presmeruj ho
+    // Ale nepresmerovA?vaj, ak je na dropbox-callback strA?nke, accounting strA?nkach alebo detail faktAsry
     if (isLoggedIn && 
         location.pathname !== '/dashboard' && 
         location.pathname !== '/dropbox-callback' && 
@@ -65,7 +65,7 @@ const AutoRedirect = React.memo(({ isLoggedIn, userRole }: { isLoggedIn: boolean
 });
 
 function App() {
-  // Používame localStorage hook pre perzistentné dáta
+  // PouLlA�vame localStorage hook pre perzistentnA� dA?ta
   const [isLoggedIn, setIsLoggedIn] = useLocalStorage('isLoggedIn', false);
   const [userRole, setUserRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [userEmail, setUserEmail] = useLocalStorage('userEmail', '');
@@ -73,10 +73,10 @@ function App() {
   const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
   const [pendingAccountantEmail, setPendingAccountantEmail] = useState('');
 
-  // Inicializácia dark mode
+  // InicializA?cia dark mode
   useDarkMode();
 
-  // Inicializácia tokenu z localStorage
+  // InicializA?cia tokenu z localStorage
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -84,14 +84,14 @@ function App() {
     }
   }, []);
 
-  // Performance monitoring a Service Worker sú automaticky inicializované
-  // ale momentálne ich nepoužívame v UI
+  // Performance monitoring a Service Worker sAs automaticky inicializovanA�
+  // ale momentA?lne ich nepouLlA�vame v UI
 
   const handleLogin = useCallback((role: 'admin' | 'accountant' | 'user' | 'employee', email: string) => {
     setIsLoggedIn(true);
     setUserRole(role);
     setUserEmail(email);
-    // Automatické presmerovanie na dashboard sa rieši cez AutoRedirect komponent
+    // AutomatickA� presmerovanie na dashboard sa rieL?i cez AutoRedirect komponent
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
   const handleLogout = useCallback(() => {
@@ -99,7 +99,7 @@ function App() {
     setUserRole(null);
     setUserEmail('');
     apiService.clearToken();
-    // Vyčistíme vybranú firmu pri odhlásení
+    // Vy�TistA�me vybranAs firmu pri odhlA?senA�
     localStorage.removeItem('selectedCompanyId');
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
@@ -116,19 +116,19 @@ function App() {
     password: string;
     confirmPassword: string;
   }) => {
-    // Označ profil ako dokončený
+    // Ozna�T profil ako dokon�TenA?
     localStorage.setItem(`accountant_${profileData.email}_profile_completed`, 'true');
     
-    // Ulož údaje účtovníka
+    // UloLl Asdaje As�TtovnA�ka
     localStorage.setItem(`accountant_${profileData.email}_profile`, JSON.stringify({
       name: profileData.name,
       email: profileData.email,
       phone: profileData.phone,
       department: profileData.department,
-      password: profileData.password // V reálnej aplikácii by sa heslo hashovalo
+      password: profileData.password // V reA?lnej aplikA?cii by sa heslo hashovalo
     }));
 
-    // Prihlás účtovníka
+    // PrihlA?s As�TtovnA�ka
     setIsLoggedIn(true);
     setUserRole('accountant');
     setUserEmail(profileData.email);
@@ -136,19 +136,19 @@ function App() {
     setPendingAccountantEmail('');
   }, [setIsLoggedIn, setUserRole, setUserEmail]);
 
-  // Memoizované hodnoty pre lepší výkon
+  // MemoizovanA� hodnoty pre lepL?A� vA?kon
   const dashboardElement = useMemo(() => {
     if (!isLoggedIn) {
       return (
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Pre prístup k dashboardu sa prihláste
+            Pre prA�stup k dashboardu sa prihlA?ste
           </h2>
           <button
             onClick={() => setShowLoginModal(true)}
             className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
           >
-            Prihlásiť sa
+            PrihlA?siLA sa
           </button>
         </div>
       );
@@ -237,3 +237,4 @@ function App() {
 }
 
 export default App;
+

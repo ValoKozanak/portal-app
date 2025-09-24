@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export function useDarkMode() {
-  // Načítame preferenciu z localStorage alebo použijeme systémovú preferenciu
+  // Na�TA�tame preferenciu z localStorage alebo pouLlijeme systA�movAs preferenciu
   const getInitialTheme = (): boolean => {
     // Skontrolujeme localStorage
     const savedTheme = localStorage.getItem('darkMode');
@@ -9,13 +9,13 @@ export function useDarkMode() {
       return JSON.parse(savedTheme);
     }
     
-    // Ak nie je v localStorage, použijeme systémovú preferenciu
+    // Ak nie je v localStorage, pouLlijeme systA�movAs preferenciu
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   };
 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(getInitialTheme);
 
-  // Funkcia na prepínanie dark mode
+  // Funkcia na prepA�nanie dark mode
   const toggleDarkMode = useCallback(() => {
     setIsDarkMode(prev => {
       const newValue = !prev;
@@ -24,7 +24,7 @@ export function useDarkMode() {
     });
   }, []);
 
-  // Funkcia na nastavenie konkrétneho režimu
+  // Funkcia na nastavenie konkrA�tneho reLlimu
   const setDarkMode = useCallback((dark: boolean) => {
     setIsDarkMode(dark);
     localStorage.setItem('darkMode', JSON.stringify(dark));
@@ -40,12 +40,12 @@ export function useDarkMode() {
     }
   }, [isDarkMode]);
 
-  // Sledujeme zmeny systémových preferencií
+  // Sledujeme zmeny systA�movA?ch preferenciA�
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = (e: MediaQueryListEvent) => {
-      // Aktualizujeme len ak používateľ nemá uloženú preferenciu
+      // Aktualizujeme len ak pouLlA�vate�l nemA? uloLlenAs preferenciu
       if (localStorage.getItem('darkMode') === null) {
         setIsDarkMode(e.matches);
       }
@@ -61,3 +61,4 @@ export function useDarkMode() {
     setDarkMode
   };
 }
+

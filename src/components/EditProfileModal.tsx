@@ -45,19 +45,19 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinné';
+      newErrors.name = 'Meno je povinnA�';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Meno musí mať aspoň 2 znaky';
+      newErrors.name = 'Meno musA� maLA aspoL� 2 znaky';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (formData.phone && !/^[+]?[0-9\s\-()]{9,}$/.test(formData.phone)) {
-      newErrors.phone = 'Neplatný formát telefónneho čísla';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnneho �TA�sla';
     }
 
     setErrors(newErrors);
@@ -73,7 +73,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
     setIsLoading(true);
 
-    // Simulácia uloženia profilu
+    // SimulA?cia uloLlenia profilu
     setTimeout(() => {
       onSave(formData);
       setIsLoading(false);
@@ -93,7 +93,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Upraviť profil</h2>
+          <h2 className="text-xl font-semibold text-gray-900">UpraviLA profil</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -146,7 +146,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Telefónne číslo
+                TelefAlnne �TA�slo
               </label>
               <input
                 type="tel"
@@ -175,7 +175,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Napíšte niečo o sebe..."
+                placeholder="NapA�L?te nie�To o sebe..."
               />
             </div>
           </div>
@@ -186,14 +186,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Ukladám...' : 'Uložiť zmeny'}
+              {isLoading ? 'UkladA?m...' : 'UloLliLA zmeny'}
             </button>
           </div>
         </form>
@@ -203,4 +203,5 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 };
 
 export default EditProfileModal;
+
 

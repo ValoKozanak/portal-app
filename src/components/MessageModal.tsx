@@ -46,12 +46,12 @@ const MessageModal: React.FC<MessageModalProps> = ({
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(companyId);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
 
-  // Aktualizácia recipientEmail keď sa zmení initialRecipient
+  // AktualizA?cia recipientEmail ke�Z sa zmenA� initialRecipient
   useEffect(() => {
     setRecipientEmail(initialRecipient);
   }, [initialRecipient]);
 
-  // Načítanie firiem pre Admin a Accountant
+  // Na�TA�tanie firiem pre Admin a Accountant
   useEffect(() => {
     const loadCompanies = async () => {
       if (userRole === 'admin' || userRole === 'accountant') {
@@ -67,7 +67,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
           
           setCompanies(companiesData);
         } catch (error) {
-          console.error('Chyba pri načítaní firiem:', error);
+          console.error('Chyba pri na�TA�tanA� firiem:', error);
         } finally {
           setLoadingCompanies(false);
         }
@@ -79,38 +79,38 @@ const MessageModal: React.FC<MessageModalProps> = ({
     }
   }, [isOpen, userRole, senderEmail]);
 
-  // Načítanie používateľov pre výber príjemcu
+  // Na�TA�tanie pouLlA�vate�lov pre vA?ber prA�jemcu
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoadingUsers(true);
         const allUsers = await apiService.getAllUsers();
         
-        // Filtrovanie používateľov podľa role
+        // Filtrovanie pouLlA�vate�lov pod�la role
         let filteredUsers = allUsers;
         
         if (userRole === 'user') {
-          // User (firma) môže poslať správu Admin, priradeným Accountant a svojim zamestnancom
+          // User (firma) mA�Lle poslaLA sprA?vu Admin, priradenA?m Accountant a svojim zamestnancom
           const assignedAccountantEmails: string[] = [];
           const employeeEmails: string[] = [];
           
-          // Ak máme companyId, načítame len zamestnancov z aktuálnej firmy
+          // Ak mA?me companyId, na�TA�tame len zamestnancov z aktuA?lnej firmy
           if (companyId) {
             try {
-              // Načítame zamestnancov len z aktuálnej firmy
+              // Na�TA�tame zamestnancov len z aktuA?lnej firmy
               const employees = await hrService.getEmployees(companyId);
               employeeEmails.push(...employees.map(emp => emp.email));
               
-              // Načítame priradených účtovníkov pre aktuálnu firmu
+              // Na�TA�tame priradenA?ch As�TtovnA�kov pre aktuA?lnu firmu
               const company = await apiService.getCompanyById(companyId);
               if (company && company.assignedToAccountants) {
                 assignedAccountantEmails.push(...company.assignedToAccountants);
               }
             } catch (error) {
-              console.error(`Chyba pri načítaní zamestnancov pre firmu ${companyId}:`, error);
+              console.error(`Chyba pri na�TA�tanA� zamestnancov pre firmu ${companyId}:`, error);
             }
           } else {
-            // Fallback: načítame zamestnancov zo všetkých firiem používateľa
+            // Fallback: na�TA�tame zamestnancov zo vL?etkA?ch firiem pouLlA�vate�la
             const userCompanies = await apiService.getUserCompanies(senderEmail);
             
             for (const company of userCompanies) {
@@ -122,7 +122,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
                 const employees = await hrService.getEmployees(company.id);
                 employeeEmails.push(...employees.map(emp => emp.email));
               } catch (error) {
-                console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+                console.error(`Chyba pri na�TA�tanA� zamestnancov pre firmu ${company.id}:`, error);
               }
             }
           }
@@ -133,12 +133,12 @@ const MessageModal: React.FC<MessageModalProps> = ({
             (user.role === 'employee' && employeeEmails.includes(user.email))
           );
         } else if (userRole === 'accountant') {
-          // Accountant môže poslať správu iba Admin a priradeným User (z jeho firiem)
-          // Najprv získame firmy, ktoré má accountant na starosti
+          // Accountant mA�Lle poslaLA sprA?vu iba Admin a priradenA?m User (z jeho firiem)
+          // Najprv zA�skame firmy, ktorA� mA? accountant na starosti
           const accountantCompanies = await apiService.getAccountantCompanies(senderEmail);
           const assignedUserEmails: string[] = [];
           
-          // Extraktujeme všetkých používateľov z firiem, ktoré má accountant na starosti
+          // Extraktujeme vL?etkA?ch pouLlA�vate�lov z firiem, ktorA� mA? accountant na starosti
           accountantCompanies.forEach(company => {
             if (company.owner_email) {
               assignedUserEmails.push(company.owner_email);
@@ -150,26 +150,26 @@ const MessageModal: React.FC<MessageModalProps> = ({
             (user.role === 'user' && assignedUserEmails.includes(user.email))
           );
         } else if (userRole === 'employee') {
-          // Employee môže poslať správu iba svojej firme (company owner)
+          // Employee mA�Lle poslaLA sprA?vu iba svojej firme (company owner)
           if (companyId) {
             const company = await apiService.getCompanyById(companyId);
             if (company && company.owner_email) {
-              // Namiesto zobrazenia "User" zobrazíme konkrétnu firmu
+              // Namiesto zobrazenia "User" zobrazA�me konkrA�tnu firmu
               const companyOwner = allUsers.find(user => user.email === company.owner_email);
               if (companyOwner) {
                 filteredUsers = [{
                   ...companyOwner,
-                  name: `${company.name} (${companyOwner.name})` // Zobrazíme názov firmy + meno vlastníka
+                  name: `${company.name} (${companyOwner.name})` // ZobrazA�me nA?zov firmy + meno vlastnA�ka
                 }];
               }
             }
           }
         }
-        // Admin môže poslať správu všetkým
+        // Admin mA�Lle poslaLA sprA?vu vL?etkA?m
         
         setUsers(filteredUsers);
       } catch (error) {
-        console.error('Chyba pri načítaní používateľov:', error);
+        console.error('Chyba pri na�TA�tanA� pouLlA�vate�lov:', error);
       } finally {
         setLoadingUsers(false);
       }
@@ -184,7 +184,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
     e.preventDefault();
     
     if (!recipientEmail || !subject || !content.trim()) {
-      setError('Všetky polia musia byť vyplnené');
+      setError('VL?etky polia musia byLA vyplnenA�');
       return;
     }
 
@@ -192,7 +192,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
     setError('');
 
     try {
-      console.log('Odosielam správu:', {
+      console.log('Odosielam sprA?vu:', {
         sender_email: senderEmail,
         recipient_email: recipientEmail,
         subject: subject.trim(),
@@ -210,22 +210,22 @@ const MessageModal: React.FC<MessageModalProps> = ({
         message_type: messageType
       });
 
-      console.log('Správa odoslaná úspešne:', response);
+      console.log('SprA?va odoslanA? AsspeL?ne:', response);
 
-      // Reset formulára
+      // Reset formulA?ra
       setRecipientEmail('');
       setSubject('');
       setContent('');
       setMessageType('general');
       
-      // Zobrazíme úspešnú správu
-      alert('Správa bola úspešne odoslaná!');
+      // ZobrazA�me AsspeL?nAs sprA?vu
+      alert('SprA?va bola AsspeL?ne odoslanA?!');
       
       onSend();
       onClose();
     } catch (error) {
-      console.error('Chyba pri odosielaní správy:', error);
-      setError(error instanceof Error ? error.message : 'Chyba pri odosielaní správy');
+      console.error('Chyba pri odosielanA� sprA?vy:', error);
+      setError(error instanceof Error ? error.message : 'Chyba pri odosielanA� sprA?vy');
     } finally {
       setIsLoading(false);
     }
@@ -249,7 +249,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
           <div className="flex items-center space-x-3">
             <PaperAirplaneIcon className="h-6 w-6 text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">
-              Nová správa
+              NovA? sprA?va
             </h2>
           </div>
           <button
@@ -261,10 +261,10 @@ const MessageModal: React.FC<MessageModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Príjemca */}
+          {/* PrA�jemca */}
           <div>
             <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
-              Príjemca *
+              PrA�jemca *
             </label>
             <div className="relative">
               <input
@@ -285,7 +285,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
                   onChange={(e) => setRecipientEmail(e.target.value)}
                   className="absolute right-3 top-2.5 text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                 >
-                  <option value="">Vybrať používateľa</option>
+                  <option value="">VybraLA pouLlA�vate�la</option>
                   {users.map((user) => (
                     <option key={user.id} value={user.email}>
                       {user.name} ({user.email}) - {user.role}
@@ -300,7 +300,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
           {(userRole === 'admin' || userRole === 'accountant') && (
             <div>
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                Firma (pre ktorú sa správa posiela)
+                Firma (pre ktorAs sa sprA?va posiela)
               </label>
               <div className="relative">
                 <select
@@ -309,9 +309,9 @@ const MessageModal: React.FC<MessageModalProps> = ({
                   onChange={(e) => setSelectedCompanyId(e.target.value ? Number(e.target.value) : undefined)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Vybrať firmu (voliteľné)</option>
+                  <option value="">VybraLA firmu (volite�lnA�)</option>
                   {loadingCompanies ? (
-                    <option value="" disabled>Načítavam firmy...</option>
+                    <option value="" disabled>Na�TA�tavam firmy...</option>
                   ) : (
                     companies.map((company) => (
                       <option key={company.id} value={company.id}>
@@ -335,15 +335,15 @@ const MessageModal: React.FC<MessageModalProps> = ({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Zadajte predmet správy"
+              placeholder="Zadajte predmet sprA?vy"
               required
             />
           </div>
 
-          {/* Typ správy */}
+          {/* Typ sprA?vy */}
           <div>
             <label htmlFor="messageType" className="block text-sm font-medium text-gray-700 mb-2">
-              Typ správy
+              Typ sprA?vy
             </label>
             <select
               id="messageType"
@@ -351,18 +351,18 @@ const MessageModal: React.FC<MessageModalProps> = ({
               onChange={(e) => setMessageType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="general">Všeobecná</option>
-              <option value="question">Otázka</option>
+              <option value="general">VL?eobecnA?</option>
+              <option value="question">OtA?zka</option>
               <option value="report">Report</option>
-              <option value="urgent">Urgentná</option>
-              <option value="welcome">Vitajúca</option>
+              <option value="urgent">UrgentnA?</option>
+              <option value="welcome">VitajAsca</option>
             </select>
           </div>
 
           {/* Obsah */}
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-              Obsah správy *
+              Obsah sprA?vy *
             </label>
             <textarea
               id="content"
@@ -370,7 +370,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
               onChange={(e) => setContent(e.target.value)}
               rows={6}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-              placeholder="Napíšte obsah správy..."
+              placeholder="NapA�L?te obsah sprA?vy..."
               required
             />
           </div>
@@ -382,14 +382,14 @@ const MessageModal: React.FC<MessageModalProps> = ({
             </div>
           )}
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
@@ -404,7 +404,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
               ) : (
                 <>
                   <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                  Odoslať správu
+                  OdoslaLA sprA?vu
                 </>
               )}
             </button>
@@ -416,3 +416,4 @@ const MessageModal: React.FC<MessageModalProps> = ({
 };
 
 export default MessageModal;
+

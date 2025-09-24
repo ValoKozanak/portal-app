@@ -40,27 +40,27 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'received' | 'sent'>('all');
 
-  // Načítanie správ
+  // Naďż˝TAďż˝tanie sprA?v
   const loadMessages = useCallback(async () => {
     try {
       setLoading(true);
       let messagesData: Message[];
       
-      // Kontrola, či je používateľ prihlásený
+      // Kontrola, ďż˝Ti je pouLlAďż˝vateďż˝l prihlA?senA?
       const token = apiService.getToken();
       if (!token) {
-        console.log('Používateľ nie je prihlásený, preskočenie načítania správ');
+        console.log('PouLlAďż˝vateďż˝l nie je prihlA?senA?, preskoďż˝Tenie naďż˝TAďż˝tania sprA?v');
         setMessages([]);
         return;
       }
       
-      console.log('Načítavam správy pre:', { userEmail, userRole, companyId, isAdmin });
+      console.log('Naďż˝TAďż˝tavam sprA?vy pre:', { userEmail, userRole, companyId, isAdmin });
       
       if (isAdmin) {
         messagesData = await apiService.getAllMessages();
       } else if (userRole === 'employee' && companyId) {
-        // Pre zamestnancov používame user endpoint (rovnaký ako pre user)
-        console.log('Používam user endpoint pre employee:', userEmail);
+        // Pre zamestnancov pouLlAďż˝vame user endpoint (rovnakA? ako pre user)
+        console.log('PouLlAďż˝vam user endpoint pre employee:', userEmail);
         messagesData = await apiService.getUserMessages(userEmail);
       } else if (companyId) {
         messagesData = await apiService.getCompanyMessages(companyId);
@@ -68,11 +68,11 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
         messagesData = await apiService.getUserMessages(userEmail);
       }
       
-      console.log('Načítané správy:', messagesData);
-      console.log('Počet správ:', messagesData.length);
+      console.log('Naďż˝TAďż˝tanAďż˝ sprA?vy:', messagesData);
+      console.log('Poďż˝Tet sprA?v:', messagesData.length);
       setMessages(messagesData);
     } catch (error) {
-      console.error('Chyba pri načítaní správ:', error);
+      console.error('Chyba pri naďż˝TAďż˝tanAďż˝ sprA?v:', error);
       setMessages([]);
     } finally {
       setLoading(false);
@@ -80,14 +80,14 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
   }, [isAdmin, companyId, userEmail, userRole]);
 
   useEffect(() => {
-    // Načítame správy iba ak je používateľ prihlásený
+    // Naďż˝TAďż˝tame sprA?vy iba ak je pouLlAďż˝vateďż˝l prihlA?senA?
     const token = apiService.getToken();
     if (token && userEmail) {
       loadMessages();
     }
   }, [userEmail, companyId, isAdmin, loadMessages]);
 
-  // Filtrovanie správ podľa oprávnení
+  // Filtrovanie sprA?v podďż˝la oprA?vnenAďż˝
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -105,36 +105,36 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
         return true;
       });
 
-      // Dodatočné filtrovanie podľa oprávnení pre prijímanie správ
+      // Dodatoďż˝TnAďż˝ filtrovanie podďż˝la oprA?vnenAďż˝ pre prijAďż˝manie sprA?v
       if (userRole === 'user') {
-        // User môže prijímať správy od Admin, priradených Accountant a svojich zamestnancov
+        // User mAďż˝Lle prijAďż˝maLA sprA?vy od Admin, priradenA?ch Accountant a svojich zamestnancov
         const userCompanies = await apiService.getUserCompanies(userEmail);
         const assignedAccountantEmails: string[] = [];
         const employeeEmails: string[] = [];
         
-        // Načítame priradených účtovníkov a zamestnancov zo všetkých firiem
+        // Naďż˝TAďż˝tame priradenA?ch Asďż˝TtovnAďż˝kov a zamestnancov zo vL?etkA?ch firiem
         for (const company of userCompanies) {
           if (company.assignedToAccountants) {
             assignedAccountantEmails.push(...company.assignedToAccountants);
           }
           
-          // Načítame zamestnancov pre každú firmu
+          // Naďż˝TAďż˝tame zamestnancov pre kaLldAs firmu
           try {
             const employees = await hrService.getEmployees(company.id);
             employeeEmails.push(...employees.map(emp => emp.email));
           } catch (error) {
-            console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+            console.error(`Chyba pri naďż˝TAďż˝tanAďż˝ zamestnancov pre firmu ${company.id}:`, error);
           }
         }
         
         filtered = filtered.filter(message => 
           message.sender_email === 'admin@portal.sk' || 
           assignedAccountantEmails.includes(message.sender_email) ||
-          employeeEmails.includes(message.sender_email) || // správy od zamestnancov
-          message.sender_email === userEmail // vlastné správy
+          employeeEmails.includes(message.sender_email) || // sprA?vy od zamestnancov
+          message.sender_email === userEmail // vlastnAďż˝ sprA?vy
         );
       } else if (userRole === 'accountant') {
-        // Accountant môže prijímať správy iba od Admin a priradených User
+        // Accountant mAďż˝Lle prijAďż˝maLA sprA?vy iba od Admin a priradenA?ch User
         const accountantCompanies = await apiService.getAccountantCompanies(userEmail);
         const assignedUserEmails: string[] = [];
         
@@ -147,12 +147,12 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
         filtered = filtered.filter(message => 
           message.sender_email === 'admin@portal.sk' || 
           assignedUserEmails.includes(message.sender_email) ||
-          message.sender_email === userEmail // vlastné správy
+          message.sender_email === userEmail // vlastnAďż˝ sprA?vy
         );
       } else if (userRole === 'employee') {
-        // Employee môže prijímať správy od svojej firmy (company owner) a posielať správy svojej firme
+        // Employee mAďż˝Lle prijAďż˝maLA sprA?vy od svojej firmy (company owner) a posielaLA sprA?vy svojej firme
         console.log('Filtrovanie pre employee:', { userEmail, companyId });
-        console.log('Všetky správy pred filtrovaním:', messages);
+        console.log('VL?etky sprA?vy pred filtrovanAďż˝m:', messages);
         
         if (companyId) {
           const company = await apiService.getCompanyById(companyId);
@@ -178,13 +178,13 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               
               return isFromCompany || isToCompany || isFromUser || isToUser;
             });
-            console.log('Filtrované správy pre employee:', filtered);
+            console.log('FiltrovanAďż˝ sprA?vy pre employee:', filtered);
           }
         } else {
-          console.log('companyId nie je nastavené pre employee');
+          console.log('companyId nie je nastavenAďż˝ pre employee');
         }
       }
-      // Admin môže prijímať správy od všetkých
+      // Admin mAďż˝Lle prijAďż˝maLA sprA?vy od vL?etkA?ch
       
       setFilteredMessages(filtered);
     };
@@ -192,7 +192,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
     filterMessagesByPermissions();
   }, [messages, filter, userEmail, userRole]);
 
-  // Označenie správy ako prečítaná
+  // Oznaďż˝Tenie sprA?vy ako preďż˝TAďż˝tanA?
   const handleMarkAsRead = async (messageId: number) => {
     try {
       await apiService.markMessageAsRead(messageId);
@@ -201,11 +201,11 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
       ));
       onMessageAction?.();
     } catch (error) {
-      console.error('Chyba pri označení správy ako prečítaná:', error);
+      console.error('Chyba pri oznaďż˝TenAďż˝ sprA?vy ako preďż˝TAďż˝tanA?:', error);
     }
   };
 
-  // Označenie správy ako neprečítaná
+  // Oznaďż˝Tenie sprA?vy ako nepreďż˝TAďż˝tanA?
   const handleMarkAsUnread = async (messageId: number) => {
     try {
       await apiService.markMessageAsUnread(messageId);
@@ -214,24 +214,24 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
       ));
       onMessageAction?.();
     } catch (error) {
-      console.error('Chyba pri označení správy ako neprečítaná:', error);
+      console.error('Chyba pri oznaďż˝TenAďż˝ sprA?vy ako nepreďż˝TAďż˝tanA?:', error);
     }
   };
 
-  // Vymazanie správy
+  // Vymazanie sprA?vy
   const handleDeleteMessage = async (messageId: number) => {
-    if (!window.confirm('Naozaj chcete vymazať túto správu?')) return;
+    if (!window.confirm('Naozaj chcete vymazaLA tAsto sprA?vu?')) return;
     
     try {
       await apiService.deleteMessage(messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
       onMessageAction?.();
     } catch (error) {
-      console.error('Chyba pri vymazaní správy:', error);
+      console.error('Chyba pri vymazanAďż˝ sprA?vy:', error);
     }
   };
 
-  // Odpoveď na správu
+  // Odpoveďż˝Z na sprA?vu
   const handleReply = (message: Message) => {
     setSelectedMessage(message);
     setShowMessageModal(true);
@@ -240,13 +240,13 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
   const getMessageTypeIcon = (type: string) => {
     switch (type) {
       case 'urgent':
-        return <span className="text-red-500">🚨</span>;
+        return <span className="text-red-500">dzsďż˝</span>;
       case 'question':
-        return <span className="text-blue-500">❓</span>;
+        return <span className="text-blue-500">ďż˝t"</span>;
       case 'report':
-        return <span className="text-green-500">📊</span>;
+        return <span className="text-green-500">S</span>;
       case 'welcome':
-        return <span className="text-purple-500">👋</span>;
+        return <span className="text-purple-500">W</span>;
       default:
         return <EnvelopeIcon className="h-4 w-4 text-gray-500" />;
     }
@@ -254,11 +254,11 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
 
   const getMessageTypeLabel = (type: string) => {
     switch (type) {
-      case 'urgent': return 'Urgentná';
-      case 'question': return 'Otázka';
+      case 'urgent': return 'UrgentnA?';
+      case 'question': return 'OtA?zka';
       case 'report': return 'Report';
-      case 'welcome': return 'Vitajúca';
-      default: return 'Všeobecná';
+      case 'welcome': return 'VitajAsca';
+      default: return 'VL?eobecnA?';
     }
   };
 
@@ -266,7 +266,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Načítavam správy...</p>
+        <p className="mt-4 text-gray-600">Naďż˝TAďż˝tavam sprA?vy...</p>
       </div>
     );
   }
@@ -276,12 +276,12 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Správy</h2>
+          <h2 className="text-2xl font-bold text-gray-900">SprA?vy</h2>
           <p className="text-gray-600 mt-1">
-            {filteredMessages.length} správ
+            {filteredMessages.length} sprA?v
             {filter === 'unread' && (
               <span className="text-blue-600 font-medium">
-                {' '}({filteredMessages.filter(m => !m.read_at && m.recipient_email === userEmail).length} neprečítaných)
+                {' '}({filteredMessages.filter(m => !m.read_at && m.recipient_email === userEmail).length} nepreďż˝TAďż˝tanA?ch)
               </span>
             )}
           </p>
@@ -291,7 +291,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 transition-colors"
         >
           <PaperAirplaneIcon className="h-4 w-4" />
-          Nová správa
+          NovA? sprA?va
         </button>
       </div>
 
@@ -305,7 +305,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Všetky ({messages.length})
+          VL?etky ({messages.length})
         </button>
         <button
           onClick={() => setFilter('unread')}
@@ -315,7 +315,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Neprečítané ({messages.filter(m => !m.read_at && m.recipient_email === userEmail).length})
+          Nepreďż˝TAďż˝tanAďż˝ ({messages.filter(m => !m.read_at && m.recipient_email === userEmail).length})
         </button>
         <button
           onClick={() => setFilter('received')}
@@ -325,7 +325,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Prijaté ({messages.filter(m => m.recipient_email === userEmail).length})
+          PrijatAďż˝ ({messages.filter(m => m.recipient_email === userEmail).length})
         </button>
         <button
           onClick={() => setFilter('sent')}
@@ -335,7 +335,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Odoslané ({messages.filter(m => m.sender_email === userEmail).length})
+          OdoslanAďż˝ ({messages.filter(m => m.sender_email === userEmail).length})
         </button>
       </div>
 
@@ -344,12 +344,12 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
         {filteredMessages.length === 0 ? (
           <div className="text-center py-12">
             <EnvelopeIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne správy</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne sprA?vy</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {filter === 'all' ? 'Zatiaľ nemáte žiadne správy.' : 
-               filter === 'unread' ? 'Všetky správy sú prečítané.' : 
-               filter === 'received' ? 'Zatiaľ ste neprijali žiadne správy.' :
-               'Zatiaľ ste neodoslali žiadne správy.'}
+              {filter === 'all' ? 'Zatiaďż˝l nemA?te Lliadne sprA?vy.' : 
+               filter === 'unread' ? 'VL?etky sprA?vy sAs preďż˝TAďż˝tanAďż˝.' : 
+               filter === 'received' ? 'Zatiaďż˝l ste neprijali Lliadne sprA?vy.' :
+               'Zatiaďż˝l ste neodoslali Lliadne sprA?vy.'}
             </p>
           </div>
         ) : (
@@ -370,7 +370,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
                     </span>
                     {!message.read_at && message.recipient_email === userEmail && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Nové
+                        NovAďż˝
                       </span>
                     )}
                   </div>
@@ -400,7 +400,7 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
                     <button
                       onClick={() => message.read_at ? handleMarkAsUnread(message.id) : handleMarkAsRead(message.id)}
                       className="text-gray-600 hover:text-gray-700 p-1"
-                      title={message.read_at ? 'Označiť ako neprečítané' : 'Označiť ako prečítané'}
+                      title={message.read_at ? 'Oznaďż˝TiLA ako nepreďż˝TAďż˝tanAďż˝' : 'Oznaďż˝TiLA ako preďż˝TAďż˝tanAďż˝'}
                     >
                       {message.read_at ? <EyeSlashIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
                     </button>
@@ -408,14 +408,14 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
                   <button
                     onClick={() => handleReply(message)}
                     className="text-blue-600 hover:text-blue-700 p-1"
-                    title="Odpovedať"
+                    title="OdpovedaLA"
                   >
                     <PaperAirplaneIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteMessage(message.id)}
                     className="text-red-600 hover:text-red-700 p-1"
-                    title="Vymazať"
+                    title="VymazaLA"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>
@@ -448,3 +448,5 @@ const MessagesList: React.FC<MessagesListProps> = ({ userEmail, userRole, compan
 };
 
 export default MessagesList;
+
+

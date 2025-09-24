@@ -25,7 +25,7 @@ import { hrService, Employee, LeaveRequest, HRStats, EmployeeAttendanceStatus } 
 import { payrollService } from '../services/payrollService';
 import PayslipDetailModal from './PayslipDetailModal';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -33,17 +33,17 @@ const formatDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-// Helper funkcia pre formátovanie času
+// Helper funkcia pre formA?tovanie �Tasu
 const formatTime = (timeString: string | null): string => {
   if (!timeString) return '-';
   
   try {
-    // Ak je to už čas v formáte HH:MM, vráť ho
+    // Ak je to uLl �Tas v formA?te HH:MM, vrA?LA ho
     if (timeString.match(/^\d{2}:\d{2}$/)) {
       return timeString;
     }
     
-    // Ak je to dátum, skús ho spracovať
+    // Ak je to dA?tum, skAss ho spracovaLA
     const date = new Date(timeString);
     if (isNaN(date.getTime())) {
       return '-';
@@ -55,7 +55,7 @@ const formatTime = (timeString: string | null): string => {
       hour12: false 
     });
   } catch (error) {
-    console.error('Chyba pri formátovaní času:', timeString, error);
+    console.error('Chyba pri formA?tovanA� �Tasu:', timeString, error);
     return '-';
   }
 };
@@ -86,7 +86,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
   const [showAttendanceRecordModal, setShowAttendanceRecordModal] = useState(false);
   const [activeSection, setActiveSection] = useState<'overview' | 'leave-requests' | 'automatic-attendance' | 'select-employee-for-leave' | 'present-today' | 'absent-today'>('overview');
 
-  // Výplatné pásky (firma) – filtre a stav
+  // VA?platnA� pA?sky (firma) �?" filtre a stav
   const [payslipsYear, setPayslipsYear] = useState<number>(new Date().getFullYear());
   const [payslipsMonth, setPayslipsMonth] = useState<number | ''>('');
   const [payslipsEmployeeId, setPayslipsEmployeeId] = useState<number | 'all'>('all');
@@ -110,80 +110,80 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     try {
       setLoading(true);
       
-      // Načítanie štatistík
+      // Na�TA�tanie L?tatistA�k
       const statsData = await hrService.getHRStats(companyId);
       console.log('HR Stats:', statsData);
       setStats(statsData);
 
-      // Načítanie zamestnancov
+      // Na�TA�tanie zamestnancov
       const employeesData = await hrService.getEmployees(companyId);
       setEmployees(employeesData);
 
-      // Načítanie žiadostí o dovolenku
+      // Na�TA�tanie LliadostA� o dovolenku
       const leaveData = await hrService.getLeaveRequests(companyId);
-      console.log('Všetky žiadosti o dovolenku:', leaveData);
-      console.log('Čakajúce žiadosti:', statsData?.leave_requests?.pending_leave_requests);
-      console.log('Počet všetkých žiadostí:', leaveData.length);
+      console.log('VL?etky Lliadosti o dovolenku:', leaveData);
+      console.log('�SakajAsce Lliadosti:', statsData?.leave_requests?.pending_leave_requests);
+      console.log('Po�Tet vL?etkA?ch LliadostA�:', leaveData.length);
       setLeaveRequests(leaveData);
 
-      // Načítanie zmien zamestnancov
+      // Na�TA�tanie zmien zamestnancov
       const changesData = await hrService.getCompanyChanges(companyId);
       setEmployeeChanges(changesData);
 
-      // Načítanie prítomných zamestnancov dnes
+      // Na�TA�tanie prA�tomnA?ch zamestnancov dnes
       try {
         const presentData = await hrService.getPresentEmployeesToday(companyId);
         setPresentEmployeesToday(presentData);
       } catch (error) {
-        console.error('Chyba pri načítaní prítomných zamestnancov:', error);
+        console.error('Chyba pri na�TA�tanA� prA�tomnA?ch zamestnancov:', error);
         setPresentEmployeesToday([]);
       }
 
-      // Načítanie neprítomných zamestnancov dnes
+      // Na�TA�tanie neprA�tomnA?ch zamestnancov dnes
       try {
         const absentData = await hrService.getAbsentEmployeesToday(companyId);
         setAbsentEmployeesToday(absentData);
       } catch (error) {
-        console.error('Chyba pri načítaní neprítomných zamestnancov:', error);
+        console.error('Chyba pri na�TA�tanA� neprA�tomnA?ch zamestnancov:', error);
         setAbsentEmployeesToday([]);
       }
 
-      // Načítanie všetkých aktívnych zamestnancov s dochádzkou
+      // Na�TA�tanie vL?etkA?ch aktA�vnych zamestnancov s dochA?dzkou
       try {
         const attendanceStatusData = await hrService.getEmployeesAttendanceStatus(companyId);
         setEmployeesAttendanceStatus(attendanceStatusData);
       } catch (error) {
-        console.error('Chyba pri načítaní zamestnancov s dochádzkou:', error);
+        console.error('Chyba pri na�TA�tanA� zamestnancov s dochA?dzkou:', error);
         setEmployeesAttendanceStatus([]);
       }
 
     } catch (error) {
-      console.error('Chyba pri načítaní HR dát:', error);
+      console.error('Chyba pri na�TA�tanA� HR dA?t:', error);
     } finally {
       setLoading(false);
     }
   }, [companyId]);
 
-  // Funkcia na aktualizáciu dochádzkových dát
+  // Funkcia na aktualizA?ciu dochA?dzkovA?ch dA?t
   const refreshAttendanceData = useCallback(async () => {
     try {
       setIsRefreshingAttendance(true);
       
-      // Aktualizácia štatistík
+      // AktualizA?cia L?tatistA�k
       const statsData = await hrService.getHRStats(companyId);
       setStats(statsData);
 
-      // Aktualizácia prítomných zamestnancov dnes
+      // AktualizA?cia prA�tomnA?ch zamestnancov dnes
       const presentData = await hrService.getPresentEmployeesToday(companyId);
       setPresentEmployeesToday(presentData);
 
-      // Aktualizácia neprítomných zamestnancov dnes
+      // AktualizA?cia neprA�tomnA?ch zamestnancov dnes
       const absentData = await hrService.getAbsentEmployeesToday(companyId);
       setAbsentEmployeesToday(absentData);
 
       setLastAttendanceUpdate(new Date());
     } catch (error) {
-      console.error('Chyba pri aktualizácii dochádzkových dát:', error);
+      console.error('Chyba pri aktualizA?cii dochA?dzkovA?ch dA?t:', error);
     } finally {
       setIsRefreshingAttendance(false);
     }
@@ -193,18 +193,18 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     loadData();
   }, [loadData]);
 
-  // Automaticky označiť prítomného zamestnanca s automatickou dochádzkou v aktuálny deň
+  // Automaticky ozna�TiLA prA�tomnA�ho zamestnanca s automatickou dochA?dzkou v aktuA?lny deL�
   useEffect(() => {
     const autoCheckInAutomaticToday = async () => {
       try {
-        // Získať zoznam zamestnancov s automatickou dochádzkou (obsahuje pracovné časy)
+        // ZA�skaLA zoznam zamestnancov s automatickou dochA?dzkou (obsahuje pracovnA� �Tasy)
         const automaticEmployees = await hrService.getEmployeesWithAutomaticAttendance(companyId);
 
         const now = new Date();
         const todayStr = formatDate(now);
         const minutesNow = now.getHours() * 60 + now.getMinutes();
 
-        // Cez víkend neauto-checkovať
+        // Cez vA�kend neauto-checkovaLA
         const dayOfWeek = now.getDay();
         if (dayOfWeek === 0 || dayOfWeek === 6) {
           return;
@@ -218,7 +218,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
           return hh * 60 + mm;
         };
 
-        // Zostav množinu zamestnancov s aktívnou nahlásenou absenciou (dovolenka/PN/OČR...) pre dnešok
+        // Zostav mnoLlinu zamestnancov s aktA�vnou nahlA?senou absenciou (dovolenka/PN/O�SR...) pre dneL?ok
         const employeesWithActiveLeaveToday = new Set<number>();
         try {
           const isTodayBetween = (start: string, end: string) => {
@@ -239,7 +239,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
 
         for (const emp of automaticEmployees) {
           const status = employeesAttendanceStatus.find(e => e.id === emp.id);
-          // Preskočiť ak už má status prítomný/mešká alebo je víkend/sviatok/dovolenka/PN/absencia
+          // Presko�TiLA ak uLl mA? status prA�tomnA?/meL?kA? alebo je vA�kend/sviatok/dovolenka/PN/absencia
           if (
             status && (
               status.status_type === 'present' ||
@@ -253,7 +253,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
             continue;
           }
 
-          // Preskočiť ak má aktívnu nahlásenú absenciu (dovolenka/PN/OČR) dnes
+          // Presko�TiLA ak mA? aktA�vnu nahlA?senAs absenciu (dovolenka/PN/O�SR) dnes
           if (employeesWithActiveLeaveToday.has(emp.id)) {
             continue;
           }
@@ -262,20 +262,20 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
           const endM = toMinutes(emp.work_end_time);
           if (startM == null || endM == null) continue;
 
-          // Mimo pracovného času neoznačovať
+          // Mimo pracovnA�ho �Tasu neozna�TovaLA
           if (minutesNow < startM || minutesNow > endM) continue;
 
           const flagKey = `auto_checked_in_${emp.id}_${todayStr}`;
           if (localStorage.getItem(flagKey) === 'true') continue;
 
-          // Overiť, či už dnes nemá záznam
+          // OveriLA, �Ti uLl dnes nemA? zA?znam
           const records = await hrService.getAttendance(companyId, emp.id, todayStr, todayStr);
           if (Array.isArray(records) && records.length > 0) {
             localStorage.setItem(flagKey, 'true');
             continue;
           }
 
-          // Zaznamenať rýchly príchod teraz
+          // ZaznamenaLA rA?chly prA�chod teraz
           const hh = String(now.getHours()).padStart(2, '0');
           const mm = String(now.getMinutes()).padStart(2, '0');
           await hrService.addAttendance({
@@ -287,36 +287,36 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
             total_hours: 0,
             break_minutes: 0,
             status: 'present',
-            notes: 'Automatický príchod (v rámci pracovných hodín)'
+            notes: 'AutomatickA? prA�chod (v rA?mci pracovnA?ch hodA�n)'
           } as any);
 
           localStorage.setItem(flagKey, 'true');
         }
 
-        // Po automatickom príchode obnoviť dnešné prehľady
+        // Po automatickom prA�chode obnoviLA dneL?nA� preh�lady
         await refreshAttendanceData();
       } catch (e) {
-        // Ticho ignorovať – nech to neblokuje UI
+        // Ticho ignorovaLA �?" nech to neblokuje UI
         console.warn('Auto check-in skipped:', e);
       }
     };
 
-    // Spustiť len keď máme načítané dnešné statusy a žiadosti o dovolenku
+    // SpustiLA len ke�Z mA?me na�TA�tanA� dneL?nA� statusy a Lliadosti o dovolenku
     if (employeesAttendanceStatus && employeesAttendanceStatus.length > 0) {
       autoCheckInAutomaticToday();
     }
   }, [companyId, employeesAttendanceStatus, leaveRequests, refreshAttendanceData]);
 
-  // Automatické aktualizácie dochádzkových dát každých 30 sekúnd
+  // AutomatickA� aktualizA?cie dochA?dzkovA?ch dA?t kaLldA?ch 30 sekAsnd
   useEffect(() => {
     const interval = setInterval(() => {
       refreshAttendanceData();
-    }, 30000); // 30 sekúnd
+    }, 30000); // 30 sekAsnd
 
     return () => clearInterval(interval);
   }, [refreshAttendanceData]);
 
-  // Načítanie výplatných pások podľa filtrov (firma)
+  // Na�TA�tanie vA?platnA?ch pA?sok pod�la filtrov (firma)
   useEffect(() => {
     const loadPayslips = async () => {
       if (activeTab !== 'payslips') return;
@@ -391,7 +391,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     setSelectedEmployee(employee);
     setActiveTab('employee-cards');
   };
-  // Filtrovanie a výber zamestnancov
+  // Filtrovanie a vA?ber zamestnancov
   const filteredEmployees = employees.filter(e => {
     const byStatus = employeeFilter === 'all' ? true : e.status === employeeFilter;
     const term = employeeSearch.trim().toLowerCase();
@@ -426,14 +426,14 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
 
   const handleBulkEmployeeDelete = async () => {
     if (selectedEmployeeIds.size === 0) return;
-    if (!window.confirm(`Naozaj chcete vymazať ${selectedEmployeeIds.size} vybraných zamestnancov?`)) return;
+    if (!window.confirm(`Naozaj chcete vymazaLA ${selectedEmployeeIds.size} vybranA?ch zamestnancov?`)) return;
     try {
       await Promise.all(Array.from(selectedEmployeeIds).map(id => hrService.deleteEmployee(id)));
       setEmployees(prev => prev.filter(e => !selectedEmployeeIds.has(e.id)));
       clearEmployeesSelection();
     } catch (error) {
-      console.error('Chyba pri hromadnom mazaní zamestnancov:', error);
-      alert('Chyba pri hromadnom mazaní zamestnancov');
+      console.error('Chyba pri hromadnom mazanA� zamestnancov:', error);
+      alert('Chyba pri hromadnom mazanA� zamestnancov');
     }
   };
 
@@ -472,24 +472,24 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
         total_hours: 0,
         break_minutes: 0,
         status: 'present',
-        notes: 'Rýchly príchod'
+        notes: 'RA?chly prA�chod'
       } as any);
 
       await refreshAttendanceData();
     } catch (error) {
-      console.error('Chyba pri rýchlom príchode:', error);
-      alert('Chyba pri rýchlom príchode');
+      console.error('Chyba pri rA?chlom prA�chode:', error);
+      alert('Chyba pri rA?chlom prA�chode');
     }
   };
 
   const quickCheckOut = async (employee: Employee) => {
     try {
       const date = getTodayString();
-      // Zistiť dnešný záznam dochádzky pre zamestnanca
+      // ZistiLA dneL?nA? zA?znam dochA?dzky pre zamestnanca
       const records = await hrService.getAttendance(companyId, employee.id, date, date);
       const todayRecord = Array.isArray(records) ? records[0] : null;
       if (!todayRecord || !todayRecord.check_in) {
-        alert('Najprv je potrebné zaznamenať príchod.');
+        alert('Najprv je potrebnA� zaznamenaLA prA�chod.');
         return;
       }
 
@@ -498,7 +498,7 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
       const checkInDate = new Date(checkInISO);
       const diffMs = now.getTime() - checkInDate.getTime();
       const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
-      const breakMinutes = 0; // voliteľne upraviť podľa politiky firmy
+      const breakMinutes = 0; // volite�lne upraviLA pod�la politiky firmy
       const totalHours = Math.max(0, diffHours - breakMinutes / 60);
 
       const hh = String(now.getHours()).padStart(2, '0');
@@ -514,28 +514,28 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
         total_hours: Math.round(totalHours * 100) / 100,
         break_minutes: breakMinutes,
         status: 'present',
-        notes: 'Rýchly odchod'
+        notes: 'RA?chly odchod'
       } as any);
 
       await refreshAttendanceData();
     } catch (error) {
-      console.error('Chyba pri rýchlom odchode:', error);
-      alert('Chyba pri rýchlom odchode');
+      console.error('Chyba pri rA?chlom odchode:', error);
+      alert('Chyba pri rA?chlom odchode');
     }
   };
 
   const handleApproveLeaveRequest = async (requestId: number) => {
     try {
-      await hrService.updateLeaveRequestStatus(requestId, 'approved', 1); // TODO: použiť skutočné ID schvaľovateľa
-      loadData(); // Obnoviť dáta
-      alert('Žiadosť o dovolenku bola schválená');
+      await hrService.updateLeaveRequestStatus(requestId, 'approved', 1); // TODO: pouLliLA skuto�TnA� ID schva�lovate�la
+      loadData(); // ObnoviLA dA?ta
+      alert('L?iadosLA o dovolenku bola schvA?lenA?');
     } catch (error) {
-      console.error('Chyba pri schvaľovaní dovolenky:', error);
-      alert('Chyba pri schvaľovaní dovolenky');
+      console.error('Chyba pri schva�lovanA� dovolenky:', error);
+      alert('Chyba pri schva�lovanA� dovolenky');
     }
   };
 
-  // Funkcia na získanie stavu zmien pre zamestnanca
+  // Funkcia na zA�skanie stavu zmien pre zamestnanca
   const getEmployeeChangeStatus = (employeeId: number) => {
     const pendingChanges = employeeChanges.filter(c => 
       c.employee_id === employeeId && 
@@ -559,13 +559,13 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     };
   };
 
-  // Funkcia na kontrolu, či má nejaký zamestnanec pending zmeny
+  // Funkcia na kontrolu, �Ti mA? nejakA? zamestnanec pending zmeny
   const hasAnyPendingChanges = () => {
     const pendingChanges = employeeChanges.filter(c => c.status === 'pending');
     return pendingChanges.length > 0;
   };
 
-  // Funkcia na získanie počtu zamestnancov s pending zmenami
+  // Funkcia na zA�skanie po�Ttu zamestnancov s pending zmenami
   const getEmployeesWithPendingChangesCount = () => {
     const employeesWithChanges = new Set(
       employeeChanges
@@ -577,12 +577,12 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
 
   const handleRejectLeaveRequest = async (requestId: number) => {
     try {
-      await hrService.updateLeaveRequestStatus(requestId, 'rejected', 1); // TODO: použiť skutočné ID schvaľovateľa
-      loadData(); // Obnoviť dáta
-      alert('Žiadosť o dovolenku bola zamietnutá');
+      await hrService.updateLeaveRequestStatus(requestId, 'rejected', 1); // TODO: pouLliLA skuto�TnA� ID schva�lovate�la
+      loadData(); // ObnoviLA dA?ta
+      alert('L?iadosLA o dovolenku bola zamietnutA?');
     } catch (error) {
-      console.error('Chyba pri zamietaní dovolenky:', error);
-      alert('Chyba pri zamietaní dovolenky');
+      console.error('Chyba pri zamietanA� dovolenky:', error);
+      alert('Chyba pri zamietanA� dovolenky');
     }
   };
 
@@ -596,29 +596,29 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
         const successCount = result.results.filter(r => r.success).length;
         const errorCount = result.results.length - successCount;
         
-        let message = `Automatická dochádzka vytvorená!\n\n`;
-        message += `✅ Úspešne vytvorená: ${successCount} zamestnancov\n`;
+        let message = `AutomatickA? dochA?dzka vytvorenA?!\n\n`;
+        message += `�s. AsspeL?ne vytvorenA?: ${successCount} zamestnancov\n`;
         if (errorCount > 0) {
-          message += `❌ Chyby: ${errorCount} zamestnancov\n`;
-          message += `(Dochádzka už existuje alebo nastala chyba)`;
+          message += `�tS Chyby: ${errorCount} zamestnancov\n`;
+          message += `(DochA?dzka uLl existuje alebo nastala chyba)`;
         }
         
         alert(message);
       } else {
-        alert('Žiadni zamestnanci s automatickou dochádzkou');
+        alert('L?iadni zamestnanci s automatickou dochA?dzkou');
       }
       
-      loadData(); // Obnoviť dáta
+      loadData(); // ObnoviLA dA?ta
     } catch (error) {
-      console.error('Chyba pri vytváraní automatickej dochádzky:', error);
-      alert('Chyba pri vytváraní automatickej dochádzky');
+      console.error('Chyba pri vytvA?ranA� automatickej dochA?dzky:', error);
+      alert('Chyba pri vytvA?ranA� automatickej dochA?dzky');
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Načítavam HR dashboard..." />
+        <LoadingSpinner size="lg" text="Na�TA�tavam HR dashboard..." />
       </div>
     );
   }
@@ -627,19 +627,19 @@ const HRDashboard: React.FC<HRDashboardProps> = ({ companyId }) => {
     <div className="space-y-6">
       {activeSection === 'overview' && (
         <>
-          {/* Štatistiky */}
+          {/* L�tatistiky */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div 
               className={`bg-white dark:bg-dark-800 rounded-lg shadow p-6 border-l-4 ${
                 hasAnyPendingChanges() ? 'border-red-500 hover:shadow-lg cursor-pointer' : 'border-blue-500 hover:shadow-lg cursor-pointer'
               } transition-all duration-200`}
               title={hasAnyPendingChanges() ? 
-                `⚠️ Pozor - Čakajúce zmeny údajov
+                `�s�d�Z Pozor - �SakajAsce zmeny Asdajov
 
-${getEmployeesWithPendingChangesCount()} ${getEmployeesWithPendingChangesCount() === 1 ? 'zamestnanec má' : 'zamestnanci majú'} nepotvrdené zmeny údajov.
+${getEmployeesWithPendingChangesCount()} ${getEmployeesWithPendingChangesCount() === 1 ? 'zamestnanec mA?' : 'zamestnanci majAs'} nepotvrdenA� zmeny Asdajov.
 
 Kliknite pre zobrazenie zoznamu zamestnancov.` : 
-                'Celkový počet zamestnancov vo firme. Kliknite pre zobrazenie zoznamu zamestnancov.'}
+                'CelkovA? po�Tet zamestnancov vo firme. Kliknite pre zobrazenie zoznamu zamestnancov.'}
               onClick={() => setActiveTab('employees')}
             >
               <div className="flex items-center justify-between">
@@ -659,7 +659,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Celkovo zamestnancov</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.employees.total_employees || 0}</p>
                     <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                      <span>Aktívnych: {stats?.employees.active_employees || 0}</span>
+                      <span>AktA�vnych: {stats?.employees.active_employees || 0}</span>
                       {hasAnyPendingChanges() && (
                         <span className="text-red-600 dark:text-red-400 animate-pulse" style={{ animationDuration: '0.5s' }}>
                           Zmena: {getEmployeesWithPendingChangesCount()}
@@ -680,10 +680,10 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   <CheckCircleIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Prítomní dnes</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">PrA�tomnA� dnes</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{presentEmployeesToday.length}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Meškanie: {presentEmployeesToday.filter(emp => emp.status === 'late').length}
+                    MeL?kanie: {presentEmployeesToday.filter(emp => emp.status === 'late').length}
                   </p>
                   <p className="text-xs text-green-600 mt-1">Kliknite pre zobrazenie</p>
                 </div>
@@ -699,9 +699,9 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Čakajúce dovolenky</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">�SakajAsce dovolenky</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.leave_requests.pending_leave_requests || 0}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Na schválenie</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Na schvA?lenie</p>
                   <p className="text-xs text-yellow-600 mt-1">Kliknite pre zobrazenie</p>
                 </div>
               </div>
@@ -716,9 +716,9 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   <ClockIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Automatická dochádzka</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">⚡</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Prepočítať dochádzku</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">AutomatickA? dochA?dzka</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">�s?</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Prepo�TA�taLA dochA?dzku</p>
                 </div>
               </div>
             </button>
@@ -732,7 +732,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   <ExclamationTriangleIcon className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Neprítomní dnes</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">NeprA�tomnA� dnes</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{absentEmployeesToday.length}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Dovolenka, PN, Absencia
@@ -743,38 +743,38 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
             </button>
           </div>
 
-          {/* Rýchle akcie */}
+          {/* RA?chle akcie */}
           <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Rýchle akcie</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">RA?chle akcie</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button 
                 onClick={handleAddEmployee}
                 className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
               >
                 <UserPlusIcon className="w-6 h-6 text-gray-400 mr-2" />
-                <span className="text-gray-600 dark:text-gray-300">Pridať zamestnanca</span>
+                <span className="text-gray-600 dark:text-gray-300">PridaLA zamestnanca</span>
               </button>
               <button 
                 onClick={() => setShowAttendanceRecordModal(true)}
                 className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
               >
                 <ClockIcon className="w-6 h-6 text-gray-400 mr-2" />
-                <span className="text-gray-600 dark:text-gray-300">Zaznamenať dochádzku</span>
+                <span className="text-gray-600 dark:text-gray-300">ZaznamenaLA dochA?dzku</span>
               </button>
               <button 
                 onClick={() => setActiveSection('select-employee-for-leave')}
                 className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
               >
                 <CalendarIcon className="w-6 h-6 text-gray-400 mr-2" />
-                <span className="text-gray-600 dark:text-gray-300">Žiadosť o dovolenku</span>
+                <span className="text-gray-600 dark:text-gray-300">L?iadosLA o dovolenku</span>
               </button>
             </div>
           </div>
 
-          {/* Posledné aktivity */}
+          {/* PoslednA� aktivity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Najnovší zamestnanci</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">NajnovL?A� zamestnanci</h3>
               <div className="space-y-3">
                 {employees.slice(0, 5).map((employee) => (
                   <div key={employee.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
@@ -797,7 +797,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
             </div>
 
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Čakajúce dovolenky</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">�SakajAsce dovolenky</h3>
               <div className="space-y-3">
                 {leaveRequests.slice(0, 5).map((request) => (
                   <div key={request.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
@@ -806,17 +806,17 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                         {request.first_name} {request.last_name}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {hrService.getLeaveTypeLabel(request.leave_type)} • {request.total_days} dní
+                        {hrService.getLeaveTypeLabel(request.leave_type)} �?? {request.total_days} dnA�
                       </p>
                     </div>
                     <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
-                      Čaká
+                      �SakA?
                     </span>
                   </div>
                 ))}
                 {leaveRequests.length === 0 && (
                   <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                    Žiadne čakajúce žiadosti o dovolenku
+                    L?iadne �TakajAsce Lliadosti o dovolenku
                   </p>
                 )}
               </div>
@@ -827,11 +827,11 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
 
       {activeSection === 'present-today' && (
         <div className="space-y-6">
-          {/* Header pre prítomných dnes */}
+          {/* Header pre prA�tomnA?ch dnes */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Prítomní zamestnanci dnes</h2>
-              <p className="text-gray-600 dark:text-gray-300">Zamestnanci, ktorí sú dnes v práci</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">PrA�tomnA� zamestnanci dnes</h2>
+              <p className="text-gray-600 dark:text-gray-300">Zamestnanci, ktorA� sAs dnes v prA?ci</p>
             </div>
             <div className="flex space-x-2">
               <button
@@ -841,22 +841,22 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Aktualizovať
+                AktualizovaLA
               </button>
               <button
                 onClick={() => setActiveSection('overview')}
                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600"
               >
-                Späť na prehľad
+                SpA�LA na preh�lad
               </button>
             </div>
           </div>
 
-          {/* Zoznam prítomných zamestnancov */}
+          {/* Zoznam prA�tomnA?ch zamestnancov */}
           <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Prítomní dnes ({presentEmployeesToday.length})</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">PrA�tomnA� dnes ({presentEmployeesToday.length})</h3>
                 <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                   {isRefreshingAttendance && (
                     <div className="flex items-center">
@@ -867,7 +867,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       <span>Aktualizuje sa...</span>
                     </div>
                   )}
-                  <span>Posledná aktualizácia: {lastAttendanceUpdate.toLocaleTimeString('sk-SK')}</span>
+                  <span>PoslednA? aktualizA?cia: {lastAttendanceUpdate.toLocaleTimeString('sk-SK')}</span>
                 </div>
               </div>
             </div>
@@ -879,10 +879,10 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       Zamestnanec
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Pozícia
+                      PozA�cia
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Príchod
+                      PrA�chod
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
@@ -916,7 +916,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                               ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
                               : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           }`}>
-                            {employee.status === 'late' ? 'Meškanie' : 'Prítomný'}
+                            {employee.status === 'late' ? 'MeL?kanie' : 'PrA�tomnA?'}
                           </span>
                         </td>
                       </tr>
@@ -924,7 +924,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   ) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        Žiadni prítomní zamestnanci dnes
+                        L?iadni prA�tomnA� zamestnanci dnes
                       </td>
                     </tr>
                   )}
@@ -938,11 +938,11 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
 
       {activeSection === 'absent-today' && (
         <div className="space-y-6">
-          {/* Header pre neprítomných dnes */}
+          {/* Header pre neprA�tomnA?ch dnes */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Neprítomní zamestnanci dnes</h2>
-              <p className="text-gray-600 dark:text-gray-300">Zamestnanci na dovolenke, PN, absencii alebo iných dôvodoch</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">NeprA�tomnA� zamestnanci dnes</h2>
+              <p className="text-gray-600 dark:text-gray-300">Zamestnanci na dovolenke, PN, absencii alebo inA?ch dA�vodoch</p>
             </div>
             <div className="flex space-x-2">
               <button
@@ -952,22 +952,22 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Aktualizovať
+                AktualizovaLA
               </button>
               <button
                 onClick={() => setActiveSection('overview')}
                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600"
               >
-                Späť na prehľad
+                SpA�LA na preh�lad
               </button>
             </div>
           </div>
 
-          {/* Zoznam ospravedlnených zamestnancov */}
+          {/* Zoznam ospravedlnenA?ch zamestnancov */}
           <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Neprítomní dnes ({absentEmployeesToday.length})</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">NeprA�tomnA� dnes ({absentEmployeesToday.length})</h3>
                 <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                   {isRefreshingAttendance && (
                     <div className="flex items-center">
@@ -978,7 +978,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       <span>Aktualizuje sa...</span>
                     </div>
                   )}
-                  <span>Posledná aktualizácia: {lastAttendanceUpdate.toLocaleTimeString('sk-SK')}</span>
+                  <span>PoslednA? aktualizA?cia: {lastAttendanceUpdate.toLocaleTimeString('sk-SK')}</span>
                 </div>
               </div>
             </div>
@@ -990,10 +990,10 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       Zamestnanec
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Pozícia
+                      PozA�cia
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Dôvod
+                      DA�vod
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Obdobie
@@ -1030,7 +1030,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                               ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
                               : employee.reason === 'PN'
                               ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                              : employee.reason === 'Pracovný pokoj'
+                              : employee.reason === 'PracovnA? pokoj'
                               ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                               : employee.reason === 'Absencia'
                               ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
@@ -1044,7 +1044,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   ) : (
                     <tr>
                       <td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                        Žiadni neprítomní zamestnanci dnes
+                        L?iadni neprA�tomnA� zamestnanci dnes
                       </td>
                     </tr>
                   )}
@@ -1065,26 +1065,26 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Zamestnanci</h2>
         <div className="flex items-center space-x-2">
           <div className="hidden md:flex items-center space-x-1">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Vybrané: {selectedEmployeeIds.size}</span>
-            <button onClick={selectAllVisibleEmployees} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">Vybrať zobrazené</button>
-            <button onClick={clearEmployeesSelection} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">Zrušiť výber</button>
-            <button onClick={() => handleBulkEmployeeStatus('active')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Aktívny</button>
-            <button onClick={() => handleBulkEmployeeStatus('inactive')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>Neaktívny</button>
-            <button onClick={() => handleBulkEmployeeStatus('terminated')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Ukončený</button>
+            <span className="text-sm text-gray-500 dark:text-gray-400">VybranA�: {selectedEmployeeIds.size}</span>
+            <button onClick={selectAllVisibleEmployees} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">VybraLA zobrazenA�</button>
+            <button onClick={clearEmployeesSelection} className="px-3 py-2 text-sm border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600">ZruL?iLA vA?ber</button>
+            <button onClick={() => handleBulkEmployeeStatus('active')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>AktA�vny</button>
+            <button onClick={() => handleBulkEmployeeStatus('inactive')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>NeaktA�vny</button>
+            <button onClick={() => handleBulkEmployeeStatus('terminated')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Ukon�TenA?</button>
             <button onClick={() => handleBulkEmployeeStatus('on_leave')} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>Na dovolenke</button>
-            <button onClick={handleBulkEmployeeDelete} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-700 text-white hover:bg-red-800'}`}>Vymazať vybraných</button>
+            <button onClick={handleBulkEmployeeDelete} disabled={selectedEmployeeIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedEmployeeIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-700 text-white hover:bg-red-800'}`}>VymazaLA vybranA?ch</button>
           </div>
           <button 
             onClick={handleAddEmployee}
             className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
           >
             <PlusIcon className="w-5 h-5 mr-2" />
-            Pridať zamestnanca
+            PridaLA zamestnanca
           </button>
         </div>
       </div>
 
-      {/* Informačný box */}
+      {/* Informa�TnA? box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
@@ -1094,12 +1094,12 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-              Informácia o správe zamestnancov
+              InformA?cia o sprA?ve zamestnancov
             </h3>
             <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
-              <p>• <strong>Zamestnanci:</strong> Tu pridávate základné údaje a vytvárate prihlasovacie účty</p>
-              <p>• <strong>Karty zamestnancov:</strong> Tu dopĺňate detailné personálne údaje pre registrovaných zamestnancov</p>
-              <p>• <strong>Pracovné pomery:</strong> Tu vytvárate pracovné pomery pre vybraných zamestnancov</p>
+              <p>�?? <strong>Zamestnanci:</strong> Tu pridA?vate zA?kladnA� Asdaje a vytvA?rate prihlasovacie As�Tty</p>
+              <p>�?? <strong>Karty zamestnancov:</strong> Tu dop�sL�ate detailnA� personA?lne Asdaje pre registrovanA?ch zamestnancov</p>
+              <p>�?? <strong>PracovnA� pomery:</strong> Tu vytvA?rate pracovnA� pomery pre vybranA?ch zamestnancov</p>
             </div>
           </div>
         </div>
@@ -1109,10 +1109,10 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
         <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600 flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
-            <button onClick={() => setEmployeeFilter('all')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='all'?'bg-blue-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Všetci ({employees.length})</button>
-            <button onClick={() => setEmployeeFilter('active')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='active'?'bg-green-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Aktívni ({employees.filter(e=>e.status==='active').length})</button>
-            <button onClick={() => setEmployeeFilter('inactive')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='inactive'?'bg-gray-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Neaktívni ({employees.filter(e=>e.status==='inactive').length})</button>
-            <button onClick={() => setEmployeeFilter('terminated')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='terminated'?'bg-red-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Ukončení ({employees.filter(e=>e.status==='terminated').length})</button>
+            <button onClick={() => setEmployeeFilter('all')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='all'?'bg-blue-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>VL?etci ({employees.length})</button>
+            <button onClick={() => setEmployeeFilter('active')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='active'?'bg-green-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>AktA�vni ({employees.filter(e=>e.status==='active').length})</button>
+            <button onClick={() => setEmployeeFilter('inactive')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='inactive'?'bg-gray-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>NeaktA�vni ({employees.filter(e=>e.status==='inactive').length})</button>
+            <button onClick={() => setEmployeeFilter('terminated')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='terminated'?'bg-red-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Ukon�TenA� ({employees.filter(e=>e.status==='terminated').length})</button>
             <button onClick={() => setEmployeeFilter('on_leave')} className={`px-3 py-1 text-sm rounded-md ${employeeFilter==='on_leave'?'bg-yellow-600 text-white':'bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-600 border border-gray-300 dark:border-dark-600'}`}>Na dovolenke ({employees.filter(e=>e.status==='on_leave').length})</button>
           </div>
           <div className="mt-3 md:mt-0">
@@ -1120,7 +1120,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
               type="text"
               value={employeeSearch}
               onChange={(e) => setEmployeeSearch(e.target.value)}
-              placeholder="Hľadať meno, email, pozíciu, ID..."
+              placeholder="H�ladaLA meno, email, pozA�ciu, ID..."
               className="w-full md:w-80 px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -1136,19 +1136,19 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   Zamestnanec
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Pozícia
+                  PozA�cia
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Kontakt
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Dátum nástupu
+                  DA?tum nA?stupu
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Typ dochádzky
+                  Typ dochA?dzky
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Aktuálne
+                  AktuA?lne
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Akcie
@@ -1177,7 +1177,7 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm text-gray-900 dark:text-white">{employee.email}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{employee.phone || 'Bez telefónu'}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{employee.phone || 'Bez telefAlnu'}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -1191,8 +1191,8 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                         : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
                     }`}>
-                      {employee.attendance_mode === 'automatic' ? 'Automatická' : 
-                       employee.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                      {employee.attendance_mode === 'automatic' ? 'AutomatickA?' : 
+                       employee.attendance_mode === 'manual' ? 'ManuA?lna' : 'NenastavenA�'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -1211,22 +1211,22 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                       <button 
                         onClick={() => handleEditEmployee(employee)}
                         className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 flex items-center"
-                        title="Upraviť základné údaje"
+                        title="UpraviLA zA?kladnA� Asdaje"
                       >
                         <PencilIcon className="w-4 h-4 mr-1" />
-                        Upraviť
+                        UpraviLA
                       </button>
                       <button 
                         onClick={() => quickCheckIn(employee)}
                         className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-                        title="Rýchly príchod (teraz)"
+                        title="RA?chly prA�chod (teraz)"
                       >
-                        Príchod
+                        PrA�chod
                       </button>
                       <button 
                         onClick={() => quickCheckOut(employee)}
                         className="text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
-                        title="Rýchly odchod (teraz)"
+                        title="RA?chly odchod (teraz)"
                       >
                         Odchod
                       </button>
@@ -1244,12 +1244,12 @@ Kliknite pre zobrazenie zoznamu zamestnancov.` :
                         title={(() => {
                           const changeStatus = getEmployeeChangeStatus(employee.id);
                           if (changeStatus.hasPendingChanges) {
-                            return `🔄 Zamestnanec má ${changeStatus.pendingCount} čakajúcich zmien údajov
+                            return `dz"" Zamestnanec mA? ${changeStatus.pendingCount} �TakajAscich zmien Asdajov
 
-📝 Posledná zmena: ${changeStatus.latestChange?.field_name}
-🆕 Nová hodnota: ${changeStatus.latestChange?.new_value}
+dz"t PoslednA? zmena: ${changeStatus.latestChange?.field_name}
+dz?. NovA? hodnota: ${changeStatus.latestChange?.new_value}
 
-Kliknite pre zobrazenie personal card a schválenie zmien.`;
+Kliknite pre zobrazenie personal card a schvA?lenie zmien.`;
                           }
                           return 'Kliknite pre zobrazenie personal card';
                         })()}
@@ -1266,7 +1266,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
         </div>
         {employees.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">Žiadni zamestnanci</p>
+            <p className="text-gray-500 dark:text-gray-400">L?iadni zamestnanci</p>
           </div>
         )}
       </div>
@@ -1276,23 +1276,23 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
   const renderAttendance = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dochádzka</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">DochA?dzka</h2>
         <button 
           onClick={() => setShowAttendanceRecordModal(true)}
           className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
         >
-          Zaznamenať dochádzku
+          ZaznamenaLA dochA?dzku
         </button>
       </div>
 
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Dochádzka dnes</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">DochA?dzka dnes</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <div className="flex items-center">
               <CheckCircleIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-green-800 dark:text-green-200">Prítomní</p>
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">PrA�tomnA�</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-100">{presentEmployeesToday.length}</p>
               </div>
             </div>
@@ -1301,7 +1301,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
             <div className="flex items-center">
               <ExclamationTriangleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-red-800 dark:text-red-200">Neprítomní</p>
+                <p className="text-sm font-medium text-red-800 dark:text-red-200">NeprA�tomnA�</p>
                 <p className="text-2xl font-bold text-red-900 dark:text-red-100">{absentEmployeesToday.length}</p>
               </div>
             </div>
@@ -1310,16 +1310,16 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Meškanie</p>
+                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">MeL?kanie</p>
                 <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{presentEmployeesToday.filter(emp => emp.status === 'late').length}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Zoznam všetkých aktívnych zamestnancov */}
+        {/* Zoznam vL?etkA?ch aktA�vnych zamestnancov */}
         <div className="mt-6">
-          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Všetci aktívni zamestnanci dnes</h4>
+          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">VL?etci aktA�vni zamestnanci dnes</h4>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
               <thead className="bg-gray-50 dark:bg-dark-700">
@@ -1328,16 +1328,16 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                     Zamestnanec
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Pozícia
+                    PozA�cia
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Typ dochádzky
+                    Typ dochA?dzky
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Aktuálne dnes
+                    AktuA?lne dnes
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Príchod
+                    PrA�chod
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Odchod
@@ -1364,8 +1364,8 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
                       }`}>
-                        {employee.attendance_mode === 'automatic' ? 'Automatická' : 
-                         employee.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                        {employee.attendance_mode === 'automatic' ? 'AutomatickA?' : 
+                         employee.attendance_mode === 'manual' ? 'ManuA?lna' : 'NenastavenA�'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -1385,12 +1385,12 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                             ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                             : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
                         }`}>
-                          {employee.status_type === 'present' ? 'Prítomný' :
-                           employee.status_type === 'late' ? 'Meškanie' :
+                          {employee.status_type === 'present' ? 'PrA�tomnA?' :
+                           employee.status_type === 'late' ? 'MeL?kanie' :
                            employee.status_type === 'absent' ? 'Absencia' :
                            employee.status_type === 'leave' ? 'Dovolenka/PN' :
-                           employee.status_type === 'holiday' ? 'Pracovný pokoj' :
-                           employee.status_type === 'weekend' ? 'Pracovný pokoj' :
+                           employee.status_type === 'holiday' ? 'PracovnA? pokoj' :
+                           employee.status_type === 'weekend' ? 'PracovnA? pokoj' :
                            employee.status_type}
                         </span>
                         {employee.status_description && (
@@ -1425,7 +1425,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
   const renderPayslips = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Výplatné pásky</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">VA?platnA� pA?sky</h2>
         <div className="flex items-center space-x-3">
           <label className="text-sm text-gray-600 dark:text-gray-300">Rok</label>
           <select
@@ -1444,7 +1444,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
             onChange={(e) => setPayslipsMonth(e.target.value === '' ? '' : parseInt(e.target.value))}
             className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
           >
-            <option value="">Všetky</option>
+            <option value="">VL?etky</option>
             {Array.from({ length: 12 }).map((_, i) => (
               <option key={i+1} value={i+1}>{i+1}</option>
             ))}
@@ -1455,7 +1455,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
             onChange={(e) => setPayslipsEmployeeId(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
             className="px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
           >
-            <option value="all">Všetci</option>
+            <option value="all">VL?etci</option>
             {employees.map((emp) => (
               <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
             ))}
@@ -1466,19 +1466,19 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
       {!payslipsLoading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <p className="text-sm text-green-700 dark:text-green-300">Čistá mzda spolu</p>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} €</p>
+            <p className="text-sm text-green-700 dark:text-green-300">�SistA? mzda spolu</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsRows.reduce((sum, r) => sum + (r.net || 0), 0).toFixed(2)} �,�</p>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">Hrubá mzda spolu</p>
-            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} €</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">HrubA? mzda spolu</p>
+            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsRows.reduce((sum, r) => sum + (r.gross || 0), 0).toFixed(2)} �,�</p>
           </div>
           <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-            <p className="text-sm text-purple-700 dark:text-purple-300">Vyplatené spolu</p>
-            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} €</p>
+            <p className="text-sm text-purple-700 dark:text-purple-300">VyplatenA� spolu</p>
+            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsRows.reduce((sum, r) => sum + (r.settlement || 0), 0).toFixed(2)} �,�</p>
           </div>
           <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">Počet záznamov</p>
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">Po�Tet zA?znamov</p>
             <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{payslipsRows.length}</p>
           </div>
         </div>
@@ -1486,7 +1486,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
 
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
         {payslipsLoading ? (
-          <div className="p-6">Načítavam...</div>
+          <div className="p-6">Na�TA�tavam...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
@@ -1496,12 +1496,12 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                   {payslipsMonth && (
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mesiac</th>
                   )}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Hrubá</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Čistá</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">HrubA?</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">�SistA?</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">VyplatenA�</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">SP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ZP</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Odpracované (dni / h)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">OdpracovanA� (dni / h)</th>
                   {payslipsMonth && (
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Akcie</th>
                   )}
@@ -1514,11 +1514,11 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                     {payslipsMonth && (
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{row.month}</td>
                     )}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.gross || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.net || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.settlement || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.socialInsurance || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.healthInsurance || 0).toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.gross || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.net || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.settlement || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.socialInsurance || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(row.healthInsurance || 0).toFixed(2)} �,�</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{row.workedDays || 0} / {row.workedHours || 0}</td>
                     {payslipsMonth && (
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -1534,7 +1534,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                 ))}
                 {payslipsRows.length === 0 && (
                   <tr>
-                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400" colSpan={payslipsMonth ? 9 : 7}>Žiadne dáta pre zvolené filtre.</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400" colSpan={payslipsMonth ? 9 : 7}>L?iadne dA?ta pre zvolenA� filtre.</td>
                   </tr>
                 )}
               </tbody>
@@ -1564,7 +1564,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">HR Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-300">Správa ľudských zdrojov a dochádzky</p>
+            <p className="text-gray-600 dark:text-gray-300">SprA?va �ludskA?ch zdrojov a dochA?dzky</p>
           </div>
         </div>
       )}
@@ -1575,14 +1575,14 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
           <div className="px-4">
             <div className="flex space-x-8">
               {[
-                { id: 'overview', name: 'Prehľad', icon: DocumentTextIcon },
+                { id: 'overview', name: 'Preh�lad', icon: DocumentTextIcon },
                 { id: 'employees', name: 'Zamestnanci', icon: UsersIcon },
-                { id: 'attendance', name: 'Dochádzka', icon: ClockIcon },
-                { id: 'attendance-overview', name: 'Prehľad dochádzky', icon: ChartBarIcon },
-                { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
+                { id: 'attendance', name: 'DochA?dzka', icon: ClockIcon },
+                { id: 'attendance-overview', name: 'Preh�lad dochA?dzky', icon: ChartBarIcon },
+                { id: 'payslips', name: 'VA?platnA� pA?sky', icon: BanknotesIcon },
                 { id: 'leave', name: 'Dovolenky', icon: CalendarIcon },
                 { id: 'employee-cards', name: 'Karty zamestnancov', icon: DocumentTextIcon },
-                { id: 'employment-relations', name: 'Pracovné pomery', icon: BriefcaseIcon }
+                { id: 'employment-relations', name: 'PracovnA� pomery', icon: BriefcaseIcon }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -1627,8 +1627,8 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                   <>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Správa dovoleniek</h2>
-                        <p className="text-gray-600 dark:text-gray-300">Spravujte žiadosti o dovolenku</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">SprA?va dovoleniek</h2>
+                        <p className="text-gray-600 dark:text-gray-300">Spravujte Lliadosti o dovolenku</p>
                       </div>
                     </div>
                     
@@ -1642,9 +1642,9 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                             <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                           </div>
                           <div className="ml-4">
-                            <p className="text-lg font-medium text-gray-900 dark:text-white">Čakajúce žiadosti</p>
+                            <p className="text-lg font-medium text-gray-900 dark:text-white">�SakajAsce Lliadosti</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {stats?.leave_requests.pending_leave_requests || 0} žiadostí čaká na schválenie
+                              {stats?.leave_requests.pending_leave_requests || 0} LliadostA� �TakA? na schvA?lenie
                             </p>
                           </div>
                         </div>
@@ -1659,9 +1659,9 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                             <PlusIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                           </div>
                           <div className="ml-4">
-                            <p className="text-lg font-medium text-gray-900 dark:text-white">Nová žiadosť</p>
+                            <p className="text-lg font-medium text-gray-900 dark:text-white">NovA? LliadosLA</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Vytvoriť žiadosť o dovolenku za zamestnanca
+                              VytvoriLA LliadosLA o dovolenku za zamestnanca
                             </p>
                           </div>
                         </div>
@@ -1672,17 +1672,17 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
 
                 {activeSection === 'select-employee-for-leave' && (
                   <div className="space-y-6">
-                    {/* Header pre výber zamestnanca */}
+                    {/* Header pre vA?ber zamestnanca */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Vytvoriť žiadosť o dovolenku</h2>
-                        <p className="text-gray-600 dark:text-gray-300">Vyberte zamestnanca, za ktorého chcete vytvoriť žiadosť o dovolenku</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">VytvoriLA LliadosLA o dovolenku</h2>
+                        <p className="text-gray-600 dark:text-gray-300">Vyberte zamestnanca, za ktorA�ho chcete vytvoriLA LliadosLA o dovolenku</p>
                       </div>
                       <button
                         onClick={() => setActiveSection('overview')}
                         className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600"
                       >
-                        Späť na prehľad
+                        SpA�LA na preh�lad
                       </button>
                     </div>
 
@@ -1699,10 +1699,10 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                                 Zamestnanec
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Pozícia
+                                PozA�cia
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Aktuálne
+                                AktuA?lne
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Akcie
@@ -1743,7 +1743,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                                     }}
                                     className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
                                   >
-                                    Vytvoriť žiadosť
+                                    VytvoriLA LliadosLA
                                   </button>
                                 </td>
                               </tr>
@@ -1753,7 +1753,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                       </div>
                       {employees.length === 0 && (
                         <div className="text-center py-8">
-                          <p className="text-gray-500 dark:text-gray-400">Žiadni zamestnanci</p>
+                          <p className="text-gray-500 dark:text-gray-400">L?iadni zamestnanci</p>
                         </div>
                       )}
                     </div>
@@ -1762,24 +1762,24 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
 
                 {activeSection === 'leave-requests' && (
                   <div className="space-y-6">
-                    {/* Header pre čakajúce žiadosti */}
+                    {/* Header pre �TakajAsce Lliadosti */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Čakajúce žiadosti o dovolenku</h2>
-                        <p className="text-gray-600 dark:text-gray-300">Žiadosti čakajúce na schválenie</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">�SakajAsce Lliadosti o dovolenku</h2>
+                        <p className="text-gray-600 dark:text-gray-300">L?iadosti �TakajAsce na schvA?lenie</p>
                       </div>
                       <button
                         onClick={() => setActiveSection('overview')}
                         className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-600"
                       >
-                        Späť na prehľad
+                        SpA�LA na preh�lad
                       </button>
                     </div>
 
-                    {/* Filtrované žiadosti - len čakajúce */}
+                    {/* FiltrovanA� Lliadosti - len �TakajAsce */}
                     <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
                       <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Žiadosti čakajúce na schválenie</h3>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">L?iadosti �TakajAsce na schvA?lenie</h3>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
@@ -1795,7 +1795,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                                 Obdobie
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Dní
+                                DnA�
                               </th>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Akcie
@@ -1823,7 +1823,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                  {request.total_days} dní
+                                  {request.total_days} dnA�
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                   <div className="flex space-x-2">
@@ -1831,13 +1831,13 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                                       onClick={() => handleApproveLeaveRequest(request.id)}
                                       className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 font-medium"
                                     >
-                                      Schváliť
+                                      SchvA?liLA
                                     </button>
                                     <button 
                                       onClick={() => handleRejectLeaveRequest(request.id)}
                                       className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-medium"
                                     >
-                                      Zamietnuť
+                                      ZamietnuLA
                                     </button>
                                   </div>
                                 </td>
@@ -1848,7 +1848,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
                       </div>
                       {leaveRequests.filter(request => request.status === 'pending').length === 0 && (
                         <div className="text-center py-8">
-                          <p className="text-gray-500 dark:text-gray-400">Žiadne čakajúce žiadosti o dovolenku</p>
+                          <p className="text-gray-500 dark:text-gray-400">L?iadne �TakajAsce Lliadosti o dovolenku</p>
                         </div>
                       )}
                     </div>
@@ -1890,7 +1890,7 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
         onClose={() => setShowLeaveRequestModal(false)}
         companyId={companyId}
         employeeId={selectedEmployeeForLeave?.id || 0}
-        employeeName={selectedEmployeeForLeave ? `${selectedEmployeeForLeave?.first_name} ${selectedEmployeeForLeave?.last_name}` : 'Nezvolený zamestnanec'}
+        employeeName={selectedEmployeeForLeave ? `${selectedEmployeeForLeave?.first_name} ${selectedEmployeeForLeave?.last_name}` : 'NezvolenA? zamestnanec'}
         onSuccess={handleLeaveRequestSuccess}
       />
 
@@ -1909,3 +1909,4 @@ Kliknite pre zobrazenie personal card a schválenie zmien.`;
 };
 
 export default HRDashboard;
+

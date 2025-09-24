@@ -16,8 +16,8 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
 
   const navigation = [
     { name: 'Domov', href: '/' },
-    { name: 'O nás', href: '/about' },
-    { name: 'Služby', href: '/services' },
+    { name: 'O nA?s', href: '/about' },
+    { name: 'SluLlby', href: '/services' },
     { name: 'Pre klientov', href: '/clients' },
     { name: 'FAQ', href: '/faq' },
     { name: 'Kontakt', href: '/contact' },
@@ -30,7 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                Účtovníctvo.sk
+                As�TtovnA�ctvo.sk
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -58,15 +58,15 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   {userRole === 'admin' ? 'Admin' : 
-                   userRole === 'accountant' ? 'Účtovník' : 
+                   userRole === 'accountant' ? 'As�TtovnA�k' : 
                    userRole === 'employee' ? 'Zamestnanec' :
-                   'Používateľ'}
+                   'PouLlA�vate�l'}
                 </span>
                 <button
                   onClick={onLogout}
                   className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
                 >
-                  Odhlásiť sa
+                  OdhlA?siLA sa
                 </button>
               </div>
             ) : (
@@ -75,7 +75,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
                 className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 flex items-center transition-colors duration-200"
               >
                 <UserIcon className="h-4 w-4 mr-2" />
-                Prihlásiť sa
+                PrihlA?siLA sa
               </button>
             )}
             
@@ -119,8 +119,8 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
                 <div className="space-y-2">
                   <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
                     {userRole === 'admin' ? 'Admin' : 
-                     userRole === 'accountant' ? 'Účtovník' : 
-                     'Používateľ'}
+                     userRole === 'accountant' ? 'As�TtovnA�k' : 
+                     'PouLlA�vate�l'}
                   </div>
                   <button
                     onClick={() => {
@@ -129,7 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
                     }}
                     className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
                   >
-                    Odhlásiť sa
+                    OdhlA?siLA sa
                   </button>
                 </div>
               ) : (
@@ -140,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
                   }}
                   className="block w-full text-left px-4 py-2 text-base font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200"
                 >
-                  Prihlásiť sa
+                  PrihlA?siLA sa
                 </button>
               )}
             </div>
@@ -152,3 +152,4 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
 };
 
 export default Navbar;
+

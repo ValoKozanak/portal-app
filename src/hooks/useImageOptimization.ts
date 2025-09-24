@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ImageState {
   src: string;
@@ -204,3 +204,4 @@ export const useProgressiveImage = (
     isLowResLoaded: currentSrc === lowResSrc
   };
 };
+

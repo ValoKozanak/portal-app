@@ -36,9 +36,9 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
     return (
       <div className="text-center py-12">
         <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne firmy</h3>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne firmy</h3>
         <p className="mt-1 text-sm text-gray-500">
-          Zatiaľ ste nepridali žiadne firmy.
+          Zatia�l ste nepridali Lliadne firmy.
         </p>
         <div className="mt-6">
           <button
@@ -46,7 +46,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-            Pridať prvú firmu
+            PridaLA prvAs firmu
           </button>
         </div>
       </div>
@@ -57,14 +57,14 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium text-gray-900">
-          Vaše firmy ({companies.length})
+          VaL?e firmy ({companies.length})
         </h3>
         <button
           onClick={onAddCompany}
           className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
           <PlusIcon className="-ml-0.5 mr-1 h-4 w-4" />
-          Pridať firmu
+          PridaLA firmu
         </button>
       </div>
 
@@ -84,7 +84,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                         {company.name}
                       </h4>
                       <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>IČO: {company.ico}</span>
+                        <span>I�SO: {company.ico}</span>
                         <span>OR: {company.business_registry || 'N/A'}</span>
                       </div>
                     </div>
@@ -92,10 +92,10 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
 
                   <div className="mt-3 text-sm text-gray-600">
                     <p className="truncate">{company.address}</p>
-                    <p className="truncate">Oprávnená osoba: {company.authorized_person}</p>
+                    <p className="truncate">OprA?vnenA? osoba: {company.authorized_person}</p>
                   </div>
 
-                  {/* Kontaktné údaje */}
+                  {/* KontaktnA� Asdaje */}
                   <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
                     {company.contact_phone && (
                       <div className="flex items-center">
@@ -117,7 +117,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                     <button
                       onClick={() => onOpenDashboard(company)}
                       className="text-green-600 hover:text-green-700"
-                      title="Otvoriť Dashboard"
+                      title="OtvoriLA Dashboard"
                     >
                       <ChartBarIcon className="h-5 w-5" />
                     </button>
@@ -126,54 +126,54 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                     onClick={() => toggleExpanded(company.id)}
                     className="text-sm text-primary-600 hover:text-primary-700"
                   >
-                    {expandedCompany === company.id ? 'Skryť' : 'Zobraziť viac'}
+                    {expandedCompany === company.id ? 'SkryLA' : 'ZobraziLA viac'}
                   </button>
                   <button
                     onClick={() => onEditCompany(company)}
                     className="text-gray-400 hover:text-gray-600"
-                    title="Upraviť firmu"
+                    title="UpraviLA firmu"
                   >
                     <PencilIcon className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => onDeleteCompany(company.id)}
                     className="text-gray-400 hover:text-red-600"
-                    title="Vymazať firmu"
+                    title="VymazaLA firmu"
                   >
                     <TrashIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>
 
-              {/* Rozšírené informácie */}
+              {/* RozL?A�renA� informA?cie */}
               {expandedCompany === company.id && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">Základné údaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">ZA?kladnA� Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
-                        <p><span className="font-medium">Názov:</span> {company.name}</p>
-                        <p><span className="font-medium">IČO:</span> {company.ico}</p>
+                        <p><span className="font-medium">NA?zov:</span> {company.name}</p>
+                        <p><span className="font-medium">I�SO:</span> {company.ico}</p>
                         <p><span className="font-medium">OR:</span> {company.business_registry || 'N/A'}</p>
                         <p><span className="font-medium">Adresa:</span> {company.address}</p>
-                        <p><span className="font-medium">Oprávnená osoba:</span> {company.authorized_person}</p>
+                        <p><span className="font-medium">OprA?vnenA? osoba:</span> {company.authorized_person}</p>
                       </div>
                     </div>
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">Daňové údaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">DaL�ovA� Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.vat_id && (
-                          <p><span className="font-medium">IČ DPH:</span> {company.vat_id}</p>
+                          <p><span className="font-medium">I�S DPH:</span> {company.vat_id}</p>
                         )}
                         {company.tax_id && (
-                          <p><span className="font-medium">DIČ:</span> {company.tax_id}</p>
+                          <p><span className="font-medium">DI�S:</span> {company.tax_id}</p>
                         )}
                       </div>
                       
-                      <h5 className="font-medium text-gray-900 mb-2 mt-4">Kontaktné údaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2 mt-4">KontaktnA� Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.contact_phone && (
-                          <p><span className="font-medium">Telefón:</span> {company.contact_phone}</p>
+                          <p><span className="font-medium">TelefAln:</span> {company.contact_phone}</p>
                         )}
                         {company.contact_email && (
                           <p><span className="font-medium">Email:</span> {company.contact_email}</p>
@@ -194,3 +194,4 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
 };
 
 export default CompaniesList;
+

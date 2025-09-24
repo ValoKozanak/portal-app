@@ -25,7 +25,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
     name: '',
     email: userEmail,
     phone: '',
-    department: 'Účtovníctvo',
+    department: 'As�TtovnA�ctvo',
     password: '',
     confirmPassword: ''
   });
@@ -52,35 +52,35 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinné';
+      newErrors.name = 'Meno je povinnA�';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Meno musí mať aspoň 2 znaky';
+      newErrors.name = 'Meno musA� maLA aspoL� 2 znaky';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Telefónne číslo je povinné';
+      newErrors.phone = 'TelefAlnne �TA�slo je povinnA�';
     } else if (!/^\+421\s?\d{3}\s?\d{3}\s?\d{3}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Neplatný formát telefónneho čísla (+421 XXX XXX XXX)';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnneho �TA�sla (+421 XXX XXX XXX)';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Heslo je povinné';
+      newErrors.password = 'Heslo je povinnA�';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Heslo musí mať aspoň 8 znakov';
+      newErrors.password = 'Heslo musA� maLA aspoL� 8 znakov';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Heslo musí obsahovať veľké písmeno, malé písmeno a číslo';
+      newErrors.password = 'Heslo musA� obsahovaLA ve�lkA� pA�smeno, malA� pA�smeno a �TA�slo';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Potvrdenie hesla je povinné';
+      newErrors.confirmPassword = 'Potvrdenie hesla je povinnA�';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Heslá sa nezhodujú';
+      newErrors.confirmPassword = 'HeslA? sa nezhodujAs';
     }
 
     setErrors(newErrors);
@@ -96,14 +96,14 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
     setIsLoading(true);
 
-    // Simulácia dokončenia profilu
+    // SimulA?cia dokon�Tenia profilu
     setTimeout(() => {
       onComplete(formData);
       setFormData({
         name: '',
         email: userEmail,
         phone: '',
-        department: 'Účtovníctvo',
+        department: 'As�TtovnA�ctvo',
         password: '',
         confirmPassword: ''
       });
@@ -118,7 +118,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
       name: '',
       email: userEmail,
       phone: '',
-      department: 'Účtovníctvo',
+      department: 'As�TtovnA�ctvo',
       password: '',
       confirmPassword: ''
     });
@@ -134,7 +134,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
         <div className="flex justify-between items-center p-6 border-b">
           <div className="flex items-center">
             <UserIcon className="h-6 w-6 text-primary-600 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">Dokončiť profil</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Dokon�TiLA profil</h2>
           </div>
           <button
             onClick={handleClose}
@@ -146,9 +146,9 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
         <div className="p-6">
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Vitajte v systéme!</h3>
+            <h3 className="text-sm font-medium text-blue-900 mb-2">Vitajte v systA�me!</h3>
             <p className="text-sm text-blue-800">
-              Pre dokončenie registrácie vyplňte prosím svoje údaje a nastavte si heslo.
+              Pre dokon�Tenie registrA?cie vyplL�te prosA�m svoje Asdaje a nastavte si heslo.
             </p>
           </div>
 
@@ -195,7 +195,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Telefónne číslo *
+                TelefAlnne �TA�slo *
               </label>
               <input
                 type="tel"
@@ -224,16 +224,16 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="Účtovníctvo">Účtovníctvo</option>
+                <option value="As�TtovnA�ctvo">As�TtovnA�ctvo</option>
                 <option value="Audit">Audit</option>
-                <option value="Daňové poradenstvo">Daňové poradenstvo</option>
+                <option value="DaL�ovA� poradenstvo">DaL�ovA� poradenstvo</option>
                 <option value="Poradenstvo">Poradenstvo</option>
               </select>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Nové heslo *
+                NovA� heslo *
               </label>
               <input
                 type="password"
@@ -244,7 +244,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   errors.password ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Min. 8 znakov, veľké + malé písmeno + číslo"
+                placeholder="Min. 8 znakov, ve�lkA� + malA� pA�smeno + �TA�slo"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -253,7 +253,7 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Potvrďte heslo *
+                Potvr�Zte heslo *
               </label>
               <input
                 type="password"
@@ -277,14 +277,14 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
                 onClick={handleClose}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
-                Zrušiť
+                ZruL?iLA
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
                 className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Ukladám...' : 'Dokončiť profil'}
+                {isLoading ? 'UkladA?m...' : 'Dokon�TiLA profil'}
               </button>
             </div>
           </form>
@@ -295,4 +295,5 @@ const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 };
 
 export default CompleteProfileModal;
+
 

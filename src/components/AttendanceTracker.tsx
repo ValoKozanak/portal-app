@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { hrService, Attendance } from '../services/hrService';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -64,7 +64,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         }
       }
     } catch (error) {
-      console.error('Chyba pri načítaní dochádzky:', error);
+      console.error('Chyba pri na�TA�tanA� dochA?dzky:', error);
     }
   };
 
@@ -110,11 +110,11 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
       setBreakTime(0);
       setIsOnBreak(false);
       setBreakStartTime(null);
-      await loadTodayAttendance(); // Obnoviť dáta
+      await loadTodayAttendance(); // ObnoviLA dA?ta
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri začatí práce:', error);
-      alert('Chyba pri začatí práce');
+      console.error('Chyba pri za�TatA� prA?ce:', error);
+      alert('Chyba pri za�TatA� prA?ce');
     } finally {
       setLoading(false);
     }
@@ -159,11 +159,11 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
       setBreakTime(0);
       setIsOnBreak(false);
       setBreakStartTime(null);
-      await loadTodayAttendance(); // Obnoviť dáta
+      await loadTodayAttendance(); // ObnoviLA dA?ta
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri ukončení práce:', error);
-      alert('Chyba pri ukončení práce');
+      console.error('Chyba pri ukon�TenA� prA?ce:', error);
+      alert('Chyba pri ukon�TenA� prA?ce');
     } finally {
       setLoading(false);
     }
@@ -184,8 +184,8 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
 
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri označení neprítomnosti:', error);
-      alert('Chyba pri označení neprítomnosti');
+      console.error('Chyba pri ozna�TenA� neprA�tomnosti:', error);
+      alert('Chyba pri ozna�TenA� neprA�tomnosti');
     } finally {
       setLoading(false);
     }
@@ -195,7 +195,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
     <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
       <div className="text-center mb-6">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-          Dochádzka - {employeeName}
+          DochA?dzka - {employeeName}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {new Date().toLocaleDateString('sk-SK', { 
@@ -207,41 +207,41 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         </p>
       </div>
 
-      {/* Časomiera */}
+      {/* �Sasomiera */}
       <div className="text-center mb-6">
         <div className="text-4xl font-mono font-bold text-gray-900 dark:text-white mb-2">
           {isTracking ? formatDuration(getWorkDuration()) : '00:00:00'}
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          {isTracking ? 'Pracovný čas' : 'Časomiera'}
+          {isTracking ? 'PracovnA? �Tas' : '�Sasomiera'}
         </div>
         {breakTime > 0 && (
           <div className="text-sm text-orange-600 dark:text-orange-400 mt-1">
-            Prestávka: {Math.round(breakTime / (1000 * 60))} min
+            PrestA?vka: {Math.round(breakTime / (1000 * 60))} min
           </div>
         )}
       </div>
 
-      {/* Stav dochádzky */}
+      {/* Stav dochA?dzky */}
       {todayAttendance && (
         <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
-          <h4 className="font-medium text-gray-900 dark:text-white mb-2">Dnešná dochádzka:</h4>
+          <h4 className="font-medium text-gray-900 dark:text-white mb-2">DneL?nA? dochA?dzka:</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-500 dark:text-gray-400">Príchod:</span>
+              <span className="text-gray-500 dark:text-gray-400">PrA�chod:</span>
               <span className="ml-2 text-gray-900 dark:text-white">
-                {todayAttendance.check_in ? formatTime(new Date(todayAttendance.check_in)) : 'Nezaznamenané'}
+                {todayAttendance.check_in ? formatTime(new Date(todayAttendance.check_in)) : 'NezaznamenanA�'}
               </span>
             </div>
             <div>
               <span className="text-gray-500 dark:text-gray-400">Odchod:</span>
               <span className="ml-2 text-gray-900 dark:text-white">
-                {todayAttendance.check_out ? formatTime(new Date(todayAttendance.check_out)) : 'Nezaznamenané'}
+                {todayAttendance.check_out ? formatTime(new Date(todayAttendance.check_out)) : 'NezaznamenanA�'}
               </span>
             </div>
             {todayAttendance.total_hours && (
               <div>
-                <span className="text-gray-500 dark:text-gray-400">Celkový čas:</span>
+                <span className="text-gray-500 dark:text-gray-400">CelkovA? �Tas:</span>
                 <span className="ml-2 text-gray-900 dark:text-white">
                   {(() => {
                     const hours = todayAttendance.total_hours;
@@ -266,7 +266,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         </div>
       )}
 
-      {/* Kontrolné tlačidlá */}
+      {/* KontrolnA� tla�TidlA? */}
       <div className="flex flex-wrap justify-center gap-3">
         {!isTracking && !todayAttendance && (
           <>
@@ -276,7 +276,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50"
             >
               <PlayIcon className="w-5 h-5 mr-2" />
-              Začať prácu
+              Za�TaLA prA?cu
             </button>
             <button
               onClick={handleMarkAbsent}
@@ -284,7 +284,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
             >
               <XMarkIcon className="w-5 h-5 mr-2" />
-              Neprítomný
+              NeprA�tomnA?
             </button>
           </>
         )}
@@ -297,7 +297,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
                 className="flex items-center px-4 py-2 bg-yellow-600 dark:bg-yellow-500 text-white rounded-md hover:bg-yellow-700 dark:hover:bg-yellow-600 transition-colors"
               >
                 <PauseIcon className="w-5 h-5 mr-2" />
-                Prestávka
+                PrestA?vka
               </button>
             ) : (
               <button
@@ -305,7 +305,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
                 className="flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
               >
                 <PlayIcon className="w-5 h-5 mr-2" />
-                Koniec prestávky
+                Koniec prestA?vky
               </button>
             )}
             <button
@@ -314,7 +314,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
             >
               <StopIcon className="w-5 h-5 mr-2" />
-              Ukončiť prácu
+              Ukon�TiLA prA?cu
             </button>
           </>
         )}
@@ -322,7 +322,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         {todayAttendance && !isTracking && (
           <div className="flex items-center text-green-600 dark:text-green-400">
             <CheckIcon className="w-5 h-5 mr-2" />
-            Dochádzka zaznamenaná
+            DochA?dzka zaznamenanA?
           </div>
         )}
       </div>
@@ -331,3 +331,4 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
 };
 
 export default AttendanceTracker;
+

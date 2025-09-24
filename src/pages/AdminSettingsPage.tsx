@@ -38,7 +38,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
         setSelectedCompany(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní firiem:', error);
+      console.error('Chyba pri na�TA�tanA� firiem:', error);
     }
   };
 
@@ -51,7 +51,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
       setSettings(settingsData);
       setPermissions(permissionsData);
     } catch (error) {
-      console.error('Chyba pri načítaní dát firmy:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t firmy:', error);
     }
   };
 
@@ -85,7 +85,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
       </div>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Výber firmy */}
+        {/* VA?ber firmy */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Vyberte firmu
@@ -117,7 +117,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                     onClick={() => setShowPohodaModal(true)}
                     className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Upraviť
+                    UpraviLA
                   </button>
                 </div>
               </div>
@@ -125,7 +125,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                 {settings ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Stav integrácie</span>
+                      <span className="text-sm font-medium text-gray-700">Stav integrA?cie</span>
                       <div className="flex items-center">
                         {settings.pohoda_enabled ? (
                           <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
@@ -133,7 +133,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                           <XCircleIcon className="h-5 w-5 text-red-500 mr-2" />
                         )}
                         <span className={`text-sm ${settings.pohoda_enabled ? 'text-green-600' : 'text-red-600'}`}>
-                          {settings.pohoda_enabled ? 'Aktívna' : 'Neaktívna'}
+                          {settings.pohoda_enabled ? 'AktA�vna' : 'NeaktA�vna'}
                         </span>
                       </div>
                     </div>
@@ -141,7 +141,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                     {settings.pohoda_enabled && (
                       <>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">IČO firmy v POHODA</span>
+                          <span className="text-sm font-medium text-gray-700">I�SO firmy v POHODA</span>
                           <span className="text-sm text-gray-900">
                             {settings.pohoda_ico || '-'}
                           </span>
@@ -155,25 +155,25 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Automatická synchronizácia</span>
+                          <span className="text-sm font-medium text-gray-700">AutomatickA? synchronizA?cia</span>
                           <span className="text-sm text-gray-900">
-                            {settings.auto_sync ? 'Zapnutá' : 'Vypnutá'}
+                            {settings.auto_sync ? 'ZapnutA?' : 'VypnutA?'}
                           </span>
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Frekvencia synchronizácie</span>
+                          <span className="text-sm font-medium text-gray-700">Frekvencia synchronizA?cie</span>
                           <span className="text-sm text-gray-900">
-                            {settings.sync_frequency === 'hourly' && 'Každú hodinu'}
+                            {settings.sync_frequency === 'hourly' && 'KaLldAs hodinu'}
                             {settings.sync_frequency === 'daily' && 'Denne'}
-                            {settings.sync_frequency === 'weekly' && 'Týždenne'}
-                            {settings.sync_frequency === 'manual' && 'Manuálne'}
+                            {settings.sync_frequency === 'weekly' && 'TA?Lldenne'}
+                            {settings.sync_frequency === 'manual' && 'ManuA?lne'}
                           </span>
                         </div>
                         
                         {settings.last_sync && (
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700">Posledná synchronizácia</span>
+                            <span className="text-sm font-medium text-gray-700">PoslednA? synchronizA?cia</span>
                             <span className="text-sm text-gray-900">
                               {formatDate(settings.last_sync)}
                             </span>
@@ -184,25 +184,25 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-4">
-                    Žiadne nastavenia POHODA
+                    L?iadne nastavenia POHODA
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Práva pre účtovníctvo */}
+            {/* PrA?va pre As�TtovnA�ctvo */}
             <div className="bg-white rounded-lg shadow-md">
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <UserGroupIcon className="h-5 w-5 mr-2 text-blue-600" />
-                    Práva pre účtovníctvo
+                    PrA?va pre As�TtovnA�ctvo
                   </h2>
                   <button
                     onClick={() => setShowPermissionsModal(true)}
                     className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Pridať práva
+                    PridaLA prA?va
                   </button>
                 </div>
               </div>
@@ -222,42 +222,42 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                         <div className="flex flex-wrap gap-1">
                           {perm.can_view_invoices && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              Zobraziť faktúry
+                              ZobraziLA faktAsry
                             </span>
                           )}
                           {perm.can_create_invoices && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Vytvoriť faktúry
+                              VytvoriLA faktAsry
                             </span>
                           )}
                           {perm.can_edit_invoices && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                              Upraviť faktúry
+                              UpraviLA faktAsry
                             </span>
                           )}
                           {perm.can_view_bank && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                              Zobraziť banku
+                              ZobraziLA banku
                             </span>
                           )}
                           {perm.can_edit_bank && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                              Upraviť banku
+                              UpraviLA banku
                             </span>
                           )}
                           {perm.can_view_cash && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                              Zobraziť pokladňu
+                              ZobraziLA pokladL�u
                             </span>
                           )}
                           {perm.can_edit_cash && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              Upraviť pokladňu
+                              UpraviLA pokladL�u
                             </span>
                           )}
                           {perm.can_manage_settings && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              Spravovať nastavenia
+                              SpravovaLA nastavenia
                             </span>
                           )}
                         </div>
@@ -266,7 +266,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-4">
-                    Žiadne práva pre účtovníctvo
+                    L?iadne prA?va pre As�TtovnA�ctvo
                   </p>
                 )}
               </div>
@@ -287,16 +287,17 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                 await loadCompanyData(selectedCompany!);
                 setShowPohodaModal(false);
               } catch (error) {
-                console.error('Chyba pri ukladaní POHODA nastavení:', error);
+                console.error('Chyba pri ukladanA� POHODA nastavenA�:', error);
               }
             }}
           />
         )}
 
-        {/* TODO: Modal pre práva */}
+        {/* TODO: Modal pre prA?va */}
       </div>
     </div>
   );
 };
 
 export default AdminSettingsPage;
+

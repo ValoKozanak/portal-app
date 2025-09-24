@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -20,12 +20,12 @@ export function LoginForm() {
     try {
       await login(email, password);
       toast({
-        title: "Úspešné prihlásenie",
-        description: "Vitajte v systéme!",
+        title: "ĂšspeĹˇnĂ© prihlĂˇsenie",
+        description: "Vitajte v systĂ©me!",
       });
     } catch (error) {
       toast({
-        title: "Chyba prihlásenia",
+        title: "Chyba prihlĂˇsenia",
         description: error instanceof Error ? error.message : "Nastala chyba",
         variant: "destructive",
       });
@@ -39,10 +39,10 @@ export function LoginForm() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Prihlásenie do systému
+            PrihlĂˇsenie do systĂ©mu
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Zadajte svoje prihlasovacie údaje
+            Zadajte svoje prihlasovacie Ăşdaje
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -74,12 +74,12 @@ export function LoginForm() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? "Prihlasujem..." : "Prihlásiť sa"}
+              {loading ? "Prihlasujem..." : "PrihlĂˇsiĹĄ sa"}
             </Button>
           </div>
 
           <div className="text-sm text-center text-gray-600">
-            <p>Demo účty:</p>
+            <p>Demo ĂşÄŤty:</p>
             <p>admin@example.com / admin123</p>
             <p>accountant@example.com / accountant123</p>
             <p>user@example.com / user123</p>
@@ -89,3 +89,4 @@ export function LoginForm() {
     </div>
   );
 }
+

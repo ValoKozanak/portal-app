@@ -32,14 +32,14 @@ const FinancialAnalysisPage: React.FC = () => {
         setCompany(companyData);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní informácií o firme:', error);
+      console.error('Chyba pri na�TA�tanA� informA?ciA� o firme:', error);
     }
   };
 
   const loadFinancialAnalysis = async () => {
-    // Validácia dátumov
+    // ValidA?cia dA?tumov
     if (dateFrom && dateTo && dateFrom > dateTo) {
-      setDateError('Dátum "Do" nemôže byť menší ako dátum "Od"');
+      setDateError('DA?tum "Do" nemA�Lle byLA menL?A� ako dA?tum "Od"');
       return;
     } else {
       setDateError('');
@@ -56,8 +56,8 @@ const FinancialAnalysisPage: React.FC = () => {
       );
       setAnalysis(data);
     } catch (err) {
-      console.error('Chyba pri načítaní finančnej analýzy:', err);
-      setError('Chyba pri načítaní finančnej analýzy');
+      console.error('Chyba pri na�TA�tanA� finan�Tnej analA?zy:', err);
+      setError('Chyba pri na�TA�tanA� finan�Tnej analA?zy');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -110,7 +110,7 @@ const FinancialAnalysisPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center text-gray-500">Žiadne dáta k zobrazeniu</div>
+          <div className="text-center text-gray-500">L?iadne dA?ta k zobrazeniu</div>
         </div>
       </div>
     );
@@ -119,7 +119,7 @@ const FinancialAnalysisPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header s navigáciou späť */}
+        {/* Header s navigA?ciou spA�LA */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -128,18 +128,18 @@ const FinancialAnalysisPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Späť na účtovníctvo
+                SpA�LA na As�TtovnA�ctvo
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Analýza hospodárskych výsledkov
+                  AnalA?za hospodA?rskych vA?sledkov
                 </h1>
-                {/* Zobrazenie aktuálnej firmy */}
+                {/* Zobrazenie aktuA?lnej firmy */}
                 {company && (
                   <div className="text-sm text-gray-600 mt-1">
-                    Firma: {company.name} (IČO: {company.ico})
+                    Firma: {company.name} (I�SO: {company.ico})
                   </div>
                 )}
               </div>
@@ -149,22 +149,22 @@ const FinancialAnalysisPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 <ArrowPathIcon className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                Obnoviť
+                ObnoviLA
               </button>
             </div>
           </div>
           <p className="text-gray-600 mt-2">
-            Podrobná analýza nákladov, výnosov a zisku/straty
+            PodrobnA? analA?za nA?kladov, vA?nosov a zisku/straty
           </p>
         </div>
 
-        {/* Dátumové filtre */}
+        {/* DA?tumovA� filtre */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Filtrovanie podľa obdobia</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Filtrovanie pod�la obdobia</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label htmlFor="dateFrom" className="block text-sm font-medium text-gray-700 mb-1">
-                Od dátumu
+                Od dA?tumu
               </label>
                              <input
                  type="date"
@@ -177,7 +177,7 @@ const FinancialAnalysisPage: React.FC = () => {
             </div>
             <div>
               <label htmlFor="dateTo" className="block text-sm font-medium text-gray-700 mb-1">
-                Do dátumu
+                Do dA?tumu
               </label>
                              <input
                  type="date"
@@ -193,7 +193,7 @@ const FinancialAnalysisPage: React.FC = () => {
                  onClick={loadFinancialAnalysis}
                  className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                >
-                 Aplikovať filtre
+                 AplikovaLA filtre
                </button>
                <button
                  onClick={() => {
@@ -203,7 +203,7 @@ const FinancialAnalysisPage: React.FC = () => {
                  }}
                  className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
                >
-                 Vymazať filtre
+                 VymazaLA filtre
                </button>
              </div>
           </div>
@@ -217,7 +217,7 @@ const FinancialAnalysisPage: React.FC = () => {
            {analysis?.filters && (analysis.filters.dateFrom || analysis.filters.dateTo) && (
              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                <p className="text-sm text-blue-800">
-                 <strong>Aktívne filtre:</strong> 
+                 <strong>AktA�vne filtre:</strong> 
                  {analysis.filters.dateFrom && ` Od: ${analysis.filters.dateFrom}`}
                  {analysis.filters.dateTo && ` Do: ${analysis.filters.dateTo}`}
                </p>
@@ -227,16 +227,16 @@ const FinancialAnalysisPage: React.FC = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Výnosy */}
+          {/* VA?nosy */}
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Celkové výnosy</p>
+                <p className="text-sm font-medium text-gray-600">CelkovA� vA?nosy</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(analysis.revenue.total)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.revenue.count} účtových skupín
+                  {analysis.revenue.count} As�TtovA?ch skupA�n
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
@@ -247,16 +247,16 @@ const FinancialAnalysisPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Náklady */}
+          {/* NA?klady */}
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Celkové náklady</p>
+                <p className="text-sm font-medium text-gray-600">CelkovA� nA?klady</p>
                 <p className="text-2xl font-bold text-red-600">
                   {formatCurrency(analysis.expenses.total)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.expenses.count} účtových skupín
+                  {analysis.expenses.count} As�TtovA?ch skupA�n
                 </p>
               </div>
               <div className="bg-red-100 p-3 rounded-full">
@@ -278,7 +278,7 @@ const FinancialAnalysisPage: React.FC = () => {
                   {formatCurrency(Math.abs(analysis.profit))}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {analysis.isProfit ? 'Pozitívny výsledok' : 'Negatívny výsledok'}
+                  {analysis.isProfit ? 'PozitA�vny vA?sledok' : 'NegatA�vny vA?sledok'}
                 </p>
               </div>
               <div className={`p-3 rounded-full ${analysis.isProfit ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -296,12 +296,12 @@ const FinancialAnalysisPage: React.FC = () => {
 
         {/* Detailed Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Výnosy Detail */}
+          {/* VA?nosy Detail */}
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Výnosy (účty 6xx)</h3>
+              <h3 className="text-lg font-medium text-gray-900">VA?nosy (As�Tty 6xx)</h3>
               <p className="text-sm text-gray-600">
-                Celková suma: {formatCurrency(analysis.revenue.total)}
+                CelkovA? suma: {formatCurrency(analysis.revenue.total)}
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -309,7 +309,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Účet
+                      As�Tet
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Suma
@@ -335,12 +335,12 @@ const FinancialAnalysisPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Náklady Detail */}
+          {/* NA?klady Detail */}
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Náklady (účty 5xx)</h3>
+              <h3 className="text-lg font-medium text-gray-900">NA?klady (As�Tty 5xx)</h3>
               <p className="text-sm text-gray-600">
-                Celková suma: {formatCurrency(analysis.expenses.total)}
+                CelkovA? suma: {formatCurrency(analysis.expenses.total)}
               </p>
             </div>
             <div className="overflow-x-auto">
@@ -348,7 +348,7 @@ const FinancialAnalysisPage: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Účet
+                      As�Tet
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Suma
@@ -378,18 +378,18 @@ const FinancialAnalysisPage: React.FC = () => {
                  {/* Profit/Loss Summary */}
          <div className="mt-8 bg-white rounded-lg shadow">
            <div className="px-6 py-4 border-b border-gray-200">
-             <h3 className="text-lg font-medium text-gray-900">Výsledok hospodárenia</h3>
+             <h3 className="text-lg font-medium text-gray-900">VA?sledok hospodA?renia</h3>
            </div>
            <div className="p-6">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                <div className="text-center">
-                 <p className="text-sm font-medium text-gray-600">Výnosy</p>
+                 <p className="text-sm font-medium text-gray-600">VA?nosy</p>
                  <p className="text-2xl font-bold text-green-600">
                    {formatCurrency(analysis.revenue.total)}
                  </p>
                </div>
                <div className="text-center">
-                 <p className="text-sm font-medium text-gray-600">Náklady</p>
+                 <p className="text-sm font-medium text-gray-600">NA?klady</p>
                  <p className="text-2xl font-bold text-red-600">
                    {formatCurrency(analysis.expenses.total)}
                  </p>
@@ -408,7 +408,7 @@ const FinancialAnalysisPage: React.FC = () => {
              {analysis.revenue.total > 0 && (
                <div className="mt-6 pt-6 border-t border-gray-200">
                  <div className="text-center">
-                   <p className="text-sm font-medium text-gray-600">Zisková marža</p>
+                   <p className="text-sm font-medium text-gray-600">ZiskovA? marLla</p>
                    <p className={`text-xl font-bold ${analysis.isProfit ? 'text-green-600' : 'text-red-600'}`}>
                      {((Math.abs(analysis.profit) / analysis.revenue.total) * 100).toFixed(2)}%
                    </p>
@@ -420,7 +420,7 @@ const FinancialAnalysisPage: React.FC = () => {
 
          {/* Grafy */}
          <div className="mt-8">
-           <h2 className="text-2xl font-bold text-gray-900 mb-6">Grafická analýza</h2>
+           <h2 className="text-2xl font-bold text-gray-900 mb-6">GrafickA? analA?za</h2>
            <FinancialCharts analysis={analysis} />
          </div>
       </div>
@@ -429,3 +429,4 @@ const FinancialAnalysisPage: React.FC = () => {
 };
 
 export default FinancialAnalysisPage;
+

@@ -15,70 +15,70 @@ import {
 const About: React.FC = () => {
   const team = [
     {
-      name: 'Ing. Mária Kováčová',
-      position: 'Hlavná účtovníčka',
-      specialization: 'Podvojné účtovníctvo, daňové poradenstvo',
-      experience: '15+ rokov skúseností',
-      education: 'Ekonomická univerzita Bratislava',
+      name: 'Ing. MA?ria KovA?�TovA?',
+      position: 'HlavnA? As�TtovnA��Tka',
+      specialization: 'PodvojnA� As�TtovnA�ctvo, daL�ovA� poradenstvo',
+      experience: '15+ rokov skAssenostA�',
+      education: 'EkonomickA? univerzita Bratislava',
       image: '/api/placeholder/150/150'
     },
     {
-      name: 'Mgr. Peter Novák',
-      position: 'Daňový poradca',
-      specialization: 'Daňové priznania, optimalizácia daní',
-      experience: '12+ rokov skúseností',
-      education: 'Právnická fakulta UK Bratislava',
+      name: 'Mgr. Peter NovA?k',
+      position: 'DaL�ovA? poradca',
+      specialization: 'DaL�ovA� priznania, optimalizA?cia danA�',
+      experience: '12+ rokov skAssenostA�',
+      education: 'PrA?vnickA? fakulta UK Bratislava',
       image: '/api/placeholder/150/150'
     },
     {
-      name: 'Bc. Jana Svobodová',
+      name: 'Bc. Jana SvobodovA?',
       position: 'Mzdy a personalistika',
       specialization: 'Spracovanie miezd, personalistika',
-      experience: '8+ rokov skúseností',
-      education: 'Fakulta podnikového hospodárstva',
+      experience: '8+ rokov skAssenostA�',
+      education: 'Fakulta podnikovA�ho hospodA?rstva',
       image: '/api/placeholder/150/150'
     }
   ];
 
   const values = [
     {
-      title: 'Transparentnosť',
-      description: 'Všetky naše služby sú transparentné s jasnými cenami a podmienkami.',
+      title: 'TransparentnosLA',
+      description: 'VL?etky naL?e sluLlby sAs transparentnA� s jasnA?mi cenami a podmienkami.',
       icon: ShieldCheckIcon
     },
     {
-      title: 'Spoľahlivosť',
-      description: 'Spoľahli sme sa na presnosť a včasnosť všetkých našich služieb.',
+      title: 'Spo�lahlivosLA',
+      description: 'Spo�lahli sme sa na presnosLA a v�TasnosLA vL?etkA?ch naL?ich sluLlieb.',
       icon: CheckCircleIcon
     },
     {
-      title: 'Dôvernosť údajov',
-      description: 'Vaše údaje sú v bezpečí s najvyššou úrovňou ochrany a dôvernosti.',
+      title: 'DA�vernosLA Asdajov',
+      description: 'VaL?e Asdaje sAs v bezpe�TA� s najvyL?L?ou AsrovL�ou ochrany a dA�vernosti.',
       icon: ShieldCheckIcon
     },
     {
-      title: 'Dlhodobá spolupráca',
-      description: 'Budujeme dlhodobé vzťahy založené na dôvere a kvalite služieb.',
+      title: 'DlhodobA? spoluprA?ca',
+      description: 'Budujeme dlhodobA� vzLAahy zaloLlenA� na dA�vere a kvalite sluLlieb.',
       icon: ClockIcon
     }
   ];
 
   const certifications = [
     {
-      name: 'SKAU - Slovenská komora audítorov',
-      description: 'Členstvo v profesijnej organizácii'
+      name: 'SKAU - SlovenskA? komora audA�torov',
+      description: '�Slenstvo v profesijnej organizA?cii'
     },
     {
-      name: 'Daňové poradenstvo',
-      description: 'Certifikovaný daňový poradca'
+      name: 'DaL�ovA� poradenstvo',
+      description: 'CertifikovanA? daL�ovA? poradca'
     },
     {
       name: 'ISO 27001',
-      description: 'Bezpečnosť informácií'
+      description: 'Bezpe�TnosLA informA?ciA�'
     },
     {
       name: 'GDPR Compliance',
-      description: 'Ochrana osobných údajov'
+      description: 'Ochrana osobnA?ch Asdajov'
     }
   ];
 
@@ -89,11 +89,11 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-              O našej kancelárii
+              O naL?ej kancelA?rii
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Viac ako 20 rokov poskytujeme profesionálne účtovníctvo a daňové poradenstvo. 
-              Naša história je založená na dôvere, spoľahlivosti a dlhodobej spolupráci s klientmi.
+              Viac ako 20 rokov poskytujeme profesionA?lne As�TtovnA�ctvo a daL�ovA� poradenstvo. 
+              NaL?a histAlria je zaloLlenA? na dA�vere, spo�lahlivosti a dlhodobej spoluprA?ci s klientmi.
             </p>
           </div>
         </div>
@@ -105,21 +105,21 @@ const About: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Naša história a filozofia
+                NaL?a histAlria a filozofia
               </h2>
               <div className="space-y-4 text-lg text-gray-600">
                 <p>
-                  Naša účtovnícka kancelária vznikla v roku 2003 s cieľom poskytovať 
-                  kvalitné a spoľahlivé účtovníctvo pre malé a stredné podniky.
+                  NaL?a As�TtovnA�cka kancelA?ria vznikla v roku 2003 s cie�lom poskytovaLA 
+                  kvalitnA� a spo�lahlivA� As�TtovnA�ctvo pre malA� a strednA� podniky.
                 </p>
                 <p>
-                  Počas viac ako 20 rokov sme si vybudovali silnú pozíciu na trhu 
-                  a získali dôveru stoviek spokojných klientov.
+                  Po�Tas viac ako 20 rokov sme si vybudovali silnAs pozA�ciu na trhu 
+                  a zA�skali dA�veru stoviek spokojnA?ch klientov.
                 </p>
                 <p>
-                  Naša filozofia je založená na princípoch transparentnosti, 
-                  spoľahlivosti a dlhodobej spolupráce. Veríme, že úspech našich 
-                  klientov je aj naším úspechom.
+                  NaL?a filozofia je zaloLlenA? na princA�poch transparentnosti, 
+                  spo�lahlivosti a dlhodobej spoluprA?ce. VerA�me, Lle Asspech naL?ich 
+                  klientov je aj naL?A�m Asspechom.
                 </p>
               </div>
             </div>
@@ -127,19 +127,19 @@ const About: React.FC = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">20+</div>
-                  <div className="text-gray-600">Rokov skúseností</div>
+                  <div className="text-gray-600">Rokov skAssenostA�</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-                  <div className="text-gray-600">Spokojných klientov</div>
+                  <div className="text-gray-600">SpokojnA?ch klientov</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">15+</div>
-                  <div className="text-gray-600">Odborníkov v tíme</div>
+                  <div className="text-gray-600">OdbornA�kov v tA�me</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
-                  <div className="text-gray-600">Online prístup</div>
+                  <div className="text-gray-600">Online prA�stup</div>
                 </div>
               </div>
             </div>
@@ -152,10 +152,10 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Náš tím
+              NA?L? tA�m
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Skúsení odborníci s dlhoročnou praxou v oblasti účtovníctva a daní
+              SkAssenA� odbornA�ci s dlhoro�Tnou praxou v oblasti As�TtovnA�ctva a danA�
             </p>
           </div>
           
@@ -191,10 +191,10 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Naše hodnoty a prístup
+              NaL?e hodnoty a prA�stup
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Princípy, ktoré nás vedú v každej našej práci
+              PrincA�py, ktorA� nA?s vedAs v kaLldej naL?ej prA?ci
             </p>
           </div>
           
@@ -217,10 +217,10 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Certifikáty a členstvá
+              CertifikA?ty a �TlenstvA?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Naše kvalifikácie a členstvá v profesijných organizáciách
+              NaL?e kvalifikA?cie a �TlenstvA? v profesijnA?ch organizA?ciA?ch
             </p>
           </div>
           
@@ -243,23 +243,23 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">
-              Chcete sa dozvedieť viac?
+              Chcete sa dozvedieLA viac?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Kontaktujte nás a dohodneme si osobné stretnutie
+              Kontaktujte nA?s a dohodneme si osobnA� stretnutie
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/contact"
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
               >
-                Kontaktovať nás
+                KontaktovaLA nA?s
               </Link>
               <Link
                 to="/services"
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
               >
-                Naše služby
+                NaL?e sluLlby
               </Link>
             </div>
           </div>
@@ -270,4 +270,5 @@ const About: React.FC = () => {
 };
 
 export default About;
+
 

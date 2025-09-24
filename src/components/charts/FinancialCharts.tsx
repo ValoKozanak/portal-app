@@ -26,29 +26,29 @@ const COLORS = [
 ];
 
 const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
-  // Príprava dát pre pie chart nákladov
+  // PrA�prava dA?t pre pie chart nA?kladov
   const expensesPieData = analysis.expenses.details.map((item, index) => ({
     name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
 
-  // Príprava dát pre pie chart výnosov
+  // PrA�prava dA?t pre pie chart vA?nosov
   const revenuePieData = analysis.revenue.details.map((item, index) => ({
     name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
 
-  // Príprava dát pre bar chart porovnania
+  // PrA�prava dA?t pre bar chart porovnania
   const comparisonData = [
     {
-      name: 'Výnosy',
+      name: 'VA?nosy',
       value: Math.max(0, analysis.revenue.total),
       color: '#10B981'
     },
     {
-      name: 'Náklady',
+      name: 'NA?klady',
       value: Math.max(0, analysis.expenses.total),
       color: '#EF4444'
     },
@@ -59,7 +59,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
     }
   ];
 
-  // Príprava dát pre top náklady a výnosy
+  // PrA�prava dA?t pre top nA?klady a vA?nosy
   const topExpenses = analysis.expenses.details
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5)
@@ -89,14 +89,14 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{data.name}</p>
           {data.account && (
-            <p className="text-sm text-gray-500">Účet: {data.account}</p>
+            <p className="text-sm text-gray-500">As�Tet: {data.account}</p>
           )}
           <p className="text-sm text-gray-600">
             Suma: {formatCurrency(payload[0].value)}
           </p>
           {data.count && (
             <p className="text-sm text-gray-600">
-              Počet: {data.count}
+              Po�Tet: {data.count}
             </p>
           )}
         </div>
@@ -107,10 +107,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
 
   return (
     <div className="space-y-8">
-      {/* Porovnanie Výnosy vs Náklady vs Zisk/Strata */}
+      {/* Porovnanie VA?nosy vs NA?klady vs Zisk/Strata */}
       <div className="bg-white p-6 rounded-lg shadow">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Porovnanie výnosov, nákladov a zisku/straty
+          Porovnanie vA?nosov, nA?kladov a zisku/straty
         </h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={comparisonData}>
@@ -127,12 +127,12 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
         </ResponsiveContainer>
       </div>
 
-             {/* Pie Charts - Výnosy a Náklady */}
+             {/* Pie Charts - VA?nosy a NA?klady */}
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-         {/* Pie Chart Výnosy */}
+         {/* Pie Chart VA?nosy */}
          <div className="bg-white p-6 rounded-lg shadow">
            <h3 className="text-lg font-medium text-gray-900 mb-4">
-             Rozloženie výnosov (účty 6xx)
+             RozloLlenie vA?nosov (As�Tty 6xx)
            </h3>
                       <ResponsiveContainer width="100%" height={400}>
               <PieChart>
@@ -154,10 +154,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
             </ResponsiveContainer>
          </div>
 
-         {/* Pie Chart Náklady */}
+         {/* Pie Chart NA?klady */}
          <div className="bg-white p-6 rounded-lg shadow">
            <h3 className="text-lg font-medium text-gray-900 mb-4">
-             Rozloženie nákladov (účty 5xx)
+             RozloLlenie nA?kladov (As�Tty 5xx)
            </h3>
                       <ResponsiveContainer width="100%" height={400}>
               <PieChart>
@@ -180,12 +180,12 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
          </div>
        </div>
 
-      {/* Top 5 Výnosy a Náklady */}
+      {/* Top 5 VA?nosy a NA?klady */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top 5 Výnosy */}
+        {/* Top 5 VA?nosy */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top 5 výnosov
+            Top 5 vA?nosov
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topRevenue}>
@@ -209,10 +209,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
           </ResponsiveContainer>
         </div>
 
-        {/* Top 5 Náklady */}
+        {/* Top 5 NA?klady */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Top 5 nákladov
+            Top 5 nA?kladov
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topExpenses}>
@@ -237,11 +237,11 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
         </div>
       </div>
 
-      {/* Zisková marža gauge */}
+      {/* ZiskovA? marLla gauge */}
       {analysis.revenue.total > 0 && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Zisková marža
+            ZiskovA? marLla
           </h3>
           <div className="flex items-center justify-center">
             <div className="relative">
@@ -273,3 +273,4 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
 };
 
 export default FinancialCharts;
+

@@ -31,10 +31,10 @@ function OptimizedTable<T>({
   height = 400,
   itemHeight = 50,
   className = '',
-  emptyMessage = 'Žiadne dáta',
+  emptyMessage = 'L?iadne dA?ta',
   loading = false
 }: OptimizedTableProps<T>) {
-  // Memoizované zoradené dáta
+  // MemoizovanA� zoradenA� dA?ta
   const sortedData = useMemo(() => {
     if (!sortBy) return data;
 
@@ -48,7 +48,7 @@ function OptimizedTable<T>({
     });
   }, [data, sortBy, sortDirection]);
 
-  // Memoizovaný render riadku
+  // MemoizovanA? render riadku
   const renderRow = useCallback((item: T, index: number) => (
     <div className="flex items-center border-b border-gray-200 hover:bg-gray-50 transition-colors">
       {columns.map((column) => (
@@ -63,7 +63,7 @@ function OptimizedTable<T>({
     </div>
   ), [columns]);
 
-  // Memoizovaný header
+  // MemoizovanA? header
   const tableHeader = useMemo(() => (
     <div className="flex items-center bg-gray-50 border-b border-gray-200 font-medium text-gray-700">
       {columns.map((column) => (
@@ -96,7 +96,7 @@ function OptimizedTable<T>({
       <div className={`${className} flex items-center justify-center`} style={{ height }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-500">Načítavam...</p>
+          <p className="mt-2 text-sm text-gray-500">Na�TA�tavam...</p>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ function OptimizedTable<T>({
       {tableHeader}
       <VirtualizedList
         items={sortedData}
-        height={height - 50} // Odpočítaj header výšku
+        height={height - 50} // Odpo�TA�taj header vA?L?ku
         itemHeight={itemHeight}
         renderItem={renderRow}
         emptyMessage={emptyMessage}
@@ -117,6 +117,7 @@ function OptimizedTable<T>({
 }
 
 export default React.memo(OptimizedTable) as <T>(props: OptimizedTableProps<T>) => React.ReactElement;
+
 
 
 

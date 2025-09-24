@@ -32,12 +32,12 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
           const companyFiles = await apiService.getCompanyFiles(company.id);
           allDocuments.push(...companyFiles);
         } catch (error) {
-          console.error(`Chyba pri načítaní dokumentov pre firmu ${company.id}:`, error);
+          console.error(`Chyba pri na�TA�tanA� dokumentov pre firmu ${company.id}:`, error);
         }
       }
       setDocuments(allDocuments);
     } catch (error) {
-      console.error('Chyba pri načítaní dát účtovníka:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
     } finally {
       setLoadingDocuments(false);
     }
@@ -45,7 +45,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
 
   const handleUploadFile = () => {
     if (companies.length === 0) {
-      alert('Nemáte priradené žiadne firmy. Kontaktujte administrátora.');
+      alert('NemA?te priradenA� Lliadne firmy. Kontaktujte administrA?tora.');
       return;
     }
     setShowFileUploadModal(true);
@@ -61,19 +61,19 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
       await loadAccountantData();
       setShowFileUploadModal(false);
     } catch (error) {
-      console.error('Chyba pri nahrávaní súboru:', error);
-      alert('Chyba pri nahrávaní súboru');
+      console.error('Chyba pri nahrA?vanA� sAsboru:', error);
+      alert('Chyba pri nahrA?vanA� sAsboru');
     }
   };
 
   const handleDeleteDocument = async (fileId: number) => {
-    if (window.confirm('Naozaj chcete vymazať tento dokument?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tento dokument?')) {
       try {
         await apiService.deleteFile(fileId);
         setDocuments(prev => prev.filter(doc => doc.id !== fileId));
       } catch (error) {
-        console.error('Chyba pri mazaní dokumentu:', error);
-        alert('Chyba pri mazaní dokumentu');
+        console.error('Chyba pri mazanA� dokumentu:', error);
+        alert('Chyba pri mazanA� dokumentu');
       }
     }
   };
@@ -90,12 +90,12 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">Späť do Dashboard</span>
+                <span className="font-medium">SpA�LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -106,9 +106,9 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Súbory zo všetkých priradených firiem</h1>
+          <h1 className="text-3xl font-bold text-gray-900">SAsbory zo vL?etkA?ch priradenA?ch firiem</h1>
           <p className="text-gray-600 mt-2">
-            Celkovo {documents.length} súborov z {companies.length} firiem
+            Celkovo {documents.length} sAsborov z {companies.length} firiem
           </p>
         </div>
 
@@ -116,7 +116,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Správa súborov</h2>
+              <h2 className="text-lg font-semibold text-gray-900">SprA?va sAsborov</h2>
             </div>
             <button
               onClick={handleUploadFile}
@@ -128,7 +128,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
               }`}
             >
               <DocumentTextIcon className="h-5 w-5 mr-2" />
-              {companies.length === 0 ? 'Žiadne firmy' : 'Nahrať súbor'}
+              {companies.length === 0 ? 'L?iadne firmy' : 'NahraLA sAsbor'}
             </button>
           </div>
 
@@ -136,7 +136,7 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
             {loadingDocuments ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam súbory...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam sAsbory...</p>
               </div>
             ) : documents.length > 0 ? (
               <div className="space-y-4">
@@ -148,46 +148,46 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                           <div className="flex items-center">
                             <BuildingOfficeIcon className="h-4 w-4 mr-1" />
-                            <span>Firma: {document.company_name || 'Neznáma'}</span>
+                            <span>Firma: {document.company_name || 'NeznA?ma'}</span>
                           </div>
                           <div className="flex items-center">
                             <DocumentTextIcon className="h-4 w-4 mr-1" />
                             <span>Typ: {document.file_type}</span>
                           </div>
                           <div className="flex items-center">
-                            <span>Veľkosť: {(document.file_size / 1024).toFixed(1)} KB</span>
+                            <span>Ve�lkosLA: {(document.file_size / 1024).toFixed(1)} KB</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex flex-col items-end space-y-2 ml-4">
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                          Nahrané
+                          NahranA�
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                       <div className="text-xs text-gray-500">
-                        Nahral: {document.uploaded_by} | Dátum: {new Date(document.created_at).toLocaleDateString('sk-SK')}
+                        Nahral: {document.uploaded_by} | DA?tum: {new Date(document.created_at).toLocaleDateString('sk-SK')}
                       </div>
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleFilePreview(document)}
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                         >
-                          Náhľad
+                          NA?h�lad
                         </button>
                         <button
                           onClick={() => window.open(`/api/files/download/${document.id}`, '_blank')}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          Stiahnuť
+                          StiahnuLA
                         </button>
                         <button
                           onClick={() => handleDeleteDocument(document.id)}
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
-                          Vymazať
+                          VymazaLA
                         </button>
                       </div>
                     </div>
@@ -197,14 +197,14 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
             ) : companies.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Nemáte priradené firmy</h3>
-                <p className="mt-1 text-sm text-gray-500">Kontaktujte administrátora, aby vám priradil firmy.</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA� firmy</h3>
+                <p className="mt-1 text-sm text-gray-500">Kontaktujte administrA?tora, aby vA?m priradil firmy.</p>
               </div>
             ) : (
               <div className="text-center py-12">
                 <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne súbory</h3>
-                <p className="mt-1 text-sm text-gray-500">Zatiaľ nemáte žiadne nahrané súbory</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne sAsbory</h3>
+                <p className="mt-1 text-sm text-gray-500">Zatia�l nemA?te Lliadne nahranA� sAsbory</p>
               </div>
             )}
           </div>
@@ -235,3 +235,4 @@ const AccountantFilesPage: React.FC<AccountantFilesPageProps> = ({ userEmail, on
 };
 
 export default AccountantFilesPage;
+

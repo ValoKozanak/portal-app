@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftIcon, 
-  CheckCircleIcon, 
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
   XCircleIcon,
   CalendarIcon,
   CurrencyEuroIcon
@@ -16,8 +16,8 @@ interface VatReturn {
   rok: number;
   mesiac: number;
   povinnost: number;
-  odpočet: number;
-  odoslané: boolean;
+  odpocet: number;     // pôvodne "odpočet"
+  odoslane: boolean;   // pôvodne "odoslané"
 }
 
 interface VatData {
@@ -30,10 +30,10 @@ interface VatData {
   returns: VatReturn[];
   summary: {
     totalPovinnost: number;
-    totalOdpočet: number;
+    totalOdpocet: number;        // pôvodne "totalOdpočet"
     totalRozdiel: number;
-    odoslanéCount: number;
-    neodoslanéCount: number;
+    odoslaneCount: number;       // pôvodne "odoslanéCount"
+    neodoslaneCount: number;     // pôvodne "neodoslanéCount"
   };
 }
 
@@ -44,36 +44,55 @@ const VatReturnsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [vatData, setVatData] = useState<VatData | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
+
   const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
 
   useEffect(() => {
     if (companyId) {
       loadVatReturns();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId, selectedYear]);
 
   const loadVatReturns = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const data = await accountingService.getVatReturns(Number(companyId), selectedYear);
-      setVatData(data);
-    } catch (error) {
-      console.error('Chyba pri načítaní DPH podaní:', error);
+
+      // ak backend ešte vracia názvy s diakritikou, premapujeme ich na ASCII
+      const normalized: VatData = {
+        company: data.company,
+        year: data.year,
+        returns: (data.returns || []).map((r: any) => ({
+          id: r.id,
+          rok: r.rok,
+          mesiac: r.mesiac,
+          povinnost: r.povinnost,
+          odpocet: r.odpocet ?? r['odpočet'] ?? 0,
+          odoslane: r.odoslane ?? r['odoslané'] ?? false
+        })),
+        summary: {
+          totalPovinnost: data.summary.totalPovinnost ?? data.summary['totalPovinnost'],
+          totalOdpocet: data.summary.totalOdpocet ?? data.summary['totalOdpočet'] ?? 0,
+          totalRozdiel: data.summary.totalRozdiel ?? data.summary['totalRozdiel'] ?? 0,
+          odoslaneCount: data.summary.odoslaneCount ?? data.summary['odoslanéCount'] ?? 0,
+          neodoslaneCount: data.summary.neodoslaneCount ?? data.summary['neodoslanéCount'] ?? 0
+        }
+      };
+
+      setVatData(normalized);
+    } catch (err) {
+      console.error('Chyba pri načítaní DPH podaní:', err);
       setError('Chyba pri načítaní DPH podaní');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('sk-SK', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR' }).format(amount);
 
   const getMonthName = (month: number) => {
     const months = [
@@ -83,13 +102,9 @@ const VatReturnsPage: React.FC = () => {
     return months[month - 1] || `Mesiac ${month}`;
   };
 
-  const handleRefresh = () => {
-    loadVatReturns();
-  };
+  const handleRefresh = () => loadVatReturns();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  if (loading) return <LoadingSpinner />;
 
   if (error) {
     return (
@@ -99,12 +114,8 @@ const VatReturnsPage: React.FC = () => {
             <div className="flex">
               <XCircleIcon className="h-5 w-5 text-red-400" />
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                  Chyba
-                </h3>
-                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  {error}
-                </div>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Chyba</h3>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</div>
               </div>
             </div>
           </div>
@@ -130,7 +141,7 @@ const VatReturnsPage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                DPH podania - {vatData?.company?.name}
+                DPH podania – {vatData?.company?.name}
               </h1>
               <div className="flex items-center space-x-2">
                 <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -139,8 +150,10 @@ const VatReturnsPage: React.FC = () => {
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                   className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
-                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <option key={year} value={year}>{year}</option>
+                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -182,7 +195,7 @@ const VatReturnsPage: React.FC = () => {
                     <div className="ml-3">
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">Celkový odpočet</p>
                       <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                        {formatCurrency(vatData.summary.totalOdpočet)}
+                        {formatCurrency(vatData.summary.totalOdpocet)}
                       </p>
                     </div>
                   </div>
@@ -192,8 +205,13 @@ const VatReturnsPage: React.FC = () => {
                     <CurrencyEuroIcon className="h-8 w-8 text-purple-500" />
                     <div className="ml-3">
                       <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Rozdiel</p>
-                      <p className={`text-2xl font-bold ${vatData.summary.totalRozdiel < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {vatData.summary.totalRozdiel < 0 ? '+' : '-'}{formatCurrency(Math.abs(vatData.summary.totalRozdiel))}
+                      <p
+                        className={`text-2xl font-bold ${
+                          vatData.summary.totalRozdiel < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}
+                      >
+                        {vatData.summary.totalRozdiel < 0 ? '+' : '-'}
+                        {formatCurrency(Math.abs(vatData.summary.totalRozdiel))}
                       </p>
                     </div>
                   </div>
@@ -204,7 +222,7 @@ const VatReturnsPage: React.FC = () => {
                     <div className="ml-3">
                       <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Odoslané</p>
                       <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                        {vatData.summary.odoslanéCount}/{vatData.summary.odoslanéCount + vatData.summary.neodoslanéCount}
+                        {vatData.summary.odoslaneCount}/{vatData.summary.odoslaneCount + vatData.summary.neodoslaneCount}
                       </p>
                     </div>
                   </div>
@@ -215,9 +233,7 @@ const VatReturnsPage: React.FC = () => {
             {/* Tabuľka DPH podaní */}
             <div className="bg-white dark:bg-dark-800 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                  DPH podania za rok {selectedYear}
-                </h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">DPH podania za rok {selectedYear}</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -250,15 +266,22 @@ const VatReturnsPage: React.FC = () => {
                           {formatCurrency(vatReturn.povinnost)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          {formatCurrency(vatReturn.odpočet)}
+                          {formatCurrency(vatReturn.odpocet)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`font-medium ${vatReturn.povinnost - vatReturn.odpočet < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {vatReturn.povinnost - vatReturn.odpočet < 0 ? '+' : '-'}{formatCurrency(Math.abs(vatReturn.povinnost - vatReturn.odpočet))}
+                          <span
+                            className={`font-medium ${
+                              vatReturn.povinnost - vatReturn.odpocet < 0
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                            }`}
+                          >
+                            {vatReturn.povinnost - vatReturn.odpocet < 0 ? '+' : '-'}
+                            {formatCurrency(Math.abs(vatReturn.povinnost - vatReturn.odpocet))}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          {vatReturn.odoslané ? (
+                          {vatReturn.odoslane ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                               <CheckCircleIcon className="h-4 w-4 mr-1" />
                               Odoslané

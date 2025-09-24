@@ -49,15 +49,15 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
   const [previewDocument, setPreviewDocument] = useState<DocumentData | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  // Kontrola oprávnení pre nahrávanie a mazanie dokumentov
+  // Kontrola oprA?vnenA� pre nahrA?vanie a mazanie dokumentov
   const canManageDocuments = userRole === 'admin' || 
     (userRole === 'accountant' && assignedAccountants.includes(userEmail));
 
   const categories = [
-    { id: 'all', name: 'Všetky dokumenty', icon: FolderOpenIcon },
-    { id: 'vykazy', name: 'Výkazy', icon: DocumentTextIcon },
+    { id: 'all', name: 'VL?etky dokumenty', icon: FolderOpenIcon },
+    { id: 'vykazy', name: 'VA?kazy', icon: DocumentTextIcon },
     { id: 'zmluvy', name: 'Zmluvy', icon: DocumentIcon },
-    { id: 'ostatne', name: 'Ostatné', icon: DocumentIcon }
+    { id: 'ostatne', name: 'OstatnA�', icon: DocumentIcon }
   ];
 
   const filteredDocuments = documents.filter(document => {
@@ -128,7 +128,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
   };
 
   const handleDocumentDelete = async (documentId: number) => {
-    if (window.confirm('Naozaj chcete vymazať tento dokument?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tento dokument?')) {
       setDeletingDocuments(prev => new Set(prev).add(documentId.toString()));
       try {
         await onDocumentDelete(documentId);
@@ -164,7 +164,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
             Dokumenty
           </h2>
           <p className="text-gray-600 mt-1">
-            {canManageDocuments ? 'Organizované dokumenty vo folderoch' : 'Zobrazenie dokumentov (len na čítanie)'}
+            {canManageDocuments ? 'OrganizovanA� dokumenty vo folderoch' : 'Zobrazenie dokumentov (len na �TA�tanie)'}
           </p>
         </div>
         
@@ -174,12 +174,12 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <DocumentArrowUpIcon className="h-5 w-5" />
-            Nahrať dokument
+            NahraLA dokument
           </button>
         )}
       </div>
 
-      {/* Kategórie a štatistiky */}
+      {/* KategAlrie a L?tatistiky */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {categories.map((category) => {
           const Icon = category.icon;
@@ -203,13 +203,13 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
         })}
       </div>
 
-      {/* Filtre a vyhľadávanie */}
+      {/* Filtre a vyh�ladA?vanie */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Vyhľadať dokumenty..."
+            placeholder="Vyh�ladaLA dokumenty..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -244,11 +244,11 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
       {filteredDocuments.length === 0 ? (
         <div className="text-center py-12">
           <DocumentIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Žiadne dokumenty</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">L?iadne dokumenty</h3>
           <p className="text-gray-500">
             {searchTerm || selectedCategory !== 'all' 
-              ? 'Nenašli sa žiadne dokumenty s vybranými filtrami.'
-              : 'Zatiaľ neboli nahrané žiadne dokumenty.'
+              ? 'NenaL?li sa Lliadne dokumenty s vybranA?mi filtrami.'
+              : 'Zatia�l neboli nahranA� Lliadne dokumenty.'
             }
           </p>
         </div>
@@ -279,7 +279,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                         <button
                           onClick={() => handleDocumentPreview(document)}
                           className="text-gray-600 hover:text-gray-700 p-1"
-                          title="Náhľad"
+                          title="NA?h�lad"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
@@ -287,7 +287,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                           onClick={() => handleDocumentDownload(document)}
                           disabled={isDownloading}
                           className="text-gray-600 hover:text-gray-700 p-1 disabled:opacity-50"
-                          title="Stiahnuť"
+                          title="StiahnuLA"
                         >
                           <CloudArrowDownIcon className="h-4 w-4" />
                         </button>
@@ -296,7 +296,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                             onClick={() => handleDocumentDelete(document.id)}
                             disabled={isDeleting}
                             className="text-red-600 hover:text-red-700 p-1 disabled:opacity-50"
-                            title="Vymazať"
+                            title="VymazaLA"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -343,7 +343,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                       <button
                         onClick={() => handleDocumentPreview(document)}
                         className="text-gray-600 hover:text-gray-700 p-1"
-                        title="Náhľad"
+                        title="NA?h�lad"
                       >
                         <EyeIcon className="h-4 w-4" />
                       </button>
@@ -351,7 +351,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                         onClick={() => handleDocumentDownload(document)}
                         disabled={isDownloading}
                         className="text-gray-600 hover:text-gray-700 p-1 disabled:opacity-50"
-                        title="Stiahnuť"
+                        title="StiahnuLA"
                       >
                         <CloudArrowDownIcon className="h-4 w-4" />
                       </button>
@@ -360,7 +360,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
                           onClick={() => handleDocumentDelete(document.id)}
                           disabled={isDeleting}
                           className="text-red-600 hover:text-red-700 p-1 disabled:opacity-50"
-                          title="Vymazať"
+                          title="VymazaLA"
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>
@@ -399,3 +399,4 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
 };
 
 export default DocumentManager;
+

@@ -1,8 +1,9 @@
+﻿import { API_BASE_URL } from '../services/apiService';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  EyeIcon, 
-  PencilIcon, 
+import {
+  EyeIcon,
+  PencilIcon,
   PlusIcon,
   ArrowPathIcon,
   MagnifyingGlassIcon,
@@ -18,12 +19,12 @@ const IssuedInvoicesPage: React.FC = () => {
   const navigate = useNavigate();
   const { companyId: urlCompanyId } = useParams<{ companyId: string }>();
   const [companies, setCompanies] = useState<any[]>([]);
-  
-  // Používame useLocalStorage hook pre konzistentnosť s App.tsx
+
+  // Use useLocalStorage hook pre konzistentnosť s App.tsx
   const [userEmail] = useLocalStorage('userEmail', '');
   const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
-  
+
   const [invoices, setInvoices] = useState<IssuedInvoice[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<IssuedInvoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,9 @@ const IssuedInvoicesPage: React.FC = () => {
     })();
     const idPart = String(invoiceNumberOrId);
     const safeKind = 'issued';
-    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(ico)}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
+    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(
+      ico
+    )}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
   };
 
   // Helper: HEAD overenie existencie priamo na Spaces
@@ -56,7 +59,7 @@ const IssuedInvoicesPage: React.FC = () => {
       return false;
     }
   };
-  
+
   // Filtre
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -88,27 +91,37 @@ const IssuedInvoicesPage: React.FC = () => {
     }
   }, [companyId]);
 
+  const authHeader = () => {
+    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
+
   const loadCompanies = async () => {
     try {
-      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-      let endpoint = `${base}/api/companies`;
-      
+      const base = API_BASE_URL;
+      let endpoint = `${base}/companies`;
+
       // Výber správneho endpointu podľa role
       if (userRole === 'user') {
-        endpoint = `${base}/api/companies/user/${userEmail}`;
+        endpoint = `${base}/companies/user/${encodeURIComponent(userEmail)}`;
       } else if (userRole === 'accountant') {
-        endpoint = `${base}/api/companies/accountant/${userEmail}`;
+        endpoint = `${base}/companies/accountant/${encodeURIComponent(userEmail)}`;
       }
-      // Pre admin sa používa default endpoint '/api/companies'
-      
-      const response = await fetch(endpoint);
+      // Pre admin sa používa default endpoint '/companies'
+
+      const response = await fetch(endpoint, { headers: { ...authHeader() } });
       const companiesData = await response.json();
       setCompanies(companiesData);
-      
+
       // Automaticky nastavíme firmu podľa role, len ak nemáme companyId z URL ani localStorage
       if (companiesData.length > 0 && !urlCompanyId && !companyId) {
         setCompanyId(companiesData[0].id);
       }
+
+      // Cache ICO pre rýchly výber do Spaces URL
+      const icoMap: Record<number, string> = {};
+      for (const c of companiesData) icoMap[c.id] = c.ico;
+      setCompanyIcoById(icoMap);
     } catch (error) {
       console.error('Chyba pri načítaní firiem:', error);
     }
@@ -116,7 +129,7 @@ const IssuedInvoicesPage: React.FC = () => {
 
   const loadInvoices = async () => {
     if (!companyId) return;
-    
+
     try {
       setLoading(true);
       const data = await accountingService.getIssuedInvoices(companyId, { limit: 100 });
@@ -128,44 +141,37 @@ const IssuedInvoicesPage: React.FC = () => {
         }
         return null;
       });
+
       // Skontroluj existenciu PDF pre ikonku náhľadu
-      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      const base = API_BASE_URL;
       const checks = data.map(async (inv) => {
         const key = `issued-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
           const idOrNum = encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym || inv.id));
           const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
-          const urlId = `${base}/api/accounting/invoices/issued/${idOrNum}/exists` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
-          const respId = await fetch(urlId, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-          let jsonId = await respId.json().catch(()=>({ exists:false }));
+          // 1) podľa ID/čísla (ak nemáme DB id, doplníme companyId + issueDate)
+          const queryId = inv.id == null
+            ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`
+            : '';
+          const urlId = `${base}/accounting/invoices/issued/${idOrNum}/exists${queryId}`;
+          const respId = await fetch(urlId, { headers: { ...authHeader() } });
+          const jsonId = await respId.json().catch(() => ({ exists: false }));
           if (jsonId && typeof jsonId.exists === 'boolean' && jsonId.exists) {
-            setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
+            setPdfExistsByKey((prev) => ({ ...prev, [key]: true }));
           } else {
-            // Fallback: skús existenciu podľa čísla faktúry/VS, ak máme DB ID a prvá kontrola neuspela
-            const num = (inv as any).invoice_number || (inv as any).varsym;
-            if (num) {
-              const urlNum = `${base}/api/accounting/invoices/issued/${encodeURIComponent(String(num))}/exists?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`;
-              const respNum = await fetch(urlNum, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
-              const jsonNum = await respNum.json().catch(()=>({ exists:false }));
-              if (jsonNum && typeof jsonNum.exists === 'boolean' && jsonNum.exists) {
-                setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
-              } else {
-                // Posledný fallback: HEAD priamo na Spaces podľa známej štruktúry
-                const ico = companies.find(c => c.id === companyId)?.ico;
-                if (ico) {
-                  const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateParam);
-                  const exists = await checkExistsOnSpaces(directUrl);
-                  setPdfExistsByKey(prev => ({ ...prev, [key]: exists }));
-                } else {
-                  setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
-                }
-              }
+            // 2) fallback Spaces HEAD
+            const ico = companies.find((c) => c.id === companyId)?.ico || companyIcoById[companyId];
+            if (ico) {
+              const num = (inv as any).invoice_number || (inv as any).varsym || inv.id;
+              const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateParam);
+              const exists = await checkExistsOnSpaces(directUrl);
+              setPdfExistsByKey((prev) => ({ ...prev, [key]: exists }));
             } else {
-              setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+              setPdfExistsByKey((prev) => ({ ...prev, [key]: false }));
             }
           }
-        } catch (_e) {
-          setPdfExistsByKey(prev => ({ ...prev, [key]: false }));
+        } catch {
+          setPdfExistsByKey((prev) => ({ ...prev, [key]: false }));
         }
       });
       await Promise.allSettled(checks);
@@ -182,63 +188,63 @@ const IssuedInvoicesPage: React.FC = () => {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '-';
       return date.toLocaleDateString('sk-SK');
-    } catch (error) {
+    } catch {
       return '-';
     }
   };
 
   const formatCurrency = (amount: number | null | undefined) => {
-    if (amount === null || amount === undefined || isNaN(amount)) return '-';
+    if (amount === null || amount === undefined || isNaN(amount as any)) return '-';
     return new Intl.NumberFormat('sk-SK', {
       style: 'currency',
       currency: 'EUR'
-    }).format(amount);
+    }).format(amount as number);
   };
 
-  const filteredInvoices = invoices.filter(invoice => {
+  const filteredInvoices = invoices.filter((invoice) => {
     // Základný search
-    const matchesSearch = 
+    const matchesSearch =
       invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (invoice as any).varsym?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     if (!matchesSearch) return false;
-    
+
     // Filtre
     if (filters.customerName && !invoice.customer_name?.toLowerCase().includes(filters.customerName.toLowerCase())) {
       return false;
     }
-    
+
     if (filters.invoiceNumber && !invoice.invoice_number?.toLowerCase().includes(filters.invoiceNumber.toLowerCase())) {
       return false;
     }
-    
+
     // Filtre dátumov
     if (filters.dueDateFrom) {
       const dueDate = new Date(invoice.due_date);
       const fromDate = new Date(filters.dueDateFrom);
       if (dueDate < fromDate) return false;
     }
-    
+
     if (filters.dueDateTo) {
       const dueDate = new Date(invoice.due_date);
       const toDate = new Date(filters.dueDateTo);
       if (dueDate > toDate) return false;
     }
-    
+
     // Filtre nezaplatených súm
-    const unpaidAmount = parseFloat(String(invoice.kc_likv || 0)) || 0;
-    
+    const unpaidAmount = parseFloat(String((invoice as any).kc_likv || 0)) || 0;
+
     if (filters.unpaidAmountMin) {
       const minAmount = parseFloat(filters.unpaidAmountMin);
       if (unpaidAmount < minAmount) return false;
     }
-    
+
     if (filters.unpaidAmountMax) {
       const maxAmount = parseFloat(filters.unpaidAmountMax);
       if (unpaidAmount > maxAmount) return false;
     }
-    
+
     return true;
   });
 
@@ -256,7 +262,7 @@ const IssuedInvoicesPage: React.FC = () => {
   };
 
   const handleFilterChange = (field: string, value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -294,7 +300,6 @@ const IssuedInvoicesPage: React.FC = () => {
 
   const handleRefreshInvoices = async () => {
     if (!companyId) return;
-    
     try {
       await accountingService.refreshInvoicesFromMdb(companyId);
       await loadInvoices();
@@ -319,16 +324,16 @@ const IssuedInvoicesPage: React.FC = () => {
                 Späť na Účtovníctvo
               </button>
             </div>
-                         <div className="flex items-center space-x-4">
-               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Vydané faktúry</h1>
-               
-               {/* Zobrazenie aktuálnej firmy */}
-               {companies.length > 0 && companyId && (
-                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                   Firma: {companies.find(c => c.id === companyId)?.name} (IČO: {companies.find(c => c.id === companyId)?.ico})
-                 </div>
-               )}
-             </div>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Vydané faktúry</h1>
+
+              {/* Zobrazenie aktuálnej firmy */}
+              {companies.length > 0 && companyId && (
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Firma: {companies.find((c) => c.id === companyId)?.name} (IČO: {companies.find((c) => c.id === companyId)?.ico})
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -352,14 +357,12 @@ const IssuedInvoicesPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <h2 className="text-lg font-semibold text-gray-900">Zoznam vydaných faktúr</h2>
-                  
+
                   {/* Tlačidlo filtrov */}
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className={`inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md ${
-                      showFilters 
-                        ? 'text-white bg-blue-600 hover:bg-blue-700' 
-                        : 'text-gray-700 bg-white hover:bg-gray-50'
+                      showFilters ? 'text-white bg-blue-600 hover:bg-blue-700' : 'text-gray-700 bg-white hover:bg-gray-50'
                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                   >
                     <FunnelIcon className="h-4 w-4 mr-2" />
@@ -369,7 +372,7 @@ const IssuedInvoicesPage: React.FC = () => {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setShowSummary(!showSummary)}
-                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {showSummary ? 'Skryť sumár' : 'Zobraziť sumár'}
                   </button>
@@ -398,7 +401,7 @@ const IssuedInvoicesPage: React.FC = () => {
                       <PlusIcon className="h-4 w-4 mr-1" />
                       Nová faktúra
                     </button>
-                    {/* Zobrazenie vybranej faktúry už netreba, riadkový upload/náhľad stačí */}
+                    {/* Upload/Náhľad */}
                     {(userRole === 'admin' || userRole === 'accountant') && (
                       <>
                         <input
@@ -418,20 +421,28 @@ const IssuedInvoicesPage: React.FC = () => {
                                 alert('Vyberte faktúru v zozname.');
                                 return;
                               }
-                              const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                              const invoiceId = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
+                              const invoiceId = inv.id != null
+                                ? encodeURIComponent(String(inv.id))
+                                : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
                               const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
-                              const presignEndpoint = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
+                              const query = inv.id == null
+                                ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`
+                                : '';
+                              const presignEndpoint = `${API_BASE_URL}/accounting/invoices/issued/${invoiceId}/presign-upload${query}`;
                               const resp = await fetch(presignEndpoint, {
                                 method: 'POST',
-                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                headers: { ...authHeader() }
                               });
                               if (!resp.ok) throw new Error('Chyba pri vytváraní upload linku');
                               const { url: presignedUrl } = await resp.json();
-                              const put = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
+                              const put = await fetch(presignedUrl, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/pdf' },
+                                body: file
+                              });
                               if (!put.ok) throw new Error('Chyba uploadu do úložiska');
                               const existsKey = `issued-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
-                              setPdfExistsByKey(prev => ({ ...prev, [existsKey]: true }));
+                              setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
                               alert('PDF nahrané. Skúste náhľad (oko).');
                             } catch (err: any) {
                               alert(err?.message || 'Chyba pri nahrávaní PDF');
@@ -557,13 +568,13 @@ const IssuedInvoicesPage: React.FC = () => {
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Splatné
                     </th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-900">
                       Odberateľ
                     </th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Celkom
+                    <th className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
+                      {`Celkom`}
                     </th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
                       Doplatok
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -590,7 +601,7 @@ const IssuedInvoicesPage: React.FC = () => {
                         key={invoice.id}
                         onClick={() => handleInvoiceSelect(invoice)}
                         className={`cursor-pointer hover:bg-gray-50 ${
-                          (selectedInvoice && String(selectedInvoice.id) === String(invoice.id)) ? 'bg-blue-50' : ''
+                          selectedInvoice && String(selectedInvoice.id) === String(invoice.id) ? 'bg-blue-50' : ''
                         }`}
                       >
                         <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -609,10 +620,10 @@ const IssuedInvoicesPage: React.FC = () => {
                           {invoice.customer_name}
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(invoice.kc_celkem || invoice.total_amount)}
+                          {formatCurrency((invoice as any).kc_celkem || (invoice as any).total_amount)}
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(invoice.kc_likv || 0)}
+                          {formatCurrency((invoice as any).kc_likv || 0)}
                         </td>
                         <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center space-x-2">
@@ -626,13 +637,26 @@ const IssuedInvoicesPage: React.FC = () => {
                                       e.stopPropagation();
                                       try {
                                         setPreviewLoadingId(invoice.id as number);
-                                        const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
-                                        const idOrNum = encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id));
-                                        const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
-                                        const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
-                                        const resp = await fetch(`${base}/api/accounting/invoices/issued/${idOrNum}/presign${query}`, {
-                                          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                                        });
+                                        const idOrNum = encodeURIComponent(
+                                          String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id)
+                                        );
+                                        const issueDateParam2 =
+                                          (invoice as any).issue_date ||
+                                          (invoice as any).datum ||
+                                          (invoice as any).due_date ||
+                                          '';
+                                        const query =
+                                          invoice.id == null
+                                            ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
+                                                String(issueDateParam2)
+                                              )}`
+                                            : '';
+                                        const resp = await fetch(
+                                          `${API_BASE_URL}/accounting/invoices/issued/${idOrNum}/presign${query}`,
+                                          {
+                                            headers: { ...authHeader() }
+                                          }
+                                        );
                                         if (resp.ok) {
                                           const data = await resp.json();
                                           if (data?.url) {
@@ -640,16 +664,21 @@ const IssuedInvoicesPage: React.FC = () => {
                                             return;
                                           }
                                         }
-                                        const ico = companies.find(c => c.id === companyId)?.ico;
-                                        const issueDateParam3 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
-                                        const numOrId = (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
+                                        const ico = companies.find((c) => c.id === companyId)?.ico || companyIcoById[companyId];
+                                        const issueDateParam3 =
+                                          (invoice as any).issue_date ||
+                                          (invoice as any).datum ||
+                                          (invoice as any).due_date ||
+                                          '';
+                                        const numOrId =
+                                          (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
                                         if (ico && numOrId) {
                                           const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
                                           window.open(directUrl, '_blank');
                                         } else {
-                                          throw new Error('PDF nenájdené');
+                                          throw new Error('PDF nie je dostupné');
                                         }
-                                      } catch (err) {
+                                      } catch {
                                         alert('PDF nie je dostupné pre túto faktúru');
                                       } finally {
                                         setPreviewLoadingId(null);

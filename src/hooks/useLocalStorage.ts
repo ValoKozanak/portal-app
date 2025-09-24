@@ -4,7 +4,7 @@ export function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
-  // Funkcia na získanie hodnoty z localStorage
+  // Funkcia na zA�skanie hodnoty z localStorage
   const getStoredValue = useCallback((): T => {
     try {
       const item = window.localStorage.getItem(key);
@@ -15,19 +15,19 @@ export function useLocalStorage<T>(
     }
   }, [key, initialValue]);
 
-  // State pre uloženú hodnotu
+  // State pre uloLlenAs hodnotu
   const [storedValue, setStoredValue] = useState<T>(getStoredValue);
 
   // Funkcia na nastavenie hodnoty
   const setValue = useCallback((value: T | ((val: T) => T)) => {
     try {
-      // Umožni funkciu ako hodnotu
+      // UmoLlni funkciu ako hodnotu
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       
-      // Ulož do state
+      // UloLl do state
       setStoredValue(valueToStore);
       
-      // Ulož do localStorage
+      // UloLl do localStorage
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
@@ -62,4 +62,5 @@ export function useLocalStorage<T>(
 
   return [storedValue, setValue, removeValue];
 }
+
 

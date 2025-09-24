@@ -45,7 +45,7 @@ const Login: React.FC = () => {
       // Presmerovanie na dashboard
       navigate('/dashboard');
     } catch (error: any) {
-      setError(error.message || 'Chyba pri prihlásení');
+      setError(error.message || 'Chyba pri prihlA?senA�');
     } finally {
       setIsLoading(false);
     }
@@ -53,18 +53,18 @@ const Login: React.FC = () => {
 
   const features = [
     {
-      title: 'Bezpečný prístup',
-      description: 'Najvyššia úroveň ochrany vašich údajov',
+      title: 'Bezpe�TnA? prA�stup',
+      description: 'NajvyL?L?ia AsroveL� ochrany vaL?ich Asdajov',
       icon: ShieldCheckIcon
     },
     {
-      title: '24/7 dostupnosť',
-      description: 'Prístup k vašim dokladom kedykoľvek',
+      title: '24/7 dostupnosLA',
+      description: 'PrA�stup k vaL?im dokladom kedyko�lvek',
       icon: LockClosedIcon
     },
     {
-      title: 'Osobné nastavenia',
-      description: 'Prispôsobte si portál podľa vašich potrieb',
+      title: 'OsobnA� nastavenia',
+      description: 'PrispA�sobte si portA?l pod�la vaL?ich potrieb',
       icon: UserIcon
     }
   ];
@@ -79,10 +79,10 @@ const Login: React.FC = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Prihlásenie do portálu
+            PrihlA?senie do portA?lu
           </h2>
           <p className="text-gray-600">
-            Prihláste sa do klientského portálu a získajte prístup k vašim dokladom
+            PrihlA?ste sa do klientskA�ho portA?lu a zA�skajte prA�stup k vaL?im dokladom
           </p>
         </div>
       </div>
@@ -137,7 +137,7 @@ const Login: React.FC = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Vaše heslo"
+                  placeholder="VaL?e heslo"
                 />
                 <button
                   type="button"
@@ -162,7 +162,7 @@ const Login: React.FC = () => {
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Zapamätať si ma
+                  ZapamA�taLA si ma
                 </label>
               </div>
 
@@ -170,7 +170,7 @@ const Login: React.FC = () => {
                 <button 
                   type="button"
                   className="font-medium text-blue-600 hover:text-blue-500"
-                  onClick={() => alert('Funkcia na obnovenie hesla bude dostupná v ďalšej verzii.')}
+                  onClick={() => alert('Funkcia na obnovenie hesla bude dostupnA? v �ZalL?ej verzii.')}
                 >
                   Zabudli ste heslo?
                 </button>
@@ -190,7 +190,7 @@ const Login: React.FC = () => {
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    Prihlásiť sa
+                    PrihlA?siLA sa
                     <ArrowRightIcon className="h-4 w-4 ml-2" />
                   </div>
                 )}
@@ -211,9 +211,9 @@ const Login: React.FC = () => {
             <div className="mt-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  Nemáte účet?{' '}
+                  NemA?te As�Tet?{' '}
                   <Link to="/contact" className="font-medium text-blue-600 hover:text-blue-500">
-                    Kontaktujte nás
+                    Kontaktujte nA?s
                   </Link>
                 </p>
               </div>
@@ -226,7 +226,7 @@ const Login: React.FC = () => {
       <div className="mt-12 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-6 px-4 shadow sm:rounded-lg sm:px-10">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-            Prečo používať náš portál?
+            Pre�To pouLlA�vaLA nA?L? portA?l?
           </h3>
           <div className="space-y-4">
             {features.map((feature, index) => (
@@ -249,11 +249,11 @@ const Login: React.FC = () => {
         <p className="text-sm text-gray-600">
           Potrebujete pomoc?{' '}
           <a href="tel:+421123456789" className="font-medium text-blue-600 hover:text-blue-500">
-            Zavolajte nám
+            Zavolajte nA?m
           </a>
           {' '}alebo{' '}
           <a href="mailto:info@ucto.sk" className="font-medium text-blue-600 hover:text-blue-500">
-            napíšte email
+            napA�L?te email
           </a>
         </p>
       </div>
@@ -262,3 +262,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
