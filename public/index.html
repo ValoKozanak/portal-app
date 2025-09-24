@@ -1,6 +1,53 @@
 <!DOCTYPE html>
 <html lang="sk">
   <head>
+  <!DOCTYPE html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Moderný webový portál" />
+    <title>Webový Portál</title>
+
+    <!-- AIRBAG: oprav pokazené URL (~and~, //?/) ešte pred načítaním appky + kill SW/cache -->
+    <script>
+      (function () {
+        try {
+          var href = window.location.href;
+          var looksBroken =
+            href.indexOf('~and~') !== -1 ||
+            href.indexOf('//?/') !== -1 ||
+            /\/{2,}\?/.test(href);
+
+          if (looksBroken) {
+            // odregistrovať starý service worker (ak nejaký je)
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister(); });
+              });
+            }
+            // vyčistiť cache (staré bundly)
+            if (window.caches && window.caches.keys) {
+              window.caches.keys().then(function (keys) {
+                keys.forEach(function (k) { window.caches.delete(k); });
+              });
+            }
+            // presmerovať na čistý koreň
+            var clean = window.location.origin + '/';
+            window.history.replaceState({}, '', clean);
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>Potrebuješ povoliť JavaScript pre spustenie tejto aplikácie.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
