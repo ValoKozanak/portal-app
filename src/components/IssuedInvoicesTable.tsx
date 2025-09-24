@@ -29,7 +29,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
       const data = await accountingService.getIssuedInvoices(companyId, { limit: 100 });
       setInvoices(data);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� faktAsr:', error);
+      console.error('Chyba pri na?TA?tanA? faktAsr:', error);
     } finally {
       setLoading(false);
     }
@@ -144,15 +144,15 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
         </div>
       </div>
 
-      {/* Tabu�lka */}
+      {/* Tabu?lka */}
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {/* ZA?kladnA� polia - vLldy vidite�lnA� */}
+                {/* ZA?kladnA? polia - vLldy vidite?lnA? */}
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  �SA�slo
+                  ?SA?slo
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Varsym
@@ -161,10 +161,10 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                   DA?tum
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SplatnA�
+                  SplatnA?
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  DaL�povin
+                  DaL?povin
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Text
@@ -173,7 +173,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                   Firma
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  I�SO
+                  I?SO
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -182,29 +182,29 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                   Akcie
                 </th>
 
-                {/* POHODA polia - podmienene vidite�lnA� */}
+                {/* POHODA polia - podmienene vidite?lnA? */}
                 {showAllColumns && (
                   <>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      �,� 0
+                      ?,? 0
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      �,� znA�LlenA?
+                      ?,? znA?LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DPH znA�LlenA?
+                      DPH znA?LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      �,� zA?kladnA?
+                      ?,? zA?kladnA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       DPH zA?kladnA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      �,� 2 znA�LlenA?
+                      ?,? 2 znA?LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DPH 2 znA�LlenA?
+                      DPH 2 znA?LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ZA?loha
@@ -219,7 +219,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                       CM kurz
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      CM �Tiastka
+                      CM ?Tiastka
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Celkom
@@ -237,7 +237,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
             <tbody className="bg-white divide-y divide-gray-200">
               {invoices.map((invoice) => (
                 <tr key={invoice.id} className="hover:bg-gray-50">
-                  {/* ZA?kladnA� polia */}
+                  {/* ZA?kladnA? polia */}
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {invoice.invoice_number || '-'}
                   </td>
@@ -331,7 +331,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                         {formatCurrency((invoice as any).liquidation_amount)}
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {(invoice as any).cancelled ? 'A�no' : 'Nie'}
+                        {(invoice as any).cancelled ? 'A?no' : 'Nie'}
                       </td>
                     </>
                   )}
@@ -343,7 +343,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 
         {invoices.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">L?iadne vydanA� faktAsry</p>
+            <p className="text-gray-500">L?iadne vydanA? faktAsry</p>
           </div>
         )}
       </div>

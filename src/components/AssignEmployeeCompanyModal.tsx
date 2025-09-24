@@ -50,7 +50,7 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
       await onAssign(employee.id, selectedCompany);
       onClose();
     } catch (error) {
-      console.error('Chyba pri priradenA� zamestnanca k firme:', error);
+      console.error('Chyba pri priradenA? zamestnanca k firme:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +89,7 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
             </div>
           </div>
 
-          {/* Vyh�ladA?vanie firiem */}
+          {/* Vyh?ladA?vanie firiem */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Vyberte firmu na priradenie *
@@ -97,7 +97,7 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
             <div className="relative">
               <input
                 type="text"
-                placeholder="H�ladaLA firmy..."
+                placeholder="H?ladaLA firmy..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -131,8 +131,8 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
                           />
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
-                            <p className="text-sm text-gray-600">I�SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                            <p className="text-sm text-gray-600">VlastnA�k: {company.owner_email}</p>
+                            <p className="text-sm text-gray-600">I?SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
+                            <p className="text-sm text-gray-600">VlastnA?k: {company.owner_email}</p>
                             <p className="text-sm text-gray-600">Adresa: {company.address}</p>
                           </div>
                         </div>
@@ -148,11 +148,11 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
               <div className="p-8 text-center">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  {searchTerm ? 'L?iadne firmy nenA?jdenA�' : 'L?iadne firmy na portA?li'}
+                  {searchTerm ? 'L?iadne firmy nenA?jdenA?' : 'L?iadne firmy na portA?li'}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz' 
+                    ? 'SkAsste zmeniLA vyh?ladA?vacA? vA?raz' 
                     : 'Na portA?li nie sAs Lliadne firmy na priradenie'
                   }
                 </p>
@@ -169,8 +169,8 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
                 return company ? (
                   <div className="text-sm text-green-800">
                     <p><strong>{company.name}</strong></p>
-                    <p>I�SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
-                    <p>VlastnA�k: {company.owner_email}</p>
+                    <p>I?SO: {company.ico} | OR: {company.business_registry || 'N/A'}</p>
+                    <p>VlastnA?k: {company.owner_email}</p>
                     <p>Adresa: {company.address}</p>
                   </div>
                 ) : null;
@@ -178,7 +178,7 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
             </div>
           )}
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
@@ -192,7 +192,7 @@ const AssignEmployeeCompanyModal: React.FC<AssignEmployeeCompanyModalProps> = ({
               disabled={!selectedCompany || isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Prira�Zujem...' : 'PriradiLA zamestnanca k firme'}
+              {isSubmitting ? 'Prira?Zujem...' : 'PriradiLA zamestnanca k firme'}
             </button>
           </div>
         </form>

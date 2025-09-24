@@ -38,7 +38,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
         setSelectedCompany(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� firiem:', error);
+      console.error('Chyba pri na?TA?tanA? firiem:', error);
     }
   };
 
@@ -51,7 +51,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
       setSettings(settingsData);
       setPermissions(permissionsData);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t firmy:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t firmy:', error);
     }
   };
 
@@ -133,7 +133,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                           <XCircleIcon className="h-5 w-5 text-red-500 mr-2" />
                         )}
                         <span className={`text-sm ${settings.pohoda_enabled ? 'text-green-600' : 'text-red-600'}`}>
-                          {settings.pohoda_enabled ? 'AktA�vna' : 'NeaktA�vna'}
+                          {settings.pohoda_enabled ? 'AktA?vna' : 'NeaktA?vna'}
                         </span>
                       </div>
                     </div>
@@ -141,7 +141,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                     {settings.pohoda_enabled && (
                       <>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">I�SO firmy v POHODA</span>
+                          <span className="text-sm font-medium text-gray-700">I?SO firmy v POHODA</span>
                           <span className="text-sm text-gray-900">
                             {settings.pohoda_ico || '-'}
                           </span>
@@ -190,13 +190,13 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* PrA?va pre As�TtovnA�ctvo */}
+            {/* PrA?va pre As?TtovnA?ctvo */}
             <div className="bg-white rounded-lg shadow-md">
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <UserGroupIcon className="h-5 w-5 mr-2 text-blue-600" />
-                    PrA?va pre As�TtovnA�ctvo
+                    PrA?va pre As?TtovnA?ctvo
                   </h2>
                   <button
                     onClick={() => setShowPermissionsModal(true)}
@@ -247,12 +247,12 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                           )}
                           {perm.can_view_cash && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                              ZobraziLA pokladL�u
+                              ZobraziLA pokladL?u
                             </span>
                           )}
                           {perm.can_edit_cash && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              UpraviLA pokladL�u
+                              UpraviLA pokladL?u
                             </span>
                           )}
                           {perm.can_manage_settings && (
@@ -266,7 +266,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-4">
-                    L?iadne prA?va pre As�TtovnA�ctvo
+                    L?iadne prA?va pre As?TtovnA?ctvo
                   </p>
                 )}
               </div>
@@ -287,7 +287,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onBack }) => {
                 await loadCompanyData(selectedCompany!);
                 setShowPohodaModal(false);
               } catch (error) {
-                console.error('Chyba pri ukladanA� POHODA nastavenA�:', error);
+                console.error('Chyba pri ukladanA? POHODA nastavenA?:', error);
               }
             }}
           />

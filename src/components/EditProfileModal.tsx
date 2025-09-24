@@ -45,9 +45,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinnA�';
+      newErrors.name = 'Meno je povinnA?';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Meno musA� maLA aspoL� 2 znaky';
+      newErrors.name = 'Meno musA? maLA aspoL? 2 znaky';
     }
 
     if (!formData.email.trim()) {
@@ -57,7 +57,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
 
     if (formData.phone && !/^[+]?[0-9\s\-()]{9,}$/.test(formData.phone)) {
-      newErrors.phone = 'NeplatnA? formA?t telefAlnneho �TA�sla';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnneho ?TA?sla';
     }
 
     setErrors(newErrors);
@@ -146,7 +146,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                TelefAlnne �TA�slo
+                TelefAlnne ?TA?slo
               </label>
               <input
                 type="tel"
@@ -175,7 +175,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="NapA�L?te nie�To o sebe..."
+                placeholder="NapA?L?te nie?To o sebe..."
               />
             </div>
           </div>

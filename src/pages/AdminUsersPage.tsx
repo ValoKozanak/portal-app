@@ -52,7 +52,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
   const [selectedUserForEmployeeAssign, setSelectedUserForEmployeeAssign] = useState<User | null>(null);
   const [companies, setCompanies] = useState<any[]>([]);
 
-  // Na�TA�tanie pouLlA�vate�lov a firiem z API
+  // Na?TA?tanie pouLlA?vate?lov a firiem z API
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -69,7 +69,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
         setUsers(usersWithLastLogin);
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� dA?t:', error);
+        console.error('Chyba pri na?TA?tanA? dA?t:', error);
       } finally {
         setLoading(false);
       }
@@ -78,14 +78,14 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     loadData();
   }, []);
 
-  // Filtrovanie pouLlA�vate�lov pod�la vyh�ladA?vania
+  // Filtrovanie pouLlA?vate?lov pod?la vyh?ladA?vania
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Vytvorenie novA�ho pouLlA�vate�la
+  // Vytvorenie novA?ho pouLlA?vate?la
   const handleAddUser = async (userData: any) => {
     try {
       const response = await apiService.createUser(userData);
@@ -100,7 +100,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       };
       setUsers(prev => [...prev, newUser]);
 
-      // Ak je to zamestnanec, vytvor ho aj v tabu�lke employees
+      // Ak je to zamestnanec, vytvor ho aj v tabu?lke employees
       if (userData.role === 'employee' && userData.companyId) {
         try {
           const hrService = (await import('../services/hrService')).hrService;
@@ -121,21 +121,21 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           };
           
           await hrService.addEmployee(employeeData);
-          console.log('�s. Zamestnanec AsspeL?ne pridanA? do HR systA�mu');
+          console.log('?s. Zamestnanec AsspeL?ne pridanA? do HR systA?mu');
         } catch (hrError: any) {
-          console.error('Chyba pri pridA?vanA� zamestnanca do HR systA�mu:', hrError.message);
-          // Nezobrazujeme chybu pouLlA�vate�lovi, pretoLle pouLlA�vate�l bol vytvorenA? AsspeL?ne
+          console.error('Chyba pri pridA?vanA? zamestnanca do HR systA?mu:', hrError.message);
+          // Nezobrazujeme chybu pouLlA?vate?lovi, pretoLle pouLlA?vate?l bol vytvorenA? AsspeL?ne
         }
       }
 
       setShowAddUserModal(false);
     } catch (error: any) {
-      console.error('Chyba pri vytvA?ranA� pouLlA�vate�la:', error.message);
-      alert(`Chyba pri vytvA?ranA� pouLlA�vate�la: ${error.message}`);
+      console.error('Chyba pri vytvA?ranA? pouLlA?vate?la:', error.message);
+      alert(`Chyba pri vytvA?ranA? pouLlA?vate?la: ${error.message}`);
     }
   };
 
-  // Asprava pouLlA�vate�la
+  // Asprava pouLlA?vate?la
   const handleEditUser = async (userId: number, userData: any) => {
     try {
       await apiService.updateUser(userId, userData);
@@ -145,20 +145,20 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       setShowEditUserModal(false);
       setSelectedUserForEdit(null);
     } catch (error: any) {
-      console.error('Chyba pri aktualizA?cii pouLlA�vate�la:', error.message);
-      alert(`Chyba pri aktualizA?cii pouLlA�vate�la: ${error.message}`);
+      console.error('Chyba pri aktualizA?cii pouLlA?vate?la:', error.message);
+      alert(`Chyba pri aktualizA?cii pouLlA?vate?la: ${error.message}`);
     }
   };
 
-  // Vymazanie pouLlA�vate�la
+  // Vymazanie pouLlA?vate?la
   const handleDeleteUser = async (userId: number) => {
-    if (window.confirm('Naozaj chcete vymazaLA tohto pouLlA�vate�la?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tohto pouLlA?vate?la?')) {
       try {
         await apiService.deleteUser(userId);
         setUsers(prev => prev.filter(user => user.id !== userId));
       } catch (error: any) {
-        console.error('Chyba pri mazanA� pouLlA�vate�la:', error.message);
-        alert(`Chyba pri mazanA� pouLlA�vate�la: ${error.message}`);
+        console.error('Chyba pri mazanA? pouLlA?vate?la:', error.message);
+        alert(`Chyba pri mazanA? pouLlA?vate?la: ${error.message}`);
       }
     }
   };
@@ -191,16 +191,16 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
         throw new Error('Zamestnanec nenA?jdenA?');
       }
 
-      // Najprv skontrolujeme, �Ti zamestnanec uLl existuje v HR systA�me
+      // Najprv skontrolujeme, ?Ti zamestnanec uLl existuje v HR systA?me
       try {
         const existingEmployee = await hrService.findEmployeeByEmail(employee.email);
         
         // Ak existuje, aktualizujeme jeho company_id
         await hrService.updateEmployeeCompany(existingEmployee.id, companyId);
-        console.log('�s. Zamestnanec AsspeL?ne presunutA? do novej firmy');
+        console.log('?s. Zamestnanec AsspeL?ne presunutA? do novej firmy');
         alert('Zamestnanec bol AsspeL?ne presunutA? do novej firmy!');
       } catch (findError: any) {
-        // Ak zamestnanec neexistuje, vytvorA�me ho
+        // Ak zamestnanec neexistuje, vytvorA?me ho
         if (findError.message.includes('Zamestnanec nenA?jdenA?') || findError.message.includes('404')) {
           const employeeData = {
             company_id: companyId,
@@ -219,15 +219,15 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           };
           
           await hrService.addEmployee(employeeData);
-          console.log('�s. Zamestnanec AsspeL?ne vytvorenA? a priradenA? k firme');
+          console.log('?s. Zamestnanec AsspeL?ne vytvorenA? a priradenA? k firme');
           alert('Zamestnanec bol AsspeL?ne vytvorenA? a priradenA? k firme!');
         } else {
           throw findError;
         }
       }
     } catch (error: any) {
-      console.error('Chyba pri priradenA� zamestnanca k firme:', error.message);
-      alert(`Chyba pri priradenA� zamestnanca k firme: ${error.message}`);
+      console.error('Chyba pri priradenA? zamestnanca k firme:', error.message);
+      alert(`Chyba pri priradenA? zamestnanca k firme: ${error.message}`);
     }
   };
 
@@ -239,9 +239,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       pending: 'bg-yellow-100 text-yellow-800'
     };
     const labels = {
-      active: 'AktA�vny',
-      inactive: 'NeaktA�vny',
-      pending: '�SakajAsci'
+      active: 'AktA?vny',
+      inactive: 'NeaktA?vny',
+      pending: '?SakajAsci'
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors]}`}>
@@ -259,9 +259,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     };
     const labels = {
       admin: 'Admin',
-      accountant: 'As�TtovnA�k',
+      accountant: 'As?TtovnA?k',
       employee: 'Zamestnanec',
-      user: 'PouLlA�vate�l'
+      user: 'PouLlA?vate?l'
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
@@ -282,12 +282,12 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                SpA�LA do Dashboardu
+                SpA?LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <UsersIcon className="h-8 w-8 text-blue-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">SprA?va pouLlA�vate�lov</h1>
+                <h1 className="text-2xl font-bold text-gray-900">SprA?va pouLlA?vate?lov</h1>
               </div>
             </div>
             <button
@@ -295,7 +295,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center transition-colors"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              PridaLA pouLlA�vate�la
+              PridaLA pouLlA?vate?la
             </button>
           </div>
         </div>
@@ -307,9 +307,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Zoznam pouLlA�vate�lov</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Zoznam pouLlA?vate?lov</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {users.length} pouLlA�vate�lov �?? {users.filter(u => u.status === 'active').length} aktA�vnych
+                  Celkovo {users.length} pouLlA?vate?lov ??? {users.filter(u => u.status === 'active').length} aktA?vnych
                 </p>
               </div>
               <div className="relative">
@@ -318,7 +318,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Vyh�ladaLA pouLlA�vate�la..."
+                  placeholder="Vyh?ladaLA pouLlA?vate?la..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -331,7 +331,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam pouLlA�vate�lov...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam pouLlA?vate?lov...</p>
               </div>
             ) : filteredUsers.length > 0 ? (
               <div className="overflow-x-auto">
@@ -339,7 +339,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        PouLlA�vate�l
+                        PouLlA?vate?l
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Role
@@ -348,7 +348,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        PoslednA� prihlA?senie
+                        PoslednA? prihlA?senie
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Akcie
@@ -434,12 +434,12 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
               <div className="text-center py-12">
                 <UsersIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {searchTerm ? 'L?iadni pouLlA�vatelia nenA?jdenA�' : 'L?iadni pouLlA�vatelia'}
+                  {searchTerm ? 'L?iadni pouLlA?vatelia nenA?jdenA?' : 'L?iadni pouLlA?vatelia'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz.'
-                    : 'Za�Tnite pridA?vanA�m prvA�ho pouLlA�vate�la.'
+                    ? 'SkAsste zmeniLA vyh?ladA?vacA? vA?raz.'
+                    : 'Za?Tnite pridA?vanA?m prvA?ho pouLlA?vate?la.'
                   }
                 </p>
                 {!searchTerm && (
@@ -448,7 +448,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                     className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center mx-auto"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
-                    PridaLA prvA�ho pouLlA�vate�la
+                    PridaLA prvA?ho pouLlA?vate?la
                   </button>
                 )}
               </div>

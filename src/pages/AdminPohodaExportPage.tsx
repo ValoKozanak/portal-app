@@ -40,7 +40,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
   const exportTypes: ExportType[] = [
     {
       id: 'issued-invoices',
-      name: 'VydanA� faktAsry',
+      name: 'VydanA? faktAsry',
       description: 'Export vydanA?ch faktAsr do POHODA XML formA?tu',
       icon: DocumentTextIcon,
       color: 'text-blue-600',
@@ -50,7 +50,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
     },
     {
       id: 'received-invoices',
-      name: 'PrijatA� faktAsry',
+      name: 'PrijatA? faktAsry',
       description: 'Export prijatA?ch faktAsr do POHODA XML formA?tu',
       icon: DocumentArrowUpIcon,
       color: 'text-green-600',
@@ -59,7 +59,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
     },
     {
       id: 'bank-transactions',
-      name: 'BankovA� pohyby',
+      name: 'BankovA? pohyby',
       description: 'Export bankovA?ch pohybov do POHODA XML formA?tu',
       icon: BanknotesIcon,
       color: 'text-yellow-600',
@@ -68,8 +68,8 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
     },
     {
       id: 'cash-transactions',
-      name: 'PokladL�a',
-      description: 'Export pokladL�ovA?ch pohybov do POHODA XML formA?tu',
+      name: 'PokladL?a',
+      description: 'Export pokladL?ovA?ch pohybov do POHODA XML formA?tu',
       icon: CreditCardIcon,
       color: 'text-purple-600',
       status: 'coming-soon',
@@ -96,7 +96,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
     {
       id: 'settings',
       name: 'Nastavenia',
-      description: 'Export nastavenA� do POHODA XML formA?tu',
+      description: 'Export nastavenA? do POHODA XML formA?tu',
       icon: CogIcon,
       color: 'text-gray-600',
       status: 'coming-soon',
@@ -106,7 +106,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
 
   useEffect(() => {
     loadCompanies();
-    // NastavA�me predvolenA� dA?tumy (poslednA? mesiac)
+    // NastavA?me predvolenA? dA?tumy (poslednA? mesiac)
     const today = new Date();
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
     setDateFrom(lastMonth.toISOString().split('T')[0]);
@@ -121,7 +121,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
         setSelectedCompany(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� firiem:', error);
+      console.error('Chyba pri na?TA?tanA? firiem:', error);
     }
   };
 
@@ -133,7 +133,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
     setExportStatus(prev => ({ ...prev, [exportType.id]: 'exporting' }));
 
     try {
-      // Tu by sa implementoval konkrA�tny export
+      // Tu by sa implementoval konkrA?tny export
       // Pre teraz len simulujeme
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -202,8 +202,8 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
                 POHODA Export - InformA?cie
               </h3>
               <div className="mt-2 text-sm text-blue-700">
-                <p>Exportujte dA?ta zo systA�mu do POHODA XML formA?tu. Vyberte typ exportu a firmu.</p>
-                <p className="mt-1">DostupnA� sAs rA�zne typy exportov pre faktAsry, pohyby a �ZalL?ie dA?ta.</p>
+                <p>Exportujte dA?ta zo systA?mu do POHODA XML formA?tu. Vyberte typ exportu a firmu.</p>
+                <p className="mt-1">DostupnA? sAs rA?zne typy exportov pre faktAsry, pohyby a ?ZalL?ie dA?ta.</p>
               </div>
             </div>
           </div>
@@ -305,7 +305,7 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
                   ) : (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">
-                        {exportType.status === 'coming-soon' ? '�Soskoro dostupnA�' : 'NedostupnA�'}
+                        {exportType.status === 'coming-soon' ? '?Soskoro dostupnA?' : 'NedostupnA?'}
                       </span>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                         {exportType.status === 'coming-soon' ? 'SOON' : 'N/A'}
@@ -322,11 +322,11 @@ const AdminPohodaExportPage: React.FC<AdminPohodaExportPageProps> = ({ onBack })
         <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-yellow-800 mb-2">Pokyny pre export</h3>
           <ul className="text-sm text-yellow-700 space-y-1">
-            <li>�?? Export sa vykonA?va pre vybranAs firmu</li>
-            <li>�?? DA?tumovA? filter sa aplikuje na relevantnA� typy dA?t</li>
-            <li>�?? ExportovanA� sAsbory sAs vo formA?te POHODA dataPack</li>
-            <li>�?? SAsbory sa automaticky stiahnu do vA?L?ho po�TA�ta�Ta</li>
-            <li>�?? Export obsahuje vL?etky dostupnA� dA?ta pre danA? typ</li>
+            <li>??? Export sa vykonA?va pre vybranAs firmu</li>
+            <li>??? DA?tumovA? filter sa aplikuje na relevantnA? typy dA?t</li>
+            <li>??? ExportovanA? sAsbory sAs vo formA?te POHODA dataPack</li>
+            <li>??? SAsbory sa automaticky stiahnu do vA?L?ho po?TA?ta?Ta</li>
+            <li>??? Export obsahuje vL?etky dostupnA? dA?ta pre danA? typ</li>
           </ul>
         </div>
       </div>

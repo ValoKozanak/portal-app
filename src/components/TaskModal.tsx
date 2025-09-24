@@ -39,14 +39,14 @@ interface TaskModalProps {
     name: string;
     assignedToAccountants?: string[];
   };
-  // NovA� props pre As�TtovnA�ka
+  // NovA? props pre As?TtovnA?ka
   isAccountant?: boolean;
   assignedCompanies?: Array<{
     id: number;
     name: string;
     ico: string;
   }>;
-  userEmail?: string; // Email prihlA?senA�ho pouLlA�vate�la
+  userEmail?: string; // Email prihlA?senA?ho pouLlA?vate?la
 }
 
 export interface Employee {
@@ -95,14 +95,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   // KategAlrie Asloh
   const taskCategories = [
-    { id: 'accounting', name: 'As�TtovnA�ctvo' },
-    { id: 'tax', name: 'DaL�ovA� zA?leLlitosti' },
+    { id: 'accounting', name: 'As?TtovnA?ctvo' },
+    { id: 'tax', name: 'DaL?ovA? zA?leLlitosti' },
     { id: 'legal', name: 'PrA?vne zA?leLlitosti' },
     { id: 'hr', name: 'Personalistika' },
     { id: 'operations', name: 'OperA?cie' },
     { id: 'marketing', name: 'Marketing' },
     { id: 'it', name: 'IT podpora' },
-    { id: 'other', name: 'OstatnA�' },
+    { id: 'other', name: 'OstatnA?' },
   ];
 
   // Naplnenie formulA?ra pri editA?cii
@@ -136,7 +136,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         category: '',
         estimatedHours: '',
       });
-      // NastaviLA prvAs firmu ako default pre As�TtovnA�ka
+      // NastaviLA prvAs firmu ako default pre As?TtovnA?ka
       if (isAccountant && assignedCompanies.length > 0) {
         setSelectedCompanyId(assignedCompanies[0].id);
       } else {
@@ -144,7 +144,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       }
     }
     setErrors({});
-  }, [task, isOpen, isAccountant]); // OdstrA?nenA� assignedCompanies z zA?vislostA�
+  }, [task, isOpen, isAccountant]); // OdstrA?nenA? assignedCompanies z zA?vislostA?
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -158,18 +158,18 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
 
     if (!formData.assignedTo) {
-      newErrors.assignedTo = 'Priradenie zamestnanca je povinnA�';
+      newErrors.assignedTo = 'Priradenie zamestnanca je povinnA?';
     }
 
     if (!formData.dueDate) {
-      newErrors.dueDate = 'TermA�n dokon�Tenia je povinnA?';
+      newErrors.dueDate = 'TermA?n dokon?Tenia je povinnA?';
     } else {
       const dueDate = new Date(formData.dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
       if (dueDate < today) {
-        newErrors.dueDate = 'TermA�n nemA�Lle byLA v minulosti';
+        newErrors.dueDate = 'TermA?n nemA?Lle byLA v minulosti';
       }
     }
 
@@ -177,7 +177,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       newErrors.category = 'KategAlria je povinnA?';
     }
 
-    // Pre As�TtovnA�ka kontrolujeme aj vybranAs firmu
+    // Pre As?TtovnA?ka kontrolujeme aj vybranAs firmu
     if (isAccountant && !selectedCompanyId) {
       newErrors.company = 'VA?ber firmy je povinnA?';
     }
@@ -196,7 +196,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Pre As�TtovnA�kov pouLlA�vame generickA� hodnoty pre assignedTo, ale email As�TtovnA�ka pre assignedToEmail
+      // Pre As?TtovnA?kov pouLlA?vame generickA? hodnoty pre assignedTo, ale email As?TtovnA?ka pre assignedToEmail
       const assignedToEmail = isAccountant ? userEmail : formData.assignedTo;
       const assignedToName = isAccountant 
         ? formData.assignedTo 
@@ -204,17 +204,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
           ? formData.assignedTo.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
           : formData.assignedTo);
       
-      // Ur�TiLA companyId a companyName
+      // Ur?TiLA companyId a companyName
       let companyId: number | undefined;
       let companyName: string | undefined;
 
       if (isAccountant && selectedCompanyId) {
-        // Pre As�TtovnA�ka pouLlA�vame vybranAs firmu
+        // Pre As?TtovnA?ka pouLlA?vame vybranAs firmu
         companyId = selectedCompanyId as number;
         const selectedCompany = assignedCompanies.find(c => c.id === selectedCompanyId);
         companyName = selectedCompany?.name;
       } else if (company) {
-        // Pre ostatnA?ch pouLlA�vame company prop
+        // Pre ostatnA?ch pouLlA?vame company prop
         companyId = company.id;
         companyName = company.name;
       }
@@ -229,7 +229,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         dueDate: formData.dueDate,
         category: formData.category,
         estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : undefined,
-        createdBy: userEmail || 'AktuA?lny pouLlA�vate�l',
+        createdBy: userEmail || 'AktuA?lny pouLlA?vate?l',
         companyId: companyId,
         companyName: companyName,
       };
@@ -237,7 +237,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       await onSave(taskData);
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladanA� Aslohy:', error);
+      console.error('Chyba pri ukladanA? Aslohy:', error);
       setErrors({ submit: 'Nepodarilo sa uloLliLA Aslohu' });
     } finally {
       setIsSubmitting(false);
@@ -252,7 +252,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       return newData;
     });
     
-    // Vy�TistiLA chybu pre danA� pole
+    // Vy?TistiLA chybu pre danA? pole
     setErrors(prev => {
       if (prev[field]) {
         const newErrors = { ...prev };
@@ -265,7 +265,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Kontrola �Ti sAs dostupnA� firmy
+  // Kontrola ?Ti sAs dostupnA? firmy
   if (!isAccountant && !company) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -275,7 +275,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               Chyba
             </h2>
             <p className="text-gray-600 mb-6">
-              Pre vytvorenie Aslohy musA�te maLA aspoL� jednu firmu. Najprv vytvorte firmu.
+              Pre vytvorenie Aslohy musA?te maLA aspoL? jednu firmu. Najprv vytvorte firmu.
             </p>
             <button
               onClick={onClose}
@@ -383,7 +383,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(e) => handleInputChange('priority', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="low">NA�zka</option>
+                <option value="low">NA?zka</option>
                 <option value="medium">StrednA?</option>
                 <option value="high">VysokA?</option>
                 <option value="urgent">UrgentnA?</option>
@@ -391,7 +391,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           </div>
 
-          {/* VA?ber firmy pre As�TtovnA�ka */}
+          {/* VA?ber firmy pre As?TtovnA?ka */}
           {isAccountant && (
             <div>
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
@@ -408,7 +408,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 <option value="">Vyberte firmu</option>
                 {assignedCompanies.map((company) => (
                   <option key={company.id} value={company.id}>
-                    {company.name} (I�SO: {company.ico})
+                    {company.name} (I?SO: {company.ico})
                   </option>
                 ))}
               </select>
@@ -418,7 +418,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           )}
 
-          {/* Priradenie a TermA�n */}
+          {/* Priradenie a TermA?n */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-700 mb-2">
@@ -435,14 +435,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 {isAccountant ? (
                   <>
                     <option value="">Vyberte zamestnanca firmy</option>
-                    <option value="owner">VlastnA�k firmy</option>
-                    <option value="manager">ManaLlA�r</option>
+                    <option value="owner">VlastnA?k firmy</option>
+                    <option value="manager">ManaLlA?r</option>
                     <option value="employee">Zamestnanec</option>
-                    <option value="accountant">As�TtovnA�k</option>
+                    <option value="accountant">As?TtovnA?k</option>
                   </>
                 ) : (
                   <>
-                    <option value="">Vyberte As�TtovnA�ka</option>
+                    <option value="">Vyberte As?TtovnA?ka</option>
                     {company && company.assignedToAccountants && company.assignedToAccountants.length > 0 ? (
                       company.assignedToAccountants.map((accountantEmail, index) => {
                         const accountantName = accountantEmail.includes('@') 
@@ -450,13 +450,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
                           : accountantEmail;
                         return (
                           <option key={index} value={accountantEmail}>
-                            {accountantName} - As�TtovnA�k ({accountantEmail})
+                            {accountantName} - As?TtovnA?k ({accountantEmail})
                           </option>
                         );
                       })
                     ) : (
                       <option value="" disabled>
-                        L?iadni priradenA� As�TtovnA�ci
+                        L?iadni priradenA? As?TtovnA?ci
                       </option>
                     )}
                   </>
@@ -469,7 +469,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
             <div>
               <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-2">
-                TermA�n dokon�Tenia *
+                TermA?n dokon?Tenia *
               </label>
               <div className="relative">
                 <input
@@ -489,10 +489,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           </div>
 
-          {/* OdhadovanA� hodiny */}
+          {/* OdhadovanA? hodiny */}
           <div>
             <label htmlFor="estimatedHours" className="block text-sm font-medium text-gray-700 mb-2">
-              OdhadovanA� hodiny
+              OdhadovanA? hodiny
             </label>
             <input
               type="number"
@@ -502,7 +502,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               min="0"
               step="0.5"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="NaprA�klad: 8"
+              placeholder="NaprA?klad: 8"
             />
           </div>
 
@@ -518,22 +518,22 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(e) => handleInputChange('status', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <option value="pending">�SakajAsca</option>
-                <option value="in_progress">V spracovanA�</option>
-                <option value="completed">Dokon�TenA?</option>
+                <option value="pending">?SakajAsca</option>
+                <option value="in_progress">V spracovanA?</option>
+                <option value="completed">Dokon?TenA?</option>
                 <option value="cancelled">ZruL?enA?</option>
               </select>
             </div>
           )}
 
-          {/* Chyba pri odosielanA� */}
+          {/* Chyba pri odosielanA? */}
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
               <p className="text-sm text-red-600">{errors.submit}</p>
             </div>
           )}
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"

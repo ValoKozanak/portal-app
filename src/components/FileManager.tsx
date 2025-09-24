@@ -54,14 +54,14 @@ const FileManager: React.FC<FileManagerProps> = ({
     { id: 'contracts', name: 'Zmluvy' },
     { id: 'reports', name: 'SprA?vy' },
     { id: 'images', name: 'ObrA?zky' },
-    { id: 'archives', name: 'ArchA�vy' },
-    { id: 'other', name: 'OstatnA�' }
+    { id: 'archives', name: 'ArchA?vy' },
+    { id: 'other', name: 'OstatnA?' }
   ];
 
 
 
   const filteredFiles = files.filter(file => {
-    // Kontrola, �Ti file a file.original_name existujAs
+    // Kontrola, ?Ti file a file.original_name existujAs
     if (!file || !file.original_name) {
       return false;
     }
@@ -97,7 +97,7 @@ const FileManager: React.FC<FileManagerProps> = ({
     });
   };
 
-  // Funkcia na preklad kategAlriA� z anglickA�ho kAldu na slovenskA? nA?zov
+  // Funkcia na preklad kategAlriA? z anglickA?ho kAldu na slovenskA? nA?zov
   const getCategoryName = (categoryCode: string) => {
     const categoryMap: Record<string, string> = {
       'documents': 'Dokumenty',
@@ -105,8 +105,8 @@ const FileManager: React.FC<FileManagerProps> = ({
       'contracts': 'Zmluvy',
       'reports': 'SprA?vy',
       'images': 'ObrA?zky',
-      'archives': 'ArchA�vy',
-      'other': 'OstatnA�'
+      'archives': 'ArchA?vy',
+      'other': 'OstatnA?'
     };
     return categoryMap[categoryCode] || categoryCode;
   };
@@ -131,7 +131,7 @@ const FileManager: React.FC<FileManagerProps> = ({
         onFileDownload(file);
       }
     } catch (error) {
-      console.error('Chyba pri sLAahovanA� sAsboru:', error);
+      console.error('Chyba pri sLAahovanA? sAsboru:', error);
       alert('Nepodarilo sa stiahnuLA sAsbor');
     } finally {
       setDownloadingFiles(prev => {
@@ -153,7 +153,7 @@ const FileManager: React.FC<FileManagerProps> = ({
     try {
       onFileDelete(file.id);
     } catch (error) {
-      console.error('Chyba pri mazanA� sAsboru:', error);
+      console.error('Chyba pri mazanA? sAsboru:', error);
       alert('Nepodarilo sa vymazaLA sAsbor');
     } finally {
       setDeletingFiles(prev => {
@@ -174,7 +174,7 @@ const FileManager: React.FC<FileManagerProps> = ({
     return acc;
   }, {} as Record<string, number>);
 
-  // Debug informA?cie (do�TasnA�)
+  // Debug informA?cie (do?TasnA?)
   console.log('Files:', files.length);
   console.log('Filtered files:', filteredFiles.length);
   console.log('Selected category:', selectedCategory);
@@ -194,21 +194,21 @@ const FileManager: React.FC<FileManagerProps> = ({
         <div>
           <h2 className="text-lg font-semibold text-gray-900">SprA?va sAsborov</h2>
           <p className="text-sm text-gray-500">
-            {files.length} sAsborov �?? {formatFileSize(totalSize)} celkovo
+            {files.length} sAsborov ??? {formatFileSize(totalSize)} celkovo
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
           {userRole === 'admin' && onEmptyTrash && (
             <button
               onClick={() => {
-                if (window.confirm('Naozaj chcete vyprA?zdniLA kA�L?? TA?to akcia je nevratnA?.')) {
+                if (window.confirm('Naozaj chcete vyprA?zdniLA kA?L?? TA?to akcia je nevratnA?.')) {
                   onEmptyTrash();
                 }
               }}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center"
             >
               <TrashIcon className="h-4 w-4 mr-2" />
-              VyprA?zdniLA kA�L?
+              VyprA?zdniLA kA?L?
             </button>
           )}
           <button
@@ -229,7 +229,7 @@ const FileManager: React.FC<FileManagerProps> = ({
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             <input
               type="text"
-              placeholder="H�ladaLA sAsbory..."
+              placeholder="H?ladaLA sAsbory..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -288,7 +288,7 @@ const FileManager: React.FC<FileManagerProps> = ({
             <p className="mt-1 text-sm text-gray-500">
               {searchTerm || selectedCategory !== 'all' 
                 ? 'NenaL?li sa Lliadne sAsbory s vybranA?mi filtrami.'
-                : 'Zatia�l neboli nahranA� Lliadne sAsbory.'
+                : 'Zatia?l neboli nahranA? Lliadne sAsbory.'
               }
             </p>
             {!searchTerm && selectedCategory === 'all' && (
@@ -324,7 +324,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                         {file.original_name || 'NeznA?my sAsbor'}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.file_size || 0)} �?? {formatDate(file.created_at || new Date().toISOString())}
+                        {formatFileSize(file.file_size || 0)} ??? {formatDate(file.created_at || new Date().toISOString())}
                       </p>
                       <p className="text-xs text-blue-600 font-medium">
                         {getCategoryName(file.category || 'other')}
@@ -335,7 +335,7 @@ const FileManager: React.FC<FileManagerProps> = ({
                       <button
                         onClick={() => handleFilePreview(file)}
                         className="text-primary-600 hover:text-primary-700"
-                        title="NA?h�lad"
+                        title="NA?h?lad"
                       >
                         <EyeIcon className="h-5 w-5" />
                       </button>

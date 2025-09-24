@@ -19,7 +19,7 @@ const AdminDashboardUsers: React.FC<AdminDashboardUsersProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">PouLlA�vatelia</h2>
+        <h2 className="text-2xl font-bold text-gray-900">PouLlA?vatelia</h2>
         <button
           onClick={onRefresh}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -32,7 +32,7 @@ const AdminDashboardUsers: React.FC<AdminDashboardUsersProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center">
             <UsersIcon className="h-6 w-6 text-gray-400 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">Zoznam pouLlA�vate�lov</h3>
+            <h3 className="text-lg font-medium text-gray-900">Zoznam pouLlA?vate?lov</h3>
           </div>
         </div>
         
@@ -40,7 +40,7 @@ const AdminDashboardUsers: React.FC<AdminDashboardUsersProps> = ({
           <div className="mb-4">
             <input
               type="text"
-              placeholder="H�ladaLA pouLlA�vate�lov..."
+              placeholder="H?ladaLA pouLlA?vate?lov..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -50,7 +50,7 @@ const AdminDashboardUsers: React.FC<AdminDashboardUsersProps> = ({
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500">Na�TA�tavam pouLlA�vate�lov...</p>
+              <p className="mt-2 text-gray-500">Na?TA?tavam pouLlA?vate?lov...</p>
             </div>
           ) : users.length > 0 ? (
             <div className="overflow-x-auto">
@@ -104,7 +104,7 @@ const AdminDashboardUsers: React.FC<AdminDashboardUsersProps> = ({
           ) : (
             <div className="text-center py-8">
               <UsersIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">L?iadni pouLlA�vatelia neboli nA?jdenA�</p>
+              <p className="text-gray-500">L?iadni pouLlA?vatelia neboli nA?jdenA?</p>
             </div>
           )}
         </div>

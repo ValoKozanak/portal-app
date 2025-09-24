@@ -26,7 +26,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Na�TA�tanie sviatkov pre aktuA?lny rok
+  // Na?TA?tanie sviatkov pre aktuA?lny rok
   useEffect(() => {
     const loadHolidays = async () => {
       setLoading(true);
@@ -35,7 +35,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         const calendar = await CalendarService.getWorkCalendar(year);
         setHolidays(calendar.holidays);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� sviatkov:', error);
+        console.error('Chyba pri na?TA?tanA? sviatkov:', error);
         setHolidays([]);
       } finally {
         setLoading(false);
@@ -53,11 +53,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     
-    // Na Slovensku za�TA�na tA?LldeL� pondelkom (1), nie nede�lou (0)
-    // getDay() vracia 0=nede�la, 1=pondelok, ..., 6=sobota
-    // Pre slovenskA? kalendA?r potrebujeme: 0=pondelok, 1=utorok, ..., 6=nede�la
+    // Na Slovensku za?TA?na tA?LldeL? pondelkom (1), nie nede?lou (0)
+    // getDay() vracia 0=nede?la, 1=pondelok, ..., 6=sobota
+    // Pre slovenskA? kalendA?r potrebujeme: 0=pondelok, 1=utorok, ..., 6=nede?la
     let firstDayOfWeek = firstDay.getDay();
-    if (firstDayOfWeek === 0) firstDayOfWeek = 7; // Nede�la sa stA?va 7
+    if (firstDayOfWeek === 0) firstDayOfWeek = 7; // Nede?la sa stA?va 7
     firstDayOfWeek = firstDayOfWeek - 1; // Posunieme o 1, aby pondelok bol 0
     
     const startDate = new Date(firstDay);
@@ -66,7 +66,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     const days = [];
     const currentDate = new Date(startDate);
     
-    // Generujeme 6 tA?LldL�ov (42 dnA�) pre konzistentnA? layout
+    // Generujeme 6 tA?LldL?ov (42 dnA?) pre konzistentnA? layout
     for (let i = 0; i < 42; i++) {
       const dayInfo = CalendarService.getDayInfo(currentDate, holidays);
       
@@ -158,7 +158,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
           {/* Week days header */}
           <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-dark-600">
-            {['Po', 'Ut', 'St', 'L�t', 'Pi', 'So', 'Ne'].map(day => (
+            {['Po', 'Ut', 'St', 'L?t', 'Pi', 'So', 'Ne'].map(day => (
               <div key={day} className="bg-white dark:bg-dark-800 p-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
                 {day}
               </div>
@@ -180,11 +180,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
               }
               
                              if (day.isWeekend) {
-                 // ZelenA? pre vA�kendy
+                 // ZelenA? pre vA?kendy
                  bgColor = day.isSelected ? 'bg-green-500' : 'bg-green-50 dark:bg-green-900/20';
                  textColor = day.isSelected ? 'text-white' : 'text-green-700 dark:text-green-300';
                } else if (day.isHoliday) {
-                 // �ServenA? pre sviatky (dni pracovnA�ho pokoja okrem vA�kendov)
+                 // ?ServenA? pre sviatky (dni pracovnA?ho pokoja okrem vA?kendov)
                  bgColor = day.isSelected ? 'bg-red-500' : 'bg-red-50 dark:bg-red-900/20';
                  textColor = day.isSelected ? 'text-white' : 'text-red-700 dark:text-red-300';
                }
@@ -206,7 +206,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
                     ${!day.isCurrentMonth ? 'opacity-30' : ''}
                     relative
                   `}
-                                     title={day.holidayName ? `PracovnA� vo�lno: ${day.holidayName}` : (day.isWeekend ? 'VA�kend' : undefined)}
+                                     title={day.holidayName ? `PracovnA? vo?lno: ${day.holidayName}` : (day.isWeekend ? 'VA?kend' : undefined)}
                 >
                   {day.date.getDate()}
 
@@ -225,12 +225,12 @@ const DatePicker: React.FC<DatePickerProps> = ({
                  </div>
                  <div className="flex items-center space-x-1">
                    <div className="w-3 h-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700"></div>
-                   <span>VA�kendy</span>
+                   <span>VA?kendy</span>
                  </div>
                </div>
               {loading && (
                 <div className="text-blue-600 dark:text-blue-400">
-                  Na�TA�tavam...
+                  Na?TA?tavam...
                 </div>
               )}
             </div>

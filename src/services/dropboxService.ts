@@ -39,7 +39,7 @@ class DropboxService {
 
   constructor() {
     console.log('DropboxService: Inicializujem...');
-    console.log('DropboxService: Environment premennA�:', {
+    console.log('DropboxService: Environment premennA?:', {
       appKey: DROPBOX_APP_KEY,
       appSecret: DROPBOX_APP_SECRET ? '***' : 'CHAtBA',
       appSecretLength: DROPBOX_APP_SECRET ? DROPBOX_APP_SECRET.length : 0,
@@ -67,7 +67,7 @@ class DropboxService {
 
   // Generovanie OAuth URL pre autentifikA?ciu
   getAuthUrl(): string {
-    // Vy�TistA�me starA? state pred vytvorenA�m novA�ho
+    // Vy?TistA?me starA? state pred vytvorenA?m novA?ho
     localStorage.removeItem('dropbox_auth_state');
     
     const state = Math.random().toString(36).substring(7);
@@ -89,7 +89,7 @@ class DropboxService {
 
   // Spracovanie OAuth callback
   async handleAuthCallback(code: string, state: string): Promise<DropboxAuthResult> {
-    console.log('dropboxService.handleAuthCallback - za�Tiatok');
+    console.log('dropboxService.handleAuthCallback - za?Tiatok');
     console.log('Parametre:', { code: code.substring(0, 10) + '...', state });
     
     const savedState = localStorage.getItem('dropbox_auth_state');
@@ -106,8 +106,8 @@ class DropboxService {
       throw new Error('Invalid state parameter');
     }
     
-    // State kontrola AsspeL?nA?, pokra�Tujem v spracovanA�...
-    console.log('State kontrola AsspeL?nA?, pokra�Tujem v spracovanA�...');
+    // State kontrola AsspeL?nA?, pokra?Tujem v spracovanA?...
+    console.log('State kontrola AsspeL?nA?, pokra?Tujem v spracovanA?...');
 
     try {
       console.log('Posielam poLliadavku na Dropbox API...');
@@ -146,7 +146,7 @@ class DropboxService {
       }
 
       const authResult: DropboxAuthResult = await response.json();
-      console.log('Dropbox API AsspeL?nA? odpove�Z:', { 
+      console.log('Dropbox API AsspeL?nA? odpove?Z:', { 
         access_token: authResult.access_token.substring(0, 10) + '...',
         token_type: authResult.token_type,
         expires_in: authResult.expires_in
@@ -159,11 +159,11 @@ class DropboxService {
         localStorage.setItem('dropbox_refresh_token', authResult.refresh_token);
       }
       
-      // Vy�TistA�me state po AsspeL?nom spracovanA�
+      // Vy?TistA?me state po AsspeL?nom spracovanA?
       localStorage.removeItem('dropbox_auth_state');
-      console.log('State vy�TistenA? po AsspeL?nom spracovanA�');
+      console.log('State vy?TistenA? po AsspeL?nom spracovanA?');
 
-      console.log('Tokeny uloLlenA� do localStorage');
+      console.log('Tokeny uloLlenA? do localStorage');
 
       // InicializA?cia Dropbox klienta
       this.initializeDropbox(authResult.access_token);
@@ -176,12 +176,12 @@ class DropboxService {
     }
   }
 
-  // Kontrola, �Ti je pouLlA�vate�l prihlA?senA?
+  // Kontrola, ?Ti je pouLlA?vate?l prihlA?senA?
   isAuthenticated(): boolean {
     // Skontrolujeme token z localStorage
     const tokenFromStorage = localStorage.getItem('dropbox_access_token');
     
-    // Ak mA?me token v localStorage ale nie v pamA�ti, inicializujeme klienta
+    // Ak mA?me token v localStorage ale nie v pamA?ti, inicializujeme klienta
     if (tokenFromStorage && !this.accessToken) {
       this.accessToken = tokenFromStorage;
       this.initializeDropbox(tokenFromStorage);
@@ -207,7 +207,7 @@ class DropboxService {
     localStorage.removeItem('dropbox_auth_state');
   }
 
-  // ZA�skanie informA?ciA� o As�Tte
+  // ZA?skanie informA?ciA? o As?Tte
   async getAccountInfo() {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -215,25 +215,25 @@ class DropboxService {
 
     try {
       console.log('DropboxService.getAccountInfo - volA?m Dropbox API...');
-      // PridA?me kontrolu, �Ti je dbx sprA?vne inicializovanA?
+      // PridA?me kontrolu, ?Ti je dbx sprA?vne inicializovanA?
       if (!this.dbx.usersGetCurrentAccount) {
         throw new Error('Dropbox client not properly initialized');
       }
       
-      // PridA?me kontrolu, �Ti je fetch sprA?vne nastavenA?
+      // PridA?me kontrolu, ?Ti je fetch sprA?vne nastavenA?
       if (!this.dbx.usersGetCurrentAccount) {
         console.error('Dropbox client methods not available');
         throw new Error('Dropbox client methods not available');
       }
       
       const response = await this.dbx.usersGetCurrentAccount();
-      console.log('DropboxService.getAccountInfo - odpove�Z:', response);
+      console.log('DropboxService.getAccountInfo - odpove?Z:', response);
       return response.result;
     } catch (error) {
       console.error('Error getting account info:', error);
-      // Ak je problA�m s fetch, skAssime reinicializovaLA klienta
+      // Ak je problA?m s fetch, skAssime reinicializovaLA klienta
       if (error instanceof Error && (error.message.includes('fetch') || error.message.includes('Illegal invocation'))) {
-        console.log('DropboxService.getAccountInfo - problA�m s fetch, reinicializujem klienta...');
+        console.log('DropboxService.getAccountInfo - problA?m s fetch, reinicializujem klienta...');
         const token = localStorage.getItem('dropbox_access_token');
         if (token) {
           this.initializeDropbox(token);
@@ -246,7 +246,7 @@ class DropboxService {
     }
   }
 
-  // ZA�skanie zoznamu sAsborov z prie�Tinka
+  // ZA?skanie zoznamu sAsborov z prie?Tinka
   async listFiles(path: string = '', ico?: string): Promise<DropboxFile[]> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -254,7 +254,7 @@ class DropboxService {
 
     try {
       console.log('=== DROPBOX SERVICE DEBUG ===');
-      console.log('DropboxService.listFiles - za�Tiatok');
+      console.log('DropboxService.listFiles - za?Tiatok');
       console.log('DropboxService.listFiles - path:', path);
       console.log('DropboxService.listFiles - ico:', ico);
       console.log('DropboxService.listFiles - this.dbx exists:', !!this.dbx);
@@ -262,7 +262,7 @@ class DropboxService {
       // Ak je zadanA? ico, pouLlijeme L?pecifickAs cestu pre firmu
       let targetPath = path;
       if (ico && !path.startsWith('/Portal/Companies/')) {
-        // VytvorA�me cestu pre firmu na zA?klade ico
+        // VytvorA?me cestu pre firmu na zA?klade ico
         const companyFolder = this.getCompanyFolderPath(ico);
         targetPath = companyFolder + (path ? '/' + path : '');
         console.log('DropboxService.listFiles - companyFolder:', companyFolder);
@@ -298,20 +298,20 @@ class DropboxService {
     }
   }
 
-  // Generovanie cesty pre firmu na zA?klade I�SO
+  // Generovanie cesty pre firmu na zA?klade I?SO
   getCompanyFolderPath(ico: string): string {
     const icoHash = this.hashICO(ico);
     return `/Portal/Companies/${icoHash}`;
   }
 
-  // JednoduchA? hash I�SO pre vytvorenie unikA?tnej cesty
+  // JednoduchA? hash I?SO pre vytvorenie unikA?tnej cesty
   hashICO(ico: string): string {
-    // I�SO je uLl unikA?tne, takLle ho mA�Lleme pouLliLA priamo
-    // Len odstrA?nime medzery a L?peciA?lne znaky pre bezpe�TnosLA
+    // I?SO je uLl unikA?tne, takLle ho mA?Lleme pouLliLA priamo
+    // Len odstrA?nime medzery a L?peciA?lne znaky pre bezpe?TnosLA
     return ico.replace(/\s/g, '').replace(/[^a-zA-Z0-9]/g, '');
   }
 
-  // Vytvorenie zdie�late�lnej zloLlky pre firmu
+  // Vytvorenie zdie?late?lnej zloLlky pre firmu
   async createCompanyFolder(ico: string): Promise<string> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -320,7 +320,7 @@ class DropboxService {
     try {
       const companyPath = this.getCompanyFolderPath(ico);
       
-      // Vytvorenie prie�Tinka
+      // Vytvorenie prie?Tinka
       const response = await this.dbx.filesCreateFolderV2({
         path: companyPath,
         autorename: false
@@ -333,7 +333,7 @@ class DropboxService {
     }
   }
 
-  // ZA�skanie zdie�late�lnA�ho linku pre firmu
+  // ZA?skanie zdie?late?lnA?ho linku pre firmu
   async getCompanySharedLink(ico: string): Promise<string> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -357,7 +357,7 @@ class DropboxService {
     try {
       const fileBuffer = await file.arrayBuffer();
       
-      // Ak je zadanA? I�SO, pouLlijeme L?pecifickAs cestu pre firmu
+      // Ak je zadanA? I?SO, pouLlijeme L?pecifickAs cestu pre firmu
       let fullPath = path + '/' + file.name;
       if (ico && !path.startsWith('/Portal/Companies/')) {
         const companyFolder = this.getCompanyFolderPath(ico);
@@ -430,7 +430,7 @@ class DropboxService {
     }
   }
 
-  // Vytvorenie prie�Tinka
+  // Vytvorenie prie?Tinka
   async createFolder(path: string): Promise<void> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -447,7 +447,7 @@ class DropboxService {
     }
   }
 
-  // ZA�skanie zdie�late�lnA�ho linku
+  // ZA?skanie zdie?late?lnA?ho linku
   async getSharedLink(path: string): Promise<string> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -511,7 +511,7 @@ class DropboxService {
 
   // ===== ADMIN FUNKCIE =====
 
-  // Vytvorenie zdie�late�lnA�ho linku s oprA?vneniami (pre admin)
+  // Vytvorenie zdie?late?lnA?ho linku s oprA?vneniami (pre admin)
   async createSharedLink(folderPath: string, permissions: {
     canView: boolean;
     canEdit: boolean;
@@ -526,7 +526,7 @@ class DropboxService {
       console.log('DropboxService.createSharedLink - vytvA?ram link pre:', folderPath);
       console.log('DropboxService.createSharedLink - oprA?vnenia:', permissions);
       
-      // Ur�Tenie prA�stupu na zA?klade oprA?vnenA�
+      // Ur?Tenie prA?stupu na zA?klade oprA?vnenA?
       let access: { '.tag': 'viewer' } | { '.tag': 'editor' } = { '.tag': 'viewer' };
       if (permissions.canEdit || permissions.canUpload || permissions.canDelete) {
         access = { '.tag': 'editor' };
@@ -548,9 +548,9 @@ class DropboxService {
     } catch (error) {
       console.error('Error creating shared link with permissions:', error);
       
-             // Ak je chyba 409 (Conflict) alebo "shared_link_already_exists", skAssime zA�skaLA existujAsci link
+             // Ak je chyba 409 (Conflict) alebo "shared_link_already_exists", skAssime zA?skaLA existujAsci link
        if (error instanceof Error && (error.message.includes('shared_link_already_exists') || error.message.includes('409'))) {
-         console.log('Link uLl existuje (409), zA�skavam existujAsci link...');
+         console.log('Link uLl existuje (409), zA?skavam existujAsci link...');
          try {
            const existingLinks = await this.dbx.sharingListSharedLinks({
              path: folderPath,
@@ -562,7 +562,7 @@ class DropboxService {
              return existingLinks.result.links[0].url;
            }
          } catch (listError) {
-           console.error('Chyba pri zA�skavanA� existujAsceho linku:', listError);
+           console.error('Chyba pri zA?skavanA? existujAsceho linku:', listError);
          }
        }
       
@@ -570,7 +570,7 @@ class DropboxService {
     }
   }
 
-  // Odvolanie zdie�late�lnA�ho linku
+  // Odvolanie zdie?late?lnA?ho linku
   async revokeSharedLink(shareLink: string): Promise<void> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
@@ -597,21 +597,21 @@ class DropboxService {
     }
   }
 
-  // ZA�skanie vL?etkA?ch zdie�late�lnA?ch linkov
+  // ZA?skanie vL?etkA?ch zdie?late?lnA?ch linkov
   async getAllSharedLinks(): Promise<any[]> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');
     }
 
     try {
-      console.log('DropboxService.getAllSharedLinks - zA�skavam vL?etky zdie�late�lnA� linky...');
+      console.log('DropboxService.getAllSharedLinks - zA?skavam vL?etky zdie?late?lnA? linky...');
       
       const response = await this.dbx.sharingListSharedLinks({
         path: '/Portal/Companies',
         direct_only: false
       });
 
-      console.log('DropboxService.getAllSharedLinks - na�TA�tanA� linky:', response.result.links);
+      console.log('DropboxService.getAllSharedLinks - na?TA?tanA? linky:', response.result.links);
       return response.result.links;
     } catch (error) {
       console.error('Error getting shared links:', error);
@@ -619,7 +619,7 @@ class DropboxService {
     }
   }
 
-  // Kontrola, �Ti zloLlka existuje
+  // Kontrola, ?Ti zloLlka existuje
   async checkFolderExists(folderPath: string): Promise<boolean> {
     if (!this.dbx) {
       throw new Error('Dropbox not initialized');

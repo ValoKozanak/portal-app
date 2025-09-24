@@ -33,14 +33,14 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Na�TA�tanie firiem
+  // Na?TA?tanie firiem
   useEffect(() => {
     const loadCompanies = async () => {
       try {
         const companiesData = await apiService.getAllCompanies();
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� firiem:', error);
+        console.error('Chyba pri na?TA?tanA? firiem:', error);
       }
     };
 
@@ -69,9 +69,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinnA�';
+      newErrors.name = 'Meno je povinnA?';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Meno musA� maLA aspoL� 2 znaky';
+      newErrors.name = 'Meno musA? maLA aspoL? 2 znaky';
     }
 
     if (!formData.email.trim()) {
@@ -81,9 +81,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     }
 
     if (!formData.password) {
-      newErrors.password = 'Heslo je povinnA�';
+      newErrors.password = 'Heslo je povinnA?';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Heslo musA� maLA aspoL� 6 znakov';
+      newErrors.password = 'Heslo musA? maLA aspoL? 6 znakov';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -112,7 +112,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 
     setIsLoading(true);
 
-    // SimulA?cia pridania pouLlA�vate�la
+    // SimulA?cia pridania pouLlA?vate?la
     setTimeout(() => {
       const { confirmPassword, ...userData } = formData;
       onAddUser(userData);
@@ -153,7 +153,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">PridaLA novA�ho pouLlA�vate�la</h2>
+          <h2 className="text-xl font-semibold text-gray-900">PridaLA novA?ho pouLlA?vate?la</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -226,7 +226,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Potvr�Zte heslo *
+                Potvr?Zte heslo *
               </label>
               <input
                 type="password"
@@ -275,8 +275,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="user">PouLlA�vate�l</option>
-                <option value="accountant">As�TtovnA�k (ModerA?tor)</option>
+                <option value="user">PouLlA?vate?l</option>
+                <option value="accountant">As?TtovnA?k (ModerA?tor)</option>
                 <option value="employee">Zamestnanec</option>
                 <option value="moderator">ModerA?tor</option>
                 <option value="admin">AdministrA?tor</option>
@@ -294,8 +294,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="active">AktA�vny</option>
-                <option value="inactive">NeaktA�vny</option>
+                <option value="active">AktA?vny</option>
+                <option value="inactive">NeaktA?vny</option>
               </select>
             </div>
 
@@ -341,7 +341,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAddUser 
               disabled={isLoading}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'PridA?vam...' : 'PridaLA pouLlA�vate�la'}
+              {isLoading ? 'PridA?vam...' : 'PridaLA pouLlA?vate?la'}
             </button>
           </div>
         </form>

@@ -26,21 +26,21 @@ const COLORS = [
 ];
 
 const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
-  // PrA�prava dA?t pre pie chart nA?kladov
+  // PrA?prava dA?t pre pie chart nA?kladov
   const expensesPieData = analysis.expenses.details.map((item, index) => ({
     name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
 
-  // PrA�prava dA?t pre pie chart vA?nosov
+  // PrA?prava dA?t pre pie chart vA?nosov
   const revenuePieData = analysis.revenue.details.map((item, index) => ({
     name: item.account_name,
     value: item.amount,
     color: COLORS[index % COLORS.length]
   }));
 
-  // PrA�prava dA?t pre bar chart porovnania
+  // PrA?prava dA?t pre bar chart porovnania
   const comparisonData = [
     {
       name: 'VA?nosy',
@@ -59,7 +59,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
     }
   ];
 
-  // PrA�prava dA?t pre top nA?klady a vA?nosy
+  // PrA?prava dA?t pre top nA?klady a vA?nosy
   const topExpenses = analysis.expenses.details
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5)
@@ -89,14 +89,14 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{data.name}</p>
           {data.account && (
-            <p className="text-sm text-gray-500">As�Tet: {data.account}</p>
+            <p className="text-sm text-gray-500">As?Tet: {data.account}</p>
           )}
           <p className="text-sm text-gray-600">
             Suma: {formatCurrency(payload[0].value)}
           </p>
           {data.count && (
             <p className="text-sm text-gray-600">
-              Po�Tet: {data.count}
+              Po?Tet: {data.count}
             </p>
           )}
         </div>
@@ -132,7 +132,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
          {/* Pie Chart VA?nosy */}
          <div className="bg-white p-6 rounded-lg shadow">
            <h3 className="text-lg font-medium text-gray-900 mb-4">
-             RozloLlenie vA?nosov (As�Tty 6xx)
+             RozloLlenie vA?nosov (As?Tty 6xx)
            </h3>
                       <ResponsiveContainer width="100%" height={400}>
               <PieChart>
@@ -157,7 +157,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ analysis }) => {
          {/* Pie Chart NA?klady */}
          <div className="bg-white p-6 rounded-lg shadow">
            <h3 className="text-lg font-medium text-gray-900 mb-4">
-             RozloLlenie nA?kladov (As�Tty 5xx)
+             RozloLlenie nA?kladov (As?Tty 5xx)
            </h3>
                       <ResponsiveContainer width="100%" height={400}>
               <PieChart>

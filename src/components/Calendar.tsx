@@ -53,21 +53,21 @@ const CalendarComponent: React.FC<CalendarProps> = ({
   const calendarEvents = useMemo(() => {
     return tasks
       .filter(task => {
-        // Filtrovanie pod�la firmy
+        // Filtrovanie pod?la firmy
         if (filters.companyId !== 'all' && task.company_id !== parseInt(filters.companyId)) {
           return false;
         }
-        // Filtrovanie pod�la stavu
+        // Filtrovanie pod?la stavu
         if (filters.status !== 'all' && task.status !== filters.status) {
           return false;
         }
-        // Filtrovanie pod�la priority
+        // Filtrovanie pod?la priority
         if (filters.priority !== 'all' && task.priority !== filters.priority) {
           return false;
         }
         return true;
       })
-      .filter(task => task.due_date) // Len Aslohy s termA�nom
+      .filter(task => task.due_date) // Len Aslohy s termA?nom
       .map(task => ({
         id: task.id,
         title: task.title,
@@ -77,7 +77,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
       }));
   }, [tasks, filters]);
 
-  // ZA�skanie udalostA� pre vybranA? dA?tum
+  // ZA?skanie udalostA? pre vybranA? dA?tum
   useEffect(() => {
     if (!selectedDate) return;
     const eventsForDate = calendarEvents.filter(event =>
@@ -86,7 +86,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     setSelectedEvents(eventsForDate);
   }, [selectedDate, calendarEvents]);
 
-  // Funkcia pre zA�skanie udalostA� pre konkrA�tny dA?tum (pre react-calendar)
+  // Funkcia pre zA?skanie udalostA? pre konkrA?tny dA?tum (pre react-calendar)
   const tileContent = ({ date }: { date: Date }) => {
     const eventsForDate = calendarEvents.filter(event =>
       isSameDay(event.date, date)
@@ -113,7 +113,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({
     );
   };
 
-  // Funkcia pre zA�skanie CSS tried pre dA?tum (pre react-calendar)
+  // Funkcia pre zA?skanie CSS tried pre dA?tum (pre react-calendar)
   const tileClassName = ({ date }: { date: Date }) => {
     const eventsForDate = calendarEvents.filter(event =>
       isSameDay(event.date, date)
@@ -209,10 +209,10 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">VL?etky stavy</option>
-            <option value="pending">�SakajAsce</option>
-            <option value="in_progress">V rieL?enA�</option>
-            <option value="completed">Dokon�TenA�</option>
-            <option value="cancelled">ZruL?enA�</option>
+            <option value="pending">?SakajAsce</option>
+            <option value="in_progress">V rieL?enA?</option>
+            <option value="completed">Dokon?TenA?</option>
+            <option value="cancelled">ZruL?enA?</option>
           </select>
 
           {/* Priorita */}
@@ -222,10 +222,10 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">VL?etky priority</option>
-            <option value="urgent">UrgentnA�</option>
-            <option value="high">VysokA�</option>
-            <option value="medium">StrednA�</option>
-            <option value="low">NA�zke</option>
+            <option value="urgent">UrgentnA?</option>
+            <option value="high">VysokA?</option>
+            <option value="medium">StrednA?</option>
+            <option value="low">NA?zke</option>
           </select>
 
           {/* VymazaLA filtre */}
@@ -257,23 +257,23 @@ const CalendarComponent: React.FC<CalendarProps> = ({
             <div className="flex flex-wrap gap-4 text-xs">
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>UrgentnA�</span>
+                <span>UrgentnA?</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                <span>VysokA�</span>
+                <span>VysokA?</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>V rieL?enA�</span>
+                <span>V rieL?enA?</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Dokon�TenA�</span>
+                <span>Dokon?TenA?</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                <span>OstatnA�</span>
+                <span>OstatnA?</span>
               </div>
             </div>
           </div>

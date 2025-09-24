@@ -30,7 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                As�TtovnA�ctvo.sk
+                As?TtovnA?ctvo.sk
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -58,9 +58,9 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   {userRole === 'admin' ? 'Admin' : 
-                   userRole === 'accountant' ? 'As�TtovnA�k' : 
+                   userRole === 'accountant' ? 'As?TtovnA?k' : 
                    userRole === 'employee' ? 'Zamestnanec' :
-                   'PouLlA�vate�l'}
+                   'PouLlA?vate?l'}
                 </span>
                 <button
                   onClick={onLogout}
@@ -119,8 +119,8 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLoginClick, onL
                 <div className="space-y-2">
                   <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
                     {userRole === 'admin' ? 'Admin' : 
-                     userRole === 'accountant' ? 'As�TtovnA�k' : 
-                     'PouLlA�vate�l'}
+                     userRole === 'accountant' ? 'As?TtovnA?k' : 
+                     'PouLlA?vate?l'}
                   </div>
                   <button
                     onClick={() => {

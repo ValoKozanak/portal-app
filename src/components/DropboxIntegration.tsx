@@ -19,9 +19,9 @@ interface DropboxIntegrationProps {
   isCompanyView?: boolean;
   onFileSelect?: (file: DropboxFile) => void;
   companyEmail?: string; // Email firmy pre zobrazenie sprA?vneho folderu
-  userRole?: 'admin' | 'accountant' | 'company'; // Role pouLlA�vate�la
+  userRole?: 'admin' | 'accountant' | 'company'; // Role pouLlA?vate?la
   companyName?: string; // NA?zov firmy pre zobrazenie
-  companyICO?: string; // I�SO firmy pre vytvorenie zloLlky
+  companyICO?: string; // I?SO firmy pre vytvorenie zloLlky
 }
 
 const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({ 
@@ -49,7 +49,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
 
   const checkAuthStatus = async () => {
     console.log('=== DROPBOX INTEGRATION - checkAuthStatus ===');
-    console.log('DropboxIntegration.checkAuthStatus - za�Tiatok');
+    console.log('DropboxIntegration.checkAuthStatus - za?Tiatok');
     
     const authenticated = dropboxService.isAuthenticated();
     console.log('DropboxIntegration.checkAuthStatus - authenticated:', authenticated);
@@ -63,12 +63,12 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
         loadFiles(authenticated); // PLTedA?me authenticated hodnotu
       } catch (error) {
         console.error('Error loading account info:', error);
-        // Token mA�Lle byLA expirovanA?, skAssime ho obnoviLA
+        // Token mA?Lle byLA expirovanA?, skAssime ho obnoviLA
         try {
           await dropboxService.refreshAccessToken();
           const account = await dropboxService.getAccountInfo();
           setAccountInfo(account);
-          loadFiles(true); // PLTedA?me true, protoLle refreshAccessToken Assp�>L?nA?
+          loadFiles(true); // PLTedA?me true, protoLle refreshAccessToken Assp?>L?nA?
         } catch (refreshError) {
           console.error('Error refreshing token:', refreshError);
           handleLogout();
@@ -99,7 +99,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
     setIsLoading(true);
     try {
       console.log('=== DROPBOX INTEGRATION DEBUG ===');
-      // Ak je company view, na�TA�tame iba sAsbory z firmy
+      // Ak je company view, na?TA?tame iba sAsbory z firmy
       if (isCompanyView && companyICO) {
         const companyFolder = dropboxService.getCompanyFolderPath(companyICO);
         
@@ -134,7 +134,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
       
       const result = await dropboxService.uploadFile(selectedFile, currentPath || '', icoToUse);
       
-      // Pridanie novA�ho sAsboru do zoznamu
+      // Pridanie novA?ho sAsboru do zoznamu
       setFiles(prev => [...prev, {
         id: result.id,
         name: result.name,
@@ -149,7 +149,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
       setUploadProgress(100);
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Chyba pri nahrA?vanA� sAsboru');
+      alert('Chyba pri nahrA?vanA? sAsboru');
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -171,7 +171,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading file:', error);
-      alert('Chyba pri sLAahovanA� sAsboru');
+      alert('Chyba pri sLAahovanA? sAsboru');
     }
   };
 
@@ -185,7 +185,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
       setFiles(prev => prev.filter(f => f.id !== file.id));
     } catch (error) {
       console.error('Error deleting file:', error);
-      alert('Chyba pri mazanA� sAsboru');
+      alert('Chyba pri mazanA? sAsboru');
     }
   };
 
@@ -207,12 +207,12 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
 
     try {
       const sharedLink = await dropboxService.getCompanySharedLink(companyICO);
-      // SkopA�rovanie linku do clipboard
+      // SkopA?rovanie linku do clipboard
       navigator.clipboard.writeText(sharedLink);
-      alert('Zdie�late�lnA? link bol skopA�rovanA? do clipboard!');
+      alert('Zdie?late?lnA? link bol skopA?rovanA? do clipboard!');
     } catch (error) {
       console.error('Error creating shared link:', error);
-      alert('Chyba pri vytvA?ranA� zdie�late�lnA�ho linku');
+      alert('Chyba pri vytvA?ranA? zdie?late?lnA?ho linku');
     }
   };
 
@@ -239,7 +239,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
             Pripojte sa k Dropbox
           </h3>
           <p className="text-gray-600 mb-4">
-            Synchronizujte sAsbory s vaL?A�m Dropbox As�Ttom pre bezpe�TnA� zA?lohovanie a prA�stup z akA�hoko�lvek zariadenia.
+            Synchronizujte sAsbory s vaL?A?m Dropbox As?Ttom pre bezpe?TnA? zA?lohovanie a prA?stup z akA?hoko?lvek zariadenia.
           </p>
           <button
             onClick={handleLogin}
@@ -277,17 +277,17 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              {/* Tla�TidlA? zobrazujeme len pre admin a accountant */}
+              {/* Tla?TidlA? zobrazujeme len pre admin a accountant */}
               {userRole !== 'company' && (
                 <>
                   {(userEmail || (isCompanyView && companyEmail)) && (
                     <button
                       onClick={handleCreateSharedLink}
                       className="inline-flex items-center px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
-                      title="VytvoriLA zdie�late�lnA? link"
+                      title="VytvoriLA zdie?late?lnA? link"
                     >
                       <LinkIcon className="h-4 w-4 mr-1" />
-                      Zdie�laLA
+                      Zdie?laLA
                     </button>
                   )}
                   <button
@@ -351,7 +351,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
         {isLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Na�TA�tavam sAsbory...</p>
+            <p className="mt-2 text-gray-600">Na?TA?tavam sAsbory...</p>
           </div>
         ) : files.length > 0 ? (
           <div className="space-y-2">
@@ -371,7 +371,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
                       <p className="font-medium text-gray-900">{file.name}</p>
                       {file.tag === 'file' && (
                         <p className="text-sm text-gray-500">
-                          {formatFileSize(file.size)} �?? {new Date(file.server_modified).toLocaleDateString('sk-SK')}
+                          {formatFileSize(file.size)} ??? {new Date(file.server_modified).toLocaleDateString('sk-SK')}
                         </p>
                       )}
                     </div>
@@ -404,7 +404,7 @@ const DropboxIntegration: React.FC<DropboxIntegrationProps> = ({
             <CloudIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne sAsbory</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {currentPath ? 'Tento prie�Tinok je prA?zdny' : 'Za�Tnite nahrA?vanA�m sAsborov'}
+              {currentPath ? 'Tento prie?Tinok je prA?zdny' : 'Za?Tnite nahrA?vanA?m sAsborov'}
             </p>
           </div>
         )}

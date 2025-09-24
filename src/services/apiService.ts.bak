@@ -1,27 +1,37 @@
+// src/services/apiService.ts
+
 // =========================
-// Base URL (ENV) – JEDINÝ zdroj pravdy
+// Base URL (ENV) �?" JEDINAt zdroj pravdy
 // =========================
 const envBase =
-  process.env.REACT_APP_API_BASE ||        // preferované (Netlify: /api)
-  process.env.REACT_APP_API_URL ||         // legacy, ak by niekde zostalo
+  process.env.REACT_APP_API_BASE ||        // preferovanA� (Netlify: /api)
+  process.env.REACT_APP_API_URL  ||        // legacy fallback, ak by niekde ostalo
   '/api';
 
 export const API_BASE_URL = envBase.replace(/\/$/, ''); // bez trailing /
-export const API_ORIGIN = ''; // už nepoužívaj pevný host, nechaj prázdne
+export const API_ORIGIN = ''; // nepouLlA�vaj pevnA? host
 
 // =========================
-// Pomocné funkcie
+// PomocnA� funkcie
 // =========================
 const withLeadingSlash = (endpoint: string) =>
   endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
+const isJsonResponse = (resp: Response) => {
+  const ct = resp.headers.get('content-type') || '';
+  return ct.includes('application/json');
+};
+
+// =========================
 // Typy pre API
+// =========================
 export interface ApiResponse {
   success: boolean;
   message?: string;
   error?: string;
   data?: any;
 }
+
 export interface User {
   id: number;
   email: string;
@@ -43,10 +53,10 @@ export interface Company {
   contact_email?: string;
   contact_phone?: string;
   owner_email: string;
-  email?: string; // Add email property for compatibility
+  email?: string; // kompatibilita
   assignedToAccountants: string[];
   status: 'active' | 'inactive';
-  hasDropbox?: boolean; // Add hasDropbox property for Dropbox integration
+  hasDropbox?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -95,18 +105,24 @@ export interface DocumentData {
   created_at: string;
 }
 
+// =========================
 // API Service class
+// =========================
 class ApiService {
   private token: string | null = null;
 
   setToken(token: string) {
     this.token = token;
+    // udrLl kompatibilitu s historickA?mi k�lAs�Tmi
     localStorage.setItem('token', token);
+    localStorage.setItem('auth_token', token);
   }
 
   getToken(): string | null {
     if (!this.token) {
-      this.token = localStorage.getItem('token');
+      this.token =
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token');
     }
     return this.token;
   }
@@ -114,46 +130,68 @@ class ApiService {
   clearToken() {
     this.token = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('auth_token');
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const ep = withLeadingSlash(endpoint);
+    const url = `${API_BASE_URL}${ep}`;
     const token = this.getToken();
 
-    console.log('🌐 API Request:', url, options);
-
-    // Pre FormData nepoužívame Content-Type header
     const isFormData = options.body instanceof FormData;
-    
+    const headers: Record<string, string> = {
+      ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers as Record<string, string> | undefined),
+    };
+
     const config: RequestInit = {
-      headers: {
-        ...(!isFormData && { 'Content-Type': 'application/json' }),
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
       ...options,
+      headers,
     };
 
     try {
       const response = await fetch(url, config);
-      console.log('📡 API Response status:', response.status);
-      
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ API Error response:', errorData);
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        // skAss pre�TA�taLA JSON chybu, inak text
+        let errMsg = `HTTP ${response.status}`;
+        try {
+          if (isJsonResponse(response)) {
+            const e = await response.json();
+            errMsg = e?.error || errMsg;
+          } else {
+            const t = await response.text();
+            if (t) errMsg = t;
+          }
+        } catch {}
+        throw new Error(errMsg);
       }
 
-      const data = await response.json();
-      console.log('✅ API Response data:', data);
-      return data;
+      // 204/205 alebo prA?zdny content -> vrA?LA prA?zdny objekt
+      const len = response.headers.get('content-length');
+      if (response.status === 204 || response.status === 205 || len === '0') {
+        return {} as T;
+      }
+
+      if (isJsonResponse(response)) {
+        return (await response.json()) as T;
+      } else {
+        // ne-JSON odpove�Z (napr. text)
+        const txt = await response.text();
+        // @ts-ignore �?" nechA?me caller rozhodnAsLA
+        return txt as unknown as T;
+      }
     } catch (error) {
-      console.error('❌ API Error:', error);
+      // centralizovanA� logovanie
+      console.error('API request error:', { url, endpoint: ep, error });
       throw error;
     }
   }
 
+  // ================
   // Generic HTTP methods
+  // ================
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' });
   }
@@ -161,31 +199,30 @@ class ApiService {
   async post<T>(endpoint: string, data?: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     });
   }
 
   async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    // bez Content-Type �?" boundary nastavA� prehliada�T
     return this.request<T>(endpoint, {
       method: 'POST',
       body: formData,
-      headers: {
-        // Pre FormData nepoužívame Content-Type, necháme prehliadač nastaviť správny boundary
-      },
+      headers: {},
     });
   }
 
   async put<T>(endpoint: string, data?: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     });
   }
 
   async patch<T>(endpoint: string, data?: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      body: data !== undefined ? JSON.stringify(data) : undefined,
     });
   }
 
@@ -193,7 +230,9 @@ class ApiService {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
+  // =========================
   // Auth endpoints
+  // =========================
   async login(email: string, password: string) {
     return this.request<{ token: string; user: User }>('/auth/login', {
       method: 'POST',
@@ -216,30 +255,14 @@ class ApiService {
     status?: string;
     phone?: string;
   }) {
-    console.log('🚀 ApiService.createUser volané s dátami:', userData);
-    try {
-      const response = await this.request<{ message: string; userId: number; user: User }>('/auth/create-user', {
-        method: 'POST',
-        body: JSON.stringify(userData),
-      });
-      console.log('✅ ApiService.createUser úspešné:', response);
-      return response;
-    } catch (error) {
-      console.error('❌ ApiService.createUser chyba:', error);
-      throw error;
-    }
+    return this.request<{ message: string; userId: number; user: User }>('/auth/create-user', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
   }
 
   async getAllUsers() {
-    console.log('🔍 ApiService.getAllUsers volané');
-    try {
-      const users = await this.request<User[]>('/auth/users');
-      console.log('✅ ApiService.getAllUsers úspešné:', users);
-      return users;
-    } catch (error) {
-      console.error('❌ ApiService.getAllUsers chyba:', error);
-      throw error;
-    }
+    return this.request<User[]>('/auth/users');
   }
 
   async getAllAccountants() {
@@ -276,7 +299,9 @@ class ApiService {
     });
   }
 
+  // =========================
   // Companies endpoints
+  // =========================
   async getAllCompanies() {
     return this.request<Company[]>('/companies');
   }
@@ -286,7 +311,7 @@ class ApiService {
   }
 
   async getUserCompanies(userEmail: string) {
-    return this.request<Company[]>(`/companies/user/${userEmail}`);
+    return this.request<Company[]>(`/companies/user/${encodeURIComponent(userEmail)}`);
   }
 
   async createCompany(companyData: Omit<Company, 'id' | 'assignedToAccountants' | 'created_at' | 'updated_at'>) {
@@ -340,6 +365,13 @@ class ApiService {
     });
   }
 
+  async unassignAccountantFromCompany(companyId: number, accountantEmail: string) {
+    return this.request<{ message: string }>(
+      `/companies/${companyId}/accountants/${encodeURIComponent(accountantEmail)}`,
+      { method: 'DELETE' }
+    );
+  }
+
   async getCompanyById(id: number) {
     return this.request<Company>(`/companies/${id}`);
   }
@@ -352,9 +384,9 @@ class ApiService {
     return this.request<Company[]>(`/companies/accountant/${encodeURIComponent(accountantEmail)}`);
   }
 
-
-
+  // =========================
   // Tasks endpoints
+  // =========================
   async getAllTasks() {
     return this.request<Task[]>('/tasks');
   }
@@ -364,7 +396,7 @@ class ApiService {
   }
 
   async getAccountantTasks(accountantEmail: string) {
-    return this.request<Task[]>(`/tasks/accountant/${accountantEmail}`);
+    return this.request<Task[]>(`/tasks/accountant/${encodeURIComponent(accountantEmail)}`);
   }
 
   async getUserTasks(userEmail: string) {
@@ -402,7 +434,9 @@ class ApiService {
     });
   }
 
+  // =========================
   // Files endpoints
+  // =========================
   async getAllFiles() {
     return this.request<FileData[]>('/files/admin/all');
   }
@@ -416,83 +450,36 @@ class ApiService {
     formData.append('file', file);
     formData.append('company_id', companyId.toString());
     formData.append('uploaded_by', uploadedBy);
-    if (category) {
-      formData.append('category', category);
-    }
-
-    const url = `${API_BASE_URL}/files/upload`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    if (category) formData.append('category', category);
+    return this.postFormData<FileData>('/files/upload', formData);
   }
 
   async downloadFile(fileId: number) {
-    const url = `${API_BASE_URL}/files/download/${fileId}`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.blob();
+    return this.request<Blob>(`/files/download/${fileId}` as any);
   }
 
   async previewFile(fileId: number) {
-    const url = `${API_BASE_URL}/files/preview/${fileId}`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.blob();
+    return this.request<Blob>(`/files/preview/${fileId}` as any);
   }
 
   async deleteFile(fileId: number) {
-    return this.request<{ message: string }>(`/files/${fileId}`, {
-      method: 'DELETE',
-    });
+    return this.request<{ message: string }>(`/files/${fileId}`, { method: 'DELETE' });
   }
 
   async emptyTrash(companyId: number) {
-    return this.request<{ message: string }>(`/files/company/${companyId}/trash/empty`, {
-      method: 'DELETE',
-    });
+    return this.request<{ message: string }>(`/files/company/${companyId}/trash/empty`, { method: 'DELETE' });
   }
 
+  // =========================
   // Health check
+  // =========================
   async healthCheck() {
-    return this.request<{ status: string; message: string }>('/health');
+    return this.request<{ status?: string; message?: string }>('/health');
   }
 
+  // =========================
   // Messages endpoints
+  // =========================
   async getUserMessages(userEmail: string) {
     return this.request<any[]>(`/messages/user/${encodeURIComponent(userEmail)}`);
   }
@@ -528,62 +515,64 @@ class ApiService {
   }
 
   async markMessageAsRead(messageId: number) {
-    return this.request<{ message: string }>(`/messages/${messageId}/read`, {
-      method: 'PATCH',
-    });
+    return this.request<{ message: string }>(`/messages/${messageId}/read`, { method: 'PATCH' });
   }
 
   async markMessageAsUnread(messageId: number) {
-    return this.request<{ message: string }>(`/messages/${messageId}/unread`, {
-      method: 'PATCH',
-    });
+    return this.request<{ message: string }>(`/messages/${messageId}/unread`, { method: 'PATCH' });
   }
 
   async deleteMessage(messageId: number) {
-    return this.request<{ message: string }>(`/messages/${messageId}`, {
-      method: 'DELETE',
-    });
+    return this.request<{ message: string }>(`/messages/${messageId}`, { method: 'DELETE' });
   }
 
   async getUnreadCount(userEmail: string) {
-    const response = await this.request<{ unreadCount: number }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-count`);
+    const response = await this.request<{ unreadCount: number }>(
+      `/messages/user/${encodeURIComponent(userEmail)}/unread-count`
+    );
     return response.unreadCount;
   }
 
   async getUnreadCounts(userEmail: string) {
-    const response = await this.request<{ 
-      receivedUnreadCount: number; 
-      sentUnreadCount: number; 
-      totalUnreadCount: number 
+    return this.request<{
+      receivedUnreadCount: number;
+      sentUnreadCount: number;
+      totalUnreadCount: number;
     }>(`/messages/user/${encodeURIComponent(userEmail)}/unread-counts`);
-    return response;
   }
 
   async getCompanyUnreadCount(companyId: number) {
-    const response = await this.request<{ unreadCount: number }>(`/messages/company/${companyId}/unread-count`);
+    const response = await this.request<{ unreadCount: number }>(
+      `/messages/company/${companyId}/unread-count`
+    );
     return response.unreadCount;
   }
 
   async getCompanyUnreadCounts(companyId: number) {
-    const response = await this.request<{ 
-      receivedUnreadCount: number; 
-      sentUnreadCount: number; 
-      totalUnreadCount: number 
+    return this.request<{
+      receivedUnreadCount: number;
+      sentUnreadCount: number;
+      totalUnreadCount: number;
     }>(`/messages/company/${companyId}/unread-counts`);
-    return response;
   }
 
   async getConversation(user1: string, user2: string) {
-    return this.request<any[]>(`/messages/conversation/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`);
+    return this.request<any[]>(
+      `/messages/conversation/${encodeURIComponent(user1)}/${encodeURIComponent(user2)}`
+    );
   }
 
+  // =========================
   // Documents endpoints
+  // =========================
   async getDocumentCategories() {
-    return this.request<{ [key: string]: { name: string; description: string; allowedTypes: string[] } }>('/documents/categories');
+    return this.request<{ [key: string]: { name: string; description: string; allowedTypes: string[] } }>(
+      '/documents/categories'
+    );
   }
 
   async getCompanyDocuments(companyId: number, category?: string) {
-    const params = category && category !== 'all' ? `?category=${category}` : '';
+    const params = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
     return this.request<DocumentData[]>(`/documents/company/${companyId}${params}`);
   }
 
@@ -592,69 +581,28 @@ class ApiService {
   }
 
   async getAccountantDocuments(accountantEmail: string, category?: string) {
-    const params = category && category !== 'all' ? `?category=${category}` : '';
-    return this.request<DocumentData[]>(`/documents/accountant/${encodeURIComponent(accountantEmail)}${params}`);
+    const params = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
+    return this.request<DocumentData[]>(
+      `/documents/accountant/${encodeURIComponent(accountantEmail)}${params}`
+    );
   }
 
   async uploadDocument(formData: FormData) {
-    const url = `${API_BASE_URL}/documents/upload`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    return this.postFormData<{ document: DocumentData }>('/documents/upload', formData);
   }
 
   async downloadDocument(documentId: number) {
-    const url = `${API_BASE_URL}/documents/download/${documentId}`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.blob();
+    return this.request<Blob>(`/documents/download/${documentId}` as any);
   }
 
   async previewDocument(documentId: number) {
-    const url = `${API_BASE_URL}/documents/preview/${documentId}`;
-    const token = this.getToken();
-
-    const response = await fetch(url, {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.blob();
+    return this.request<Blob>(`/documents/preview/${documentId}` as any);
   }
 
   async deleteDocument(documentId: number) {
-    return this.request<{ message: string }>(`/documents/${documentId}`, {
-      method: 'DELETE',
-    });
+    return this.request<{ message: string }>(`/documents/${documentId}`, { method: 'DELETE' });
   }
 }
 
 export const apiService = new ApiService();
+

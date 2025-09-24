@@ -64,7 +64,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         }
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dochA?dzky:', error);
+      console.error('Chyba pri na?TA?tanA? dochA?dzky:', error);
     }
   };
 
@@ -113,8 +113,8 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
       await loadTodayAttendance(); // ObnoviLA dA?ta
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri za�TatA� prA?ce:', error);
-      alert('Chyba pri za�TatA� prA?ce');
+      console.error('Chyba pri za?TatA? prA?ce:', error);
+      alert('Chyba pri za?TatA? prA?ce');
     } finally {
       setLoading(false);
     }
@@ -162,8 +162,8 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
       await loadTodayAttendance(); // ObnoviLA dA?ta
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri ukon�TenA� prA?ce:', error);
-      alert('Chyba pri ukon�TenA� prA?ce');
+      console.error('Chyba pri ukon?TenA? prA?ce:', error);
+      alert('Chyba pri ukon?TenA? prA?ce');
     } finally {
       setLoading(false);
     }
@@ -184,8 +184,8 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
 
       onSuccess();
     } catch (error) {
-      console.error('Chyba pri ozna�TenA� neprA�tomnosti:', error);
-      alert('Chyba pri ozna�TenA� neprA�tomnosti');
+      console.error('Chyba pri ozna?TenA? neprA?tomnosti:', error);
+      alert('Chyba pri ozna?TenA? neprA?tomnosti');
     } finally {
       setLoading(false);
     }
@@ -207,13 +207,13 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         </p>
       </div>
 
-      {/* �Sasomiera */}
+      {/* ?Sasomiera */}
       <div className="text-center mb-6">
         <div className="text-4xl font-mono font-bold text-gray-900 dark:text-white mb-2">
           {isTracking ? formatDuration(getWorkDuration()) : '00:00:00'}
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          {isTracking ? 'PracovnA? �Tas' : '�Sasomiera'}
+          {isTracking ? 'PracovnA? ?Tas' : '?Sasomiera'}
         </div>
         {breakTime > 0 && (
           <div className="text-sm text-orange-600 dark:text-orange-400 mt-1">
@@ -228,20 +228,20 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
           <h4 className="font-medium text-gray-900 dark:text-white mb-2">DneL?nA? dochA?dzka:</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-500 dark:text-gray-400">PrA�chod:</span>
+              <span className="text-gray-500 dark:text-gray-400">PrA?chod:</span>
               <span className="ml-2 text-gray-900 dark:text-white">
-                {todayAttendance.check_in ? formatTime(new Date(todayAttendance.check_in)) : 'NezaznamenanA�'}
+                {todayAttendance.check_in ? formatTime(new Date(todayAttendance.check_in)) : 'NezaznamenanA?'}
               </span>
             </div>
             <div>
               <span className="text-gray-500 dark:text-gray-400">Odchod:</span>
               <span className="ml-2 text-gray-900 dark:text-white">
-                {todayAttendance.check_out ? formatTime(new Date(todayAttendance.check_out)) : 'NezaznamenanA�'}
+                {todayAttendance.check_out ? formatTime(new Date(todayAttendance.check_out)) : 'NezaznamenanA?'}
               </span>
             </div>
             {todayAttendance.total_hours && (
               <div>
-                <span className="text-gray-500 dark:text-gray-400">CelkovA? �Tas:</span>
+                <span className="text-gray-500 dark:text-gray-400">CelkovA? ?Tas:</span>
                 <span className="ml-2 text-gray-900 dark:text-white">
                   {(() => {
                     const hours = todayAttendance.total_hours;
@@ -266,7 +266,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
         </div>
       )}
 
-      {/* KontrolnA� tla�TidlA? */}
+      {/* KontrolnA? tla?TidlA? */}
       <div className="flex flex-wrap justify-center gap-3">
         {!isTracking && !todayAttendance && (
           <>
@@ -276,7 +276,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50"
             >
               <PlayIcon className="w-5 h-5 mr-2" />
-              Za�TaLA prA?cu
+              Za?TaLA prA?cu
             </button>
             <button
               onClick={handleMarkAbsent}
@@ -284,7 +284,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
             >
               <XMarkIcon className="w-5 h-5 mr-2" />
-              NeprA�tomnA?
+              NeprA?tomnA?
             </button>
           </>
         )}
@@ -314,7 +314,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({
               className="flex items-center px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50"
             >
               <StopIcon className="w-5 h-5 mr-2" />
-              Ukon�TiLA prA?cu
+              Ukon?TiLA prA?cu
             </button>
           </>
         )}

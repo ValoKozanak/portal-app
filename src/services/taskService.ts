@@ -1,4 +1,4 @@
-// DefinA�cia Task interface
+// DefinA?cia Task interface
 export interface Task {
   id: string;
   title: string;
@@ -16,7 +16,7 @@ export interface Task {
   companyName: string;
 }
 
-// SimulovanA� AsloLliL?te Asloh v localStorage
+// SimulovanA? AsloLliL?te Asloh v localStorage
 const TASKS_STORAGE_KEY = 'allTasks';
 
 export interface TaskService {
@@ -34,7 +34,7 @@ class TaskServiceImpl implements TaskService {
       const stored = localStorage.getItem(TASKS_STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� Asloh:', error);
+      console.error('Chyba pri na?TA?tanA? Asloh:', error);
       return [];
     }
   }
@@ -43,7 +43,7 @@ class TaskServiceImpl implements TaskService {
     try {
       localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
     } catch (error) {
-      console.error('Chyba pri ukladanA� Asloh:', error);
+      console.error('Chyba pri ukladanA? Asloh:', error);
     }
   }
 
@@ -112,8 +112,8 @@ class TaskServiceImpl implements TaskService {
     const defaultTasks: Task[] = [
       {
         id: '1',
-        title: 'Dokon�TiLA vA?ro�TnAs sprA?vu 2024',
-        description: 'PripraviLA a dokon�TiLA vA?ro�TnAs sprA?vu za rok 2024, vrA?tane vL?etkA?ch prA�loh a dokumentA?cie.',
+        title: 'Dokon?TiLA vA?ro?TnAs sprA?vu 2024',
+        description: 'PripraviLA a dokon?TiLA vA?ro?TnAs sprA?vu za rok 2024, vrA?tane vL?etkA?ch prA?loh a dokumentA?cie.',
         status: 'pending',
         priority: 'high',
         assignedTo: 'Mgr. Jana NovA?kovA?',
@@ -129,10 +129,10 @@ class TaskServiceImpl implements TaskService {
       {
         id: '2',
         title: 'OveriLA DPH priznanie Q4',
-        description: 'Kontrola a overenie DPH priznania za 4. L?tvrLArok 2024 pred odoslanA�m.',
+        description: 'Kontrola a overenie DPH priznania za 4. L?tvrLArok 2024 pred odoslanA?m.',
         status: 'in_progress',
         priority: 'high',
-        assignedTo: 'Ing. Peter KovA?�T',
+        assignedTo: 'Ing. Peter KovA??T',
         assignedToEmail: 'accountant@portal.sk',
         dueDate: '2024-12-18',
         createdAt: '2024-12-05T14:30:00Z',
@@ -144,7 +144,7 @@ class TaskServiceImpl implements TaskService {
       },
       {
         id: '3',
-        title: 'AktualizovaLA firemnA� Asdaje',
+        title: 'AktualizovaLA firemnA? Asdaje',
         description: 'AktualizA?cia firemnA?ch Asdajov v registri a notifikA?cia zmien Asradom.',
         status: 'completed',
         priority: 'medium',
@@ -166,7 +166,7 @@ class TaskServiceImpl implements TaskService {
 
 export const taskService = new TaskServiceImpl();
 
-// JednorazovA� odstrA?nenie demo Asloh a vypnutie automatickA�ho seedovania
+// JednorazovA? odstrA?nenie demo Asloh a vypnutie automatickA?ho seedovania
 if (typeof window !== 'undefined') {
   try {
     const cleanupFlagKey = 'tasks_demo_cleanup_done';
@@ -176,9 +176,9 @@ if (typeof window !== 'undefined') {
       if (stored) {
         const tasks: Task[] = JSON.parse(stored);
         const demoTitles = new Set([
-          'Dokon�TiLA vA?ro�TnAs sprA?vu 2024',
+          'Dokon?TiLA vA?ro?TnAs sprA?vu 2024',
           'OveriLA DPH priznanie Q4',
-          'AktualizovaLA firemnA� Asdaje'
+          'AktualizovaLA firemnA? Asdaje'
         ]);
         const filtered = tasks.filter(t => !(
           demoTitles.has(t.title) &&
@@ -195,7 +195,7 @@ if (typeof window !== 'undefined') {
     // ignore cleanup errors
   }
 
-  // Seed predvolenA?ch Asloh len ak je explicitne povolenA� cez env premennAs
+  // Seed predvolenA?ch Asloh len ak je explicitne povolenA? cez env premennAs
   if (process.env.REACT_APP_ENABLE_DEMO_DATA === 'true') {
     taskService.initializeDefaultTasks();
   }

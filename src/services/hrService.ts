@@ -20,7 +20,7 @@ export interface Employee {
   manager_first_name?: string;
   manager_last_name?: string;
   
-  // PracovnA� pomery
+  // PracovnA? pomery
   employment_start_date?: string;
   employment_end_date?: string;
   attendance_mode?: 'manual' | 'automatic';
@@ -42,7 +42,7 @@ export interface Employee {
   employee_bonus?: boolean;
   bonus_months?: number;
   
-  // Adresa trvalA�ho pobytu
+  // Adresa trvalA?ho pobytu
   permanent_street?: string;
   permanent_number?: string;
   permanent_city?: string;
@@ -56,7 +56,7 @@ export interface Employee {
   contact_zip?: string;
   contact_country?: string;
   
-  // CudzineckA� Asdaje
+  // CudzineckA? Asdaje
   is_foreigner?: boolean;
   foreigner_country?: string;
   residence_permit_number?: string;
@@ -262,7 +262,7 @@ class HRService {
     return apiService.put(`/hr/leave-requests/${id}/status`, { status, approved_by: approvedBy });
   }
 
-  // PracovnA� zmeny
+  // PracovnA? zmeny
   async getWorkShifts(companyId: number): Promise<WorkShift[]> {
     return apiService.get(`/hr/work-shifts/${companyId}`);
   }
@@ -289,7 +289,7 @@ class HRService {
     return apiService.post('/hr/hr-events', eventData);
   }
 
-  // H�ladanie zamestnanca pod�la emailu
+  // H?ladanie zamestnanca pod?la emailu
   async findEmployeeByEmail(email: string): Promise<Employee> {
     return apiService.get(`/hr/employees/find/${encodeURIComponent(email)}`);
   }
@@ -299,16 +299,16 @@ class HRService {
     return apiService.put(`/hr/employees/${employeeId}/company`, { company_id: companyId });
   }
 
-  // L�tatistiky
+  // L?tatistiky
   async getHRStats(companyId: number): Promise<HRStats> {
     return apiService.get(`/hr/hr-stats/${companyId}`);
   }
 
-  // PomocnA� funkcie
+  // PomocnA? funkcie
   getEmploymentTypeLabel(type: string): string {
     const types = {
-      'full_time': 'PlnA? AsvA�zok',
-      'part_time': '�Siasto�TnA? AsvA�zok',
+      'full_time': 'PlnA? AsvA?zok',
+      'part_time': '?Siasto?TnA? AsvA?zok',
       'contract': 'Dohoda',
       'intern': 'StA?Ll'
     };
@@ -317,9 +317,9 @@ class HRService {
 
   getStatusLabel(status: string): string {
     const statuses = {
-      'active': 'AktA�vny',
-      'inactive': 'NeaktA�vny',
-      'terminated': 'Ukon�TenA?',
+      'active': 'AktA?vny',
+      'inactive': 'NeaktA?vny',
+      'terminated': 'Ukon?TenA?',
       'on_leave': 'Na dovolenke'
     };
     return statuses[status as keyof typeof statuses] || status;
@@ -329,10 +329,10 @@ class HRService {
     const types = {
       'vacation': 'Dovolenka',
       'sick_leave': 'PN',
-      'personal_leave': 'OsobnA� vo�lno',
+      'personal_leave': 'OsobnA? vo?lno',
       'maternity_leave': 'MaterskA? dovolenka',
       'paternity_leave': 'OtcovskA? dovolenka',
-      'unpaid_leave': 'NeplatenA� vo�lno'
+      'unpaid_leave': 'NeplatenA? vo?lno'
     };
     return types[type as keyof typeof types] || type;
   }
@@ -340,10 +340,10 @@ class HRService {
   getEventTypeLabel(type: string): string {
     const types = {
       'hire': 'NA?bor',
-      'termination': 'Ukon�Tenie',
+      'termination': 'Ukon?Tenie',
       'promotion': 'PovA?L?enie',
       'salary_change': 'Zmena mzdy',
-      'position_change': 'Zmena pozA�cie',
+      'position_change': 'Zmena pozA?cie',
       'warning': 'Upozornenie',
       'recognition': 'Uznanie'
     };
@@ -352,13 +352,13 @@ class HRService {
 
   getAttendanceStatusLabel(status: string): string {
     const statuses = {
-      'present': 'PrA�tomnA?',
-      'absent': 'NeprA�tomnA?',
+      'present': 'PrA?tomnA?',
+      'absent': 'NeprA?tomnA?',
       'late': 'MeL?kanie',
-      'early_leave': 'Pred�TasnA? odchod',
+      'early_leave': 'Pred?TasnA? odchod',
       'sick_leave': 'PN',
       'vacation': 'Dovolenka',
-      'holiday': 'PracovnA� vo�lno'
+      'holiday': 'PracovnA? vo?lno'
     };
     return statuses[status as keyof typeof statuses] || status;
   }
@@ -377,7 +377,7 @@ class HRService {
 
   formatTime(time: string): string {
     if (!time) return '';
-    return time.substring(0, 5); // ZobrazA� len HH:MM
+    return time.substring(0, 5); // ZobrazA? len HH:MM
   }
 
   formatDate(date: string): string {
@@ -420,7 +420,7 @@ class HRService {
     return apiService.patch(`/hr/employees/${employeeId}/update-field`, { field_name: fieldName, new_value: newValue });
   }
 
-  // DochA?dzkovA� nastavenia
+  // DochA?dzkovA? nastavenia
   async getAttendanceSettings(employeeId: number): Promise<any> {
     return apiService.get(`/hr/attendance-settings/${employeeId}`);
   }
@@ -434,7 +434,7 @@ class HRService {
     return apiService.post('/hr/attendance', attendanceData);
   }
 
-  // Asprava/vytvorenie dochA?dzky pre konkrA�tny deL� (s kontrolou oprA?vnenA� na serveri)
+  // Asprava/vytvorenie dochA?dzky pre konkrA?tny deL? (s kontrolou oprA?vnenA? na serveri)
   async updateAttendanceDay(payload: {
     employee_id: number;
     company_id: number;
@@ -448,7 +448,7 @@ class HRService {
     return apiService.put('/hr/attendance/day', payload);
   }
 
-  // PracovnA� pomery
+  // PracovnA? pomery
   async getEmploymentRelations(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employment-relations/${companyId}`);
   }
@@ -496,7 +496,7 @@ class HRService {
     return apiService.put(`/hr/employment-relations/${id}`, relationData);
   }
 
-  // AutomatickA� prepo�TA�tanie dochA?dzky
+  // AutomatickA? prepo?TA?tanie dochA?dzky
   async getEmployeesWithAutomaticAttendance(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employees/automatic-attendance/${companyId}`);
   }
@@ -515,22 +515,22 @@ class HRService {
     });
   }
 
-  // ZA�skanie prA�tomnA?ch zamestnancov dnes
+  // ZA?skanie prA?tomnA?ch zamestnancov dnes
   async getPresentEmployeesToday(companyId: number): Promise<Attendance[]> {
     return apiService.get(`/hr/attendance/present-today/${companyId}`);
   }
 
-  // ZA�skanie neprA�tomnA?ch zamestnancov dnes
+  // ZA?skanie neprA?tomnA?ch zamestnancov dnes
   async getAbsentEmployeesToday(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/attendance/absent-today/${companyId}`);
   }
 
-  // ZA�skanie vL?etkA?ch aktA�vnych zamestnancov s informA?ciou o dochA?dzke
+  // ZA?skanie vL?etkA?ch aktA?vnych zamestnancov s informA?ciou o dochA?dzke
   async getEmployeesAttendanceStatus(companyId: number): Promise<EmployeeAttendanceStatus[]> {
     return apiService.get(`/hr/employees/attendance-status/${companyId}`);
   }
 
-  // ZA�skanie zamestnancov s chA?bajAscou dochA?dzkou
+  // ZA?skanie zamestnancov s chA?bajAscou dochA?dzkou
   async getEmployeesWithMissingAttendance(companyId: number): Promise<any[]> {
     return apiService.get(`/hr/employees/missing-attendance/${companyId}`);
   }

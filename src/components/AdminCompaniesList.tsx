@@ -48,7 +48,7 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
         <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne firmy</h3>
         <p className="mt-1 text-sm text-gray-500">
-          Zatia�l neboli vytvorenA� Lliadne firmy na portA?li.
+          Zatia?l neboli vytvorenA? Lliadne firmy na portA?li.
         </p>
       </div>
     );
@@ -63,7 +63,7 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
         <div className="relative">
           <input
             type="text"
-            placeholder="H�ladaLA firmy..."
+            placeholder="H?ladaLA firmy..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -93,11 +93,11 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                             ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
                             : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                         }`}>
-                          {company.status === 'active' ? 'AktA�vna' : 'NeaktA�vna'}
+                          {company.status === 'active' ? 'AktA?vna' : 'NeaktA?vna'}
                         </span>
                       </div>
                       <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>I�SO: {company.ico}</span>
+                        <span>I?SO: {company.ico}</span>
                         <span>OR: {company.business_registry || 'N/A'}</span>
                       </div>
                     </div>
@@ -108,13 +108,13 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                     <p className="truncate">OprA?vnenA? osoba: {company.authorized_person}</p>
                   </div>
 
-                  {/* VlastnA�k firmy */}
+                  {/* VlastnA?k firmy */}
                   <div className="mt-3 flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <UserIcon className="h-4 w-4" />
-                    <span>VlastnA�k: {company.owner_email}</span>
+                    <span>VlastnA?k: {company.owner_email}</span>
                   </div>
 
-                  {/* KontaktnA� Asdaje */}
+                  {/* KontaktnA? Asdaje */}
                   <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     {company.contact_phone && (
                       <div className="flex items-center">
@@ -131,11 +131,11 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                   </div>
 
                   <div className="mt-2 text-xs text-gray-400">
-                    VytvorenA�: {company.created_at}
+                    VytvorenA?: {company.created_at}
                                     {company.assignedToAccountants && company.assignedToAccountants.length > 0 && (
                   <div className="mt-1">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                      PriradenA� As�TtovnA�kom: {company.assignedToAccountants.length} As�TtovnA�kov
+                      PriradenA? As?TtovnA?kom: {company.assignedToAccountants.length} As?TtovnA?kov
                     </span>
                     <div className="mt-1 text-xs text-gray-600">
                       {company.assignedToAccountants.join(', ')}
@@ -192,32 +192,32 @@ const AdminCompaniesList: React.FC<AdminCompaniesListProps> = ({
                 </div>
               </div>
 
-              {/* RozL?A�renA� informA?cie */}
+              {/* RozL?A?renA? informA?cie */}
               {expandedCompany === company.id && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">ZA?kladnA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">ZA?kladnA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         <p><span className="font-medium">NA?zov:</span> {company.name}</p>
-                        <p><span className="font-medium">I�SO:</span> {company.ico}</p>
+                        <p><span className="font-medium">I?SO:</span> {company.ico}</p>
                         <p><span className="font-medium">OR:</span> {company.business_registry || 'N/A'}</p>
                         <p><span className="font-medium">Adresa:</span> {company.address}</p>
                         <p><span className="font-medium">OprA?vnenA? osoba:</span> {company.authorized_person}</p>
                       </div>
                     </div>
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">DaL�ovA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">DaL?ovA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.vat_id && (
-                          <p><span className="font-medium">I�S DPH:</span> {company.vat_id}</p>
+                          <p><span className="font-medium">I?S DPH:</span> {company.vat_id}</p>
                         )}
                         {company.tax_id && (
-                          <p><span className="font-medium">DI�S:</span> {company.tax_id}</p>
+                          <p><span className="font-medium">DI?S:</span> {company.tax_id}</p>
                         )}
                       </div>
                       
-                      <h5 className="font-medium text-gray-900 mb-2 mt-4">KontaktnA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2 mt-4">KontaktnA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.contact_phone && (
                           <p><span className="font-medium">TelefAln:</span> {company.contact_phone}</p>

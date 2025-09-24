@@ -38,7 +38,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
         <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-medium text-gray-900">L?iadne firmy</h3>
         <p className="mt-1 text-sm text-gray-500">
-          Zatia�l ste nepridali Lliadne firmy.
+          Zatia?l ste nepridali Lliadne firmy.
         </p>
         <div className="mt-6">
           <button
@@ -84,7 +84,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                         {company.name}
                       </h4>
                       <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>I�SO: {company.ico}</span>
+                        <span>I?SO: {company.ico}</span>
                         <span>OR: {company.business_registry || 'N/A'}</span>
                       </div>
                     </div>
@@ -95,7 +95,7 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                     <p className="truncate">OprA?vnenA? osoba: {company.authorized_person}</p>
                   </div>
 
-                  {/* KontaktnA� Asdaje */}
+                  {/* KontaktnA? Asdaje */}
                   <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
                     {company.contact_phone && (
                       <div className="flex items-center">
@@ -145,32 +145,32 @@ const CompaniesList: React.FC<CompaniesListProps> = ({
                 </div>
               </div>
 
-              {/* RozL?A�renA� informA?cie */}
+              {/* RozL?A?renA? informA?cie */}
               {expandedCompany === company.id && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">ZA?kladnA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">ZA?kladnA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         <p><span className="font-medium">NA?zov:</span> {company.name}</p>
-                        <p><span className="font-medium">I�SO:</span> {company.ico}</p>
+                        <p><span className="font-medium">I?SO:</span> {company.ico}</p>
                         <p><span className="font-medium">OR:</span> {company.business_registry || 'N/A'}</p>
                         <p><span className="font-medium">Adresa:</span> {company.address}</p>
                         <p><span className="font-medium">OprA?vnenA? osoba:</span> {company.authorized_person}</p>
                       </div>
                     </div>
                     <div>
-                      <h5 className="font-medium text-gray-900 mb-2">DaL�ovA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2">DaL?ovA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.vat_id && (
-                          <p><span className="font-medium">I�S DPH:</span> {company.vat_id}</p>
+                          <p><span className="font-medium">I?S DPH:</span> {company.vat_id}</p>
                         )}
                         {company.tax_id && (
-                          <p><span className="font-medium">DI�S:</span> {company.tax_id}</p>
+                          <p><span className="font-medium">DI?S:</span> {company.tax_id}</p>
                         )}
                       </div>
                       
-                      <h5 className="font-medium text-gray-900 mb-2 mt-4">KontaktnA� Asdaje</h5>
+                      <h5 className="font-medium text-gray-900 mb-2 mt-4">KontaktnA? Asdaje</h5>
                       <div className="space-y-1 text-gray-600">
                         {company.contact_phone && (
                           <p><span className="font-medium">TelefAln:</span> {company.contact_phone}</p>

@@ -46,15 +46,15 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     try {
       setLoading(true);
       
-      // Na�TA�tanie zamestnancov z aktuA?lnej firmy
+      // Na?TA?tanie zamestnancov z aktuA?lnej firmy
       const employeesData = await hrService.getEmployees(companyId);
       setEmployees(employeesData);
       
-      // Na�TA�tanie zmien pre firmu
+      // Na?TA?tanie zmien pre firmu
       const changesData = await hrService.getCompanyChanges(companyId);
       setEmployeeChanges(changesData);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
         const employeesData = await hrService.getEmployees(companyId);
         setEmployees(employeesData);
         
-        // Aktualizuj vybranA�ho zamestnanca
+        // Aktualizuj vybranA?ho zamestnanca
         const updatedSelectedEmployee = employeesData.find(emp => emp.id === selectedEmployee.id);
         if (updatedSelectedEmployee) {
           setSelectedEmployee(updatedSelectedEmployee);
@@ -96,7 +96,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     employee.employee_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Funkcia na zA�skanie stavu zmeny pre pole
+  // Funkcia na zA?skanie stavu zmeny pre pole
   const getFieldChangeStatus = (employeeId: number, fieldName: string) => {
     const change = employeeChanges.find(c => 
       c.employee_id === employeeId && 
@@ -133,7 +133,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
   const handleApproveChange = async (changeId: number, employeeId: number, fieldName: string, newValue: string) => {
     try {
       // SchvA?liLA zmenu
-      await hrService.approveEmployeeChange(changeId, 1); // TODO: pouLliLA skuto�TnA� ID schva�lovate�la
+      await hrService.approveEmployeeChange(changeId, 1); // TODO: pouLliLA skuto?TnA? ID schva?lovate?la
       
       // AktualizovaLA Asdaje zamestnanca
       await hrService.updateEmployeeField(employeeId, fieldName, newValue);
@@ -143,15 +143,15 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
       
       alert('Zmena bola AsspeL?ne schvA?lenA?');
     } catch (error) {
-      console.error('Chyba pri schva�lovanA� zmeny:', error);
-      alert('Chyba pri schva�lovanA� zmeny');
+      console.error('Chyba pri schva?lovanA? zmeny:', error);
+      alert('Chyba pri schva?lovanA? zmeny');
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Na�TA�tavam karty zamestnancov..." />
+        <LoadingSpinner size="lg" text="Na?TA?tavam karty zamestnancov..." />
       </div>
     );
   }
@@ -166,16 +166,16 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
             className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            SpA�LA na Dashboard
+            SpA?LA na Dashboard
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Karty zamestnancov</h1>
-            <p className="text-gray-600 dark:text-gray-300">DetailnA� personA?lne Asdaje zamestnancov</p>
+            <p className="text-gray-600 dark:text-gray-300">DetailnA? personA?lne Asdaje zamestnancov</p>
           </div>
         </div>
       </div>
 
-      {/* Informa�TnA? box */}
+      {/* Informa?TnA? box */}
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
@@ -188,8 +188,8 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
               PersonA?lne Asdaje zamestnancov
             </h3>
             <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-              <p>Tu dop�sL�ate detailnA� personA?lne Asdaje pre zamestnancov, ktorA� uLl majAs vytvorenA? As�Tet v sekcii "Zamestnanci".</p>
-              <p>Pre pridanie novA�ho zamestnanca pouLlite sekciu "Zamestnanci".</p>
+              <p>Tu dop?sL?ate detailnA? personA?lne Asdaje pre zamestnancov, ktorA? uLl majAs vytvorenA? As?Tet v sekcii "Zamestnanci".</p>
+              <p>Pre pridanie novA?ho zamestnanca pouLlite sekciu "Zamestnanci".</p>
             </div>
           </div>
         </div>
@@ -199,11 +199,11 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Vyh�ladA?vanie zamestnancov
+            Vyh?ladA?vanie zamestnancov
           </label>
           <input
             type="text"
-            placeholder="H�ladaLA zamestnancov..."
+            placeholder="H?ladaLA zamestnancov..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -254,7 +254,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                 <div className="text-center py-8">
                   <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {searchTerm ? 'L?iadni zamestnanci nenA?jdenA�' : 'L?iadni zamestnanci'}
+                    {searchTerm ? 'L?iadni zamestnanci nenA?jdenA?' : 'L?iadni zamestnanci'}
                   </h3>
                 </div>
               )}
@@ -274,7 +274,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                                 {selectedEmployee.first_name} {selectedEmployee.last_name}
                               </h2>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {selectedEmployee.position} �?? {selectedEmployee.employee_id}
+                                {selectedEmployee.position} ??? {selectedEmployee.employee_id}
                               </p>
                             </div>
                             <div className="flex space-x-2">
@@ -323,7 +323,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                 Vyberte zamestnanca
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Kliknite na zamestnanca z �lavA�ho zoznamu pre zobrazenie jeho karty
+                Kliknite na zamestnanca z ?lavA?ho zoznamu pre zobrazenie jeho karty
               </p>
             </div>
           )}
@@ -366,8 +366,8 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
               setShowAddERModal(false);
               alert('PracovnA? pomer bol AsspeL?ne pridanA?');
             } catch (e) {
-              console.error('Chyba pri pridanA� pracovnA�ho pomeru:', e);
-              alert('Chyba pri pridanA� pracovnA�ho pomeru');
+              console.error('Chyba pri pridanA? pracovnA?ho pomeru:', e);
+              alert('Chyba pri pridanA? pracovnA?ho pomeru');
             }
           }}
           relation={{
@@ -405,9 +405,9 @@ const PersonalDataTab: React.FC<{
   onApproveChange: (changeId: number, employeeId: number, fieldName: string, newValue: string) => void;
 }> = ({ employee, employeeChanges, onApproveChange }) => {
   
-  // Funkcia na zA�skanie stavu zmeny pre pole
+  // Funkcia na zA?skanie stavu zmeny pre pole
   const getFieldChangeStatus = (fieldName: string) => {
-    // H�ladanie najnovL?ej pending zmeny (pod�la ID)
+    // H?ladanie najnovL?ej pending zmeny (pod?la ID)
     const pendingChanges = employeeChanges.filter(c => 
       c.employee_id === employee.id && 
       c.field_name === fieldName && 
@@ -415,7 +415,7 @@ const PersonalDataTab: React.FC<{
     );
     
     if (pendingChanges.length > 0) {
-      // VrA?tiLA najnovL?iu pending zmenu (s najvyL?L?A�m ID)
+      // VrA?tiLA najnovL?iu pending zmenu (s najvyL?L?A?m ID)
       const latestPendingChange = pendingChanges.reduce((latest, current) => 
         (current.id > latest.id) ? current : latest
       );
@@ -428,7 +428,7 @@ const PersonalDataTab: React.FC<{
       };
     }
     
-    // H�ladanie najnovL?ej approved zmeny
+    // H?ladanie najnovL?ej approved zmeny
     const approvedChanges = employeeChanges.filter(c => 
       c.employee_id === employee.id && 
       c.field_name === fieldName && 
@@ -452,9 +452,9 @@ const PersonalDataTab: React.FC<{
   };
   return (
     <div className="space-y-6">
-      {/* ZA?kladnA� Asdaje */}
+      {/* ZA?kladnA? Asdaje */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">ZA?kladnA� Asdaje</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">ZA?kladnA? Asdaje</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DataField 
             label="Priezvisko" 
@@ -473,7 +473,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="RodnA� priezvisko" 
+            label="RodnA? priezvisko" 
             value={employee.birth_name || '-'} 
             employeeId={employee.id}
             fieldName="birth_name"
@@ -513,7 +513,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="RodnA� �TA�slo" 
+            label="RodnA? ?TA?slo" 
             value={employee.birth_number || '-'} 
             employeeId={employee.id}
             fieldName="birth_number"
@@ -537,7 +537,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="L�tA?t ob�Tianstvo" 
+            label="L?tA?t ob?Tianstvo" 
             value={employee.citizenship || '-'} 
             employeeId={employee.id}
             fieldName="citizenship"
@@ -560,14 +560,14 @@ const PersonalDataTab: React.FC<{
             changeStatus={getFieldChangeStatus('marital_status')}
             onApproveChange={onApproveChange}
           />
-          <DataField label="Spolo�TnA�k" value={employee.is_partner ? 'A�no' : 'Nie'} />
-          <DataField label="L�tatutA?r" value={employee.is_statutory ? 'A�no' : 'Nie'} />
+          <DataField label="Spolo?TnA?k" value={employee.is_partner ? 'A?no' : 'Nie'} />
+          <DataField label="L?tatutA?r" value={employee.is_statutory ? 'A?no' : 'Nie'} />
         </div>
       </div>
 
-      {/* Adresa trvalA�ho pobytu */}
+      {/* Adresa trvalA?ho pobytu */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Adresa trvalA�ho pobytu</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Adresa trvalA?ho pobytu</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DataField 
             label="Ulica" 
@@ -578,7 +578,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="�SA�slo popisnA�" 
+            label="?SA?slo popisnA?" 
             value={employee.permanent_number || '-'} 
             employeeId={employee.id}
             fieldName="permanent_number"
@@ -594,7 +594,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="PS�S" 
+            label="PS?S" 
             value={employee.permanent_zip || '-'} 
             employeeId={employee.id}
             fieldName="permanent_zip"
@@ -602,7 +602,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="L�tA?t" 
+            label="L?tA?t" 
             value={employee.permanent_country || '-'} 
             employeeId={employee.id}
             fieldName="permanent_country"
@@ -625,7 +625,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="�SA�slo popisnA�" 
+            label="?SA?slo popisnA?" 
             value={employee.contact_number || '-'} 
             employeeId={employee.id}
             fieldName="contact_number"
@@ -641,7 +641,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="PS�S" 
+            label="PS?S" 
             value={employee.contact_zip || '-'} 
             employeeId={employee.id}
             fieldName="contact_zip"
@@ -649,7 +649,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="L�tA?t" 
+            label="L?tA?t" 
             value={employee.contact_country || '-'} 
             employeeId={employee.id}
             fieldName="contact_country"
@@ -668,18 +668,18 @@ const PersonalDataTab: React.FC<{
         </div>
       </div>
 
-      {/* CudzineckA� Asdaje */}
+      {/* CudzineckA? Asdaje */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">CudzineckA� Asdaje</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">CudzineckA? Asdaje</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DataField label="Cudzinec" value={employee.is_foreigner ? 'A�no' : 'Nie'} />
-          <DataField label="L�tA?t (cudzinec)" value={employee.foreigner_country || '-'} />
-          <DataField label="�SA�slo povolenia k pobytu" value={employee.residence_permit_number || '-'} />
-          <DataField label="�SA�slo soc. poist. v SR" value={employee.social_insurance_sr || '-'} />
-          <DataField label="�SA�slo soc. poist. v zahrani�TA�" value={employee.social_insurance_foreign || '-'} />
-          <DataField label="�SA�slo zdrav. poist. v SR" value={employee.health_insurance_sr || '-'} />
-          <DataField label="Cudzinec bez trv. pobytu v SR" value={employee.foreigner_without_permanent_residence ? 'A�no' : 'Nie'} />
-          <DataField label="Identifika�TnA� �TA�slo na daL�ovA� As�Tely" value={employee.tax_identification_number || '-'} />
+          <DataField label="Cudzinec" value={employee.is_foreigner ? 'A?no' : 'Nie'} />
+          <DataField label="L?tA?t (cudzinec)" value={employee.foreigner_country || '-'} />
+          <DataField label="?SA?slo povolenia k pobytu" value={employee.residence_permit_number || '-'} />
+          <DataField label="?SA?slo soc. poist. v SR" value={employee.social_insurance_sr || '-'} />
+          <DataField label="?SA?slo soc. poist. v zahrani?TA?" value={employee.social_insurance_foreign || '-'} />
+          <DataField label="?SA?slo zdrav. poist. v SR" value={employee.health_insurance_sr || '-'} />
+          <DataField label="Cudzinec bez trv. pobytu v SR" value={employee.foreigner_without_permanent_residence ? 'A?no' : 'Nie'} />
+          <DataField label="Identifika?TnA? ?TA?slo na daL?ovA? As?Tely" value={employee.tax_identification_number || '-'} />
         </div>
       </div>
     </div>
@@ -688,7 +688,7 @@ const PersonalDataTab: React.FC<{
 
 
 
-// PomocnA? komponent pre zobrazenie AsdajovA�ho po�la
+// PomocnA? komponent pre zobrazenie AsdajovA?ho po?la
 const DataField: React.FC<{ 
   label: string; 
   value: string; 
@@ -709,9 +709,9 @@ const DataField: React.FC<{
           <button
             onClick={() => onApproveChange?.(changeStatus.changeId, employeeId!, fieldName!, changeStatus.newValue)}
             className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-            title={`dz"" �SakajAsca zmena od zamestnanca
+            title={`dz"" ?SakajAsca zmena od zamestnanca
 
-dz"t DA�vod: ${changeStatus.reason}
+dz"t DA?vod: ${changeStatus.reason}
 dz?. NovA? hodnota: ${changeStatus.newValue}
 
 Kliknite pre schvA?lenie zmeny.`}
@@ -720,9 +720,9 @@ Kliknite pre schvA?lenie zmeny.`}
           </button>
         )}
         {changeStatus.status === 'approved' && (
-          <div className="text-green-500 dark:text-green-400" title={`�s. SchvA?lenA? zmena
+          <div className="text-green-500 dark:text-green-400" title={`?s. SchvA?lenA? zmena
 
-dz"t DA�vod: ${changeStatus.reason}
+dz"t DA?vod: ${changeStatus.reason}
 dz?. NovA? hodnota: ${changeStatus.newValue}
 
 Zmena bola schvA?lenA? a aplikovanA?.`}>
@@ -734,11 +734,11 @@ Zmena bola schvA?lenA? a aplikovanA?.`}>
   </div>
 );
 
-// PomocnA� funkcie
+// PomocnA? funkcie
 const getEmploymentTypeLabel = (type: string) => {
   const labels = {
-    'full_time': 'PlnA? AsvA�zok',
-    'part_time': '�Siasto�TnA? AsvA�zok',
+    'full_time': 'PlnA? AsvA?zok',
+    'part_time': '?Siasto?TnA? AsvA?zok',
     'contract': 'Dohoda',
     'intern': 'StA?Ll'
   };
@@ -747,9 +747,9 @@ const getEmploymentTypeLabel = (type: string) => {
 
 const getStatusLabel = (status: string) => {
   const labels = {
-    'active': 'AktA�vny',
-    'inactive': 'NeaktA�vny',
-    'terminated': 'Ukon�TenA?',
+    'active': 'AktA?vny',
+    'inactive': 'NeaktA?vny',
+    'terminated': 'Ukon?TenA?',
     'on_leave': 'Na dovolenke'
   };
   return labels[status as keyof typeof labels] || status;

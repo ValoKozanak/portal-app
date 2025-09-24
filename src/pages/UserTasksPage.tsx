@@ -31,7 +31,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
   const [taskFilter, setTaskFilter] = useState<string>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Na�TA�tanie Asloh pouLlA�vate�la
+  // Na?TA?tanie Asloh pouLlA?vate?la
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -54,7 +54,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
         
         setTasks(convertedTasks);
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� Asloh:', error);
+        console.error('Chyba pri na?TA?tanA? Asloh:', error);
       } finally {
         setLoadingTasks(false);
       }
@@ -63,14 +63,14 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
     loadTasks();
   }, [userEmail]);
 
-  // Na�TA�tanie firiem pouLlA�vate�la
+  // Na?TA?tanie firiem pouLlA?vate?la
   useEffect(() => {
     const loadCompanies = async () => {
       try {
         const userCompanies = await apiService.getUserCompanies(userEmail);
         setCompanies(userCompanies.map(c => ({ id: c.id, name: c.name })));
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� firiem:', error);
+        console.error('Chyba pri na?TA?tanA? firiem:', error);
       }
     };
 
@@ -93,8 +93,8 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       await apiService.deleteTask(parseInt(taskId));
       setTasks(prev => prev.filter(task => task.id !== taskId));
     } catch (error) {
-      console.error('Chyba pri mazanA� Aslohy:', error);
-      alert('Chyba pri mazanA� Aslohy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri mazanA? Aslohy:', error);
+      alert('Chyba pri mazanA? Aslohy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
@@ -119,7 +119,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       } else {
         // Vytvorenie novej Aslohy - potrebujeme vybrat firmu
         if (companies.length === 0) {
-          alert('Pre vytvorenie Aslohy potrebujete maLA aspoL� jednu firmu.');
+          alert('Pre vytvorenie Aslohy potrebujete maLA aspoL? jednu firmu.');
           return;
         }
         
@@ -136,7 +136,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
           company_name: selectedCompany.name,
         });
         
-        // Na�TA�tame Aslohu znova, aby sme mali kompletnA� Asdaje
+        // Na?TA?tame Aslohu znova, aby sme mali kompletnA? Asdaje
         const createdTask = await apiService.getTask(response.taskId);
         const convertedTask: Task = {
           id: createdTask.id.toString(),
@@ -157,12 +157,12 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       setShowTaskModal(false);
       setEditingTask(null);
     } catch (error) {
-      console.error('Chyba pri ukladanA� Aslohy:', error);
-      alert('Chyba pri ukladanA� Aslohy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
+      console.error('Chyba pri ukladanA? Aslohy:', error);
+      alert('Chyba pri ukladanA? Aslohy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
-  // Filtrovanie a hromadnA� akcie
+  // Filtrovanie a hromadnA? akcie
   const filteredTasks = tasks.filter(task => {
     if (taskFilter === 'all') return true;
     if (taskFilter === 'pending') return task.status === 'pending';
@@ -206,8 +206,8 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       setTasks(prev => prev.filter(t => !selectedIds.has(t.id)));
       clearSelection();
     } catch (error) {
-      console.error('Chyba pri hromadnom mazanA� Asloh:', error);
-      alert('Chyba pri hromadnom mazanA� Asloh');
+      console.error('Chyba pri hromadnom mazanA? Asloh:', error);
+      alert('Chyba pri hromadnom mazanA? Asloh');
     }
   };
 
@@ -220,10 +220,10 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       cancelled: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      pending: '�SakajAsce',
-      completed: 'Dokon�TenA�',
-      in_progress: 'V spracovanA�',
-      cancelled: 'ZruL?enA�',
+      pending: '?SakajAsce',
+      completed: 'Dokon?TenA?',
+      in_progress: 'V spracovanA?',
+      cancelled: 'ZruL?enA?',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
@@ -240,7 +240,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
       urgent: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: 'NA�zka',
+      low: 'NA?zka',
       medium: 'StrednA?',
       high: 'VysokA?',
       urgent: 'UrgentnA?',
@@ -264,7 +264,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                SpA�LA do Dashboardu
+                SpA?LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
@@ -291,22 +291,22 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Zoznam Asloh</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {tasks.length} Asloh �?? {tasks.filter(t => t.status === 'pending').length} �TakajAscich
+                  Celkovo {tasks.length} Asloh ??? {tasks.filter(t => t.status === 'pending').length} ?TakajAscich
                   {filteredTasks.length !== tasks.length && (
-                    <span className="ml-2 text-primary-600">(ZobrazenA�: {filteredTasks.length})</span>
+                    <span className="ml-2 text-primary-600">(ZobrazenA?: {filteredTasks.length})</span>
                   )}
                 </p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">VybranA�: {selectedIds.size}</span>
-                <button onClick={selectAllVisible} className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">VybraLA zobrazenA�</button>
+                <span className="text-sm text-gray-500">VybranA?: {selectedIds.size}</span>
+                <button onClick={selectAllVisible} className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">VybraLA zobrazenA?</button>
                 <button onClick={clearSelection} className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">ZruL?iLA vA?ber</button>
                 <div className="hidden md:flex items-center space-x-1">
-                  <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>�SakajAsce</button>
-                  <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovanA�</button>
-                  <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokon�TenA�</button>
-                  <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>ZruL?enA�</button>
-                  <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>VymazaLA vybranA�</button>
+                  <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>?SakajAsce</button>
+                  <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovanA?</button>
+                  <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokon?TenA?</button>
+                  <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>ZruL?enA?</button>
+                  <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>VymazaLA vybranA?</button>
                 </div>
               </div>
             </div>
@@ -314,10 +314,10 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
             <div className="mt-3 flex items-center space-x-2">
               <span className="text-sm font-medium text-gray-700">Filter:</span>
               <button onClick={() => setTaskFilter('all')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='all'?'bg-primary-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>VL?etky ({tasks.length})</button>
-              <button onClick={() => setTaskFilter('pending')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='pending'?'bg-yellow-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>�SakajAsce ({tasks.filter(t=>t.status==='pending').length})</button>
-              <button onClick={() => setTaskFilter('in_progress')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='in_progress'?'bg-blue-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>V spracovanA� ({tasks.filter(t=>t.status==='in_progress').length})</button>
-              <button onClick={() => setTaskFilter('completed')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='completed'?'bg-green-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Dokon�TenA� ({tasks.filter(t=>t.status==='completed').length})</button>
-              <button onClick={() => setTaskFilter('cancelled')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='cancelled'?'bg-gray-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>ZruL?enA� ({tasks.filter(t=>t.status==='cancelled').length})</button>
+              <button onClick={() => setTaskFilter('pending')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='pending'?'bg-yellow-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>?SakajAsce ({tasks.filter(t=>t.status==='pending').length})</button>
+              <button onClick={() => setTaskFilter('in_progress')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='in_progress'?'bg-blue-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>V spracovanA? ({tasks.filter(t=>t.status==='in_progress').length})</button>
+              <button onClick={() => setTaskFilter('completed')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='completed'?'bg-green-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>Dokon?TenA? ({tasks.filter(t=>t.status==='completed').length})</button>
+              <button onClick={() => setTaskFilter('cancelled')} className={`px-3 py-1 text-sm rounded-md ${taskFilter==='cancelled'?'bg-gray-600 text-white':'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>ZruL?enA? ({tasks.filter(t=>t.status==='cancelled').length})</button>
             </div>
           </div>
           
@@ -325,7 +325,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam Aslohy...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam Aslohy...</p>
               </div>
             ) : filteredTasks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -385,7 +385,7 @@ const UserTasksPage: React.FC<UserTasksPageProps> = ({
                 <ClipboardDocumentListIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">L?iadne Aslohy</h3>
                 <p className="mt-2 text-sm text-gray-500 mb-6">
-                  Zatia�l nemA?te Lliadne Aslohy. Vytvorte prvAs Aslohu pre vaL?u firmu.
+                  Zatia?l nemA?te Lliadne Aslohy. Vytvorte prvAs Aslohu pre vaL?u firmu.
                 </p>
                 <button
                   onClick={handleAddTask}

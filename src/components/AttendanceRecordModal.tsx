@@ -50,11 +50,11 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
   const loadEmployeesWithMissingAttendance = async () => {
     try {
       setLoading(true);
-      // ZA�skame zamestnancov s manuA?lnou dochA?dzkou, ktorA� nemajAs zaznamenanAs dochA?dzku
+      // ZA?skame zamestnancov s manuA?lnou dochA?dzkou, ktorA? nemajAs zaznamenanAs dochA?dzku
       const employeesData = await hrService.getEmployeesWithMissingAttendance(companyId);
       setEmployees(employeesData);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? zamestnancov:', error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       setSelectedDate(employee.missing_dates[0]);
     }
     
-    // Automaticky nastavA�me pracovnA� �Tasy pod�la nastavenA� zamestnanca
+    // Automaticky nastavA?me pracovnA? ?Tasy pod?la nastavenA? zamestnanca
     if (employee.work_start_time) {
       setStartTime(employee.work_start_time);
     }
@@ -74,7 +74,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       setEndTime(employee.work_end_time);
     }
     
-    // Vypo�TA�tame prestA?vku v minAstach
+    // Vypo?TA?tame prestA?vku v minAstach
     if (employee.break_start_time && employee.break_end_time) {
       const breakStart = new Date(`2000-01-01T${employee.break_start_time}`);
       const breakEnd = new Date(`2000-01-01T${employee.break_end_time}`);
@@ -101,7 +101,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
         end_time: attendanceType === 'present' ? endTime : null,
         break_minutes: attendanceType === 'present' ? breakMinutes : 0,
         note: note,
-        recorded_by: 'hr_manager' // TODO: pouLliLA skuto�TnA� ID prihlA?senA�ho pouLlA�vate�la
+        recorded_by: 'hr_manager' // TODO: pouLliLA skuto?TnA? ID prihlA?senA?ho pouLlA?vate?la
       };
 
       await hrService.recordAttendance(attendanceData);
@@ -121,8 +121,8 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
       onSuccess();
       alert('DochA?dzka bola AsspeL?ne zaznamenanA?');
     } catch (error) {
-      console.error('Chyba pri zaznamenA?vanA� dochA?dzky:', error);
-      alert('Chyba pri zaznamenA?vanA� dochA?dzky');
+      console.error('Chyba pri zaznamenA?vanA? dochA?dzky:', error);
+      alert('Chyba pri zaznamenA?vanA? dochA?dzky');
     } finally {
       setSubmitting(false);
     }
@@ -149,7 +149,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">Na�TA�tavam zamestnancov...</p>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">Na?TA?tavam zamestnancov...</p>
             </div>
           ) : employees.length === 0 ? (
             <div className="text-center py-8">
@@ -194,7 +194,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                         <div className="text-right">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
                             <ClockIcon className="w-3 h-3 mr-1" />
-                            {employee.missing_dates.length} dnA�
+                            {employee.missing_dates.length} dnA?
                           </span>
                         </div>
                       </div>
@@ -239,19 +239,19 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                         onChange={(e) => setAttendanceType(e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-dark-700 dark:text-white"
                       >
-                        <option value="present">PrA�tomnA?</option>
-                        <option value="absent">NeprA�tomnA?</option>
+                        <option value="present">PrA?tomnA?</option>
+                        <option value="absent">NeprA?tomnA?</option>
                         <option value="leave">Dovolenka</option>
                         <option value="sick_leave">PN</option>
                       </select>
                     </div>
 
-                    {/* �Sasy (len pre prA�tomnA?ch) */}
+                    {/* ?Sasy (len pre prA?tomnA?ch) */}
                     {attendanceType === 'present' && (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            PrA�chod
+                            PrA?chod
                           </label>
                           <input
                             type="time"
@@ -274,7 +274,7 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                       </div>
                     )}
 
-                    {/* PrestA?vka (len pre prA�tomnA?ch) */}
+                    {/* PrestA?vka (len pre prA?tomnA?ch) */}
                     {attendanceType === 'present' && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -301,11 +301,11 @@ const AttendanceRecordModal: React.FC<AttendanceRecordModalProps> = ({
                         onChange={(e) => setNote(e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-dark-700 dark:text-white"
-                        placeholder="Volite�lnA? poznA?mka k dochA?dzke..."
+                        placeholder="Volite?lnA? poznA?mka k dochA?dzke..."
                       />
                     </div>
 
-                    {/* Tla�TidlA? */}
+                    {/* Tla?TidlA? */}
                     <div className="flex space-x-3 pt-4">
                       <button
                         onClick={handleSubmit}

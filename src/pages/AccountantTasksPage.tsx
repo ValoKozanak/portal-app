@@ -47,7 +47,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       }));
       setAssignedTasks(convertedTasks);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t As?TtovnA?ka:', error);
     } finally {
       setLoadingTasks(false);
     }
@@ -55,7 +55,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
 
   const handleAddTask = () => {
     if (companies.length === 0) {
-      alert('NemA?te priradenA� Lliadne firmy. Kontaktujte administrA?tora.');
+      alert('NemA?te priradenA? Lliadne firmy. Kontaktujte administrA?tora.');
       return;
     }
     setEditingTask(null);
@@ -125,8 +125,8 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       setShowTaskModal(false);
       setEditingTask(null);
     } catch (error) {
-      console.error('Chyba pri ukladanA� Aslohy:', error);
-      alert('Chyba pri ukladanA� Aslohy');
+      console.error('Chyba pri ukladanA? Aslohy:', error);
+      alert('Chyba pri ukladanA? Aslohy');
     }
   };
 
@@ -136,8 +136,8 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
         await apiService.deleteTask(parseInt(taskId));
         setAssignedTasks(prev => prev.filter(task => task.id !== taskId));
       } catch (error) {
-        console.error('Chyba pri mazanA� Aslohy:', error);
-        alert('Chyba pri mazanA� Aslohy');
+        console.error('Chyba pri mazanA? Aslohy:', error);
+        alert('Chyba pri mazanA? Aslohy');
       }
     }
   };
@@ -156,10 +156,10 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       cancelled: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      pending: '�SakajAsce',
-      completed: 'Dokon�TenA�',
-      in_progress: 'V spracovanA�',
-      cancelled: 'ZruL?enA�',
+      pending: '?SakajAsce',
+      completed: 'Dokon?TenA?',
+      in_progress: 'V spracovanA?',
+      cancelled: 'ZruL?enA?',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors]}`}>
@@ -179,7 +179,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       urgent: 'UrgentnA?',
       high: 'VysokA?',
       medium: 'StrednA?',
-      low: 'NA�zka',
+      low: 'NA?zka',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[priority as keyof typeof colors]}`}>
@@ -238,8 +238,8 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       setAssignedTasks(prev => prev.filter(task => !selectedIds.has(task.id)));
       clearSelection();
     } catch (error) {
-      console.error('Chyba pri hromadnom mazanA� Asloh:', error);
-      alert('Chyba pri hromadnom mazanA� Asloh');
+      console.error('Chyba pri hromadnom mazanA? Asloh:', error);
+      alert('Chyba pri hromadnom mazanA? Asloh');
     }
   };
 
@@ -255,7 +255,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">SpA�LA do Dashboard</span>
+                <span className="font-medium">SpA?LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -284,12 +284,12 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
               <h2 className="text-lg font-semibold text-gray-900">SprA?va Asloh</h2>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">VybranA�: {selectedIds.size}</span>
+              <span className="text-sm text-gray-500">VybranA?: {selectedIds.size}</span>
               <button
                 onClick={selectAllVisible}
                 className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                VybraLA zobrazenA�
+                VybraLA zobrazenA?
               </button>
               <button
                 onClick={clearSelection}
@@ -298,11 +298,11 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                 ZruL?iLA vA?ber
               </button>
               <div className="hidden md:flex items-center space-x-1">
-                <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>�SakajAsce</button>
-                <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovanA�</button>
-                <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokon�TenA�</button>
-                <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>ZruL?enA�</button>
-                <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>VymazaLA vybranA�</button>
+                <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>?SakajAsce</button>
+                <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovanA?</button>
+                <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokon?TenA?</button>
+                <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>ZruL?enA?</button>
+                <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>VymazaLA vybranA?</button>
               </div>
               <button
                 onClick={handleAddTask}
@@ -342,7 +342,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  �SakajAsce ({assignedTasks.filter(t => t.status === 'pending').length})
+                  ?SakajAsce ({assignedTasks.filter(t => t.status === 'pending').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('in_progress')}
@@ -352,7 +352,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  V spracovanA� ({assignedTasks.filter(t => t.status === 'in_progress').length})
+                  V spracovanA? ({assignedTasks.filter(t => t.status === 'in_progress').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('completed')}
@@ -362,7 +362,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  Dokon�TenA� ({assignedTasks.filter(t => t.status === 'completed').length})
+                  Dokon?TenA? ({assignedTasks.filter(t => t.status === 'completed').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('cancelled')}
@@ -372,7 +372,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  ZruL?enA� ({assignedTasks.filter(t => t.status === 'cancelled').length})
+                  ZruL?enA? ({assignedTasks.filter(t => t.status === 'cancelled').length})
                 </button>
               </div>
             </div>
@@ -382,7 +382,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam Aslohy...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam Aslohy...</p>
               </div>
             ) : filteredTasks.length > 0 ? (
               <div className="space-y-4">
@@ -411,7 +411,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                           </div>
                           <div className="flex items-center">
                             <CalendarIcon className="h-4 w-4 mr-1" />
-                            <span>TermA�n: {new Date(task.dueDate).toLocaleDateString('sk-SK')}</span>
+                            <span>TermA?n: {new Date(task.dueDate).toLocaleDateString('sk-SK')}</span>
                           </div>
                           {task.estimatedHours && (
                             <div>
@@ -436,7 +436,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                             onClick={() => handleUpdateTaskStatus(task.id, 'in_progress')}
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                           >
-                            Za�TaLA prA?cu
+                            Za?TaLA prA?cu
                           </button>
                         )}
                         {task.status === 'in_progress' && (
@@ -444,7 +444,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                             onClick={() => handleUpdateTaskStatus(task.id, 'completed')}
                             className="text-green-600 hover:text-green-700 text-sm font-medium"
                           >
-                            Dokon�TiLA
+                            Dokon?TiLA
                           </button>
                         )}
                         <button
@@ -467,7 +467,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
             ) : companies.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA� firmy</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA? firmy</h3>
                 <p className="mt-1 text-sm text-gray-500">Kontaktujte administrA?tora, aby vA?m priradil firmy.</p>
               </div>
             ) : (
@@ -478,7 +478,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {taskFilter === 'all' 
-                    ? 'Zatia�l nemA?te Lliadne Aslohy od priradenA?ch firiem.' 
+                    ? 'Zatia?l nemA?te Lliadne Aslohy od priradenA?ch firiem.' 
                     : 'SkAsste zmeniLA filter alebo sa vrA?tiLA na "VL?etky"'
                   }
                 </p>

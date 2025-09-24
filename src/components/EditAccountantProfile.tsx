@@ -49,7 +49,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinnA�';
+      newErrors.name = 'Meno je povinnA?';
     }
 
     if (!formData.email.trim()) {
@@ -62,12 +62,12 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
       newErrors.phone = 'NeplatnA? formA?t telefAlnu';
     }
 
-    // ValidA?cia hesla ak sa menA�
+    // ValidA?cia hesla ak sa menA?
     if (showPasswordChange) {
       if (!passwordData.newPassword) {
-        newErrors.newPassword = 'NovA� heslo je povinnA�';
+        newErrors.newPassword = 'NovA? heslo je povinnA?';
       } else if (passwordData.newPassword.length < 6) {
-        newErrors.newPassword = 'Heslo musA� maLA aspoL� 6 znakov';
+        newErrors.newPassword = 'Heslo musA? maLA aspoL? 6 znakov';
       }
 
       if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -89,7 +89,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
     setIsSubmitting(true);
     
     try {
-      // AktualizA?cia Asdajov pouLlA�vate�la
+      // AktualizA?cia Asdajov pouLlA?vate?la
       await onSave(user.id, formData);
       
       // Zmena hesla ak je poLladovanA?
@@ -99,7 +99,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
       
       onClose();
     } catch (error) {
-      console.error('Chyba pri uloLlenA� profilu:', error);
+      console.error('Chyba pri uloLlenA? profilu:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +132,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
             <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
               <BuildingOfficeIcon className="h-5 w-5 text-primary-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">UpraviLA profil As�TtovnA�ka</h2>
+            <h2 className="text-xl font-semibold text-gray-900">UpraviLA profil As?TtovnA?ka</h2>
           </div>
           <button
             onClick={onClose}
@@ -232,7 +232,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
               <div className="space-y-4">
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    NovA� heslo *
+                    NovA? heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -255,7 +255,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Potvr�Zte novA� heslo *
+                    Potvr?Zte novA? heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -267,7 +267,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
                       className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                         errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="Zopakujte novA� heslo"
+                      placeholder="Zopakujte novA? heslo"
                     />
                     <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
@@ -279,17 +279,17 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
             )}
           </div>
 
-          {/* InformA?cie o As�TtovnA�kovi */}
+          {/* InformA?cie o As?TtovnA?kovi */}
           <div className="bg-gray-50 rounded-md p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o As�TtovnA�kovi</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o As?TtovnA?kovi</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {user.id}</p>
-              <p><span className="font-medium">Rola:</span> As�TtovnA�k (ModerA?tor)</p>
+              <p><span className="font-medium">Rola:</span> As?TtovnA?k (ModerA?tor)</p>
               <p><span className="font-medium">Status:</span> {user.status}</p>
             </div>
           </div>
 
-          {/* Tla�TidlA? */}
+          {/* Tla?TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"

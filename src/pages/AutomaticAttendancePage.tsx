@@ -50,7 +50,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
   const periodOptions: PeriodOption[] = [
     { value: 'month', label: 'Tento mesiac' },
     { value: 'year', label: 'Tento rok' },
-    { value: 'custom', label: 'VlastnA� obdobie' }
+    { value: 'custom', label: 'VlastnA? obdobie' }
   ];
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       setEmployees(employeesData);
       // ResetovaLA vA?ber len ak je prA?zdny alebo ak sa zmenili zamestnanci
       setSelectedEmployees(prev => {
-        // Ak sAs zamestnanci rovnakA�, zachovaLA vA?ber
+        // Ak sAs zamestnanci rovnakA?, zachovaLA vA?ber
         if (employees.length === employeesData.length && 
             employees.every((emp, index) => emp.id === employeesData[index]?.id)) {
           return prev;
@@ -78,7 +78,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
         return [];
       });
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? zamestnancov:', error);
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
     switch (selectedPeriod) {
       case 'month':
         start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // PoslednA? deL� mesiaca (pred Aspravou)
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // PoslednA? deL? mesiaca (pred Aspravou)
         break;
       case 'year':
         start = new Date(now.getFullYear(), 0, 1);
@@ -107,7 +107,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
         end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     }
 
-    // PouLliLA lokA?lne dA?tumovA� formA?tovanie namiesto toISOString()
+    // PouLliLA lokA?lne dA?tumovA? formA?tovanie namiesto toISOString()
     const formatDate = (date: Date): string => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -115,7 +115,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       return `${year}-${month}-${day}`;
     };
 
-    // KoncovA? dA?tum nesmie presiahnuLA v�TerajL?A� deL�
+    // KoncovA? dA?tum nesmie presiahnuLA v?TerajL?A? deL?
     const yesterday = new Date(now);
     yesterday.setHours(0, 0, 0, 0);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -125,7 +125,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
 
     if (originalEnd.getTime() > yesterday.getTime()) {
       end = new Date(yesterday);
-      setPeriodHint('KoncovA? dA?tum bol upravenA? na v�TerajL?A� deL�, aby sa vyhli dneL?ku/future.');
+      setPeriodHint('KoncovA? dA?tum bol upravenA? na v?TerajL?A? deL?, aby sa vyhli dneL?ku/future.');
     } else {
       setPeriodHint('');
     }
@@ -153,7 +153,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
 
   const handleProcessAttendance = async () => {
     if (selectedEmployees.length === 0) {
-      alert('Vyberte aspoL� jednA�ho zamestnanca');
+      alert('Vyberte aspoL? jednA?ho zamestnanca');
       return;
     }
 
@@ -163,9 +163,9 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
     }
 
     const confirmed = window.confirm(
-      `Naozaj chcete prepo�TA�taLA dochA?dzku pre ${selectedEmployees.length} zamestnancov ` +
+      `Naozaj chcete prepo?TA?taLA dochA?dzku pre ${selectedEmployees.length} zamestnancov ` +
       `za obdobie ${startDate} aLl ${endDate}?\n\n` +
-      'TA?to akcia prepA�L?e existujAsce zA?znamy dochA?dzky!'
+      'TA?to akcia prepA?L?e existujAsce zA?znamy dochA?dzky!'
     );
 
     if (!confirmed) return;
@@ -186,13 +186,13 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       setResults(response.results || []);
       setShowResults(true);
     } catch (error: any) {
-      console.error('Chyba pri spracovanA� dochA?dzky:', error);
+      console.error('Chyba pri spracovanA? dochA?dzky:', error);
       
-      // ZobraziLA L?pecifickAs chybu pre uzatvorenA� obdobie
+      // ZobraziLA L?pecifickAs chybu pre uzatvorenA? obdobie
       if (error.response?.data?.error) {
         alert(`Chyba: ${error.response.data.error}`);
       } else {
-        alert('Chyba pri spracovanA� dochA?dzky');
+        alert('Chyba pri spracovanA? dochA?dzky');
       }
     } finally {
       setProcessing(false);
@@ -200,7 +200,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
   };
 
   const handleCleanupFutureAttendance = async () => {
-    if (!window.confirm('Naozaj chcete vy�TistiLA vL?etku dochA?dzku za budAsce dni? TA?to akcia sa nedA? vrA?tiLA spA�LA.')) {
+    if (!window.confirm('Naozaj chcete vy?TistiLA vL?etku dochA?dzku za budAsce dni? TA?to akcia sa nedA? vrA?tiLA spA?LA.')) {
       return;
     }
 
@@ -217,15 +217,15 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       const result = await response.json();
 
       if (response.ok) {
-        alert(`Vy�Tistenie dokon�TenA�. OdstrA?nenA?ch ${result.deletedCount} zA?znamov.`);
+        alert(`Vy?Tistenie dokon?TenA?. OdstrA?nenA?ch ${result.deletedCount} zA?znamov.`);
         // ObnoviLA strA?nku pre zobrazenie aktuA?lnych dA?t
         window.location.reload();
       } else {
         alert(`Chyba: ${result.error}`);
       }
     } catch (error) {
-      console.error('Chyba pri vy�TistenA� dochA?dzky:', error);
-      alert('Chyba pri vy�TistenA� dochA?dzky. SkAsste to znova.');
+      console.error('Chyba pri vy?TistenA? dochA?dzky:', error);
+      alert('Chyba pri vy?TistenA? dochA?dzky. SkAsste to znova.');
     }
   };
 
@@ -244,7 +244,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Na�TA�tavam zamestnancov..." />
+        <LoadingSpinner size="lg" text="Na?TA?tavam zamestnancov..." />
       </div>
     );
   }
@@ -262,32 +262,32 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              AutomatickA� prepo�TA�tanie dochA?dzky
+              AutomatickA? prepo?TA?tanie dochA?dzky
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Prepo�TA�taj dochA?dzku na zA?klade nastavenA?ch pracovnA?ch hodA�n
+              Prepo?TA?taj dochA?dzku na zA?klade nastavenA?ch pracovnA?ch hodA?n
             </p>
                     <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>DA�leLlitA�:</strong> AutomatickA? vA?po�Tet dochA?dzky mA�Lle prebehnAsLA len za dni <strong>pred aktuA?lnym dL�om</strong>.
-            SystA�m automaticky zoh�ladnA� dovolenky, PN, dni pracovnA�ho vo�lna a sviatky.
+            <strong>DA?leLlitA?:</strong> AutomatickA? vA?po?Tet dochA?dzky mA?Lle prebehnAsLA len za dni <strong>pred aktuA?lnym dL?om</strong>.
+            SystA?m automaticky zoh?ladnA? dovolenky, PN, dni pracovnA?ho vo?lna a sviatky.
           </p>
         </div>
 
         <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
           <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
-            <strong>Pozor:</strong> Ak mA?te dochA?dzku za budAsce dni, mA�Llete ju vy�TistiLA pomocou tla�Tidla niLlL?ie.
+            <strong>Pozor:</strong> Ak mA?te dochA?dzku za budAsce dni, mA?Llete ju vy?TistiLA pomocou tla?Tidla niLlL?ie.
           </p>
           <button
             onClick={handleCleanupFutureAttendance}
             className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium transition-colors"
           >
-            Vy�TistiLA budAsce dochA?dzky
+            Vy?TistiLA budAsce dochA?dzky
           </button>
         </div>
             <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>PoznA?mka:</strong> Ak mA?te existujAsce dochA?dzky za vA�kendy alebo sviatky, mA�Llete ich vy�TistiLA pomocou tla�Tidla "Vy�TistiLA dochA?dzku za vA�kendy a sviatky".
+                <strong>PoznA?mka:</strong> Ak mA?te existujAsce dochA?dzky za vA?kendy alebo sviatky, mA?Llete ich vy?TistiLA pomocou tla?Tidla "Vy?TistiLA dochA?dzku za vA?kendy a sviatky".
               </p>
             </div>
           </div>
@@ -295,7 +295,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* �?avA? panel - VA?ber zamestnancov */}
+        {/* ??avA? panel - VA?ber zamestnancov */}
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
@@ -304,14 +304,14 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
                   Zamestnanci s automatickou dochA?dzkou
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Kliknite na zamestnanca pre vA?ber alebo pouLlite "Ozna�TiLA vL?etkA?ch"
+                  Kliknite na zamestnanca pre vA?ber alebo pouLlite "Ozna?TiLA vL?etkA?ch"
                 </p>
               </div>
               <button
                 onClick={handleSelectAll}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
-                {selectedEmployees.length === employees.length ? 'Odzna�TiLA vL?etkA?ch' : 'Ozna�TiLA vL?etkA?ch'}
+                {selectedEmployees.length === employees.length ? 'Odzna?TiLA vL?etkA?ch' : 'Ozna?TiLA vL?etkA?ch'}
               </button>
             </div>
 
@@ -361,7 +361,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
                       </div>
                       <div className="text-right text-sm text-gray-500 dark:text-gray-400">
                         <p>{formatTime(employee.work_start_time)} - {formatTime(employee.work_end_time)}</p>
-                        <p>{employee.weekly_hours}h/tA?LldeL�</p>
+                        <p>{employee.weekly_hours}h/tA?LldeL?</p>
                       </div>
                                           </div>
                     </div>
@@ -376,7 +376,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
           {/* VA?ber obdobia */}
           <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Obdobie prepo�TA�tania
+              Obdobie prepo?TA?tania
             </h3>
             
             <div className="space-y-4">
@@ -455,17 +455,17 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
                 ) : (
                   <>
                     <ClockIcon className="w-5 h-5 mr-2" />
-                    Prepo�TA�taLA dochA?dzku
+                    Prepo?TA?taLA dochA?dzku
                   </>
                 )}
               </button>
 
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                <p>�s. VybranA?ch: {selectedEmployees.length} zamestnancov</p>
+                <p>?s. VybranA?ch: {selectedEmployees.length} zamestnancov</p>
                 {selectedEmployees.length === 0 && (
-                  <p className="text-orange-600 dark:text-orange-400">�s�d�Z Vyberte aspoL� jednA�ho zamestnanca</p>
+                  <p className="text-orange-600 dark:text-orange-400">?s?d?Z Vyberte aspoL? jednA?ho zamestnanca</p>
                 )}
-                <p>�s�d�Z TA?to akcia prepA�L?e existujAsce zA?znamy</p>
+                <p>?s?d?Z TA?to akcia prepA?L?e existujAsce zA?znamy</p>
               </div>
             </div>
           </div>
@@ -496,7 +496,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
               <div className="flex items-center">
                 <ExclamationTriangleIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Presko�TenA�</p>
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Presko?TenA?</p>
                   <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
                     {results.filter(r => r.skipped).length}
                   </p>
@@ -567,7 +567,7 @@ const AutomaticAttendancePage: React.FC<AutomaticAttendancePageProps> = ({ compa
                         }`}>
                           {result.success 
                             ? result.skipped 
-                              ? 'Presko�TenA�' 
+                              ? 'Presko?TenA?' 
                               : (result.status || 'Asspech')
                             : 'Chyba'
                           }

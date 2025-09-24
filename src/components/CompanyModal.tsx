@@ -83,23 +83,23 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     }
 
     if (!formData.ico.trim()) {
-      newErrors.ico = 'I�SO je povinnA�';
+      newErrors.ico = 'I?SO je povinnA?';
     } else if (!/^\d{8}$/.test(formData.ico.replace(/\s/g, ''))) {
-      newErrors.ico = 'I�SO musA� maLA 8 �TA�slic';
+      newErrors.ico = 'I?SO musA? maLA 8 ?TA?slic';
     }
 
     if (!formData.address.trim()) {
       newErrors.address = 'Adresa je povinnA?';
     }
 
-    // business_registry nie je povinnA� v databA?ze
+    // business_registry nie je povinnA? v databA?ze
 
     if (formData.vat_id && !/^SK\d{10}$/.test(formData.vat_id.replace(/\s/g, ''))) {
-      newErrors.vat_id = 'I�S DPH musA� maLA formA?t SK + 10 �TA�slic';
+      newErrors.vat_id = 'I?S DPH musA? maLA formA?t SK + 10 ?TA?slic';
     }
 
     if (formData.tax_id && !/^\d{10}$/.test(formData.tax_id.replace(/\s/g, ''))) {
-      newErrors.tax_id = 'DI�S musA� maLA 10 �TA�slic';
+      newErrors.tax_id = 'DI?S musA? maLA 10 ?TA?slic';
     }
 
     if (!formData.authorized_person.trim()) {
@@ -132,7 +132,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
       setIsLoading(false);
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladanA� firmy:', error);
+      console.error('Chyba pri ukladanA? firmy:', error);
       setIsLoading(false);
     }
   };
@@ -183,9 +183,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* ZA?kladnA� Asdaje */}
+            {/* ZA?kladnA? Asdaje */}
             <div className="md:col-span-2">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">ZA?kladnA� Asdaje</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">ZA?kladnA? Asdaje</h3>
             </div>
 
             <div className="md:col-span-2">
@@ -201,7 +201,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   errors.name ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="NA?zov spolo�Tnosti"
+                placeholder="NA?zov spolo?Tnosti"
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -210,7 +210,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
 
             <div>
               <label htmlFor="ico" className="block text-sm font-medium text-gray-700 mb-2">
-                I�SO *
+                I?SO *
               </label>
               <input
                 type="text"
@@ -231,7 +231,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
 
             <div>
               <label htmlFor="business_registry" className="block text-sm font-medium text-gray-700 mb-2">
-                �S. obchodnA�ho registra *
+                ?S. obchodnA?ho registra *
               </label>
               <input
                 type="text"
@@ -251,7 +251,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
 
             <div>
               <label htmlFor="vat_id" className="block text-sm font-medium text-gray-700 mb-2">
-                I�S DPH
+                I?S DPH
               </label>
               <input
                 type="text"
@@ -271,7 +271,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
 
             <div>
               <label htmlFor="tax_id" className="block text-sm font-medium text-gray-700 mb-2">
-                DI�S
+                DI?S
               </label>
               <input
                 type="text"
@@ -302,7 +302,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   errors.address ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Ulica, PS�S Mesto"
+                placeholder="Ulica, PS?S Mesto"
               />
               {errors.address && (
                 <p className="mt-1 text-sm text-red-600">{errors.address}</p>
@@ -329,9 +329,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
               )}
             </div>
 
-            {/* KontaktnA� Asdaje */}
+            {/* KontaktnA? Asdaje */}
             <div className="md:col-span-2">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6">KontaktnA� Asdaje</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6">KontaktnA? Asdaje</h3>
             </div>
 
             <div>

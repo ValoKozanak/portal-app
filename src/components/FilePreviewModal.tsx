@@ -26,14 +26,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     setError('');
 
     try {
-      // PouLlA�vame apiService pre autentifikA?ciu
+      // PouLlA?vame apiService pre autentifikA?ciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
       setPreviewUrl(url);
     } catch (err) {
-      setError('Nepodarilo sa na�TA�taLA nA?h�lad sAsboru');
-      console.error('Chyba pri na�TA�tanA� nA?h�ladu:', err);
+      setError('Nepodarilo sa na?TA?taLA nA?h?lad sAsboru');
+      console.error('Chyba pri na?TA?tanA? nA?h?ladu:', err);
     } finally {
       setLoading(false);
     }
@@ -43,13 +43,13 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      // PouLlA�vame apiService pre autentifikA?ciu
+      // PouLlA?vame apiService pre autentifikA?ciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (err) {
-      console.error('Chyba pri otvA?ranA� sAsboru:', err);
+      console.error('Chyba pri otvA?ranA? sAsboru:', err);
       alert('Nepodarilo sa otvoriLA sAsbor');
     }
   };
@@ -58,7 +58,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      // PouLlA�vame apiService pre konzistenciu
+      // PouLlA?vame apiService pre konzistenciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
@@ -70,7 +70,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      console.error('Chyba pri sLAahovanA� sAsboru:', err);
+      console.error('Chyba pri sLAahovanA? sAsboru:', err);
       alert('Nepodarilo sa stiahnuLA sAsbor');
     }
   };
@@ -124,12 +124,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-gray-600">Na�TA�tavam nA?h�lad...</span>
+              <span className="ml-3 text-gray-600">Na?TA?tavam nA?h?lad...</span>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="text-red-500 text-lg mb-2">�s�d�Z</div>
+                <div className="text-red-500 text-lg mb-2">?s?d?Z</div>
                 <p className="text-gray-600">{error}</p>
                 <div className="mt-4 space-x-2">
                   <button
@@ -170,12 +170,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
               {isText && (
                 <div className="h-full p-4">
                   <pre className="whitespace-pre-wrap text-sm text-gray-800 bg-gray-50 p-4 rounded border h-full overflow-auto">
-                    {/* Pre textovA� sAsbory by sme tu zobrazili obsah */}
+                    {/* Pre textovA? sAsbory by sme tu zobrazili obsah */}
                     SimulovanA? textovA? sAsbor: {file.original_name}
                     
-                    Tento sAsbor bol vytvorenA? v simulovanom prostredA�.
+                    Tento sAsbor bol vytvorenA? v simulovanom prostredA?.
                     DA?tum vytvorenia: {new Date(file.created_at).toLocaleDateString('sk-SK')}
-                    Ve�lkosLA: {file.file_size} bajtov
+                    Ve?lkosLA: {file.file_size} bajtov
                     KategAlria: {file.file_type}
                     
                     Obsah sAsboru:
@@ -190,7 +190,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <div className="text-gray-500 text-lg mb-2">dz""</div>
-                    <p className="text-gray-600">NA?h�lad nie je dostupnA? pre tento typ sAsboru</p>
+                    <p className="text-gray-600">NA?h?lad nie je dostupnA? pre tento typ sAsboru</p>
                     <div className="mt-4 space-x-2">
                       <button
                         onClick={handleOpenInNewTab}

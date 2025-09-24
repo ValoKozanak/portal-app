@@ -52,7 +52,7 @@ const VerifyEmail: React.FC = () => {
       }
     } catch (error) {
       setStatus('error');
-      setMessage('Chyba pri overovanA� emailu');
+      setMessage('Chyba pri overovanA? emailu');
     }
   };
 
@@ -80,7 +80,7 @@ const VerifyEmail: React.FC = () => {
         setMessage(data.error);
       }
     } catch (error) {
-      setMessage('Chyba pri odosielanA� emailu');
+      setMessage('Chyba pri odosielanA? emailu');
     } finally {
       setResendLoading(false);
     }
@@ -93,7 +93,7 @@ const VerifyEmail: React.FC = () => {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Overujem email...</h2>
-            <p className="text-gray-600">ProsA�m po�Tkajte, overujeme vA?L? email.</p>
+            <p className="text-gray-600">ProsA?m po?Tkajte, overujeme vA?L? email.</p>
           </div>
         );
 
@@ -121,7 +121,7 @@ const VerifyEmail: React.FC = () => {
             <div className="bg-red-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Chyba pri overovanA�</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Chyba pri overovanA?</h2>
             <p className="text-gray-600 mb-6">{message}</p>
             <button
               onClick={() => navigate('/contact')}

@@ -32,37 +32,37 @@ export interface CmsHistoryItem {
 class CmsService {
   private baseUrl = `${API_BASE_URL}/cms`;
 
-  // ZA�skanie vL?etkA�ho aktA�vneho obsahu
+  // ZA?skanie vL?etkA?ho aktA?vneho obsahu
   async getContent(): Promise<CmsContent> {
     try {
       const response = await fetch(`${this.baseUrl}/content`);
       if (!response.ok) {
-        throw new Error('Chyba pri na�TA�tanA� obsahu');
+        throw new Error('Chyba pri na?TA?tanA? obsahu');
       }
       const data = await response.json();
       return data.content;
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� CMS obsahu:', error);
+      console.error('Chyba pri na?TA?tanA? CMS obsahu:', error);
       throw error;
     }
   }
 
-  // ZA�skanie obsahu pre konkrA�tnu sekciu
+  // ZA?skanie obsahu pre konkrA?tnu sekciu
   async getSectionContent(section: string): Promise<{ [field: string]: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/content/${section}`);
       if (!response.ok) {
-        throw new Error('Chyba pri na�TA�tanA� sekcie');
+        throw new Error('Chyba pri na?TA?tanA? sekcie');
       }
       const data = await response.json();
       return data.content;
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� sekcie:', error);
+      console.error('Chyba pri na?TA?tanA? sekcie:', error);
       throw error;
     }
   }
 
-  // AktualizA?cia jednA�ho po�la
+  // AktualizA?cia jednA?ho po?la
   async updateField(section: string, field: string, value: string): Promise<{ id: number; version: number }> {
     try {
       const token = apiService.getToken();
@@ -83,7 +83,7 @@ class CmsService {
       const data = await response.json();
       return { id: data.id, version: data.version };
     } catch (error) {
-      console.error('Chyba pri aktualizA?cii po�la:', error);
+      console.error('Chyba pri aktualizA?cii po?la:', error);
       throw error;
     }
   }
@@ -114,7 +114,7 @@ class CmsService {
     }
   }
 
-  // ZA�skanie vL?etkA?ch verziA�
+  // ZA?skanie vL?etkA?ch verziA?
   async getVersions(): Promise<CmsVersion[]> {
     try {
       const token = apiService.getToken();
@@ -125,13 +125,13 @@ class CmsService {
       });
 
       if (!response.ok) {
-        throw new Error('Chyba pri na�TA�tanA� verziA�');
+        throw new Error('Chyba pri na?TA?tanA? verziA?');
       }
 
       const data = await response.json();
       return data.versions;
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� verziA�:', error);
+      console.error('Chyba pri na?TA?tanA? verziA?:', error);
       throw error;
     }
   }
@@ -151,18 +151,18 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri vytvorenA� verzie');
+        throw new Error(errorData.error || 'Chyba pri vytvorenA? verzie');
       }
 
       const data = await response.json();
       return { id: data.id, version_name: data.version_name };
     } catch (error) {
-      console.error('Chyba pri vytvorenA� verzie:', error);
+      console.error('Chyba pri vytvorenA? verzie:', error);
       throw error;
     }
   }
 
-  // ZA�skanie histAlrie zmien pre konkrA�tne pole
+  // ZA?skanie histAlrie zmien pre konkrA?tne pole
   async getHistory(section: string, field: string): Promise<CmsHistoryItem[]> {
     try {
       const token = apiService.getToken();
@@ -173,13 +173,13 @@ class CmsService {
       });
 
       if (!response.ok) {
-        throw new Error('Chyba pri na�TA�tanA� histAlrie');
+        throw new Error('Chyba pri na?TA?tanA? histAlrie');
       }
 
       const data = await response.json();
       return data.history;
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� histAlrie:', error);
+      console.error('Chyba pri na?TA?tanA? histAlrie:', error);
       throw error;
     }
   }
@@ -197,13 +197,13 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri obnovenA� verzie');
+        throw new Error(errorData.error || 'Chyba pri obnovenA? verzie');
       }
 
       const data = await response.json();
       return { id: data.id, version: data.version };
     } catch (error) {
-      console.error('Chyba pri obnovenA� verzie:', error);
+      console.error('Chyba pri obnovenA? verzie:', error);
       throw error;
     }
   }

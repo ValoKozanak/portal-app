@@ -12,7 +12,7 @@ interface InvoiceSummaryProps {
 
 const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ invoices, type }) => {
   const formatCurrency = (amount: number | null | undefined) => {
-    if (amount === null || amount === undefined || isNaN(amount)) return '0,00 �,�';
+    if (amount === null || amount === undefined || isNaN(amount)) return '0,00 ?,?';
     return new Intl.NumberFormat('sk-SK', {
       style: 'currency',
       currency: 'EUR'
@@ -23,8 +23,8 @@ const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ invoices, type }) => {
     const today = new Date();
     const stats = {
       totalAmount: 0,
-      totalCount: 0, // CelkovA? po�Tet faktAsr
-      unpaidAmount: 0, // NezaplatenA� (zostatok na Ashradu)
+      totalCount: 0, // CelkovA? po?Tet faktAsr
+      unpaidAmount: 0, // NezaplatenA? (zostatok na Ashradu)
       unpaidCount: 0,
       overdueAmount: 0,
       overdueCount: 0
@@ -42,16 +42,16 @@ const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ invoices, type }) => {
       const isPaid = unpaidAmount === 0;
 
       stats.totalAmount += total;
-      stats.totalCount++; // Po�TA�tame vL?etky faktAsry
+      stats.totalCount++; // Po?TA?tame vL?etky faktAsry
 
       if (isPaid) {
-        // ZaplatenA� faktAsry nepridA?vajAs do nezaplatenA?ch
+        // ZaplatenA? faktAsry nepridA?vajAs do nezaplatenA?ch
       } else {
-        // PouLlijeme kc_likv pre nezaplatenA�
+        // PouLlijeme kc_likv pre nezaplatenA?
         stats.unpaidAmount += unpaidAmount;
         stats.unpaidCount++;
         
-        // Po splatnosti: vL?etky nezaplatenA� faktAsry s dA?tumom splatnosti < aktuA?lny dA?tum
+        // Po splatnosti: vL?etky nezaplatenA? faktAsry s dA?tumom splatnosti < aktuA?lny dA?tum
         if (isOverdue) {
           stats.overdueAmount += unpaidAmount;
           stats.overdueCount++;
@@ -70,7 +70,7 @@ const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ invoices, type }) => {
         SumA?r {type === 'issued' ? 'vydanA?ch' : 'prijatA?ch'} faktAsr
       </h3>
 
-      {/* HlavnA� sumy - len 3 karty */}
+      {/* HlavnA? sumy - len 3 karty */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
           <div className="flex items-center">
@@ -87,7 +87,7 @@ const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ invoices, type }) => {
           <div className="flex items-center">
             <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-2" />
             <div>
-              <p className="text-sm font-medium text-red-600">NezaplatenA�</p>
+              <p className="text-sm font-medium text-red-600">NezaplatenA?</p>
               <p className="text-xl font-bold text-red-900">{formatCurrency(stats.unpaidAmount)}</p>
               <p className="text-xs text-red-600">{stats.unpaidCount} faktAsr</p>
             </div>

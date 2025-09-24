@@ -13,7 +13,7 @@ interface SearchInputProps {
 const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
-  placeholder = 'H�ladaLA...',
+  placeholder = 'H?ladaLA...',
   className = '',
   debounceMs = 300,
   showClearButton = true
@@ -21,7 +21,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   const [inputValue, setInputValue] = useState(value);
   const debouncedValue = useDebounce(inputValue, debounceMs);
 
-  // Aktualizuj parent komponent ke�Z sa zmenA� debounced hodnota
+  // Aktualizuj parent komponent ke?Z sa zmenA? debounced hodnota
   React.useEffect(() => {
     onChange(debouncedValue);
   }, [debouncedValue, onChange]);

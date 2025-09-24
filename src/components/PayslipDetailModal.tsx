@@ -14,24 +14,24 @@ const label = (k: string) => {
   const map: Record<string, string> = {
     year: 'Rok',
     month: 'Mesiac',
-    employeeCode: 'OsobnA� �TA�slo',
+    employeeCode: 'OsobnA? ?TA?slo',
     calendarDays: 'KalendA?rne dni',
     holidays: 'Sviatky',
-    workingDays: 'PracovnA� dni',
-    workRatio: 'PracovnA? AsvA�zok',
-    workedDays: 'OdpracovanA� dni',
-    workedHours: 'OdpracovanA� hodiny',
+    workingDays: 'PracovnA? dni',
+    workRatio: 'PracovnA? AsvA?zok',
+    workedDays: 'OdpracovanA? dni',
+    workedHours: 'OdpracovanA? hodiny',
     baseWage: 'ZA?kladnA? mzda',
-    bonuses: 'PrA�mie',
+    bonuses: 'PrA?mie',
     grossWage: 'HrubA? mzda',
-    taxableIncome: 'Zdanite�lnA? prA�jem',
-    wageTax: 'DaL� zo mzdy',
-    taxBonus: 'DaL�ovA? bonus',
-    netWage: '�SistA? mzda',
+    taxableIncome: 'Zdanite?lnA? prA?jem',
+    wageTax: 'DaL? zo mzdy',
+    taxBonus: 'DaL?ovA? bonus',
+    netWage: '?SistA? mzda',
     advance: 'ZA?loha',
     settlement: 'Doplatok',
     socialInsurance: 'SociA?lne poistenie (SP)',
-    healthInsurance: 'ZdravotnA� poistenie (ZP)'
+    healthInsurance: 'ZdravotnA? poistenie (ZP)'
   };
   return map[k] || k;
 };
@@ -56,7 +56,7 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
         const res = await payrollService.getPayslipDetail(companyId, employeeId, year, month);
         setData(res.payslip || null);
       } catch (e: any) {
-        setError('Nepodarilo sa na�TA�taLA detail vA?platnej pA?sky');
+        setError('Nepodarilo sa na?TA?taLA detail vA?platnej pA?sky');
       } finally {
         setLoading(false);
       }
@@ -71,11 +71,11 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-lg w-full max-w-2xl">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detail vA?platnej pA?sky</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">�s.</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">?s.</button>
         </div>
         <div className="p-6">
           {loading ? (
-            <div>Na�TA�tavam...</div>
+            <div>Na?TA?tavam...</div>
           ) : error ? (
             <div className="text-red-600">{error}</div>
           ) : data ? (

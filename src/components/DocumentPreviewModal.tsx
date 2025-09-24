@@ -55,7 +55,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
       'zmluvy': 'Zmluvy',
       'vykazy': 'VA?kazy',
       'dokumenty': 'Dokumenty',
-      'archiv': 'ArchA�v'
+      'archiv': 'ArchA?v'
     };
     return categoryNames[category] || category;
   };
@@ -76,7 +76,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               {document.original_name}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {getCategoryName(document.category)} �?? {formatFileSize(document.file_size)} �?? {formatDate(document.created_at)}
+              {getCategoryName(document.category)} ??? {formatFileSize(document.file_size)} ??? {formatDate(document.created_at)}
             </p>
           </div>
           <div className="flex items-center gap-2 ml-4">
@@ -127,7 +127,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     }}
                   />
                   <div className="preview-error hidden text-center py-12">
-                    <p className="text-gray-500">Nepodarilo sa na�TA�taLA nA?h�lad obrA?zka</p>
+                    <p className="text-gray-500">Nepodarilo sa na?TA?taLA nA?h?lad obrA?zka</p>
                     <button
                       onClick={handleDownload}
                       className="mt-2 text-blue-600 hover:text-blue-700"
@@ -147,8 +147,8 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               ) : document.file_type === 'text/' ? (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                    {/* Tu by sa na�TA�tal textovA? obsah */}
-                    NA?h�lad textovA�ho sAsboru
+                    {/* Tu by sa na?TA?tal textovA? obsah */}
+                    NA?h?lad textovA?ho sAsboru
                   </pre>
                 </div>
               ) : null}
@@ -162,10 +162,10 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  NA?h�lad nie je dostupnA?
+                  NA?h?lad nie je dostupnA?
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  Tento typ sAsboru ({document.file_type}) nepodporuje nA?h�lad. MA�Llete si ho stiahnuLA alebo otvoriLA v prA�sluL?nej aplikA?cii.
+                  Tento typ sAsboru ({document.file_type}) nepodporuje nA?h?lad. MA?Llete si ho stiahnuLA alebo otvoriLA v prA?sluL?nej aplikA?cii.
                 </p>
                 <div className="flex gap-3 justify-center">
                   <button
@@ -190,7 +190,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               <span className="ml-2 text-gray-600">{getCategoryName(document.category)}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Ve�lkosLA:</span>
+              <span className="font-medium text-gray-700">Ve?lkosLA:</span>
               <span className="ml-2 text-gray-600">{formatFileSize(document.file_size)}</span>
             </div>
             <div>

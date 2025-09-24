@@ -44,7 +44,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
       }));
       setAssignedTasks(convertedTasks);
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
+      console.error('Chyba pri na?TA?tanA? dA?t As?TtovnA?ka:', error);
     } finally {
       setLoadingTasks(false);
     }
@@ -62,7 +62,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">SpA�LA do Dashboard</span>
+                <span className="font-medium">SpA?LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
@@ -80,7 +80,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">KalendA?r Asloh</h1>
           <p className="text-gray-600 mt-2">
-            Preh�lad Asloh zo vL?etkA?ch priradenA?ch firiem
+            Preh?lad Asloh zo vL?etkA?ch priradenA?ch firiem
           </p>
         </div>
 
@@ -90,7 +90,7 @@ const AccountantCalendarPage: React.FC<AccountantCalendarPageProps> = ({ userEma
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam kalendA?r...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam kalendA?r...</p>
               </div>
             ) : (
               <CalendarComponent

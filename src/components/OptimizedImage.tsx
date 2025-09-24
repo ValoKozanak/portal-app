@@ -46,7 +46,7 @@ export const OptimizedImage = forwardRef<HTMLImageElement, OptimizedImageProps>(
       { placeholder, fallback }
     );
 
-    // Inak pouLlijeme oby�TajnA? lazy loading
+    // Inak pouLlijeme oby?TajnA? lazy loading
     const lazyImage = useImageOptimization(src, {
       threshold,
       rootMargin,

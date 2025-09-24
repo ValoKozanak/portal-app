@@ -9,9 +9,9 @@ import { CalendarService } from '../services/calendarService';
 
 interface AttendanceOverviewProps {
   companyId: number;
-  employeeId?: number; // Volite�lnA� - ak nie je uvedenA�, zobrazA� vL?etkA?ch zamestnancov
+  employeeId?: number; // Volite?lnA? - ak nie je uvedenA?, zobrazA? vL?etkA?ch zamestnancov
   employeeName?: string;
-  isCompanyView?: boolean; // Pre rozlA�L?enie medzi poh�ladom firmy a zamestnanca
+  isCompanyView?: boolean; // Pre rozlA?L?enie medzi poh?ladom firmy a zamestnanca
 }
 
 type PeriodType = 'year' | 'month' | 'custom' | 'week';
@@ -43,10 +43,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   const canEdit = userRole === 'admin' || userRole === 'accountant' || userRole === 'user';
 
   const periodOptions: PeriodOption[] = [
-    { value: 'week', label: 'Tento tA?LldeL�' },
+    { value: 'week', label: 'Tento tA?LldeL?' },
     { value: 'month', label: 'Tento mesiac' },
     { value: 'year', label: 'Tento rok' },
-    { value: 'custom', label: 'VlastnA� obdobie' }
+    { value: 'custom', label: 'VlastnA? obdobie' }
   ];
 
   useEffect(() => {
@@ -84,7 +84,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setSelectedEmployee(employeesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
+      console.error('Chyba pri na?TA?tanA? zamestnancov:', error);
     }
   };
 
@@ -92,7 +92,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     const result: string[] = [];
     const [sy, sm, sd] = start.split('-').map((v) => parseInt(v, 10));
     const [ey, em, ed] = end.split('-').map((v) => parseInt(v, 10));
-    // VytvA?rame dA?tumy v lokA?lnom �Tase, aby sme sa vyhli UTC posunom
+    // VytvA?rame dA?tumy v lokA?lnom ?Tase, aby sme sa vyhli UTC posunom
     const s = new Date(sy, sm - 1, sd);
     const e = new Date(ey, em - 1, ed);
     const cur = new Date(s);
@@ -150,7 +150,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 
     switch (selectedPeriod) {
       case 'week': {
-        // Za�Tiatok tA?LldL�a (pondelok) �?" korektne aj pre nede�lu
+        // Za?Tiatok tA?LldL?a (pondelok) ??" korektne aj pre nede?lu
         const day = now.getDay() === 0 ? 7 : now.getDay();
         start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
         end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -158,7 +158,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       }
       case 'month':
         start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // PoslednA? deL� mesiaca
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // PoslednA? deL? mesiaca
         break;
       case 'year':
         start = new Date(now.getFullYear(), 0, 1);
@@ -172,7 +172,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     }
 
-    // PouLliLA lokA?lne dA?tumovA� formA?tovanie namiesto toISOString()
+    // PouLliLA lokA?lne dA?tumovA? formA?tovanie namiesto toISOString()
     const formatDate = (date: Date): string => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -190,7 +190,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     setLoading(true);
     try {
       if (showAllEmployees) {
-        // Na�TA�tanie dochA?dzky pre vL?etkA?ch zamestnancov
+        // Na?TA?tanie dochA?dzky pre vL?etkA?ch zamestnancov
         const allAttendanceData = await Promise.all(
           employees.map(async (emp) => {
             try {
@@ -205,13 +205,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 employee_name: `${emp.first_name} ${emp.last_name}`
               }));
             } catch (error) {
-              console.error(`Chyba pri na�TA�tanA� dochA?dzky pre zamestnanca ${emp.id}:`, error);
+              console.error(`Chyba pri na?TA?tanA? dochA?dzky pre zamestnanca ${emp.id}:`, error);
               return [];
             }
           })
         );
         
-        // Spojenie vL?etkA?ch dochA?dzok do jednA�ho po�la
+        // Spojenie vL?etkA?ch dochA?dzok do jednA?ho po?la
         const combinedAttendance = allAttendanceData.flat();
         setAttendance(combinedAttendance);
       } else {
@@ -227,7 +227,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             endDate
           );
           if (duplicates.duplicates && duplicates.duplicates.length > 0) {
-            console.warn('NA?jdenA� duplicitnA� zA?znamy dochA?dzky:', duplicates.duplicates);
+            console.warn('NA?jdenA? duplicitnA? zA?znamy dochA?dzky:', duplicates.duplicates);
           }
         } catch (error) {
           console.error('Chyba pri kontrole duplicitnA?ch zA?znamov:', error);
@@ -242,7 +242,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setAttendance(attendanceData);
       }
     } catch (error) {
-      console.error('Chyba pri na�TA�tanA� dochA?dzky:', error);
+      console.error('Chyba pri na?TA?tanA? dochA?dzky:', error);
     } finally {
       setLoading(false);
     }
@@ -257,23 +257,23 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     let lateDays: number;
     
          if (showAllEmployees) {
-       // Pre vL?etkA?ch zamestnancov po�TA�tame pod�la kalendA?ra
-       // Po�TA�tame pracovnA� dni v obdobA� pomocou CalendarService
+       // Pre vL?etkA?ch zamestnancov po?TA?tame pod?la kalendA?ra
+       // Po?TA?tame pracovnA? dni v obdobA? pomocou CalendarService
        const workingDaysInPeriod = await CalendarService.calculateWorkingDays(startDate, endDate);
        
-       totalDays = workingDaysInPeriod; // CelkovA? po�Tet pracovnA?ch dnA� v obdobA�
+       totalDays = workingDaysInPeriod; // CelkovA? po?Tet pracovnA?ch dnA? v obdobA?
        
-       // Po�TA�tame dni pracovnA�ho vo�lna ako celkovA� pracovnA� dni mA�nus neprA�tomnA� dni
+       // Po?TA?tame dni pracovnA?ho vo?lna ako celkovA? pracovnA? dni mA?nus neprA?tomnA? dni
        const totalAbsentDays = attendance.filter(a => a.status === 'absent').length;
-       presentDays = totalAbsentDays; // Dni pracovnA�ho vo�lna = neprA�tomnA� dni
-       absentDays = totalDays - totalAbsentDays; // PrA�tomnA� dni = celkovA� dni mA�nus neprA�tomnA� dni
+       presentDays = totalAbsentDays; // Dni pracovnA?ho vo?lna = neprA?tomnA? dni
+       absentDays = totalDays - totalAbsentDays; // PrA?tomnA? dni = celkovA? dni mA?nus neprA?tomnA? dni
        lateDays = attendance.filter(a => a.status === 'late').length;
     } else {
-      // Pre individuA?lneho zamestnanca po�TA�tame pracovnA� dni v obdobA�
+      // Pre individuA?lneho zamestnanca po?TA?tame pracovnA? dni v obdobA?
       const workingDaysInPeriod = await CalendarService.calculateWorkingDays(startDate, endDate);
       totalDays = workingDaysInPeriod;
       
-      // Po�TA�tame unikA?tne dni s dochA?dzkou (aby sme eliminovali duplicity)
+      // Po?TA?tame unikA?tne dni s dochA?dzkou (aby sme eliminovali duplicity)
       const presentDates = new Set(
         attendance
           .filter(a => a.status === 'present')
@@ -285,13 +285,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
           .map(a => a.date)
       );
       
-      // Po�TA�tame dni s dochA?dzkou (prA�tomnA� + meL?kanie)
+      // Po?TA?tame dni s dochA?dzkou (prA?tomnA? + meL?kanie)
       const daysWithAttendance = new Set();
       presentDates.forEach(date => daysWithAttendance.add(date));
       lateDates.forEach(date => daysWithAttendance.add(date));
       presentDays = daysWithAttendance.size;
       
-      // NeprA�tomnA� dni = celkovA� pracovnA� dni mA�nus dni s dochA?dzkou
+      // NeprA?tomnA? dni = celkovA? pracovnA? dni mA?nus dni s dochA?dzkou
       absentDays = Math.max(0, totalDays - presentDays);
       lateDays = lateDates.size;
     }
@@ -300,7 +300,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     const totalBreakMinutes = attendance.reduce((sum, a) => sum + (a.break_minutes || 0), 0);
     
     const averageHours = totalDays > 0 ? totalHours / totalDays : 0;
-    // As�TasLA = (dni s dochA?dzkou / celkovA� pracovnA� dni) * 100
+    // As?TasLA = (dni s dochA?dzkou / celkovA? pracovnA? dni) * 100
     const attendanceRate = totalDays > 0 ? Math.min(100, (presentDays / totalDays) * 100) : 0;
     
     // Debug informA?cie
@@ -318,7 +318,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       lateDates: showAllEmployees ? 'N/A' : new Set(attendance.filter(a => a.status === 'late').map(a => a.date)).size
     });
 
-    // Pre vL?etkA?ch zamestnancov pridA?me informA?ciu o po�Tte zamestnancov
+    // Pre vL?etkA?ch zamestnancov pridA?me informA?ciu o po?Tte zamestnancov
     const uniqueEmployees = showAllEmployees 
       ? new Set(attendance.map(a => a.employee_name)).size 
       : 1;
@@ -348,7 +348,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
     if (!timeString) return '-';
     
     try {
-      // Ak je to uLl �Tas v formA?te HH:MM, vrA?LA ho
+      // Ak je to uLl ?Tas v formA?te HH:MM, vrA?LA ho
       if (timeString.match(/^\d{2}:\d{2}$/)) {
         return timeString;
       }
@@ -365,17 +365,17 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         hour12: false
       });
     } catch (error) {
-      console.error('Chyba pri formA?tovanA� �Tasu:', timeString, error);
+      console.error('Chyba pri formA?tovanA? ?Tasu:', timeString, error);
       return '-';
     }
   };
 
   const [stats, setStats] = useState<any>(null);
 
-  // Zobrazenie stavov len pre tabu�lku (bez zmeny globA?lnych prekladov)
+  // Zobrazenie stavov len pre tabu?lku (bez zmeny globA?lnych prekladov)
   const getDisplayStatusLabel = (status: Attendance['status']): string => {
-    if (status === 'present') return 'OdpracovanA�';
-    if (status === 'absent') return 'NeodpracovanA�';
+    if (status === 'present') return 'OdpracovanA?';
+    if (status === 'absent') return 'NeodpracovanA?';
     return hrService.getAttendanceStatusLabel(status as unknown as string);
   };
 
@@ -397,7 +397,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Preh�lad dochA?dzky
+            Preh?lad dochA?dzky
           </h3>
           {employeeName && (
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -490,14 +490,14 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
       )}
 
-      {/* L�tatistiky */}
+      {/* L?tatistiky */}
       {stats && (
         <div className={`grid grid-cols-2 md:grid-cols-4 ${showAllEmployees ? 'lg:grid-cols-5' : ''} gap-4 mb-6`}>
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <div className="flex items-center">
               <ChartBarIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">As�TasLA</p>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">As?TasLA</p>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                   {stats.attendanceRate.toFixed(1)}%
                 </p>
@@ -509,7 +509,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">CelkovA� hodiny</p>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">CelkovA? hodiny</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-100">
                   {(() => {
                     const hours = stats.totalHours;
@@ -526,7 +526,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             <div className="flex items-center">
               <ClockIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">PriemernA� hodiny</p>
+                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">PriemernA? hodiny</p>
                 <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
                   {(() => {
                     const hours = stats.averageHours;
@@ -572,25 +572,25 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
       )}
 
-             {/* DetailnA� L?tatistiky */}
+             {/* DetailnA? L?tatistiky */}
        {stats && (
          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
            <div className="text-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalDays}</p>
              <p className="text-sm text-gray-500 dark:text-gray-400">
-               {showAllEmployees ? 'Celkovo pracovnA?ch dnA�' : 'Celkovo dnA�'}
+               {showAllEmployees ? 'Celkovo pracovnA?ch dnA?' : 'Celkovo dnA?'}
              </p>
            </div>
            <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.presentDays}</p>
              <p className="text-sm text-green-600 dark:text-green-400">
-               {showAllEmployees ? 'Dni pracovnA�ho vo�lna' : 'PrA�tomnA� dni'}
+               {showAllEmployees ? 'Dni pracovnA?ho vo?lna' : 'PrA?tomnA? dni'}
              </p>
            </div>
            <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.absentDays}</p>
              <p className="text-sm text-red-600 dark:text-red-400">
-               {showAllEmployees ? 'PrA�tomnA� dni' : 'NeprA�tomnA� dni'}
+               {showAllEmployees ? 'PrA?tomnA? dni' : 'NeprA?tomnA? dni'}
              </p>
            </div>
            <div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
@@ -600,7 +600,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
          </div>
        )}
 
-      {/* Tabu�lka dochA?dzky */}
+      {/* Tabu?lka dochA?dzky */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
           <thead className="bg-gray-50 dark:bg-dark-700">
@@ -614,7 +614,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                 DA?tum
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                PrA�chod
+                PrA?chod
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Odchod
@@ -637,13 +637,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             {loading ? (
               <tr>
                 <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  Na�TA�tavam...
+                  Na?TA?tavam...
                 </td>
               </tr>
             ) : (!showAllEmployees && (buildDisplayRows().length === 0)) || (showAllEmployees && attendance.length === 0) ? (
               <tr>
                 <td colSpan={showAllEmployees ? 7 : (canEdit ? 7 : 6)} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                  L?iadne zA?znamy dochA?dzky pre vybranA� obdobie
+                  L?iadne zA?znamy dochA?dzky pre vybranA? obdobie
                 </td>
               </tr>
             ) : (
@@ -727,7 +727,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       {editModalOpen && editDay && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-dark-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">UpraviLA deL� {new Date(editDay.date).toLocaleDateString('sk-SK')}</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">UpraviLA deL? {new Date(editDay.date).toLocaleDateString('sk-SK')}</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stav</label>
@@ -736,8 +736,8 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   onChange={(e) => setEditDay(prev => prev ? { ...prev, status: e.target.value as any } : prev)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
                 >
-                  <option value="present">PrA�tomnA?</option>
-                  <option value="absent">NeprA�tomnA?</option>
+                  <option value="present">PrA?tomnA?</option>
+                  <option value="absent">NeprA?tomnA?</option>
                   <option value="vacation">Dovolenka</option>
                   <option value="sick_leave">PN</option>
                 </select>
@@ -745,7 +745,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
               {editDay.status === 'present' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PrA�chod</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PrA?chod</label>
                     <input type="time" value={(editDay.start_time || '').slice(0,5)} onChange={(e)=> setEditDay(prev => prev ? { ...prev, start_time: e.target.value } : prev)} className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-700 text-gray-900 dark:text-white" />
                   </div>
                   <div>
@@ -785,7 +785,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                       setEditDay(null);
                       await loadAttendance();
                     } catch (e: any) {
-                      alert(e?.message || 'Chyba pri ukladanA� dochA?dzky');
+                      alert(e?.message || 'Chyba pri ukladanA? dochA?dzky');
                     }
                   }}
                   className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"

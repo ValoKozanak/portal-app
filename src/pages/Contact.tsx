@@ -30,7 +30,7 @@ const Contact: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Tu by sa odoslal formulA?r na server
-    alert('�Zakujeme za vA?L? zA?ujem! Budeme vA?s kontaktovaLA v najbliLlL?om �Tase.');
+    alert('?Zakujeme za vA?L? zA?ujem! Budeme vA?s kontaktovaLA v najbliLlL?om ?Tase.');
     setFormData({
       name: '',
       email: '',
@@ -58,18 +58,18 @@ const Contact: React.FC = () => {
       icon: EnvelopeIcon
     },
     {
-      title: 'AsradnA� hodiny',
+      title: 'AsradnA? hodiny',
       content: 'Pondelok - Piatok: 8:00 - 17:00',
       icon: ClockIcon
     }
   ];
 
   const services = [
-    'PodvojnA� As�TtovnA�ctvo',
-    'JednoduchA� As�TtovnA�ctvo',
+    'PodvojnA? As?TtovnA?ctvo',
+    'JednoduchA? As?TtovnA?ctvo',
     'Mzdy a personalistika',
-    'DaL�ovA� poradenstvo',
-    'KonsolidovanA� As�TtovnA�ctvo',
+    'DaL?ovA? poradenstvo',
+    'KonsolidovanA? As?TtovnA?ctvo',
     'Audit a kontrola'
   ];
 
@@ -84,7 +84,7 @@ const Contact: React.FC = () => {
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
               MA?te otA?zky alebo zA?ujem o naL?e sluLlby? NevA?hajte nA?s kontaktovaLA. 
-              Radi vA?m pomA�Lleme a dohodneme si bezplatnAs konzultA?ciu.
+              Radi vA?m pomA?Lleme a dohodneme si bezplatnAs konzultA?ciu.
             </p>
           </div>
         </div>
@@ -97,7 +97,7 @@ const Contact: React.FC = () => {
             {/* Contact Information */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                KontaktnA� informA?cie
+                KontaktnA? informA?cie
               </h2>
               <div className="space-y-6">
                 {contactInfo.map((info) => (
@@ -127,7 +127,7 @@ const Contact: React.FC = () => {
             {/* Contact Form */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                NapA�L?te nA?m
+                NapA?L?te nA?m
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -202,7 +202,7 @@ const Contact: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="OpA�L?te nA?m vaL?e potreby alebo otA?zky..."
+                    placeholder="OpA?L?te nA?m vaL?e potreby alebo otA?zky..."
                   />
                 </div>
 
@@ -240,7 +240,7 @@ const Contact: React.FC = () => {
               NaL?e sluLlby
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Poskytujeme kompletnA? servis v oblasti As�TtovnA�ctva a danA�
+              Poskytujeme kompletnA? servis v oblasti As?TtovnA?ctva a danA?
             </p>
           </div>
           
@@ -264,7 +264,7 @@ const Contact: React.FC = () => {
             BezplatnA? konzultA?cia
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Dohodneme si osobnA� stretnutie a poradA�me vA?m s najlepL?A�m rieL?enA�m pre vaL?u firmu
+            Dohodneme si osobnA? stretnutie a poradA?me vA?m s najlepL?A?m rieL?enA?m pre vaL?u firmu
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -277,7 +277,7 @@ const Contact: React.FC = () => {
               href="mailto:info@ucto.sk"
               className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
             >
-              NapA�saLA email
+              NapA?saLA email
             </a>
           </div>
         </div>

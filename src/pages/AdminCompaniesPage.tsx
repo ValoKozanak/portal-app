@@ -35,13 +35,13 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
   const [showAssignCompanyModal, setShowAssignCompanyModal] = useState(false);
   const [allAccountants, setAllAccountants] = useState<any[]>([]);
 
-  // Na�TA�tanie firiem a As�TtovnA�kov z API
+  // Na?TA?tanie firiem a As?TtovnA?kov z API
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         
-        // Najprv na�TA�tame firmy
+        // Najprv na?TA?tame firmy
         const companiesData = await apiService.getAllCompanies();
         console.log('VL?etky firmy z API:', companiesData);
         console.log('Statusy firiem:', companiesData.map(c => ({ name: c.name, status: c.status })));
@@ -49,22 +49,22 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
         const activeCompanies = companiesData.filter(company => company.status === 'active' || !company.status || company.status === null);
         const inactiveCompaniesData = companiesData.filter(company => company.status === 'inactive');
         
-        console.log('AktA�vne firmy:', activeCompanies);
-        console.log('NeaktA�vne firmy:', inactiveCompaniesData);
+        console.log('AktA?vne firmy:', activeCompanies);
+        console.log('NeaktA?vne firmy:', inactiveCompaniesData);
         
         setAllCompanies(activeCompanies);
         setInactiveCompanies(inactiveCompaniesData);
         
-        // Potom skAssime na�TA�taLA As�TtovnA�kov (mA�Lle zlyhaLA)
+        // Potom skAssime na?TA?taLA As?TtovnA?kov (mA?Lle zlyhaLA)
         try {
           const accountantsData = await apiService.getAllAccountants();
           setAllAccountants(accountantsData);
         } catch (accountantsError) {
-          console.warn('Nepodarilo sa na�TA�taLA As�TtovnA�kov:', accountantsError);
+          console.warn('Nepodarilo sa na?TA?taLA As?TtovnA?kov:', accountantsError);
           setAllAccountants([]);
         }
       } catch (error) {
-        console.error('Chyba pri na�TA�tanA� dA?t:', error);
+        console.error('Chyba pri na?TA?tanA? dA?t:', error);
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
     loadData();
   }, []);
 
-  // Filtrovanie firiem pod�la vyh�ladA?vania
+  // Filtrovanie firiem pod?la vyh?ladA?vania
   const filteredActiveCompanies = allCompanies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     company.ico.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,8 +96,8 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
         setAllCompanies(prev => prev.filter(company => company.id !== companyId));
         setInactiveCompanies(prev => prev.filter(company => company.id !== companyId));
       } catch (error) {
-        console.error('Chyba pri mazanA� firmy:', error);
-        alert('Chyba pri mazanA� firmy');
+        console.error('Chyba pri mazanA? firmy:', error);
+        alert('Chyba pri mazanA? firmy');
       }
     }
   };
@@ -132,7 +132,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
     }
   };
 
-  // Priradenie As�TtovnA�kov k firme
+  // Priradenie As?TtovnA?kov k firme
   const handleAssignAccountants = async (companyId: number, accountantEmails: string[]) => {
     try {
       await apiService.assignAccountantsToCompany(companyId, accountantEmails);
@@ -144,8 +144,8 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
       setAllCompanies(activeCompanies);
       setInactiveCompanies(inactiveCompaniesData);
     } catch (error) {
-      console.error('Chyba pri priradenA� As�TtovnA�kov:', error);
-      alert('Chyba pri priradenA� As�TtovnA�kov');
+      console.error('Chyba pri priradenA? As?TtovnA?kov:', error);
+      alert('Chyba pri priradenA? As?TtovnA?kov');
     }
   };
 
@@ -190,8 +190,8 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
       inactive: 'bg-red-100 text-red-800'
     };
     const labels = {
-      active: 'AktA�vna',
-      inactive: 'NeaktA�vna'
+      active: 'AktA?vna',
+      inactive: 'NeaktA?vna'
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors]}`}>
@@ -203,7 +203,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
   // Conditional rendering pre dashboard firmy
   if (selectedCompanyForDashboard) {
     return (
-      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na�TA�tavam...</div>}>
+      <React.Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Na?TA?tavam...</div>}>
         <CompanyDashboard 
           company={selectedCompanyForDashboard}
           onClose={handleCloseCompanyDashboard}
@@ -226,7 +226,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                SpA�LA do Dashboardu
+                SpA?LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
@@ -240,7 +240,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
               >
                 <UserIcon className="h-4 w-4 mr-2" />
-                PriradiLA As�TtovnA�kov
+                PriradiLA As?TtovnA?kov
               </button>
               <button
                 onClick={() => setShowInactiveCompanies(!showInactiveCompanies)}
@@ -253,12 +253,12 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                 {showInactiveCompanies ? (
                   <>
                     <CheckIcon className="h-4 w-4 mr-2" />
-                    ZobraziLA aktA�vne
+                    ZobraziLA aktA?vne
                   </>
                 ) : (
                   <>
                     <XMarkIcon className="h-4 w-4 mr-2" />
-                    ZobraziLA neaktA�vne
+                    ZobraziLA neaktA?vne
                   </>
                 )}
               </button>
@@ -274,12 +274,12 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  {showInactiveCompanies ? 'NeaktA�vne firmy' : 'AktA�vne firmy'}
+                  {showInactiveCompanies ? 'NeaktA?vne firmy' : 'AktA?vne firmy'}
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
                   {showInactiveCompanies 
-                    ? `Celkovo ${inactiveCompanies.length} neaktA�vnych firiem`
-                    : `Celkovo ${allCompanies.length} aktA�vnych firiem`
+                    ? `Celkovo ${inactiveCompanies.length} neaktA?vnych firiem`
+                    : `Celkovo ${allCompanies.length} aktA?vnych firiem`
                   }
                 </p>
               </div>
@@ -289,7 +289,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Vyh�ladaLA firmu..."
+                  placeholder="Vyh?ladaLA firmu..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
@@ -302,7 +302,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Na�TA�tavam firmy...</p>
+                <p className="mt-4 text-gray-600">Na?TA?tavam firmy...</p>
               </div>
             ) : (showInactiveCompanies ? filteredInactiveCompanies : filteredActiveCompanies).length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -318,7 +318,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-center">
                             <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                            <span>I�SO: {company.ico}</span>
+                            <span>I?SO: {company.ico}</span>
                           </div>
                           <div className="flex items-center">
                             <EnvelopeIcon className="h-4 w-4 mr-2" />
@@ -338,7 +338,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                             <div className="flex items-start">
                               <UserIcon className="h-4 w-4 mr-2 mt-0.5 text-green-600" />
                               <span className="text-xs text-green-600">
-                                As�TtovnA�ci: {company.assignedToAccountants.length}
+                                As?TtovnA?ci: {company.assignedToAccountants.length}
                               </span>
                             </div>
                           )}
@@ -359,7 +359,7 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                           className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center"
                         >
                           <UserIcon className="h-4 w-4 mr-1" />
-                          PriradiLA As�TtovnA�kov
+                          PriradiLA As?TtovnA?kov
                         </button>
                         <button
                           onClick={(e) => {
@@ -405,18 +405,18 @@ const AdminCompaniesPage: React.FC<AdminCompaniesPageProps> = ({ onBack }) => {
                 <BuildingOfficeIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
                   {searchTerm 
-                    ? 'L?iadne firmy nenA?jdenA�' 
+                    ? 'L?iadne firmy nenA?jdenA?' 
                     : showInactiveCompanies 
-                      ? 'L?iadne neaktA�vne firmy' 
-                      : 'L?iadne aktA�vne firmy'
+                      ? 'L?iadne neaktA?vne firmy' 
+                      : 'L?iadne aktA?vne firmy'
                   }
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz.'
+                    ? 'SkAsste zmeniLA vyh?ladA?vacA? vA?raz.'
                     : showInactiveCompanies
-                      ? 'VL?etky firmy sAs aktA�vne.'
-                      : 'Zatia�l neboli vytvorenA� Lliadne firmy.'
+                      ? 'VL?etky firmy sAs aktA?vne.'
+                      : 'Zatia?l neboli vytvorenA? Lliadne firmy.'
                   }
                 </p>
               </div>

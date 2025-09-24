@@ -4,7 +4,7 @@ export function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
-  // Funkcia na zA�skanie hodnoty z localStorage
+  // Funkcia na zA?skanie hodnoty z localStorage
   const getStoredValue = useCallback((): T => {
     try {
       const item = window.localStorage.getItem(key);
