@@ -6,6 +6,7 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import { API_BASE_URL } from '../services/apiService';
+import { authHeaders } from '../utils/http';
 
 interface EmailTestModalProps {
   isOpen: boolean;
@@ -26,10 +27,7 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
     { value: 'company',  label: 'Company Notification',  description: 'Notifikácia o novej firme' }
   ];
 
-  const authHeader = () => {
-    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
-  };
+  // nahradené typed helperom authHeaders()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +45,7 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...authHeader()
+          ...authHeaders()
         },
         body: JSON.stringify({ email, type: emailType })
       });

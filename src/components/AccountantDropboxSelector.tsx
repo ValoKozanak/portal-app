@@ -2,6 +2,7 @@
 import { BuildingOfficeIcon, FolderIcon, EyeIcon } from '@heroicons/react/24/outline';
 import DropboxIntegration from './DropboxIntegration';
 import { API_BASE_URL } from '../services/apiService';
+import { authHeaders } from '../utils/http';
 
 interface DropboxCompany {
   id: number;
@@ -32,10 +33,7 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const authHeader = () => {
-    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
-  };
+  // nahradené typed helperom authHeaders()
 
   useEffect(() => {
     loadDropboxCompanies();
@@ -49,7 +47,7 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
 
       // cez proxy: /api → /api-staging
       const resp = await fetch(`${API_BASE_URL}/dropbox/admin/all-settings`, {
-        headers: { ...authHeader() }
+        headers: authHeaders()
       });
 
       if (!resp.ok) {

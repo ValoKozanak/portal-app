@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { dropboxService } from '../services/dropboxService';
 import { Company, API_BASE_URL } from '../services/apiService';
+import { authHeaders } from '../utils/http';
 
 interface DropboxAdminPanelProps {
   companies: Company[];
@@ -54,10 +55,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     canDelete: boolean;
   } | null>(null);
 
-  const authHeader = () => {
-    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
-  };
+  // nahradené typed helperom authHeaders()
 
   // Kontrola Dropbox autentifikácie - len raz pri mount
   useEffect(() => {
@@ -141,7 +139,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       // 1) Skús načítať nastavenia z DB (cez backend)
       try {
         const response = await fetch(`${API_BASE_URL}/dropbox/admin/all-settings`, {
-          headers: { ...authHeader() }
+          headers: authHeaders()
         });
         if (response.ok) {
           const data = await response.json();
@@ -262,7 +260,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       try {
         const saveResponse = await fetch(`${API_BASE_URL}/dropbox/admin/save-settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({
             companyId: company.id,
             companyEmail: company.owner_email,
@@ -333,7 +331,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       try {
         const saveResponse = await fetch(`${API_BASE_URL}/dropbox/admin/save-settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({
             companyId: selectedCompany.id,
             companyEmail: selectedCompany.owner_email,
@@ -383,10 +381,10 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
         // Update DB – isShared=false a shareLink=null
         try {
-          const saveResponse = await fetch(`${API_BASE_URL}/dropbox/admin/save-settings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeader() },
-            body: JSON.stringify({
+        const saveResponse = await fetch(`${API_BASE_URL}/dropbox/admin/save-settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({
               companyId: setting.companyId,
               companyEmail: setting.companyEmail,
               folderPath: setting.folderPath,
