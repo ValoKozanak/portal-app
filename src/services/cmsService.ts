@@ -1,5 +1,5 @@
 import { apiService } from './apiService';
-
+import { API_BASE_URL } from './apiService';
 export interface CmsContent {
   [section: string]: {
     [field: string]: string;
@@ -30,7 +30,7 @@ export interface CmsHistoryItem {
 }
 
 class CmsService {
-  private baseUrl = 'http://localhost:5000/api/cms';
+  private baseUrl = `${API_BASE_URL}/cms`;
 
   // ZA�skanie vL?etkA�ho aktA�vneho obsahu
   async getContent(): Promise<CmsContent> {
