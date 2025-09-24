@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BuildingOfficeIcon, FolderIcon, EyeIcon } from '@heroicons/react/24/outline';
 import DropboxIntegration from './DropboxIntegration';
 
@@ -46,11 +46,11 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
       if (data.success) {
         setCompanies(data.settings);
       } else {
-        setError('Chyba pri načítaní firiem s Dropbox zložkami');
+        setError('Chyba pri naÄŤĂ­tanĂ­ firiem s Dropbox zloĹľkami');
       }
     } catch (error) {
       console.error('Error loading dropbox companies:', error);
-      setError('Chyba pri načítaní firiem s Dropbox zložkami');
+      setError('Chyba pri naÄŤĂ­tanĂ­ firiem s Dropbox zloĹľkami');
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Načítavam firmy s Dropbox zložkami...</span>
+        <span className="ml-3 text-gray-600">NaÄŤĂ­tavam firmy s Dropbox zloĹľkami...</span>
       </div>
     );
   }
@@ -94,14 +94,14 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
   if (selectedCompany) {
     return (
       <div className="space-y-6">
-        {/* Header s návratom */}
+        {/* Header s nĂˇvratom */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button
               onClick={handleBackToList}
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
-              ← Späť na zoznam firiem
+              â† SpĂ¤ĹĄ na zoznam firiem
             </button>
           </div>
           <div className="text-right">
@@ -110,12 +110,12 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
           </div>
         </div>
 
-        {/* Dropbox Integration pre vybranú firmu */}
+        {/* Dropbox Integration pre vybranĂş firmu */}
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Dropbox súbory</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Dropbox sĂşbory</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Zložka: {selectedCompany.folderPath}
+              ZloĹľka: {selectedCompany.folderPath}
             </p>
           </div>
           <div className="p-6">
@@ -142,13 +142,13 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Firmy s Dropbox zložkami</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Firmy s Dropbox zloĹľkami</h2>
           <p className="text-sm text-gray-600 mt-1">
-            Vyberte firmu pre zobrazenie jej Dropbox súborov
+            Vyberte firmu pre zobrazenie jej Dropbox sĂşborov
           </p>
         </div>
         <div className="text-sm text-gray-500">
-          {companies.length} firiem s Dropbox zložkami
+          {companies.length} firiem s Dropbox zloĹľkami
         </div>
       </div>
 
@@ -156,9 +156,9 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
       {companies.length === 0 ? (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
           <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Žiadne firmy s Dropbox zložkami</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Ĺ˝iadne firmy s Dropbox zloĹľkami</h3>
           <p className="mt-1 text-sm text-gray-500">
-            Zatiaľ neboli vytvorené žiadne Dropbox zložky pre firmy.
+            ZatiaÄľ neboli vytvorenĂ© Ĺľiadne Dropbox zloĹľky pre firmy.
           </p>
         </div>
       ) : (
@@ -193,11 +193,11 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {company.isShared ? 'Zdieľané' : 'Nezdieľané'}
+                        {company.isShared ? 'ZdieÄľanĂ©' : 'NezdieÄľanĂ©'}
                       </span>
                       
                       <span className="text-gray-500">
-                        Aktualizované: {new Date(company.updatedAt).toLocaleDateString('sk-SK')}
+                        AktualizovanĂ©: {new Date(company.updatedAt).toLocaleDateString('sk-SK')}
                       </span>
                     </div>
                   </div>
@@ -208,19 +208,19 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
               
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>Oprávnenia:</span>
+                  <span>OprĂˇvnenia:</span>
                   <div className="flex space-x-1">
                     {company.permissions.canView && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">Zobraziť</span>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">ZobraziĹĄ</span>
                     )}
                     {company.permissions.canEdit && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded">Upraviť</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded">UpraviĹĄ</span>
                     )}
                     {company.permissions.canUpload && (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">Nahrať</span>
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">NahraĹĄ</span>
                     )}
                     {company.permissions.canDelete && (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded">Vymazať</span>
+                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded">VymazaĹĄ</span>
                     )}
                   </div>
                 </div>
@@ -234,3 +234,4 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
 };
 
 export default AccountantDropboxSelector;
+

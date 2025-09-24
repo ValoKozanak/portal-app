@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   CloudIcon,
   UserIcon,
@@ -54,10 +54,10 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     canDelete: boolean;
   } | null>(null);
 
-    // Kontrola Dropbox autentifikácie - len raz pri mount
+    // Kontrola Dropbox autentifikĂˇcie - len raz pri mount
   useEffect(() => {
     const initAuth = async () => {
-      console.log('DropboxAdminPanel: Inicializujem autentifikáciu...');
+      console.log('DropboxAdminPanel: Inicializujem autentifikĂˇciu...');
       
       const authenticated = dropboxService.isAuthenticated();
       console.log('DropboxAdminPanel: isAuthenticated =', authenticated);
@@ -66,15 +66,15 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       
       if (authenticated) {
         try {
-          console.log('DropboxAdminPanel: Načítavam account info...');
+          console.log('DropboxAdminPanel: NaÄŤĂ­tavam account info...');
           const account = await dropboxService.getAccountInfo();
           setAccountInfo(account);
-          console.log('DropboxAdminPanel: Account info načítané:', account);
+          console.log('DropboxAdminPanel: Account info naÄŤĂ­tanĂ©:', account);
         } catch (error) {
           console.error('Error loading account info:', error);
-          // Token môže byť expirovaný, skúsime ho obnoviť
+          // Token mĂ´Ĺľe byĹĄ expirovanĂ˝, skĂşsime ho obnoviĹĄ
           try {
-            console.log('DropboxAdminPanel: Skúšam obnoviť token...');
+            console.log('DropboxAdminPanel: SkĂşĹˇam obnoviĹĄ token...');
             await dropboxService.refreshAccessToken();
             const account = await dropboxService.getAccountInfo();
             setAccountInfo(account);
@@ -87,22 +87,22 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     };
 
     initAuth();
-  }, []); // Spustí sa len raz pri mount
+  }, []); // SpustĂ­ sa len raz pri mount
 
-  // Kontrola autentifikácie pri návrate z callback - pomocou URL parametra
+  // Kontrola autentifikĂˇcie pri nĂˇvrate z callback - pomocou URL parametra
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const fromCallback = urlParams.get('from_callback');
     
     if (fromCallback === 'true') {
-      console.log('DropboxAdminPanel: Detekoval som návrat z callback, kontrolujem autentifikáciu...');
+      console.log('DropboxAdminPanel: Detekoval som nĂˇvrat z callback, kontrolujem autentifikĂˇciu...');
       
-      // Kontrolujeme autentifikáciu
+      // Kontrolujeme autentifikĂˇciu
       const authenticated = dropboxService.isAuthenticated();
       if (authenticated) {
-        console.log('DropboxAdminPanel: Zistil som, že som prihlásený po návrate z callback');
+        console.log('DropboxAdminPanel: Zistil som, Ĺľe som prihlĂˇsenĂ˝ po nĂˇvrate z callback');
         setIsAuthenticated(true);
-        // Načítame account info
+        // NaÄŤĂ­tame account info
         dropboxService.getAccountInfo().then(account => {
           setAccountInfo(account);
         }).catch(error => {
@@ -110,23 +110,23 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         });
       }
       
-      // Vyčistíme URL parameter
+      // VyÄŤistĂ­me URL parameter
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
-  }, []); // Spustí sa len raz pri mount
+  }, []); // SpustĂ­ sa len raz pri mount
 
-  // Načítanie nastavení zdieľania pre všetky firmy
+  // NaÄŤĂ­tanie nastavenĂ­ zdieÄľania pre vĹˇetky firmy
   useEffect(() => {
     if (isAuthenticated && companies.length > 0) {
-      console.log('DropboxAdminPanel: Načítavam share settings pre', companies.length, 'firiem');
+      console.log('DropboxAdminPanel: NaÄŤĂ­tavam share settings pre', companies.length, 'firiem');
       loadShareSettings();
     }
   }, [companies, isAuthenticated]);
 
   // Debug log pre sledovanie stavu
   useEffect(() => {
-    console.log('DropboxAdminPanel: Stav zmenený:', { 
+    console.log('DropboxAdminPanel: Stav zmenenĂ˝:', { 
       isAuthenticated, 
       companiesCount: companies.length,
       shareSettingsCount: shareSettings.length 
@@ -136,16 +136,16 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
 
   const handleLogin = () => {
-    // Vyčistíme staré tokeny a state
+    // VyÄŤistĂ­me starĂ© tokeny a state
     localStorage.removeItem('dropbox_access_token');
     localStorage.removeItem('dropbox_refresh_token');
     localStorage.removeItem('dropbox_auth_state');
-    console.log('Vyčistené staré tokeny a state');
+    console.log('VyÄŤistenĂ© starĂ© tokeny a state');
     
     const authUrl = dropboxService.getAuthUrl();
-    console.log('Presmerovávam na Dropbox OAuth...');
+    console.log('PresmerovĂˇvam na Dropbox OAuth...');
     
-    // Jednoduchý redirect namiesto popup
+    // JednoduchĂ˝ redirect namiesto popup
     window.location.href = authUrl;
   };
 
@@ -158,35 +158,35 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
   const loadShareSettings = async () => {
     if (!isAuthenticated) {
-      console.log('loadShareSettings: Nie som prihlásený, ignorujem');
+      console.log('loadShareSettings: Nie som prihlĂˇsenĂ˝, ignorujem');
       return;
     }
     
     setLoading(true);
     try {
-      // Kontrola, či sú firmy načítané
+      // Kontrola, ÄŤi sĂş firmy naÄŤĂ­tanĂ©
       if (!companies || companies.length === 0) {
-        console.log('loadShareSettings: Žiadne firmy na načítanie');
+        console.log('loadShareSettings: Ĺ˝iadne firmy na naÄŤĂ­tanie');
         setShareSettings([]);
         return;
       }
 
-      console.log('loadShareSettings: Načítavam nastavenia pre', companies.length, 'firiem');
+      console.log('loadShareSettings: NaÄŤĂ­tavam nastavenia pre', companies.length, 'firiem');
       
-      // Najprv načítame nastavenia z databázy
+      // Najprv naÄŤĂ­tame nastavenia z databĂˇzy
               try {
           const response = await fetch('http://localhost:5000/api/dropbox/admin/all-settings');
         const data = await response.json();
         
         if (data.success && data.settings) {
-          console.log('loadShareSettings: Načítané nastavenia z databázy:', data.settings);
+          console.log('loadShareSettings: NaÄŤĂ­tanĂ© nastavenia z databĂˇzy:', data.settings);
           
           const settings: DropboxShareSettings[] = companies.map(company => {
             const dbSetting = data.settings.find((s: any) => s.companyId === company.id);
             const folderPath = `/Portal/Companies/${dropboxService.hashICO(company.ico)}`;
             
             if (dbSetting) {
-              // Použijeme nastavenia z databázy
+              // PouĹľijeme nastavenia z databĂˇzy
               return {
                 companyId: company.id,
                 companyEmail: company.owner_email,
@@ -198,7 +198,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                 shareLink: dbSetting.shareLink
               };
             } else {
-              // Predvolené nastavenia pre firmu bez záznamu v databáze
+              // PredvolenĂ© nastavenia pre firmu bez zĂˇznamu v databĂˇze
               return {
                 companyId: company.id,
                 companyEmail: company.owner_email,
@@ -217,21 +217,21 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
           });
           
           setShareSettings(settings);
-          console.log('loadShareSettings: Nastavenia úspešne načítané z databázy');
+          console.log('loadShareSettings: Nastavenia ĂşspeĹˇne naÄŤĂ­tanĂ© z databĂˇzy');
           return;
         }
       } catch (dbError) {
-        console.log('loadShareSettings: Chyba pri načítaní z databázy, používam fallback:', dbError);
+        console.log('loadShareSettings: Chyba pri naÄŤĂ­tanĂ­ z databĂˇzy, pouĹľĂ­vam fallback:', dbError);
       }
       
-      // Fallback: načítanie z Dropbox API (pôvodná logika)
+      // Fallback: naÄŤĂ­tanie z Dropbox API (pĂ´vodnĂˇ logika)
       const settings: DropboxShareSettings[] = [];
       
       for (const company of companies) {
         const folderPath = `/Portal/Companies/${dropboxService.hashICO(company.ico)}`;
         
         try {
-          // Skontrolujeme, či zložka existuje
+          // Skontrolujeme, ÄŤi zloĹľka existuje
           const folderExists = await dropboxService.checkFolderExists(folderPath);
           
           let shareLink: string | undefined;
@@ -242,15 +242,15 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             canDelete: false
           };
           
-          // Ak zložka existuje, skúsime získať existujúci zdieľateľný link
+          // Ak zloĹľka existuje, skĂşsime zĂ­skaĹĄ existujĂşci zdieÄľateÄľnĂ˝ link
           if (folderExists) {
             try {
-              console.log(`Hľadám existujúci link pre ${company.name} v ceste:`, folderPath);
+              console.log(`HÄľadĂˇm existujĂşci link pre ${company.name} v ceste:`, folderPath);
               const existingLinks = await dropboxService.getAllSharedLinks();
-              console.log(`Našiel som ${existingLinks.length} existujúcich linkov:`, existingLinks);
+              console.log(`NaĹˇiel som ${existingLinks.length} existujĂşcich linkov:`, existingLinks);
               
               const companyLink = existingLinks.find((link: any) => {
-                console.log(`Porovnávam:`, {
+                console.log(`PorovnĂˇvam:`, {
                   linkPath: link.path_lower,
                   targetPath: folderPath.toLowerCase(),
                   match: link.path_lower === folderPath.toLowerCase()
@@ -260,12 +260,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
               
               if (companyLink) {
                 shareLink = companyLink.url;
-                console.log(`Našiel som existujúci link pre ${company.name}:`, shareLink);
+                console.log(`NaĹˇiel som existujĂşci link pre ${company.name}:`, shareLink);
               } else {
-                console.log(`Nenašiel som existujúci link pre ${company.name}`);
+                console.log(`NenaĹˇiel som existujĂşci link pre ${company.name}`);
               }
             } catch (linkError) {
-              console.log(`Nepodarilo sa získať link pre ${company.name}:`, linkError);
+              console.log(`Nepodarilo sa zĂ­skaĹĄ link pre ${company.name}:`, linkError);
             }
           }
           
@@ -274,13 +274,13 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             companyEmail: company.owner_email,
             companyName: company.name,
             companyICO: company.ico,
-            isShared: folderExists, // Ak zložka existuje, považujeme ju za zdieľanú
+            isShared: folderExists, // Ak zloĹľka existuje, povaĹľujeme ju za zdieÄľanĂş
             permissions: permissions,
             shareLink: shareLink,
             folderPath: folderPath
           });
         } catch (error) {
-          console.log(`Zložka pre ${company.name} neexistuje:`, error);
+          console.log(`ZloĹľka pre ${company.name} neexistuje:`, error);
           settings.push({
             companyId: company.id,
             companyEmail: company.owner_email,
@@ -299,9 +299,9 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       }
 
       setShareSettings(settings);
-      console.log('loadShareSettings: Nastavenia úspešne načítané (fallback)');
+      console.log('loadShareSettings: Nastavenia ĂşspeĹˇne naÄŤĂ­tanĂ© (fallback)');
     } catch (error) {
-      console.error('Chyba pri načítaní Dropbox nastavení:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ Dropbox nastavenĂ­:', error);
     } finally {
       setLoading(false);
     }
@@ -309,15 +309,15 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
   const handleCreateFolder = async (company: Company) => {
     if (!isAuthenticated) {
-      alert('Najprv sa musíte prihlásiť do Dropbox');
+      alert('Najprv sa musĂ­te prihlĂˇsiĹĄ do Dropbox');
       return;
     }
 
     try {
-      // Vytvoríme zložku
+      // VytvorĂ­me zloĹľku
       const folderPath = await dropboxService.createCompanyFolder(company.ico);
       
-      // Automaticky nastavíme zdieľanie s predvolenými oprávneniami
+      // Automaticky nastavĂ­me zdieÄľanie s predvolenĂ˝mi oprĂˇvneniami
       const defaultPermissions = {
         canView: true,
         canEdit: false,
@@ -327,7 +327,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       
       const shareLink = await dropboxService.createSharedLink(folderPath, defaultPermissions);
       
-      // Uložíme nastavenia do databázy
+      // UloĹľĂ­me nastavenia do databĂˇzy
       try {
                   const saveResponse = await fetch('http://localhost:5000/api/dropbox/admin/save-settings', {
             method: 'POST',
@@ -347,15 +347,15 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         const saveData = await saveResponse.json();
         
         if (saveData.success) {
-          console.log('Nastavenia úspešne uložené do databázy');
+          console.log('Nastavenia ĂşspeĹˇne uloĹľenĂ© do databĂˇzy');
         } else {
-          console.error('Chyba pri ukladaní do databázy:', saveData.error);
+          console.error('Chyba pri ukladanĂ­ do databĂˇzy:', saveData.error);
         }
       } catch (dbError) {
-        console.error('Chyba pri ukladaní do databázy:', dbError);
+        console.error('Chyba pri ukladanĂ­ do databĂˇzy:', dbError);
       }
       
-      // Aktualizujeme lokálne nastavenia
+      // Aktualizujeme lokĂˇlne nastavenia
       setShareSettings(prev => prev.map(setting => 
         setting.companyId === company.id 
           ? { 
@@ -368,17 +368,17 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
           : setting
       ));
       
-      alert(`Zložka pre firmu ${company.name} bola úspešne vytvorená a zdieľaná!`);
+      alert(`ZloĹľka pre firmu ${company.name} bola ĂşspeĹˇne vytvorenĂˇ a zdieÄľanĂˇ!`);
     } catch (error) {
-      console.error('Chyba pri vytváraní zložky:', error);
-      alert('Chyba pri vytváraní zložky');
+      console.error('Chyba pri vytvĂˇranĂ­ zloĹľky:', error);
+      alert('Chyba pri vytvĂˇranĂ­ zloĹľky');
     }
   };
 
   const handleShareFolder = async (company: Company) => {
     setSelectedCompany(company);
     setShowShareModal(true);
-    setInitialPermissions(null); // Reset pre nové zdieľanie
+    setInitialPermissions(null); // Reset pre novĂ© zdieÄľanie
   };
 
   const handleEditPermissions = async (company: Company, currentPermissions: {
@@ -389,7 +389,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
   }) => {
     setSelectedCompany(company);
     setShowShareModal(true);
-    // Nastavíme aktuálne oprávnenia do modálneho okna
+    // NastavĂ­me aktuĂˇlne oprĂˇvnenia do modĂˇlneho okna
     setInitialPermissions(currentPermissions);
   };
 
@@ -404,24 +404,24 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     try {
       const folderPath = `/Portal/Companies/${dropboxService.hashICO(selectedCompany.ico)}`;
       
-      // Ak už existuje zdieľateľný link, najprv ho odvoláme
+      // Ak uĹľ existuje zdieÄľateÄľnĂ˝ link, najprv ho odvolĂˇme
       const currentSetting = shareSettings.find(s => s.companyId === selectedCompany.id);
       if (currentSetting && currentSetting.shareLink) {
         try {
-          console.log('Odvolávam existujúci zdieľateľný link:', currentSetting.shareLink);
+          console.log('OdvolĂˇvam existujĂşci zdieÄľateÄľnĂ˝ link:', currentSetting.shareLink);
           await dropboxService.revokeSharedLink(currentSetting.shareLink);
-          console.log('Existujúci zdieľateľný link odvolaný');
+          console.log('ExistujĂşci zdieÄľateÄľnĂ˝ link odvolanĂ˝');
         } catch (revokeError) {
-          console.log('Link už neexistuje alebo sa nedá odvolať:', revokeError);
+          console.log('Link uĹľ neexistuje alebo sa nedĂˇ odvolaĹĄ:', revokeError);
         }
       } else {
-        console.log('Žiadny existujúci link na odvolanie');
+        console.log('Ĺ˝iadny existujĂşci link na odvolanie');
       }
       
-      // Vytvoríme nový zdieľateľný link s novými oprávneniami
+      // VytvorĂ­me novĂ˝ zdieÄľateÄľnĂ˝ link s novĂ˝mi oprĂˇvneniami
       const shareLink = await dropboxService.createSharedLink(folderPath, settings);
       
-      // Uložíme nastavenia do databázy
+      // UloĹľĂ­me nastavenia do databĂˇzy
       try {
         const saveResponse = await fetch('http://localhost:5000/api/dropbox/admin/save-settings', {
           method: 'POST',
@@ -440,15 +440,15 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         const saveData = await saveResponse.json();
         
         if (saveData.success) {
-          console.log('Nastavenia úspešne uložené do databázy');
+          console.log('Nastavenia ĂşspeĹˇne uloĹľenĂ© do databĂˇzy');
         } else {
-          console.error('Chyba pri ukladaní do databázy:', saveData.error);
+          console.error('Chyba pri ukladanĂ­ do databĂˇzy:', saveData.error);
         }
       } catch (dbError) {
-        console.error('Chyba pri ukladaní do databázy:', dbError);
+        console.error('Chyba pri ukladanĂ­ do databĂˇzy:', dbError);
       }
       
-      // Aktualizujeme lokálne nastavenia
+      // Aktualizujeme lokĂˇlne nastavenia
       setShareSettings(prev => prev.map(setting => 
         setting.companyId === selectedCompany.id 
           ? { 
@@ -465,24 +465,24 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       setSelectedCompany(null);
       setInitialPermissions(null);
       const message = initialPermissions 
-        ? `Oprávnenia pre firmu ${selectedCompany.name} boli úspešne aktualizované!`
-        : `Zdieľanie pre firmu ${selectedCompany.name} bolo úspešne nastavené!`;
+        ? `OprĂˇvnenia pre firmu ${selectedCompany.name} boli ĂşspeĹˇne aktualizovanĂ©!`
+        : `ZdieÄľanie pre firmu ${selectedCompany.name} bolo ĂşspeĹˇne nastavenĂ©!`;
       alert(message);
     } catch (error) {
-      console.error('Chyba pri nastavovaní zdieľania:', error);
-      alert('Chyba pri nastavovaní zdieľania');
+      console.error('Chyba pri nastavovanĂ­ zdieÄľania:', error);
+      alert('Chyba pri nastavovanĂ­ zdieÄľania');
     }
   };
 
   const handleRevokeAccess = async (companyId: number) => {
-    if (!window.confirm('Naozaj chcete odobrať prístup k Dropbox zložke?')) return;
+    if (!window.confirm('Naozaj chcete odobraĹĄ prĂ­stup k Dropbox zloĹľke?')) return;
 
     try {
       const setting = shareSettings.find(s => s.companyId === companyId);
       if (setting && setting.shareLink) {
         await dropboxService.revokeSharedLink(setting.shareLink);
         
-        // Aktualizujeme databázu - nastavíme isShared na false a vymažeme shareLink
+        // Aktualizujeme databĂˇzu - nastavĂ­me isShared na false a vymaĹľeme shareLink
         try {
           const saveResponse = await fetch('http://localhost:5000/api/dropbox/admin/save-settings', {
             method: 'POST',
@@ -493,7 +493,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
               companyId: setting.companyId,
               companyEmail: setting.companyEmail,
               folderPath: setting.folderPath,
-              shareLink: null, // Odvolaný link
+              shareLink: null, // OdvolanĂ˝ link
               permissions: setting.permissions
             })
           });
@@ -501,12 +501,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
           const saveData = await saveResponse.json();
           
           if (saveData.success) {
-            console.log('Nastavenia úspešne aktualizované v databáze');
+            console.log('Nastavenia ĂşspeĹˇne aktualizovanĂ© v databĂˇze');
           } else {
-            console.error('Chyba pri aktualizácii databázy:', saveData.error);
+            console.error('Chyba pri aktualizĂˇcii databĂˇzy:', saveData.error);
           }
         } catch (dbError) {
-          console.error('Chyba pri aktualizácii databázy:', dbError);
+          console.error('Chyba pri aktualizĂˇcii databĂˇzy:', dbError);
         }
         
         setShareSettings(prev => prev.map(s => 
@@ -515,11 +515,11 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             : s
         ));
         
-        alert('Prístup bol úspešne odobraný!');
+        alert('PrĂ­stup bol ĂşspeĹˇne odobranĂ˝!');
       }
     } catch (error) {
-      console.error('Chyba pri odoberaní prístupu:', error);
-      alert('Chyba pri odoberaní prístupu');
+      console.error('Chyba pri odoberanĂ­ prĂ­stupu:', error);
+      alert('Chyba pri odoberanĂ­ prĂ­stupu');
     }
   };
 
@@ -540,14 +540,14 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             Pripojte sa k Dropbox
           </h3>
           <p className="text-gray-600 mb-4">
-            Pre správu Dropbox zdieľaní sa musíte najprv prihlásiť do vášho Dropbox účtu.
+            Pre sprĂˇvu Dropbox zdieÄľanĂ­ sa musĂ­te najprv prihlĂˇsiĹĄ do vĂˇĹˇho Dropbox ĂşÄŤtu.
           </p>
           <button
             onClick={handleLogin}
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <CloudIcon className="h-5 w-5 mr-2" />
-            Pripojiť Dropbox
+            PripojiĹĄ Dropbox
           </button>
         </div>
       </div>
@@ -559,11 +559,11 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         <p className="mt-4 text-gray-600">
-          {loading ? 'Načítavam Dropbox nastavenia...' : 'Načítavam zoznam firiem...'}
+          {loading ? 'NaÄŤĂ­tavam Dropbox nastavenia...' : 'NaÄŤĂ­tavam zoznam firiem...'}
         </p>
         {!companies || companies.length === 0 ? (
           <p className="text-sm text-gray-500 mt-2">
-            {companies ? 'Žiadne firmy neboli nájdené' : 'Čakám na načítanie firiem...'}
+            {companies ? 'Ĺ˝iadne firmy neboli nĂˇjdenĂ©' : 'ÄŚakĂˇm na naÄŤĂ­tanie firiem...'}
           </p>
         ) : null}
       </div>
@@ -575,12 +575,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium text-gray-900">Dropbox zdieľania pre firmy</h3>
-          <p className="text-sm text-gray-600">Spravujte prístupy k Dropbox zložkám pre jednotlivé firmy</p>
+          <h3 className="text-lg font-medium text-gray-900">Dropbox zdieÄľania pre firmy</h3>
+          <p className="text-sm text-gray-600">Spravujte prĂ­stupy k Dropbox zloĹľkĂˇm pre jednotlivĂ© firmy</p>
         </div>
         <div className="flex items-center space-x-2">
           <CloudIcon className="h-6 w-6 text-blue-500" />
-          <span className="text-sm text-gray-600">Admin Dropbox správa</span>
+          <span className="text-sm text-gray-600">Admin Dropbox sprĂˇva</span>
           {accountInfo && (
             <div className="text-xs text-gray-500 ml-2">
               ({accountInfo.name.display_name})
@@ -590,7 +590,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             onClick={handleLogout}
             className="text-sm text-red-600 hover:text-red-700 ml-2"
           >
-            Odhlásiť
+            OdhlĂˇsiĹĄ
           </button>
         </div>
       </div>
@@ -606,7 +606,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                   <h4 className="text-lg font-semibold text-gray-900">{setting.companyName}</h4>
                   {setting.isShared && (
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                      Zdieľané
+                      ZdieÄľanĂ©
                     </span>
                   )}
                 </div>
@@ -627,7 +627,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center"
                    >
                      <PlusIcon className="h-4 w-4 mr-1" />
-                     Vytvoriť a zdieľať zložku
+                     VytvoriĹĄ a zdieÄľaĹĄ zloĹľku
                    </button>
                 ) : (
                   <>
@@ -636,14 +636,14 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                        className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 flex items-center"
                      >
                        <LinkIcon className="h-4 w-4 mr-1" />
-                       Upraviť zdieľanie
+                       UpraviĹĄ zdieÄľanie
                      </button>
                     <button
                       onClick={() => handleRevokeAccess(setting.companyId)}
                       className="px-3 py-1 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 flex items-center"
                     >
                       <TrashIcon className="h-4 w-4 mr-1" />
-                      Odobrať
+                      OdobraĹĄ
                     </button>
                   </>
                 )}
@@ -654,31 +654,31 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             {setting.isShared && (
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h5 className="text-sm font-medium text-gray-700">Oprávnenia:</h5>
+                  <h5 className="text-sm font-medium text-gray-700">OprĂˇvnenia:</h5>
                   <button
                     onClick={() => handleEditPermissions(companies.find(c => c.id === setting.companyId)!, setting.permissions)}
                     className="text-xs text-blue-600 hover:text-blue-700 flex items-center"
                   >
                     <PencilIcon className="h-3 w-3 mr-1" />
-                    Upraviť oprávnenia
+                    UpraviĹĄ oprĂˇvnenia
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex items-center space-x-2">
                     {getPermissionIcon(setting.permissions.canView)}
-                    <span className="text-sm text-gray-600">Zobraziť</span>
+                    <span className="text-sm text-gray-600">ZobraziĹĄ</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     {getPermissionIcon(setting.permissions.canEdit)}
-                    <span className="text-sm text-gray-600">Upraviť</span>
+                    <span className="text-sm text-gray-600">UpraviĹĄ</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     {getPermissionIcon(setting.permissions.canUpload)}
-                    <span className="text-sm text-gray-600">Nahrať</span>
+                    <span className="text-sm text-gray-600">NahraĹĄ</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     {getPermissionIcon(setting.permissions.canDelete)}
-                    <span className="text-sm text-gray-600">Vymazať</span>
+                    <span className="text-sm text-gray-600">VymazaĹĄ</span>
                   </div>
                 </div>
                 
@@ -686,7 +686,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                 
                 {setting.isShared && setting.shareLink && (
                   <div className="mt-3 p-3 bg-blue-50 rounded-md">
-                    <p className="text-xs text-gray-600 mb-1">Zdieľateľný link:</p>
+                    <p className="text-xs text-gray-600 mb-1">ZdieÄľateÄľnĂ˝ link:</p>
                     <div className="flex items-center space-x-2">
                       <input
                         type="text"
@@ -698,7 +698,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                         onClick={() => navigator.clipboard.writeText(setting.shareLink!)}
                         className="text-blue-600 hover:text-blue-700 text-xs"
                       >
-                        Kopírovať
+                        KopĂ­rovaĹĄ
                       </button>
                     </div>
                   </div>
@@ -761,7 +761,7 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            {initialPermissions ? 'Úprava oprávnení pre' : 'Nastavenie zdieľania pre'} {company.name}
+            {initialPermissions ? 'Ăšprava oprĂˇvnenĂ­ pre' : 'Nastavenie zdieÄľania pre'} {company.name}
           </h3>
           <button
             onClick={onClose}
@@ -773,7 +773,7 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">Zobraziť súbory</span>
+            <span className="text-sm text-gray-700">ZobraziĹĄ sĂşbory</span>
             <input
               type="checkbox"
               checked={settings.canView}
@@ -783,7 +783,7 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">Upraviť súbory</span>
+            <span className="text-sm text-gray-700">UpraviĹĄ sĂşbory</span>
             <input
               type="checkbox"
               checked={settings.canEdit}
@@ -793,7 +793,7 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">Nahrať súbory</span>
+            <span className="text-sm text-gray-700">NahraĹĄ sĂşbory</span>
             <input
               type="checkbox"
               checked={settings.canUpload}
@@ -803,7 +803,7 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">Vymazať súbory</span>
+            <span className="text-sm text-gray-700">VymazaĹĄ sĂşbory</span>
             <input
               type="checkbox"
               checked={settings.canDelete}
@@ -818,13 +818,13 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
           >
-            Zrušiť
+            ZruĹˇiĹĄ
           </button>
                      <button
              onClick={handleSave}
              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
            >
-             {initialPermissions ? 'Aktualizovať oprávnenia' : 'Uložiť nastavenia'}
+             {initialPermissions ? 'AktualizovaĹĄ oprĂˇvnenia' : 'UloĹľiĹĄ nastavenia'}
            </button>
         </div>
       </div>
@@ -833,3 +833,4 @@ const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initia
 };
 
 export default DropboxAdminPanel;
+

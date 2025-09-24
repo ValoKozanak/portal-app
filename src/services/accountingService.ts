@@ -1,6 +1,7 @@
+﻿import { API_BASE_URL } from '../services/apiService';
 import { apiService, ApiResponse } from './apiService';
 
-// ===== ÚČTOVNÍCTVO SERVICE =====
+// ===== ĂšÄŚTOVNĂŤCTVO SERVICE =====
 
 export interface AccountingSettings {
   id?: number;
@@ -90,7 +91,7 @@ export interface IssuedInvoice {
   total_amount: number;
   vat_amount: number;
   
-  // MDB polia - základy DPH
+  // MDB polia - zĂˇklady DPH
   kc0?: number;
   kc1?: number;
   kc2?: number;
@@ -101,10 +102,10 @@ export interface IssuedInvoice {
   kc_dph2?: number;
   kc_dph3?: number;
   
-  // MDB polia - celkové sumy
+  // MDB polia - celkovĂ© sumy
   kc_celkem?: number;
   
-  // MDB polia - ďalšie informácie
+  // MDB polia - ÄŹalĹˇie informĂˇcie
   var_sym?: string;
   s_text?: string;
   mdb_id?: number;
@@ -119,7 +120,7 @@ export interface IssuedInvoice {
   obec?: string;
   mdb_cislo?: string;
   
-  // MDB polia - likvidácia a platby
+  // MDB polia - likvidĂˇcia a platby
   kc_likv?: number;
   kc_u?: number;
   dat_likv?: string;
@@ -147,7 +148,7 @@ export interface ReceivedInvoice {
   total_amount: number;
   vat_amount: number;
   
-  // MDB polia - základy DPH
+  // MDB polia - zĂˇklady DPH
   kc0?: number;
   kc1?: number;
   kc2?: number;
@@ -158,10 +159,10 @@ export interface ReceivedInvoice {
   kc_dph2?: number;
   kc_dph3?: number;
   
-  // MDB polia - celkové sumy
+  // MDB polia - celkovĂ© sumy
   kc_celkem?: number;
   
-  // MDB polia - ďalšie informácie
+  // MDB polia - ÄŹalĹˇie informĂˇcie
   var_sym?: string;
   s_text?: string;
   mdb_id?: number;
@@ -176,7 +177,7 @@ export interface ReceivedInvoice {
   obec?: string;
   mdb_cislo?: string;
   
-  // MDB polia - likvidácia a platby
+  // MDB polia - likvidĂˇcia a platby
   kc_likv?: number;
   kc_u?: number;
   dat_likv?: string;
@@ -252,7 +253,7 @@ export interface AccountingStats {
 }
 
 export class AccountingService {
-  // 1. NASTAVENIA ÚČTOVNÍCTVA
+  // 1. NASTAVENIA ĂšÄŚTOVNĂŤCTVA
 
     async getSettings(companyId: number): Promise<AccountingSettings> {
     const response = await apiService.get(`/accounting/settings/${companyId}`); 
@@ -264,7 +265,7 @@ export class AccountingService {
     return response;
   }
 
-  // 2. PRÁVA PRE ÚČTOVNÍCTVO
+  // 2. PRĂVA PRE ĂšÄŚTOVNĂŤCTVO
 
   async getPermissions(companyId: number, userEmail: string): Promise<AccountingPermissions> {
     const response = await apiService.get(`/accounting/permissions/${companyId}/${userEmail}`);
@@ -281,7 +282,7 @@ export class AccountingService {
     return response as AccountingPermissions[];
   }
 
-  // 3. VYDANÉ FAKTÚRY
+  // 3. VYDANĂ‰ FAKTĂšRY
 
   async getIssuedInvoices(
     companyId: number, 
@@ -318,7 +319,7 @@ export class AccountingService {
 
 
 
-  // 4. PRIJATÉ FAKTÚRY
+  // 4. PRIJATĂ‰ FAKTĂšRY
 
   async getReceivedInvoices(
     companyId: number, 
@@ -354,14 +355,14 @@ export class AccountingService {
 
 
 
-  // 7. HOSPODÁRSKE VÝSLEDKY (pUD)
+  // 7. HOSPODĂRSKE VĂťSLEDKY (pUD)
 
   async getPudSummary(companyId: number): Promise<{ total_kc: number; total_count: number }> {
     const response = await apiService.get(`/accounting/pud-summary/${companyId}`);
     return response as { total_kc: number; total_count: number };
   }
 
-  // Získanie podrobnej analýzy nákladov a výnosov
+  // ZĂ­skanie podrobnej analĂ˝zy nĂˇkladov a vĂ˝nosov
   async getFinancialAnalysis(companyId: number, dateFrom?: string, dateTo?: string): Promise<FinancialAnalysis> {
     let url = `/accounting/financial-analysis/${companyId}`;
     const params = new URLSearchParams();
@@ -377,7 +378,7 @@ export class AccountingService {
     return response as FinancialAnalysis;
   }
 
-  // 8. ŠTATISTIKY
+  // 8. Ĺ TATISTIKY
 
   async getStats(
     companyId: number, 
@@ -399,7 +400,7 @@ export class AccountingService {
     return response as AccountingStats;
   }
 
-  // 8. POMOCNÉ METÓDY
+  // 8. POMOCNĂ‰ METĂ“DY
 
   formatCurrency(amount: number, currency: string = 'EUR'): string {
     return new Intl.NumberFormat('sk-SK', {
@@ -414,17 +415,17 @@ export class AccountingService {
 
   getStatusBadge(status: string): { text: string; color: string } {
     const statusMap: Record<string, { text: string; color: string }> = {
-      // Vydané faktúry
+      // VydanĂ© faktĂşry
       draft: { text: 'Koncept', color: 'bg-gray-100 text-gray-800' },
-      sent: { text: 'Odoslaná', color: 'bg-blue-100 text-blue-800' },
-      paid: { text: 'Zaplatená', color: 'bg-green-100 text-green-800' },
+      sent: { text: 'OdoslanĂˇ', color: 'bg-blue-100 text-blue-800' },
+      paid: { text: 'ZaplatenĂˇ', color: 'bg-green-100 text-green-800' },
       overdue: { text: 'Po splatnosti', color: 'bg-red-100 text-red-800' },
-      cancelled: { text: 'Zrušená', color: 'bg-yellow-100 text-yellow-800' },
+      cancelled: { text: 'ZruĹˇenĂˇ', color: 'bg-yellow-100 text-yellow-800' },
       
-      // Prijaté faktúry
-      received: { text: 'Prijatá', color: 'bg-gray-100 text-gray-800' },
-      approved: { text: 'Schválená', color: 'bg-blue-100 text-blue-800' },
-      disputed: { text: 'Sporná', color: 'bg-orange-100 text-orange-800' }
+      // PrijatĂ© faktĂşry
+      received: { text: 'PrijatĂˇ', color: 'bg-gray-100 text-gray-800' },
+      approved: { text: 'SchvĂˇlenĂˇ', color: 'bg-blue-100 text-blue-800' },
+      disputed: { text: 'SpornĂˇ', color: 'bg-orange-100 text-orange-800' }
     };
 
     return statusMap[status] || { text: status, color: 'bg-gray-100 text-gray-800' };
@@ -432,14 +433,14 @@ export class AccountingService {
 
   getTypeBadge(type: string): { text: string; color: string } {
     const typeMap: Record<string, { text: string; color: string }> = {
-      income: { text: 'Príjem', color: 'bg-green-100 text-green-800' },
-      expense: { text: 'Výdavok', color: 'bg-red-100 text-red-800' }
+      income: { text: 'PrĂ­jem', color: 'bg-green-100 text-green-800' },
+      expense: { text: 'VĂ˝davok', color: 'bg-red-100 text-red-800' }
     };
 
     return typeMap[type] || { text: type, color: 'bg-gray-100 text-gray-800' };
   }
 
-  // 9. POHODA INTEGRÁCIA
+  // 9. POHODA INTEGRĂCIA
 
   // Test POHODA connection
   async testPohodaConnection(companyId: number, settings: Partial<AccountingSettings>): Promise<ApiResponse> {
@@ -472,8 +473,8 @@ export class AccountingService {
     const formData = new FormData();
     formData.append('xmlFile', file);
     
-    // Používame fetch priamo pre FormData
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/upload-pohoda-xml/${companyId}`, {
+    // PouĹľĂ­vame fetch priamo pre FormData
+    const response = await fetch(`${API_BASE_URL}/accounting/upload-pohoda-xml/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -482,7 +483,7 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri nahrávaní XML súboru');
+      throw new Error('Chyba pri nahrĂˇvanĂ­ XML sĂşboru');
     }
     
     return await response.json();
@@ -490,7 +491,7 @@ export class AccountingService {
 
   // Export invoices to POHODA XML format
   async exportPohodaXml(companyId: number, dateFrom?: string, dateTo?: string): Promise<Blob> {
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/export-pohoda-xml/${companyId}?dateFrom=${dateFrom || ''}&dateTo=${dateTo || ''}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/export-pohoda-xml/${companyId}?dateFrom=${dateFrom || ''}&dateTo=${dateTo || ''}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -498,7 +499,7 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri exporte XML súboru');
+      throw new Error('Chyba pri exporte XML sĂşboru');
     }
     
     return await response.blob();
@@ -506,43 +507,43 @@ export class AccountingService {
 
 
 
-  // 11. OBNOVENIE FAKTÚR Z MDB
+  // 11. OBNOVENIE FAKTĂšR Z MDB
 
-  // Obnovenie vydaných faktúr z MDB
+  // Obnovenie vydanĂ˝ch faktĂşr z MDB
   async refreshInvoicesFromMdb(companyId: number): Promise<{
     success: boolean;
     message: string;
     importedCount: number;
     totalCount: number;
   }> {
-    // Už čítame faktúry priamo z MDB na backende – žiadny refresh/netreba Dropbox.
+    // UĹľ ÄŤĂ­tame faktĂşry priamo z MDB na backende â€“ Ĺľiadny refresh/netreba Dropbox.
     return {
       success: true,
-      message: 'Faktúry sa načítavajú priamo z MDB. Obnovenie nie je potrebné.',
+      message: 'FaktĂşry sa naÄŤĂ­tavajĂş priamo z MDB. Obnovenie nie je potrebnĂ©.',
       importedCount: 0,
       totalCount: 0
     };
   }
 
-  // Obnovenie prijatých faktúr z MDB
+  // Obnovenie prijatĂ˝ch faktĂşr z MDB
   async refreshReceivedInvoicesFromMdb(companyId: number): Promise<{
     success: boolean;
     message: string;
     importedCount: number;
     totalCount: number;
   }> {
-    // Už čítame faktúry priamo z MDB na backende – žiadny refresh/netreba Dropbox.
+    // UĹľ ÄŤĂ­tame faktĂşry priamo z MDB na backende â€“ Ĺľiadny refresh/netreba Dropbox.
     return {
       success: true,
-      message: 'Prijaté faktúry sa načítavajú priamo z MDB. Obnovenie nie je potrebné.',
+      message: 'PrijatĂ© faktĂşry sa naÄŤĂ­tavajĂş priamo z MDB. Obnovenie nie je potrebnĂ©.',
       importedCount: 0,
       totalCount: 0
     };
   }
 
-  // 12. IMPORT FAKTÚR Z MDB
+  // 12. IMPORT FAKTĂšR Z MDB
 
-  // Import vydaných faktúr z MDB
+  // Import vydanĂ˝ch faktĂşr z MDB
   async importInvoicesFromMdb(companyId: number): Promise<{
     success: boolean;
     message: string;
@@ -550,7 +551,7 @@ export class AccountingService {
     skippedCount: number;
     totalCount: number;
   }> {
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/import-invoices/${companyId}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/import-invoices/${companyId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -559,21 +560,21 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri importe faktúr z MDB');
+      throw new Error('Chyba pri importe faktĂşr z MDB');
     }
     
     return await response.json();
   }
 
-  // 12. MAZANIE POLOŽIEK
+  // 12. MAZANIE POLOĹ˝IEK
 
-  // Mazanie vydanej faktúry
+  // Mazanie vydanej faktĂşry
   async deleteIssuedInvoice(invoiceId: number): Promise<any> {
     const response = await apiService.delete(`/accounting/issued-invoices/${invoiceId}`);
     return response;
   }
 
-  // Mazanie prijatej faktúry
+  // Mazanie prijatej faktĂşry
   async deleteReceivedInvoice(invoiceId: number): Promise<any> {
     const response = await apiService.delete(`/accounting/received-invoices/${invoiceId}`);
     return response;
@@ -585,15 +586,15 @@ export class AccountingService {
     return response;
   }
 
-  // Mazanie pokladničnej transakcie
+  // Mazanie pokladniÄŤnej transakcie
   async deleteCashTransaction(transactionId: number): Promise<any> {
     const response = await apiService.delete(`/accounting/cash-transactions/${transactionId}`);
     return response;
   }
 
-  // 13. ADRESÁR FIRIEM Z MDB
+  // 13. ADRESĂR FIRIEM Z MDB
 
-  // Načítanie adresára firiem z MDB
+  // NaÄŤĂ­tanie adresĂˇra firiem z MDB
   async getDirectory(companyId: number): Promise<{
     success: boolean;
     company: { ico: string; name: string };
@@ -613,7 +614,7 @@ export class AccountingService {
     }>;
     total_count: number;
   }> {
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/directory/${companyId}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/directory/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -622,7 +623,7 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní adresára');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ adresĂˇra');
     }
     
     return await response.json();
@@ -630,7 +631,7 @@ export class AccountingService {
 
   // 14. DPH PODANIA
 
-  // Načítanie DPH podaní z MDB
+  // NaÄŤĂ­tanie DPH podanĂ­ z MDB
   async getVatReturns(companyId: number, year?: number): Promise<{
     company: {
       id: number;
@@ -643,19 +644,19 @@ export class AccountingService {
       rok: number;
       mesiac: number;
       povinnost: number;
-      odpočet: number;
-      odoslané: boolean;
+      odpoÄŤet: number;
+      odoslanĂ©: boolean;
     }>;
     summary: {
       totalPovinnost: number;
-      totalOdpočet: number;
+      totalOdpoÄŤet: number;
       totalRozdiel: number;
-      odoslanéCount: number;
-      neodoslanéCount: number;
+      odoslanĂ©Count: number;
+      neodoslanĂ©Count: number;
     };
   }> {
     const yearParam = year || new Date().getFullYear();
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/vat-returns/${companyId}?year=${yearParam}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/vat-returns/${companyId}?year=${yearParam}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -664,15 +665,15 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní DPH podaní');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ DPH podanĂ­');
     }
     
     return await response.json();
   }
 
-  // 15. BANKOVÉ ÚČTY
+  // 15. BANKOVĂ‰ ĂšÄŚTY
 
-  // Načítanie bankových účtov z MDB
+  // NaÄŤĂ­tanie bankovĂ˝ch ĂşÄŤtov z MDB
   async getBankAccounts(companyId: number): Promise<{
     company: {
       id: number;
@@ -696,9 +697,9 @@ export class AccountingService {
       accountCount: number;
     };
   }> {
-    console.log('🏦 Volám bankový endpoint pre companyId:', companyId);
+    console.log('đźŹ¦ VolĂˇm bankovĂ˝ endpoint pre companyId:', companyId);
     
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/accounting/bank-accounts/${companyId}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/bank-accounts/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -706,21 +707,21 @@ export class AccountingService {
       }
     });
     
-    console.log('🏦 Bankový endpoint response status:', response.status);
+    console.log('đźŹ¦ BankovĂ˝ endpoint response status:', response.status);
     
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní bankových účtov');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ bankovĂ˝ch ĂşÄŤtov');
     }
     
     const data = await response.json();
-    console.log('🏦 Bankový endpoint response data:', data);
+    console.log('đźŹ¦ BankovĂ˝ endpoint response data:', data);
     
     return data;
   }
 
-  // 16. POKLADŇA
+  // 16. POKLADĹ‡A
 
-  // Načítanie pokladňových účtov z MDB
+  // NaÄŤĂ­tanie pokladĹovĂ˝ch ĂşÄŤtov z MDB
   async getCashAccounts(companyId: number): Promise<{
     company: {
       id: number;
@@ -743,7 +744,7 @@ export class AccountingService {
       accountCount: number;
     };
   }> {
-    const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/accounting/cash-accounts/${companyId}`, {
+    const response = await fetch(`${API_BASE_URL}/accounting/cash-accounts/${companyId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -752,13 +753,13 @@ export class AccountingService {
     });
     
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní pokladňových účtov');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ pokladĹovĂ˝ch ĂşÄŤtov');
     }
     
     return await response.json();
   }
 
-  // 17. BANKOVÉ TRANSAKCIE
+  // 17. BANKOVĂ‰ TRANSAKCIE
   async getBankTransactions(companyId: number, accountNumber: string): Promise<{
     company: { id: number; name: string; ico: string; };
     account: { accountNumber: string; accountName: string; bankName: string; };
@@ -769,9 +770,9 @@ export class AccountingService {
       totalCredit: number; totalDebit: number; currentBalance: number; transactionCount: number;
     };
   }> {
-    console.log('🏦 Volám bankový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
+    console.log('đźŹ¦ VolĂˇm bankovĂ˝ transakÄŤnĂ˝ endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const base = API_BASE_URL;
     const response = await fetch(`${base}/api/accounting/bank-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
@@ -780,19 +781,19 @@ export class AccountingService {
       }
     });
 
-    console.log('🏦 Bankový transakčný endpoint response status:', response.status);
+    console.log('đźŹ¦ BankovĂ˝ transakÄŤnĂ˝ endpoint response status:', response.status);
 
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní bankových transakcií');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ bankovĂ˝ch transakciĂ­');
     }
 
     const data = await response.json();
-    console.log('🏦 Bankový transakčný endpoint response data:', data);
+    console.log('đźŹ¦ BankovĂ˝ transakÄŤnĂ˝ endpoint response data:', data);
 
     return data;
   }
 
-  // 18. POKLADŇOVÉ TRANSAKCIE
+  // 18. POKLADĹ‡OVĂ‰ TRANSAKCIE
   async getCashTransactions(companyId: number, accountNumber: string): Promise<{
     company: { id: number; name: string; ico: string; };
     account: { accountNumber: string; accountName: string; bankName: string; };
@@ -803,9 +804,9 @@ export class AccountingService {
       totalCredit: number; totalDebit: number; currentBalance: number; transactionCount: number;
     };
   }> {
-    console.log('💰 Volám pokladňový transakčný endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
+    console.log('đź’° VolĂˇm pokladĹovĂ˝ transakÄŤnĂ˝ endpoint pre companyId:', companyId, 'accountNumber:', accountNumber);
 
-    const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const base = API_BASE_URL;
     const response = await fetch(`${base}/api/accounting/cash-transactions/${companyId}/${accountNumber}`, {
       method: 'GET',
       headers: {
@@ -814,17 +815,19 @@ export class AccountingService {
       }
     });
 
-    console.log('💰 Pokladňový transakčný endpoint response status:', response.status);
+    console.log('đź’° PokladĹovĂ˝ transakÄŤnĂ˝ endpoint response status:', response.status);
 
     if (!response.ok) {
-      throw new Error('Chyba pri načítaní pokladňových transakcií');
+      throw new Error('Chyba pri naÄŤĂ­tanĂ­ pokladĹovĂ˝ch transakciĂ­');
     }
 
     const data = await response.json();
-    console.log('💰 Pokladňový transakčný endpoint response data:', data);
+    console.log('đź’° PokladĹovĂ˝ transakÄŤnĂ˝ endpoint response data:', data);
 
     return data;
   }
 }
 
 export const accountingService = new AccountingService();
+
+

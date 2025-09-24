@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { XMarkIcon, CloudArrowDownIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { DocumentData } from '../services/apiService';
 
@@ -27,7 +27,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   };
 
   const handleOpenInNewTab = () => {
-    const previewUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/documents/preview/${document.id}`;
+    const previewUrl = `${API_BASE_URL}/documents/preview/${document.id}`;
     window.open(previewUrl, '_blank');
   };
 
@@ -51,11 +51,11 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
 
   const getCategoryName = (category: string) => {
     const categoryNames: { [key: string]: string } = {
-      'faktury': 'Faktúry',
+      'faktury': 'FaktĂşry',
       'zmluvy': 'Zmluvy',
-      'vykazy': 'Výkazy',
+      'vykazy': 'VĂ˝kazy',
       'dokumenty': 'Dokumenty',
-      'archiv': 'Archív'
+      'archiv': 'ArchĂ­v'
     };
     return categoryNames[category] || category;
   };
@@ -76,7 +76,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               {document.original_name}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {getCategoryName(document.category)} • {formatFileSize(document.file_size)} • {formatDate(document.created_at)}
+              {getCategoryName(document.category)} â€˘ {formatFileSize(document.file_size)} â€˘ {formatDate(document.created_at)}
             </p>
           </div>
           <div className="flex items-center gap-2 ml-4">
@@ -84,7 +84,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               onClick={handleDownload}
               disabled={isLoading}
               className="p-2 text-gray-600 hover:text-gray-700 disabled:opacity-50"
-              title="Stiahnuť"
+              title="StiahnuĹĄ"
             >
               <CloudArrowDownIcon className="h-5 w-5" />
             </button>
@@ -92,7 +92,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               <button
                 onClick={handleOpenInNewTab}
                 className="p-2 text-gray-600 hover:text-gray-700"
-                title="Otvoriť v novom okne"
+                title="OtvoriĹĄ v novom okne"
               >
                 <ArrowTopRightOnSquareIcon className="h-5 w-5" />
               </button>
@@ -100,7 +100,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600"
-              title="Zavrieť"
+              title="ZavrieĹĄ"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -114,7 +114,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               {document.file_type.startsWith('image/') ? (
                 <div className="flex justify-center">
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/documents/preview/${document.id}`}
+                    src={`${API_BASE_URL}/documents/preview/${document.id}`}
                     alt={document.original_name}
                     className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-lg"
                     onError={(e) => {
@@ -127,19 +127,19 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     }}
                   />
                   <div className="preview-error hidden text-center py-12">
-                    <p className="text-gray-500">Nepodarilo sa načítať náhľad obrázka</p>
+                    <p className="text-gray-500">Nepodarilo sa naÄŤĂ­taĹĄ nĂˇhÄľad obrĂˇzka</p>
                     <button
                       onClick={handleDownload}
                       className="mt-2 text-blue-600 hover:text-blue-700"
                     >
-                      Stiahnuť súbor
+                      StiahnuĹĄ sĂşbor
                     </button>
                   </div>
                 </div>
               ) : document.file_type === 'application/pdf' ? (
                 <div className="flex justify-center">
                   <iframe
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/documents/preview/${document.id}`}
+                    src={`${API_BASE_URL}/documents/preview/${document.id}`}
                     className="w-full h-[60vh] border rounded-lg"
                     title={document.original_name}
                   />
@@ -147,8 +147,8 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               ) : document.file_type === 'text/' ? (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                    {/* Tu by sa načítal textový obsah */}
-                    Náhľad textového súboru
+                    {/* Tu by sa naÄŤĂ­tal textovĂ˝ obsah */}
+                    NĂˇhÄľad textovĂ©ho sĂşboru
                   </pre>
                 </div>
               ) : null}
@@ -162,10 +162,10 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Náhľad nie je dostupný
+                  NĂˇhÄľad nie je dostupnĂ˝
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  Tento typ súboru ({document.file_type}) nepodporuje náhľad. Môžete si ho stiahnuť alebo otvoriť v príslušnej aplikácii.
+                  Tento typ sĂşboru ({document.file_type}) nepodporuje nĂˇhÄľad. MĂ´Ĺľete si ho stiahnuĹĄ alebo otvoriĹĄ v prĂ­sluĹˇnej aplikĂˇcii.
                 </p>
                 <div className="flex gap-3 justify-center">
                   <button
@@ -174,7 +174,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                   >
                     <CloudArrowDownIcon className="h-4 w-4" />
-                    Stiahnuť súbor
+                    StiahnuĹĄ sĂşbor
                   </button>
                 </div>
               </div>
@@ -182,15 +182,15 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
           )}
         </div>
 
-        {/* Footer s informáciami */}
+        {/* Footer s informĂˇciami */}
         <div className="border-t bg-gray-50 p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="font-medium text-gray-700">Kategória:</span>
+              <span className="font-medium text-gray-700">KategĂłria:</span>
               <span className="ml-2 text-gray-600">{getCategoryName(document.category)}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Veľkosť:</span>
+              <span className="font-medium text-gray-700">VeÄľkosĹĄ:</span>
               <span className="ml-2 text-gray-600">{formatFileSize(document.file_size)}</span>
             </div>
             <div>
@@ -211,4 +211,5 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
 };
 
 export default DocumentPreviewModal;
+
 

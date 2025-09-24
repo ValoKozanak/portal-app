@@ -1,4 +1,4 @@
-import { apiService } from './apiService';
+﻿import { apiService } from './apiService';
 
 export interface CmsContent {
   [section: string]: {
@@ -32,37 +32,37 @@ export interface CmsHistoryItem {
 class CmsService {
   private baseUrl = 'http://localhost:5000/api/cms';
 
-  // Získanie všetkého aktívneho obsahu
+  // ZĂ­skanie vĹˇetkĂ©ho aktĂ­vneho obsahu
   async getContent(): Promise<CmsContent> {
     try {
       const response = await fetch(`${this.baseUrl}/content`);
       if (!response.ok) {
-        throw new Error('Chyba pri načítaní obsahu');
+        throw new Error('Chyba pri naÄŤĂ­tanĂ­ obsahu');
       }
       const data = await response.json();
       return data.content;
     } catch (error) {
-      console.error('Chyba pri načítaní CMS obsahu:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ CMS obsahu:', error);
       throw error;
     }
   }
 
-  // Získanie obsahu pre konkrétnu sekciu
+  // ZĂ­skanie obsahu pre konkrĂ©tnu sekciu
   async getSectionContent(section: string): Promise<{ [field: string]: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/content/${section}`);
       if (!response.ok) {
-        throw new Error('Chyba pri načítaní sekcie');
+        throw new Error('Chyba pri naÄŤĂ­tanĂ­ sekcie');
       }
       const data = await response.json();
       return data.content;
     } catch (error) {
-      console.error('Chyba pri načítaní sekcie:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ sekcie:', error);
       throw error;
     }
   }
 
-  // Aktualizácia jedného poľa
+  // AktualizĂˇcia jednĂ©ho poÄľa
   async updateField(section: string, field: string, value: string): Promise<{ id: number; version: number }> {
     try {
       const token = apiService.getToken();
@@ -77,18 +77,18 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri aktualizácii obsahu');
+        throw new Error(errorData.error || 'Chyba pri aktualizĂˇcii obsahu');
       }
 
       const data = await response.json();
       return { id: data.id, version: data.version };
     } catch (error) {
-      console.error('Chyba pri aktualizácii poľa:', error);
+      console.error('Chyba pri aktualizĂˇcii poÄľa:', error);
       throw error;
     }
   }
 
-  // Hromadná aktualizácia obsahu
+  // HromadnĂˇ aktualizĂˇcia obsahu
   async batchUpdate(updates: CmsUpdate[]): Promise<{ results: any[] }> {
     try {
       const token = apiService.getToken();
@@ -103,18 +103,18 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri hromadnej aktualizácii');
+        throw new Error(errorData.error || 'Chyba pri hromadnej aktualizĂˇcii');
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Chyba pri hromadnej aktualizácii:', error);
+      console.error('Chyba pri hromadnej aktualizĂˇcii:', error);
       throw error;
     }
   }
 
-  // Získanie všetkých verzií
+  // ZĂ­skanie vĹˇetkĂ˝ch verziĂ­
   async getVersions(): Promise<CmsVersion[]> {
     try {
       const token = apiService.getToken();
@@ -125,13 +125,13 @@ class CmsService {
       });
 
       if (!response.ok) {
-        throw new Error('Chyba pri načítaní verzií');
+        throw new Error('Chyba pri naÄŤĂ­tanĂ­ verziĂ­');
       }
 
       const data = await response.json();
       return data.versions;
     } catch (error) {
-      console.error('Chyba pri načítaní verzií:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ verziĂ­:', error);
       throw error;
     }
   }
@@ -151,18 +151,18 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri vytvorení verzie');
+        throw new Error(errorData.error || 'Chyba pri vytvorenĂ­ verzie');
       }
 
       const data = await response.json();
       return { id: data.id, version_name: data.version_name };
     } catch (error) {
-      console.error('Chyba pri vytvorení verzie:', error);
+      console.error('Chyba pri vytvorenĂ­ verzie:', error);
       throw error;
     }
   }
 
-  // Získanie histórie zmien pre konkrétne pole
+  // ZĂ­skanie histĂłrie zmien pre konkrĂ©tne pole
   async getHistory(section: string, field: string): Promise<CmsHistoryItem[]> {
     try {
       const token = apiService.getToken();
@@ -173,18 +173,18 @@ class CmsService {
       });
 
       if (!response.ok) {
-        throw new Error('Chyba pri načítaní histórie');
+        throw new Error('Chyba pri naÄŤĂ­tanĂ­ histĂłrie');
       }
 
       const data = await response.json();
       return data.history;
     } catch (error) {
-      console.error('Chyba pri načítaní histórie:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ histĂłrie:', error);
       throw error;
     }
   }
 
-  // Obnovenie predchádzajúcej verzie
+  // Obnovenie predchĂˇdzajĂşcej verzie
   async restoreVersion(id: number): Promise<{ id: number; version: number }> {
     try {
       const token = apiService.getToken();
@@ -197,18 +197,18 @@ class CmsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Chyba pri obnovení verzie');
+        throw new Error(errorData.error || 'Chyba pri obnovenĂ­ verzie');
       }
 
       const data = await response.json();
       return { id: data.id, version: data.version };
     } catch (error) {
-      console.error('Chyba pri obnovení verzie:', error);
+      console.error('Chyba pri obnovenĂ­ verzie:', error);
       throw error;
     }
   }
 
-  // Pomocná metóda pre konverziu obsahu do formátu pre batch update
+  // PomocnĂˇ metĂłda pre konverziu obsahu do formĂˇtu pre batch update
   prepareBatchUpdates(content: CmsContent): CmsUpdate[] {
     const updates: CmsUpdate[] = [];
     
@@ -223,3 +223,4 @@ class CmsService {
 }
 
 export const cmsService = new CmsService();
+

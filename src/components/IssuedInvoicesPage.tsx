@@ -1,3 +1,4 @@
+﻿import { API_BASE_URL } from '../services/apiService';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
@@ -19,7 +20,7 @@ const IssuedInvoicesPage: React.FC = () => {
   const { companyId: urlCompanyId } = useParams<{ companyId: string }>();
   const [companies, setCompanies] = useState<any[]>([]);
   
-  // Používame useLocalStorage hook pre konzistentnosť s App.tsx
+  // PouĹľĂ­vame useLocalStorage hook pre konzistentnosĹĄ s App.tsx
   const [userEmail] = useLocalStorage('userEmail', '');
   const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
@@ -35,7 +36,7 @@ const IssuedInvoicesPage: React.FC = () => {
   const [companyIcoById, setCompanyIcoById] = useState<Record<number, string>>({});
   const [pendingUploadInvoice, setPendingUploadInvoice] = useState<IssuedInvoice | null>(null);
 
-  // Helper: zostavenie Spaces URL podľa dohodnutého kľúča
+  // Helper: zostavenie Spaces URL podÄľa dohodnutĂ©ho kÄľĂşÄŤa
   const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
     const y = (() => {
       const d = issueDateLike ? new Date(issueDateLike) : new Date();
@@ -83,34 +84,34 @@ const IssuedInvoicesPage: React.FC = () => {
   useEffect(() => {
     if (companyId) {
       loadInvoices();
-      // Automatické obnovenie faktúr z MDB pri načítaní stránky
+      // AutomatickĂ© obnovenie faktĂşr z MDB pri naÄŤĂ­tanĂ­ strĂˇnky
       handleRefreshInvoices();
     }
   }, [companyId]);
 
   const loadCompanies = async () => {
     try {
-      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      const base = (API_BASE_URL);
       let endpoint = `${base}/api/companies`;
       
-      // Výber správneho endpointu podľa role
+      // VĂ˝ber sprĂˇvneho endpointu podÄľa role
       if (userRole === 'user') {
         endpoint = `${base}/api/companies/user/${userEmail}`;
       } else if (userRole === 'accountant') {
         endpoint = `${base}/api/companies/accountant/${userEmail}`;
       }
-      // Pre admin sa používa default endpoint '/api/companies'
+      // Pre admin sa pouĹľĂ­va default endpoint '/api/companies'
       
       const response = await fetch(endpoint);
       const companiesData = await response.json();
       setCompanies(companiesData);
       
-      // Automaticky nastavíme firmu podľa role, len ak nemáme companyId z URL ani localStorage
+      // Automaticky nastavĂ­me firmu podÄľa role, len ak nemĂˇme companyId z URL ani localStorage
       if (companiesData.length > 0 && !urlCompanyId && !companyId) {
         setCompanyId(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní firiem:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ firiem:', error);
     }
   };
 
@@ -128,8 +129,8 @@ const IssuedInvoicesPage: React.FC = () => {
         }
         return null;
       });
-      // Skontroluj existenciu PDF pre ikonku náhľadu
-      const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+      // Skontroluj existenciu PDF pre ikonku nĂˇhÄľadu
+      const base = (API_BASE_URL);
       const checks = data.map(async (inv) => {
         const key = `issued-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
@@ -141,7 +142,7 @@ const IssuedInvoicesPage: React.FC = () => {
           if (jsonId && typeof jsonId.exists === 'boolean' && jsonId.exists) {
             setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
           } else {
-            // Fallback: skús existenciu podľa čísla faktúry/VS, ak máme DB ID a prvá kontrola neuspela
+            // Fallback: skĂşs existenciu podÄľa ÄŤĂ­sla faktĂşry/VS, ak mĂˇme DB ID a prvĂˇ kontrola neuspela
             const num = (inv as any).invoice_number || (inv as any).varsym;
             if (num) {
               const urlNum = `${base}/api/accounting/invoices/issued/${encodeURIComponent(String(num))}/exists?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}`;
@@ -150,7 +151,7 @@ const IssuedInvoicesPage: React.FC = () => {
               if (jsonNum && typeof jsonNum.exists === 'boolean' && jsonNum.exists) {
                 setPdfExistsByKey(prev => ({ ...prev, [key]: true }));
               } else {
-                // Posledný fallback: HEAD priamo na Spaces podľa známej štruktúry
+                // PoslednĂ˝ fallback: HEAD priamo na Spaces podÄľa znĂˇmej ĹˇtruktĂşry
                 const ico = companies.find(c => c.id === companyId)?.ico;
                 if (ico) {
                   const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateParam);
@@ -170,7 +171,7 @@ const IssuedInvoicesPage: React.FC = () => {
       });
       await Promise.allSettled(checks);
     } catch (error) {
-      console.error('Chyba pri načítaní faktúr:', error);
+      console.error('Chyba pri naÄŤĂ­tanĂ­ faktĂşr:', error);
     } finally {
       setLoading(false);
     }
@@ -196,7 +197,7 @@ const IssuedInvoicesPage: React.FC = () => {
   };
 
   const filteredInvoices = invoices.filter(invoice => {
-    // Základný search
+    // ZĂˇkladnĂ˝ search
     const matchesSearch = 
       invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -213,7 +214,7 @@ const IssuedInvoicesPage: React.FC = () => {
       return false;
     }
     
-    // Filtre dátumov
+    // Filtre dĂˇtumov
     if (filters.dueDateFrom) {
       const dueDate = new Date(invoice.due_date);
       const fromDate = new Date(filters.dueDateFrom);
@@ -226,7 +227,7 @@ const IssuedInvoicesPage: React.FC = () => {
       if (dueDate > toDate) return false;
     }
     
-    // Filtre nezaplatených súm
+    // Filtre nezaplatenĂ˝ch sĂşm
     const unpaidAmount = parseFloat(String(invoice.kc_likv || 0)) || 0;
     
     if (filters.unpaidAmountMin) {
@@ -251,8 +252,8 @@ const IssuedInvoicesPage: React.FC = () => {
   };
 
   const handleEditInvoice = (invoice: IssuedInvoice) => {
-    console.log('Editovať faktúru:', invoice);
-    alert('Editovať faktúru');
+    console.log('EditovaĹĄ faktĂşru:', invoice);
+    alert('EditovaĹĄ faktĂşru');
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -274,7 +275,7 @@ const IssuedInvoicesPage: React.FC = () => {
   };
 
   const handleDeleteInvoice = async (invoice: IssuedInvoice) => {
-    if (!window.confirm(`Naozaj chcete vymazať faktúru ${invoice.invoice_number}?`)) {
+    if (!window.confirm(`Naozaj chcete vymazaĹĄ faktĂşru ${invoice.invoice_number}?`)) {
       return;
     }
 
@@ -282,14 +283,14 @@ const IssuedInvoicesPage: React.FC = () => {
       await accountingService.deleteIssuedInvoice(invoice.id!);
       await loadInvoices();
     } catch (error) {
-      console.error('Chyba pri mazaní faktúry:', error);
-      alert('Chyba pri mazaní faktúry');
+      console.error('Chyba pri mazanĂ­ faktĂşry:', error);
+      alert('Chyba pri mazanĂ­ faktĂşry');
     }
   };
 
   const handleCreateInvoice = () => {
-    console.log('Vytvoriť novú faktúru');
-    alert('Vytvoriť novú faktúru');
+    console.log('VytvoriĹĄ novĂş faktĂşru');
+    alert('VytvoriĹĄ novĂş faktĂşru');
   };
 
   const handleRefreshInvoices = async () => {
@@ -299,8 +300,8 @@ const IssuedInvoicesPage: React.FC = () => {
       await accountingService.refreshInvoicesFromMdb(companyId);
       await loadInvoices();
     } catch (error) {
-      console.error('Chyba pri obnovení faktúr:', error);
-      alert('Chyba pri obnovení faktúr');
+      console.error('Chyba pri obnovenĂ­ faktĂşr:', error);
+      alert('Chyba pri obnovenĂ­ faktĂşr');
     }
   };
 
@@ -316,16 +317,16 @@ const IssuedInvoicesPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Späť na Účtovníctvo
+                SpĂ¤ĹĄ na ĂšÄŤtovnĂ­ctvo
               </button>
             </div>
                          <div className="flex items-center space-x-4">
-               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Vydané faktúry</h1>
+               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">VydanĂ© faktĂşry</h1>
                
-               {/* Zobrazenie aktuálnej firmy */}
+               {/* Zobrazenie aktuĂˇlnej firmy */}
                {companies.length > 0 && companyId && (
                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                   Firma: {companies.find(c => c.id === companyId)?.name} (IČO: {companies.find(c => c.id === companyId)?.ico})
+                   Firma: {companies.find(c => c.id === companyId)?.name} (IÄŚO: {companies.find(c => c.id === companyId)?.ico})
                  </div>
                )}
              </div>
@@ -333,10 +334,10 @@ const IssuedInvoicesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Hlavný obsah */}
+      {/* HlavnĂ˝ obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col min-h-0">
-          {/* Horná časť - Sumár faktúr */}
+          {/* HornĂˇ ÄŤasĹĄ - SumĂˇr faktĂşr */}
           {showSummary && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
               <div className="p-4">
@@ -345,15 +346,15 @@ const IssuedInvoicesPage: React.FC = () => {
             </div>
           )}
 
-          {/* Spodná časť - Zoznam faktúr */}
+          {/* SpodnĂˇ ÄŤasĹĄ - Zoznam faktĂşr */}
           <div className="bg-white overflow-hidden flex flex-col flex-1 min-h-0">
-            {/* Hlavička zoznamu */}
+            {/* HlaviÄŤka zoznamu */}
             <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Zoznam vydaných faktúr</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Zoznam vydanĂ˝ch faktĂşr</h2>
                   
-                  {/* Tlačidlo filtrov */}
+                  {/* TlaÄŤidlo filtrov */}
                   <button
                     onClick={() => setShowFilters(!showFilters)}
                     className={`inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md ${
@@ -371,13 +372,13 @@ const IssuedInvoicesPage: React.FC = () => {
                     onClick={() => setShowSummary(!showSummary)}
                     className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    {showSummary ? 'Skryť sumár' : 'Zobraziť sumár'}
+                    {showSummary ? 'SkryĹĄ sumĂˇr' : 'ZobraziĹĄ sumĂˇr'}
                   </button>
                   <div className="relative">
                     <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Hľadať faktúry..."
+                      placeholder="HÄľadaĹĄ faktĂşry..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -389,16 +390,16 @@ const IssuedInvoicesPage: React.FC = () => {
                       className="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-sm leading-4 font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       <ArrowPathIcon className="h-4 w-4 mr-1" />
-                      Obnoviť
+                      ObnoviĹĄ
                     </button>
                     <button
                       onClick={handleCreateInvoice}
                       className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       <PlusIcon className="h-4 w-4 mr-1" />
-                      Nová faktúra
+                      NovĂˇ faktĂşra
                     </button>
-                    {/* Zobrazenie vybranej faktúry už netreba, riadkový upload/náhľad stačí */}
+                    {/* Zobrazenie vybranej faktĂşry uĹľ netreba, riadkovĂ˝ upload/nĂˇhÄľad staÄŤĂ­ */}
                     {(userRole === 'admin' || userRole === 'accountant') && (
                       <>
                         <input
@@ -415,10 +416,10 @@ const IssuedInvoicesPage: React.FC = () => {
                               const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
                               if (!inv || (!hasId && !hasNumber)) {
                                 console.error('Missing invoice before presign', inv);
-                                alert('Vyberte faktúru v zozname.');
+                                alert('Vyberte faktĂşru v zozname.');
                                 return;
                               }
-                              const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+                              const base = (API_BASE_URL);
                               const invoiceId = inv.id != null ? encodeURIComponent(String(inv.id)) : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
                               const issueDateParam = (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
                               const presignEndpoint = `${base}/api/accounting/invoices/issued/${invoiceId}/presign-upload` + (inv.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam))}` : '');
@@ -426,15 +427,15 @@ const IssuedInvoicesPage: React.FC = () => {
                                 method: 'POST',
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                               });
-                              if (!resp.ok) throw new Error('Chyba pri vytváraní upload linku');
+                              if (!resp.ok) throw new Error('Chyba pri vytvĂˇranĂ­ upload linku');
                               const { url: presignedUrl } = await resp.json();
                               const put = await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: file });
-                              if (!put.ok) throw new Error('Chyba uploadu do úložiska');
+                              if (!put.ok) throw new Error('Chyba uploadu do ĂşloĹľiska');
                               const existsKey = `issued-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
                               setPdfExistsByKey(prev => ({ ...prev, [existsKey]: true }));
-                              alert('PDF nahrané. Skúste náhľad (oko).');
+                              alert('PDF nahranĂ©. SkĂşste nĂˇhÄľad (oko).');
                             } catch (err: any) {
-                              alert(err?.message || 'Chyba pri nahrávaní PDF');
+                              alert(err?.message || 'Chyba pri nahrĂˇvanĂ­ PDF');
                             } finally {
                               setPendingUploadInvoice(null);
                               if (fileInputRef.current) fileInputRef.current.value = '';
@@ -459,26 +460,26 @@ const IssuedInvoicesPage: React.FC = () => {
                       type="text"
                       value={filters.customerName}
                       onChange={(e) => handleFilterChange('customerName', e.target.value)}
-                      placeholder="Zadajte názov firmy..."
+                      placeholder="Zadajte nĂˇzov firmy..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
-                  {/* Číslo faktúry */}
+                  {/* ÄŚĂ­slo faktĂşry */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Číslo faktúry</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ÄŚĂ­slo faktĂşry</label>
                     <input
                       type="text"
                       value={filters.invoiceNumber}
                       onChange={(e) => handleFilterChange('invoiceNumber', e.target.value)}
-                      placeholder="Zadajte číslo faktúry..."
+                      placeholder="Zadajte ÄŤĂ­slo faktĂşry..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
-                  {/* Dátum splatnosti od */}
+                  {/* DĂˇtum splatnosti od */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Splatné od</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">SplatnĂ© od</label>
                     <input
                       type="date"
                       value={filters.dueDateFrom}
@@ -487,9 +488,9 @@ const IssuedInvoicesPage: React.FC = () => {
                     />
                   </div>
 
-                  {/* Dátum splatnosti do */}
+                  {/* DĂˇtum splatnosti do */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Splatné do</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">SplatnĂ© do</label>
                     <input
                       type="date"
                       value={filters.dueDateTo}
@@ -500,7 +501,7 @@ const IssuedInvoicesPage: React.FC = () => {
 
                   {/* Doplatok od */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Doplatok od (€)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Doplatok od (â‚¬)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -513,7 +514,7 @@ const IssuedInvoicesPage: React.FC = () => {
 
                   {/* Doplatok do */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Doplatok do (€)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Doplatok do (â‚¬)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -525,40 +526,40 @@ const IssuedInvoicesPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tlačidlá filtrov */}
+                {/* TlaÄŤidlĂˇ filtrov */}
                 <div className="flex items-center justify-end mt-4 space-x-3">
                   <button
                     onClick={clearFilters}
                     className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Vymazať filtre
+                    VymazaĹĄ filtre
                   </button>
                   <div className="text-sm text-gray-500">
-                    Zobrazených: {filteredInvoices.length} z {invoices.length}
+                    ZobrazenĂ˝ch: {filteredInvoices.length} z {invoices.length}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Tabuľka faktúr */}
+            {/* TabuÄľka faktĂşr */}
             <div className="flex-1 overflow-x-auto overflow-y-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Číslo
+                      ÄŚĂ­slo
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Varsym
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dátum
+                      DĂˇtum
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Splatné
+                      SplatnĂ©
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Odberateľ
+                      OdberateÄľ
                     </th>
                     <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Celkom
@@ -575,13 +576,13 @@ const IssuedInvoicesPage: React.FC = () => {
                   {loading ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
-                        Načítavam faktúry...
+                        NaÄŤĂ­tavam faktĂşry...
                       </td>
                     </tr>
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
-                        Žiadne faktúry neboli nájdené
+                        Ĺ˝iadne faktĂşry neboli nĂˇjdenĂ©
                       </td>
                     </tr>
                   ) : (
@@ -626,7 +627,7 @@ const IssuedInvoicesPage: React.FC = () => {
                                       e.stopPropagation();
                                       try {
                                         setPreviewLoadingId(invoice.id as number);
-                                        const base = (process.env.REACT_APP_API_URL || 'http://localhost:5000');
+                                        const base = (API_BASE_URL);
                                         const idOrNum = encodeURIComponent(String((invoice as any).invoice_number || (invoice as any).varsym || invoice.id));
                                         const issueDateParam2 = (invoice as any).issue_date || (invoice as any).datum || (invoice as any).due_date || '';
                                         const query = invoice.id == null ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateParam2))}` : '';
@@ -647,16 +648,16 @@ const IssuedInvoicesPage: React.FC = () => {
                                           const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
                                           window.open(directUrl, '_blank');
                                         } else {
-                                          throw new Error('PDF nenájdené');
+                                          throw new Error('PDF nenĂˇjdenĂ©');
                                         }
                                       } catch (err) {
-                                        alert('PDF nie je dostupné pre túto faktúru');
+                                        alert('PDF nie je dostupnĂ© pre tĂşto faktĂşru');
                                       } finally {
                                         setPreviewLoadingId(null);
                                       }
                                     }}
                                     className="text-green-600 hover:text-green-900"
-                                    title="Náhľad PDF"
+                                    title="NĂˇhÄľad PDF"
                                   >
                                     <EyeIcon className="h-4 w-4" />
                                   </button>
@@ -671,7 +672,7 @@ const IssuedInvoicesPage: React.FC = () => {
                                       fileInputRef.current?.click();
                                     }}
                                     className="text-blue-600 hover:text-blue-900"
-                                    title="Nahrať PDF"
+                                    title="NahraĹĄ PDF"
                                   >
                                     <ArrowUpOnSquareIcon className="h-4 w-4" />
                                   </button>
@@ -685,7 +686,7 @@ const IssuedInvoicesPage: React.FC = () => {
                                 handleEditInvoice(invoice);
                               }}
                               className="text-blue-600 hover:text-blue-900"
-                              title="Upraviť"
+                              title="UpraviĹĄ"
                             >
                               <PencilIcon className="h-4 w-4" />
                             </button>
@@ -705,3 +706,4 @@ const IssuedInvoicesPage: React.FC = () => {
 };
 
 export default IssuedInvoicesPage;
+
