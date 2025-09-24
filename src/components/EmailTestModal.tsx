@@ -1,10 +1,11 @@
 ﻿import React, { useState } from 'react';
-import { 
-  XMarkIcon, 
+import {
+  XMarkIcon,
   EnvelopeIcon,
   CheckCircleIcon,
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+import { API_BASE_URL } from '../services/apiService';
 
 interface EmailTestModalProps {
   isOpen: boolean;
@@ -18,16 +19,21 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const emailTypes = [
-    { value: 'welcome', label: 'Welcome Email', description: 'VitajĂşci email pre novĂ©ho pouĹľĂ­vateÄľa' },
-    { value: 'task', label: 'Task Notification', description: 'NotifikĂˇcia o novej Ăşlohe' },
-    { value: 'deadline', label: 'Deadline Reminder', description: 'Pripomienka termĂ­nu Ăşlohy' },
-    { value: 'document', label: 'Document Notification', description: 'NotifikĂˇcia o novom dokumente' },
-    { value: 'company', label: 'Company Notification', description: 'NotifikĂˇcia o novej firme' }
+    { value: 'welcome',  label: 'Welcome Email',         description: 'Vitajúci email pre nového používateľa' },
+    { value: 'task',     label: 'Task Notification',     description: 'Notifikácia o novej úlohe' },
+    { value: 'deadline', label: 'Deadline Reminder',     description: 'Pripomienka termínu úlohy' },
+    { value: 'document', label: 'Document Notification', description: 'Notifikácia o novom dokumente' },
+    { value: 'company',  label: 'Company Notification',  description: 'Notifikácia o novej firme' }
   ];
+
+  const authHeader = () => {
+    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       setResult({ success: false, message: 'Zadajte email adresu' });
       return;
@@ -37,28 +43,26 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/test/send-test-email', {
+      const response = await fetch(`${API_BASE_URL}/test/send-test-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeader()
         },
-        body: JSON.stringify({
-          email,
-          type: emailType
-        }),
+        body: JSON.stringify({ email, type: emailType })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({} as any));
 
       if (response.ok) {
-        setResult({ success: true, message: data.message });
+        setResult({ success: true, message: data?.message || 'Email odoslaný' });
       } else {
-        setResult({ success: false, message: data.error || 'NeznĂˇma chyba' });
+        setResult({ success: false, message: data?.error || `HTTP ${response.status}` });
       }
     } catch (error) {
-      setResult({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Chyba pri odosielanĂ­ poĹľiadavky' 
+      setResult({
+        success: false,
+        message: error instanceof Error ? error.message : 'Chyba pri odosielaní požiadavky'
       });
     } finally {
       setIsLoading(false);
@@ -80,14 +84,9 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-3">
             <EnvelopeIcon className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">
-              Test Email NotifikĂˇciĂ­
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900">Test Email Notifikácií</h2>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
@@ -125,25 +124,23 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
               ))}
             </select>
             <p className="mt-1 text-sm text-gray-500">
-              {emailTypes.find(t => t.value === emailType)?.description}
+              {emailTypes.find((t) => t.value === emailType)?.description}
             </p>
           </div>
 
           {result && (
-            <div className={`p-4 rounded-md ${
-              result.success 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
+            <div
+              className={`p-4 rounded-md ${
+                result.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+              }`}
+            >
               <div className="flex items-center space-x-2">
                 {result.success ? (
                   <CheckCircleIcon className="h-5 w-5 text-green-600" />
                 ) : (
                   <ExclamationCircleIcon className="h-5 w-5 text-red-600" />
                 )}
-                <span className={`text-sm font-medium ${
-                  result.success ? 'text-green-800' : 'text-red-800'
-                }`}>
+                <span className={`text-sm font-medium ${result.success ? 'text-green-800' : 'text-red-800'}`}>
                   {result.message}
                 </span>
               </div>
@@ -156,14 +153,14 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              ZruĹˇiĹĄ
+              Zrušiť
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? 'Odosielam...' : 'OtestovaĹĄ Email'}
+              {isLoading ? 'Odosielam...' : 'Otestovať Email'}
             </button>
           </div>
         </form>
@@ -173,4 +170,3 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default EmailTestModal;
-
