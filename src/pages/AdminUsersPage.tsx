@@ -17,7 +17,7 @@ import AssignCompanyModal from '../components/AssignCompanyModal';
 import AssignEmployeeCompanyModal from '../components/AssignEmployeeCompanyModal';
 import { apiService } from '../services/apiService';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -52,7 +52,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
   const [selectedUserForEmployeeAssign, setSelectedUserForEmployeeAssign] = useState<User | null>(null);
   const [companies, setCompanies] = useState<any[]>([]);
 
-  // Načítanie používateľov a firiem z API
+  // Na�TA�tanie pouLlA�vate�lov a firiem z API
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -69,7 +69,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
         setUsers(usersWithLastLogin);
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri načítaní dát:', error);
+        console.error('Chyba pri na�TA�tanA� dA?t:', error);
       } finally {
         setLoading(false);
       }
@@ -78,14 +78,14 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     loadData();
   }, []);
 
-  // Filtrovanie používateľov podľa vyhľadávania
+  // Filtrovanie pouLlA�vate�lov pod�la vyh�ladA?vania
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Vytvorenie nového používateľa
+  // Vytvorenie novA�ho pouLlA�vate�la
   const handleAddUser = async (userData: any) => {
     try {
       const response = await apiService.createUser(userData);
@@ -100,13 +100,13 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       };
       setUsers(prev => [...prev, newUser]);
 
-      // Ak je to zamestnanec, vytvor ho aj v tabuľke employees
+      // Ak je to zamestnanec, vytvor ho aj v tabu�lke employees
       if (userData.role === 'employee' && userData.companyId) {
         try {
           const hrService = (await import('../services/hrService')).hrService;
           const employeeData = {
             company_id: parseInt(userData.companyId),
-            employee_id: `EMP${Date.now()}`, // Generovanie unikátneho ID
+            employee_id: `EMP${Date.now()}`, // Generovanie unikA?tneho ID
             first_name: userData.name.split(' ')[0] || userData.name,
             last_name: userData.name.split(' ').slice(1).join(' ') || '',
             email: userData.email,
@@ -121,21 +121,21 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           };
           
           await hrService.addEmployee(employeeData);
-          console.log('✅ Zamestnanec úspešne pridaný do HR systému');
+          console.log('�s. Zamestnanec AsspeL?ne pridanA? do HR systA�mu');
         } catch (hrError: any) {
-          console.error('Chyba pri pridávaní zamestnanca do HR systému:', hrError.message);
-          // Nezobrazujeme chybu používateľovi, pretože používateľ bol vytvorený úspešne
+          console.error('Chyba pri pridA?vanA� zamestnanca do HR systA�mu:', hrError.message);
+          // Nezobrazujeme chybu pouLlA�vate�lovi, pretoLle pouLlA�vate�l bol vytvorenA? AsspeL?ne
         }
       }
 
       setShowAddUserModal(false);
     } catch (error: any) {
-      console.error('Chyba pri vytváraní používateľa:', error.message);
-      alert(`Chyba pri vytváraní používateľa: ${error.message}`);
+      console.error('Chyba pri vytvA?ranA� pouLlA�vate�la:', error.message);
+      alert(`Chyba pri vytvA?ranA� pouLlA�vate�la: ${error.message}`);
     }
   };
 
-  // Úprava používateľa
+  // Asprava pouLlA�vate�la
   const handleEditUser = async (userId: number, userData: any) => {
     try {
       await apiService.updateUser(userId, userData);
@@ -145,37 +145,37 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       setShowEditUserModal(false);
       setSelectedUserForEdit(null);
     } catch (error: any) {
-      console.error('Chyba pri aktualizácii používateľa:', error.message);
-      alert(`Chyba pri aktualizácii používateľa: ${error.message}`);
+      console.error('Chyba pri aktualizA?cii pouLlA�vate�la:', error.message);
+      alert(`Chyba pri aktualizA?cii pouLlA�vate�la: ${error.message}`);
     }
   };
 
-  // Vymazanie používateľa
+  // Vymazanie pouLlA�vate�la
   const handleDeleteUser = async (userId: number) => {
-    if (window.confirm('Naozaj chcete vymazať tohto používateľa?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tohto pouLlA�vate�la?')) {
       try {
         await apiService.deleteUser(userId);
         setUsers(prev => prev.filter(user => user.id !== userId));
       } catch (error: any) {
-        console.error('Chyba pri mazaní používateľa:', error.message);
-        alert(`Chyba pri mazaní používateľa: ${error.message}`);
+        console.error('Chyba pri mazanA� pouLlA�vate�la:', error.message);
+        alert(`Chyba pri mazanA� pouLlA�vate�la: ${error.message}`);
       }
     }
   };
 
-  // Otvorenie modálu pre úpravu
+  // Otvorenie modA?lu pre Aspravu
   const handleOpenEditUser = (user: User) => {
     setSelectedUserForEdit(user);
     setShowEditUserModal(true);
   };
 
-  // Otvorenie modálu pre priradenie firmy
+  // Otvorenie modA?lu pre priradenie firmy
   const handleOpenAssignCompany = (user: User) => {
     setSelectedUserForAssign(user);
     setShowAssignCompanyModal(true);
   };
 
-  // Otvorenie modálu pre priradenie zamestnanca k firme
+  // Otvorenie modA?lu pre priradenie zamestnanca k firme
   const handleOpenAssignEmployeeCompany = (user: User) => {
     setSelectedUserForEmployeeAssign(user);
     setShowAssignEmployeeCompanyModal(true);
@@ -188,23 +188,23 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       const employee = users.find(u => u.id === employeeId);
       
       if (!employee) {
-        throw new Error('Zamestnanec nenájdený');
+        throw new Error('Zamestnanec nenA?jdenA?');
       }
 
-      // Najprv skontrolujeme, či zamestnanec už existuje v HR systéme
+      // Najprv skontrolujeme, �Ti zamestnanec uLl existuje v HR systA�me
       try {
         const existingEmployee = await hrService.findEmployeeByEmail(employee.email);
         
         // Ak existuje, aktualizujeme jeho company_id
         await hrService.updateEmployeeCompany(existingEmployee.id, companyId);
-        console.log('✅ Zamestnanec úspešne presunutý do novej firmy');
-        alert('Zamestnanec bol úspešne presunutý do novej firmy!');
+        console.log('�s. Zamestnanec AsspeL?ne presunutA? do novej firmy');
+        alert('Zamestnanec bol AsspeL?ne presunutA? do novej firmy!');
       } catch (findError: any) {
-        // Ak zamestnanec neexistuje, vytvoríme ho
-        if (findError.message.includes('Zamestnanec nenájdený') || findError.message.includes('404')) {
+        // Ak zamestnanec neexistuje, vytvorA�me ho
+        if (findError.message.includes('Zamestnanec nenA?jdenA?') || findError.message.includes('404')) {
           const employeeData = {
             company_id: companyId,
-            employee_id: `EMP${Date.now()}`, // Generovanie unikátneho ID
+            employee_id: `EMP${Date.now()}`, // Generovanie unikA?tneho ID
             first_name: employee.name.split(' ')[0] || employee.name,
             last_name: employee.name.split(' ').slice(1).join(' ') || '',
             email: employee.email,
@@ -219,15 +219,15 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           };
           
           await hrService.addEmployee(employeeData);
-          console.log('✅ Zamestnanec úspešne vytvorený a priradený k firme');
-          alert('Zamestnanec bol úspešne vytvorený a priradený k firme!');
+          console.log('�s. Zamestnanec AsspeL?ne vytvorenA? a priradenA? k firme');
+          alert('Zamestnanec bol AsspeL?ne vytvorenA? a priradenA? k firme!');
         } else {
           throw findError;
         }
       }
     } catch (error: any) {
-      console.error('Chyba pri priradení zamestnanca k firme:', error.message);
-      alert(`Chyba pri priradení zamestnanca k firme: ${error.message}`);
+      console.error('Chyba pri priradenA� zamestnanca k firme:', error.message);
+      alert(`Chyba pri priradenA� zamestnanca k firme: ${error.message}`);
     }
   };
 
@@ -239,9 +239,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
       pending: 'bg-yellow-100 text-yellow-800'
     };
     const labels = {
-      active: 'Aktívny',
-      inactive: 'Neaktívny',
-      pending: 'Čakajúci'
+      active: 'AktA�vny',
+      inactive: 'NeaktA�vny',
+      pending: '�SakajAsci'
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors]}`}>
@@ -259,9 +259,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
     };
     const labels = {
       admin: 'Admin',
-      accountant: 'Účtovník',
+      accountant: 'As�TtovnA�k',
       employee: 'Zamestnanec',
-      user: 'Používateľ'
+      user: 'PouLlA�vate�l'
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
@@ -282,12 +282,12 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                Späť do Dashboardu
+                SpA�LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <UsersIcon className="h-8 w-8 text-blue-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Správa používateľov</h1>
+                <h1 className="text-2xl font-bold text-gray-900">SprA?va pouLlA�vate�lov</h1>
               </div>
             </div>
             <button
@@ -295,7 +295,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center transition-colors"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              Pridať používateľa
+              PridaLA pouLlA�vate�la
             </button>
           </div>
         </div>
@@ -307,9 +307,9 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Zoznam používateľov</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Zoznam pouLlA�vate�lov</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {users.length} používateľov • {users.filter(u => u.status === 'active').length} aktívnych
+                  Celkovo {users.length} pouLlA�vate�lov �?? {users.filter(u => u.status === 'active').length} aktA�vnych
                 </p>
               </div>
               <div className="relative">
@@ -318,7 +318,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Vyhľadať používateľa..."
+                  placeholder="Vyh�ladaLA pouLlA�vate�la..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -331,7 +331,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam používateľov...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam pouLlA�vate�lov...</p>
               </div>
             ) : filteredUsers.length > 0 ? (
               <div className="overflow-x-auto">
@@ -339,7 +339,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Používateľ
+                        PouLlA�vate�l
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Role
@@ -348,7 +348,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Posledné prihlásenie
+                        PoslednA� prihlA?senie
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Akcie
@@ -396,7 +396,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                               className="text-blue-600 hover:text-blue-900 flex items-center"
                             >
                               <PencilIcon className="h-4 w-4 mr-1" />
-                              Upraviť
+                              UpraviLA
                             </button>
                             {user.role === 'accountant' && (
                               <button
@@ -404,7 +404,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                                 className="text-green-600 hover:text-green-900 flex items-center"
                               >
                                 <UsersIcon className="h-4 w-4 mr-1" />
-                                Priradiť firmy
+                                PriradiLA firmy
                               </button>
                             )}
                             {user.role === 'employee' && (
@@ -413,7 +413,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                                 className="text-purple-600 hover:text-purple-900 flex items-center"
                               >
                                 <BuildingOfficeIcon className="h-4 w-4 mr-1" />
-                                Priradiť firmu
+                                PriradiLA firmu
                               </button>
                             )}
                             <button
@@ -421,7 +421,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                               className="text-red-600 hover:text-red-900 flex items-center"
                             >
                               <TrashIcon className="h-4 w-4 mr-1" />
-                              Vymazať
+                              VymazaLA
                             </button>
                           </div>
                         </td>
@@ -434,12 +434,12 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
               <div className="text-center py-12">
                 <UsersIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {searchTerm ? 'Žiadni používatelia nenájdení' : 'Žiadni používatelia'}
+                  {searchTerm ? 'L?iadni pouLlA�vatelia nenA?jdenA�' : 'L?iadni pouLlA�vatelia'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'Skúste zmeniť vyhľadávací výraz.'
-                    : 'Začnite pridávaním prvého používateľa.'
+                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz.'
+                    : 'Za�Tnite pridA?vanA�m prvA�ho pouLlA�vate�la.'
                   }
                 </p>
                 {!searchTerm && (
@@ -448,7 +448,7 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
                     className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center mx-auto"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
-                    Pridať prvého používateľa
+                    PridaLA prvA�ho pouLlA�vate�la
                   </button>
                 )}
               </div>
@@ -503,3 +503,4 @@ const AdminUsersPage: React.FC<AdminUsersPageProps> = ({ onBack }) => {
 };
 
 export default AdminUsersPage;
+

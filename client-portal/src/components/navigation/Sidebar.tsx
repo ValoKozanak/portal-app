@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { name: "Dashboard", href: "/", icon: Home },
     { name: "Moje firmy", href: "/companies", icon: Building2 },
     { name: "Dokumenty", href: "/documents", icon: FileText },
-    { name: "Úlohy", href: "/tasks", icon: CheckSquare },
-    { name: "Správy", href: "/messages", icon: MessageSquare },
-    ...(user?.role === 'admin' ? [{ name: "Administrácia", href: "/admin", icon: Settings }] : []),
+    { name: "Ăšlohy", href: "/tasks", icon: CheckSquare },
+    { name: "SprĂˇvy", href: "/messages", icon: MessageSquare },
+    ...(user?.role === 'admin' ? [{ name: "AdministrĂˇcia", href: "/admin", icon: Settings }] : []),
   ];
 
   return (
@@ -38,7 +38,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         }`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Navigácia</h2>
+          <h2 className="text-lg font-semibold text-gray-900">NavigĂˇcia</h2>
           <Button
             variant="ghost"
             size="sm"
@@ -90,3 +90,4 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     </>
   );
 }
+

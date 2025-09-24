@@ -15,7 +15,7 @@ import { apiService } from '../services/apiService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EditEmployeeModal from '../components/EditEmployeeModal';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -50,17 +50,17 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
     try {
       setLoading(true);
       
-      // Načítanie firiem používateľa
+      // Na�TA�tanie firiem pouLlA�vate�la
       const userCompanies = await apiService.getUserCompanies(userEmail);
       setCompanies(userCompanies);
       
       if (userCompanies.length > 0) {
         setSelectedCompany(userCompanies[0]);
         
-        // Načítanie zamestnancov pre prvú firmu
+        // Na�TA�tanie zamestnancov pre prvAs firmu
         const employeesData = await hrService.getEmployees(userCompanies[0].id);
         
-        // Načítanie dochádzky a dovoleniek pre každého zamestnanca
+        // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
         const employeesWithDetails = await Promise.all(
           employeesData.map(async (employee) => {
             try {
@@ -75,7 +75,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
                 leave_requests: leaveRequests.filter(leave => leave.employee_id === employee.id)
               };
             } catch (error) {
-              console.error(`Chyba pri načítaní detailov pre zamestnanca ${employee.id}:`, error);
+              console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
               return {
                 ...employee,
                 attendance: [],
@@ -88,7 +88,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
         setEmployees(employeesWithDetails);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní dát:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
       
       const employeesData = await hrService.getEmployees(companyId);
       
-      // Načítanie dochádzky a dovoleniek pre každého zamestnanca
+      // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
       const employeesWithDetails = await Promise.all(
         employeesData.map(async (employee) => {
           try {
@@ -116,7 +116,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
               leave_requests: leaveRequests.filter(leave => leave.employee_id === employee.id)
             };
           } catch (error) {
-            console.error(`Chyba pri načítaní detailov pre zamestnanca ${employee.id}:`, error);
+            console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
             return {
               ...employee,
               attendance: [],
@@ -128,36 +128,36 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
       
       setEmployees(employeesWithDetails);
     } catch (error) {
-      console.error('Chyba pri načítaní zamestnancov:', error);
+      console.error('Chyba pri na�TA�tanA� zamestnancov:', error);
     }
   };
 
      const getEmployeeStatus = (employee: EmployeeWithDetails) => {
              const today = formatDate(new Date());
      
-     // Najprv kontrolujeme status zamestnania z databázy
+     // Najprv kontrolujeme status zamestnania z databA?zy
      if (employee.status === 'terminated') {
-       return { status: 'terminated', label: 'Ukončený', color: 'red', icon: XCircleIcon };
+       return { status: 'terminated', label: 'Ukon�TenA?', color: 'red', icon: XCircleIcon };
      }
      
      if (employee.status === 'inactive') {
-       return { status: 'inactive', label: 'Neaktívny', color: 'gray', icon: XCircleIcon };
+       return { status: 'inactive', label: 'NeaktA�vny', color: 'gray', icon: XCircleIcon };
      }
      
      if (employee.status === 'on_leave') {
        return { status: 'on_leave', label: 'Na dovolenke', color: 'blue', icon: CalendarIcon };
      }
      
-     // Kontrola dochádzky na dnešný deň
+     // Kontrola dochA?dzky na dneL?nA? deL�
      const todayAttendance = employee.attendance?.find(att => att.date === today);
      
      if (todayAttendance) {
        if (todayAttendance.status === 'present') {
          return { status: 'working', label: 'Pracuje', color: 'green', icon: CheckCircleIcon };
        } else if (todayAttendance.status === 'late') {
-         return { status: 'late', label: 'Mešká', color: 'yellow', icon: ExclamationTriangleIcon };
+         return { status: 'late', label: 'MeL?kA?', color: 'yellow', icon: ExclamationTriangleIcon };
        } else if (todayAttendance.status === 'absent') {
-         return { status: 'absent', label: 'Neprítomný', color: 'red', icon: XCircleIcon };
+         return { status: 'absent', label: 'NeprA�tomnA?', color: 'red', icon: XCircleIcon };
        }
      }
      
@@ -184,13 +184,13 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
        return { status: 'sick', label: 'Choroba', color: 'red', icon: XCircleIcon };
      }
      
-     // Ak je aktívny ale nemá zaznamenanú dochádzku, považujeme za neprítomného
+     // Ak je aktA�vny ale nemA? zaznamenanAs dochA?dzku, povaLlujeme za neprA�tomnA�ho
      if (employee.status === 'active') {
-       return { status: 'unknown', label: 'Neprítomný', color: 'gray', icon: XCircleIcon };
+       return { status: 'unknown', label: 'NeprA�tomnA?', color: 'gray', icon: XCircleIcon };
      }
      
      // Fallback
-     return { status: 'unknown', label: 'Neznámy stav', color: 'gray', icon: XCircleIcon };
+     return { status: 'unknown', label: 'NeznA?my stav', color: 'gray', icon: XCircleIcon };
    };
 
   const getStatusColor = (color: string) => {
@@ -237,15 +237,15 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
        setShowEditModal(false);
        setSelectedEmployee(null);
      } catch (error) {
-       console.error('Chyba pri aktualizácii zamestnanca:', error);
-       alert('Chyba pri aktualizácii zamestnanca');
+       console.error('Chyba pri aktualizA?cii zamestnanca:', error);
+       alert('Chyba pri aktualizA?cii zamestnanca');
      }
    };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Načítavam zamestnancov..." />
+        <LoadingSpinner size="lg" text="Na�TA�tavam zamestnancov..." />
       </div>
     );
   }
@@ -260,16 +260,16 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Späť na Dashboard
+            SpA�LA na Dashboard
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Zamestnanci</h1>
-            <p className="text-gray-600 dark:text-gray-300">Prehľad zamestnancov a ich aktuálnych stavov</p>
+            <p className="text-gray-600 dark:text-gray-300">Preh�lad zamestnancov a ich aktuA?lnych stavov</p>
           </div>
         </div>
       </div>
 
-      {/* Štatistiky */}
+      {/* L�tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 border-l-4 border-green-500">
           <div className="flex items-center">
@@ -277,7 +277,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
               <CheckCircleIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Pracujú</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">PracujAs</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">{workingCount}</p>
             </div>
           </div>
@@ -289,7 +289,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
               <XCircleIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Nepracujú</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">NepracujAs</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">{notWorkingCount}</p>
             </div>
           </div>
@@ -311,7 +311,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
       {/* Filtre */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Výber firmy */}
+          {/* VA?ber firmy */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Firma
@@ -329,14 +329,14 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             </select>
           </div>
 
-          {/* Vyhľadávanie */}
+          {/* Vyh�ladA?vanie */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Vyhľadávanie
+              Vyh�ladA?vanie
             </label>
             <input
               type="text"
-              placeholder="Hľadať zamestnancov..."
+              placeholder="H�ladaLA zamestnancov..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -361,16 +361,16 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
                   Zamestnanec
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Pozícia
+                  PozA�cia
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Kontakt
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Aktuálny stav
+                  AktuA?lny stav
                 </th>
                                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                   Dátum nástupu
+                   DA?tum nA?stupu
                  </th>
                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                    Akcie
@@ -435,7 +435,7 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
                          className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-dark-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                        >
                          <PencilIcon className="h-4 w-4 mr-1" />
-                         Upraviť
+                         UpraviLA
                        </button>
                      </td>
                    </tr>
@@ -448,12 +448,12 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
             <div className="text-center py-8">
               <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                {searchTerm ? 'Žiadni zamestnanci nenájdení' : 'Žiadni zamestnanci'}
+                {searchTerm ? 'L?iadni zamestnanci nenA?jdenA�' : 'L?iadni zamestnanci'}
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {searchTerm 
-                  ? 'Skúste zmeniť vyhľadávací výraz' 
-                  : 'V tejto firme nie sú žiadni zamestnanci'
+                  ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz' 
+                  : 'V tejto firme nie sAs Lliadni zamestnanci'
                 }
               </p>
             </div>
@@ -476,3 +476,4 @@ const UserEmployeesPage: React.FC<UserEmployeesPageProps> = ({ userEmail, onBack
  };
 
 export default UserEmployeesPage;
+

@@ -22,7 +22,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showDropboxPanel, setShowDropboxPanel] = useState(false);
 
-  // Načítanie firiem
+  // Na�TA�tanie firiem
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -30,7 +30,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
         const companiesData = await apiService.getAllCompaniesForAdmin();
         setCompanies(companiesData);
       } catch (error) {
-        console.error('Chyba pri načítaní firiem:', error);
+        console.error('Chyba pri na�TA�tanA� firiem:', error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
     setSelectedCompany(null);
   };
 
-  // Štatistiky
+  // L�tatistiky
   const stats = {
     total: companies.length,
     shared: companies.filter(c => c.hasDropbox).length,
@@ -77,12 +77,12 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                Späť do Dashboardu
+                SpA�LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <CloudIcon className="h-8 w-8 text-blue-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Dropbox správa</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Dropbox sprA?va</h1>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Štatistiky */}
+        {/* L�tatistiky */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center">
@@ -106,7 +106,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <CheckIcon className="h-8 w-8 text-green-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Zdieľané</p>
+                <p className="text-sm font-medium text-gray-600">Zdie�lanA�</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.shared}</p>
               </div>
             </div>
@@ -115,7 +115,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <XMarkIcon className="h-8 w-8 text-red-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Nezdieľané</p>
+                <p className="text-sm font-medium text-gray-600">Nezdie�lanA�</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.notShared}</p>
               </div>
             </div>
@@ -128,7 +128,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Zoznam firiem</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Vyberte firmu pre správu Dropbox nastavení
+                  Vyberte firmu pre sprA?vu Dropbox nastavenA�
                 </p>
               </div>
               <div className="relative">
@@ -137,7 +137,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Vyhľadať firmu..."
+                  placeholder="Vyh�ladaLA firmu..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -150,7 +150,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam firmy...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam firmy...</p>
               </div>
             ) : filteredCompanies.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -166,7 +166,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-center">
                             <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                            <span>IČO: {company.ico}</span>
+                            <span>I�SO: {company.ico}</span>
                           </div>
                           <div className="flex items-center">
                             <span>Email: {company.email || company.owner_email}</span>
@@ -177,12 +177,12 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
                         {company.hasDropbox ? (
                           <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
                             <CheckIcon className="h-3 w-3 mr-1" />
-                            Zdieľané
+                            Zdie�lanA�
                           </span>
                         ) : (
                           <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full flex items-center">
                             <XMarkIcon className="h-3 w-3 mr-1" />
-                            Nezdieľané
+                            Nezdie�lanA�
                           </span>
                         )}
                       </div>
@@ -191,7 +191,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                       <div className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium">
                         <EyeIcon className="h-4 w-4 mr-1" />
-                        Správa Dropbox
+                        SprA?va Dropbox
                       </div>
                     </div>
                   </div>
@@ -201,12 +201,12 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
               <div className="text-center py-12">
                 <CloudIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {searchTerm ? 'Žiadne firmy nenájdené' : 'Žiadne firmy'}
+                  {searchTerm ? 'L?iadne firmy nenA?jdenA�' : 'L?iadne firmy'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm 
-                    ? 'Skúste zmeniť vyhľadávací výraz.'
-                    : 'Zatiaľ neboli vytvorené žiadne firmy.'
+                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz.'
+                    : 'Zatia�l neboli vytvorenA� Lliadne firmy.'
                   }
                 </p>
               </div>
@@ -223,7 +223,7 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
               <div className="flex items-center">
                 <CloudIcon className="h-6 w-6 text-blue-500 mr-3" />
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Dropbox správa - {selectedCompany.name}
+                  Dropbox sprA?va - {selectedCompany.name}
                 </h2>
               </div>
               <button
@@ -247,3 +247,4 @@ const AdminDropboxPage: React.FC<AdminDropboxPageProps> = ({ onBack }) => {
 };
 
 export default AdminDropboxPage;
+

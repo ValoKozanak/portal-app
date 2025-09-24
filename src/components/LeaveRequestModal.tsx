@@ -4,7 +4,7 @@ import { LeaveRequest, hrService } from '../services/hrService';
 import { CalendarService } from '../services/calendarService';
 import DatePicker from './DatePicker';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -64,13 +64,13 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
     }
   }, [isOpen, leaveRequest]);
 
-  // Výpočet pracovných dní s aktuálnym kalendárom
+  // VA?po�Tet pracovnA?ch dnA� s aktuA?lnym kalendA?rom
   const calculateDays = async (startDate: string, endDate: string): Promise<number> => {
     try {
       return await CalendarService.calculateWorkingDays(startDate, endDate);
     } catch (error) {
-      console.error('❌ Chyba pri výpočte pracovných dní:', error);
-      // Fallback na základný výpočet
+      console.error('�tS Chyba pri vA?po�Tte pracovnA?ch dnA�:', error);
+      // Fallback na zA?kladnA? vA?po�Tet
       return CalendarService.calculateBasicWorkingDays(startDate, endDate);
     }
   };
@@ -79,7 +79,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
       
-      // Automaticky vypočítať počet dní
+      // Automaticky vypo�TA�taLA po�Tet dnA�
       if (newData.start_date && newData.end_date) {
         calculateDays(newData.start_date, newData.end_date).then(days => {
           setFormData(current => ({
@@ -110,8 +110,8 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
       };
 
       if (isEdit) {
-        // Pre editáciu by sme potrebovali endpoint na update
-        alert('Editácia dovoleniek zatiaľ nie je implementovaná');
+        // Pre editA?ciu by sme potrebovali endpoint na update
+        alert('EditA?cia dovoleniek zatia�l nie je implementovanA?');
       } else {
         await hrService.addLeaveRequest(leaveData);
       }
@@ -119,8 +119,8 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Chyba pri ukladaní žiadosti o dovolenku:', error);
-      alert('Chyba pri ukladaní žiadosti o dovolenku');
+      console.error('Chyba pri ukladanA� Lliadosti o dovolenku:', error);
+      alert('Chyba pri ukladanA� Lliadosti o dovolenku');
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {isEdit ? 'Upraviť žiadosť o dovolenku' : 'Nová žiadosť o dovolenku'}
+            {isEdit ? 'UpraviLA LliadosLA o dovolenku' : 'NovA? LliadosLA o dovolenku'}
           </h2>
           <button
             onClick={onClose}
@@ -156,7 +156,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Informácie o zamestnancovi */}
+          {/* InformA?cie o zamestnancovi */}
           <div className="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zamestnanec</h3>
             <p className="text-gray-900 dark:text-white">{employeeName}</p>
@@ -177,17 +177,17 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               >
                 <option value="vacation">Dovolenka</option>
                 <option value="sick_leave">PN</option>
-                <option value="personal_leave">Osobné voľno</option>
-                <option value="maternity_leave">Materská dovolenka</option>
-                <option value="paternity_leave">Otcovská dovolenka</option>
-                <option value="unpaid_leave">Neplatené voľno</option>
+                <option value="personal_leave">OsobnA� vo�lno</option>
+                <option value="maternity_leave">MaterskA? dovolenka</option>
+                <option value="paternity_leave">OtcovskA? dovolenka</option>
+                <option value="unpaid_leave">NeplatenA� vo�lno</option>
               </select>
             </div>
 
-            {/* Počet dní (automaticky) */}
+            {/* Po�Tet dnA� (automaticky) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Počet dní
+                Po�Tet dnA�
               </label>
               {formData.start_date && formData.end_date ? (
                 <input
@@ -199,21 +199,21 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                 />
               ) : (
                 <div className="text-sm text-gray-500 dark:text-gray-400 py-2">
-                  Vyberte začiatok a koniec dovolenky. Počet dní sa spočíta automaticky.
+                  Vyberte za�Tiatok a koniec dovolenky. Po�Tet dnA� sa spo�TA�ta automaticky.
                 </div>
               )}
             </div>
 
-            {/* Začiatok dovolenky */}
+            {/* Za�Tiatok dovolenky */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Začiatok dovolenky *
+                Za�Tiatok dovolenky *
               </label>
               <DatePicker
                 value={formData.start_date}
                 onChange={(date) => handleDateChange('start_date', date)}
                 min={formatDate(new Date())}
-                placeholder="Vyberte dátum začiatku"
+                placeholder="Vyberte dA?tum za�Tiatku"
                 className="w-full"
               />
             </div>
@@ -227,16 +227,16 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                 value={formData.end_date}
                 onChange={(date) => handleDateChange('end_date', date)}
                 min={formData.start_date || formatDate(new Date())}
-                placeholder="Vyberte dátum konca"
+                placeholder="Vyberte dA?tum konca"
                 className="w-full"
               />
             </div>
           </div>
 
-          {/* Dôvod */}
+          {/* DA�vod */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dôvod
+              DA�vod
             </label>
             <textarea
               name="reason"
@@ -244,14 +244,14 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               onChange={handleInputChange}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
-              placeholder="Popíšte dôvod žiadosti o dovolenku..."
+              placeholder="PopA�L?te dA�vod Lliadosti o dovolenku..."
             />
           </div>
 
-          {/* Informácie o dovolenke */}
+          {/* InformA?cie o dovolenke */}
           {formData.start_date && formData.end_date && (
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Informácie o dovolenke</h4>
+              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">InformA?cie o dovolenke</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-blue-700 dark:text-blue-300">Od:</span>
@@ -266,9 +266,9 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                   </span>
                 </div>
                 <div>
-                  <span className="text-blue-700 dark:text-blue-300">Počet dní:</span>
+                  <span className="text-blue-700 dark:text-blue-300">Po�Tet dnA�:</span>
                   <span className="ml-2 text-blue-900 dark:text-blue-100">
-                    {formData.total_days} dní
+                    {formData.total_days} dnA�
                   </span>
                 </div>
                 <div>
@@ -287,7 +287,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 rounded-md hover:bg-gray-200 dark:hover:bg-dark-600 transition-colors"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
@@ -300,7 +300,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               }
               className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50"
             >
-              {loading ? 'Ukladám...' : (isEdit ? 'Upraviť' : 'Odoslať žiadosť')}
+              {loading ? 'UkladA?m...' : (isEdit ? 'UpraviLA' : 'OdoslaLA LliadosLA')}
             </button>
           </div>
         </form>
@@ -310,3 +310,4 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
 };
 
 export default LeaveRequestModal;
+

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 
 interface ServiceWorkerState {
   isSupported: boolean;
@@ -131,3 +131,4 @@ export const useServiceWorker = () => {
     unregisterServiceWorker
   };
 };
+

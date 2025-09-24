@@ -17,7 +17,7 @@ function VirtualizedList<T>({
   itemHeight = 60,
   renderItem,
   className = '',
-  emptyMessage = 'Žiadne položky'
+  emptyMessage = 'L?iadne poloLlky'
 }: VirtualizedListProps<T>) {
   const Row = useMemo(() => {
     return ({ index, style }: { index: number; style: React.CSSProperties }) => (
@@ -54,3 +54,4 @@ function VirtualizedList<T>({
 }
 
 export default VirtualizedList;
+

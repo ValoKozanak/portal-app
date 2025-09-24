@@ -22,7 +22,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Načítanie všetkých úloh
+  // Na�TA�tanie vL?etkA?ch Asloh
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -30,7 +30,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
         const tasks = await taskService.getAllTasks();
         setAllTasks(tasks);
       } catch (error) {
-        console.error('Chyba pri načítaní úloh:', error);
+        console.error('Chyba pri na�TA�tanA� Asloh:', error);
       } finally {
         setLoadingTasks(false);
       }
@@ -39,7 +39,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
     loadTasks();
   }, []);
 
-  // Filtrovanie úloh
+  // Filtrovanie Asloh
   const filteredTasks = allTasks.filter(task => {
     const matchesSearch = 
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,7 +51,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
     return matchesSearch && matchesStatus;
   });
 
-  // Aktualizácia statusu úlohy
+  // AktualizA?cia statusu Aslohy
   const handleUpdateTaskStatus = async (taskId: string, newStatus: Task['status']) => {
     try {
       const updatedTask = await taskService.updateTask(taskId, { status: newStatus });
@@ -61,22 +61,22 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
         ));
       }
     } catch (error) {
-      console.error('Chyba pri aktualizácii úlohy:', error);
-      alert('Chyba pri aktualizácii úlohy');
+      console.error('Chyba pri aktualizA?cii Aslohy:', error);
+      alert('Chyba pri aktualizA?cii Aslohy');
     }
   };
 
-  // Vymazanie úlohy
+  // Vymazanie Aslohy
   const handleDeleteTask = async (taskId: string) => {
-    if (window.confirm('Naozaj chcete vymazať túto úlohu?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tAsto Aslohu?')) {
       try {
         const success = await taskService.deleteTask(taskId);
         if (success) {
           setAllTasks(prev => prev.filter(task => task.id !== taskId));
         }
       } catch (error) {
-        console.error('Chyba pri mazaní úlohy:', error);
-        alert('Chyba pri mazaní úlohy');
+        console.error('Chyba pri mazanA� Aslohy:', error);
+        alert('Chyba pri mazanA� Aslohy');
       }
     }
   };
@@ -90,10 +90,10 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
       cancelled: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      pending: 'Čakajúce',
-      completed: 'Dokončené',
-      in_progress: 'V spracovaní',
-      cancelled: 'Zrušené',
+      pending: '�SakajAsce',
+      completed: 'Dokon�TenA�',
+      in_progress: 'V spracovanA�',
+      cancelled: 'ZruL?enA�',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
@@ -110,10 +110,10 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
       urgent: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: 'Nízka',
-      medium: 'Stredná',
-      high: 'Vysoká',
-      urgent: 'Urgentná',
+      low: 'NA�zka',
+      medium: 'StrednA?',
+      high: 'VysokA?',
+      urgent: 'UrgentnA?',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[priority as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
@@ -122,7 +122,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
     );
   };
 
-  // Formátovanie dátumu
+  // FormA?tovanie dA?tumu
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('sk-SK', {
@@ -134,7 +134,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
     });
   };
 
-  // Štatistiky
+  // L�tatistiky
   const stats = {
     total: allTasks.length,
     pending: allTasks.filter(t => t.status === 'pending').length,
@@ -155,12 +155,12 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                Späť do Dashboardu
+                SpA�LA do Dashboardu
               </button>
               <div className="h-6 w-px bg-gray-300"></div>
               <div className="flex items-center">
                 <ClipboardDocumentListIcon className="h-8 w-8 text-green-500 mr-3" />
-                <h1 className="text-2xl font-bold text-gray-900">Správa úloh</h1>
+                <h1 className="text-2xl font-bold text-gray-900">SprA?va Asloh</h1>
               </div>
             </div>
           </div>
@@ -169,7 +169,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Štatistiky */}
+        {/* L�tatistiky */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center">
@@ -184,7 +184,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <ClockIcon className="h-8 w-8 text-yellow-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Čakajúce</p>
+                <p className="text-sm font-medium text-gray-600">�SakajAsce</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
               </div>
             </div>
@@ -193,7 +193,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <ClockIcon className="h-8 w-8 text-blue-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">V spracovaní</p>
+                <p className="text-sm font-medium text-gray-600">V spracovanA�</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
               </div>
             </div>
@@ -202,7 +202,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <CheckIcon className="h-8 w-8 text-green-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Dokončené</p>
+                <p className="text-sm font-medium text-gray-600">Dokon�TenA�</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
               </div>
             </div>
@@ -211,7 +211,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
             <div className="flex items-center">
               <XMarkIcon className="h-8 w-8 text-gray-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Zrušené</p>
+                <p className="text-sm font-medium text-gray-600">ZruL?enA�</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.cancelled}</p>
               </div>
             </div>
@@ -222,9 +222,9 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Zoznam úloh</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Zoznam Asloh</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Celkovo {filteredTasks.length} úloh z {allTasks.length}
+                  Celkovo {filteredTasks.length} Asloh z {allTasks.length}
                 </p>
               </div>
               <div className="flex items-center space-x-4">
@@ -233,11 +233,11 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
                 >
-                  <option value="all">Všetky statusy</option>
-                  <option value="pending">Čakajúce</option>
-                  <option value="in_progress">V spracovaní</option>
-                  <option value="completed">Dokončené</option>
-                  <option value="cancelled">Zrušené</option>
+                  <option value="all">VL?etky statusy</option>
+                  <option value="pending">�SakajAsce</option>
+                  <option value="in_progress">V spracovanA�</option>
+                  <option value="completed">Dokon�TenA�</option>
+                  <option value="cancelled">ZruL?enA�</option>
                 </select>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -245,7 +245,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Vyhľadať úlohu..."
+                    placeholder="Vyh�ladaLA Aslohu..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
@@ -259,7 +259,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam Aslohy...</p>
               </div>
             ) : filteredTasks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -292,7 +292,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                             className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center"
                           >
                             <CheckIcon className="h-4 w-4 mr-1" />
-                            Dokončiť
+                            Dokon�TiLA
                           </button>
                         )}
                         {task.status === 'pending' && (
@@ -301,7 +301,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
                           >
                             <ClockIcon className="h-4 w-4 mr-1" />
-                            Spustiť
+                            SpustiLA
                           </button>
                         )}
                         {task.status !== 'cancelled' && (
@@ -310,7 +310,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                             className="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center"
                           >
                             <XMarkIcon className="h-4 w-4 mr-1" />
-                            Zrušiť
+                            ZruL?iLA
                           </button>
                         )}
                         <button
@@ -318,7 +318,7 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
                           className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
                         >
                           <XMarkIcon className="h-4 w-4 mr-1" />
-                          Vymazať
+                          VymazaLA
                         </button>
                       </div>
                     </div>
@@ -329,12 +329,12 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
               <div className="text-center py-12">
                 <ClipboardDocumentListIcon className="mx-auto h-16 w-16 text-gray-400" />
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
-                  {searchTerm || statusFilter !== 'all' ? 'Žiadne úlohy nenájdené' : 'Žiadne úlohy'}
+                  {searchTerm || statusFilter !== 'all' ? 'L?iadne Aslohy nenA?jdenA�' : 'L?iadne Aslohy'}
                 </h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm || statusFilter !== 'all'
-                    ? 'Skúste zmeniť vyhľadávací výraz alebo filter.'
-                    : 'Zatiaľ neboli vytvorené žiadne úlohy.'
+                    ? 'SkAsste zmeniLA vyh�ladA?vacA� vA?raz alebo filter.'
+                    : 'Zatia�l neboli vytvorenA� Lliadne Aslohy.'
                   }
                 </p>
               </div>
@@ -347,3 +347,4 @@ const AdminTasksPage: React.FC<AdminTasksPageProps> = ({ onBack }) => {
 };
 
 export default AdminTasksPage;
+

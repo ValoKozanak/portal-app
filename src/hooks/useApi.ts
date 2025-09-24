@@ -1,2 +1,3 @@
-// Tento súbor je prázdny, pretože useApi hook bol nahradený priamymi API volaniami
+// Tento sAsbor je prA?zdny, pretoLle useApi hook bol nahradenA? priamymi API volaniami
 export {};
+

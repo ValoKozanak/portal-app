@@ -47,7 +47,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       }));
       setAssignedTasks(convertedTasks);
     } catch (error) {
-      console.error('Chyba pri načítaní dát účtovníka:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t As�TtovnA�ka:', error);
     } finally {
       setLoadingTasks(false);
     }
@@ -55,7 +55,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
 
   const handleAddTask = () => {
     if (companies.length === 0) {
-      alert('Nemáte priradené žiadne firmy. Kontaktujte administrátora.');
+      alert('NemA?te priradenA� Lliadne firmy. Kontaktujte administrA?tora.');
       return;
     }
     setEditingTask(null);
@@ -125,19 +125,19 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       setShowTaskModal(false);
       setEditingTask(null);
     } catch (error) {
-      console.error('Chyba pri ukladaní úlohy:', error);
-      alert('Chyba pri ukladaní úlohy');
+      console.error('Chyba pri ukladanA� Aslohy:', error);
+      alert('Chyba pri ukladanA� Aslohy');
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (window.confirm('Naozaj chcete vymazať túto úlohu?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tAsto Aslohu?')) {
       try {
         await apiService.deleteTask(parseInt(taskId));
         setAssignedTasks(prev => prev.filter(task => task.id !== taskId));
       } catch (error) {
-        console.error('Chyba pri mazaní úlohy:', error);
-        alert('Chyba pri mazaní úlohy');
+        console.error('Chyba pri mazanA� Aslohy:', error);
+        alert('Chyba pri mazanA� Aslohy');
       }
     }
   };
@@ -156,10 +156,10 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       cancelled: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      pending: 'Čakajúce',
-      completed: 'Dokončené',
-      in_progress: 'V spracovaní',
-      cancelled: 'Zrušené',
+      pending: '�SakajAsce',
+      completed: 'Dokon�TenA�',
+      in_progress: 'V spracovanA�',
+      cancelled: 'ZruL?enA�',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status as keyof typeof colors]}`}>
@@ -176,10 +176,10 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       low: 'bg-green-100 text-green-800',
     };
     const labels = {
-      urgent: 'Urgentná',
-      high: 'Vysoká',
-      medium: 'Stredná',
-      low: 'Nízka',
+      urgent: 'UrgentnA?',
+      high: 'VysokA?',
+      medium: 'StrednA?',
+      low: 'NA�zka',
     };
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${colors[priority as keyof typeof colors]}`}>
@@ -197,7 +197,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
     return true;
   });
 
-  // Výber úloh
+  // VA?ber Asloh
   const toggleSelect = (taskId: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -225,21 +225,21 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       setAssignedTasks(prev => prev.map(task => selectedIds.has(task.id) ? { ...task, status: newStatus } : task));
       clearSelection();
     } catch (error) {
-      console.error('Chyba pri hromadnej zmene stavu úloh:', error);
-      alert('Chyba pri hromadnej zmene stavu úloh');
+      console.error('Chyba pri hromadnej zmene stavu Asloh:', error);
+      alert('Chyba pri hromadnej zmene stavu Asloh');
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (!window.confirm(`Naozaj chcete vymazať ${selectedIds.size} vybraných úloh?`)) return;
+    if (!window.confirm(`Naozaj chcete vymazaLA ${selectedIds.size} vybranA?ch Asloh?`)) return;
     try {
       await Promise.all(Array.from(selectedIds).map(id => apiService.deleteTask(parseInt(id))));
       setAssignedTasks(prev => prev.filter(task => !selectedIds.has(task.id)));
       clearSelection();
     } catch (error) {
-      console.error('Chyba pri hromadnom mazaní úloh:', error);
-      alert('Chyba pri hromadnom mazaní úloh');
+      console.error('Chyba pri hromadnom mazanA� Asloh:', error);
+      alert('Chyba pri hromadnom mazanA� Asloh');
     }
   };
 
@@ -255,12 +255,12 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">Späť do Dashboard</span>
+                <span className="font-medium">SpA�LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -271,9 +271,9 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Úlohy zo všetkých priradených firiem</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Aslohy zo vL?etkA?ch priradenA?ch firiem</h1>
           <p className="text-gray-600 mt-2">
-            Celkovo {assignedTasks.length} úloh z {companies.length} firiem
+            Celkovo {assignedTasks.length} Asloh z {companies.length} firiem
           </p>
         </div>
 
@@ -281,28 +281,28 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Správa úloh</h2>
+              <h2 className="text-lg font-semibold text-gray-900">SprA?va Asloh</h2>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Vybrané: {selectedIds.size}</span>
+              <span className="text-sm text-gray-500">VybranA�: {selectedIds.size}</span>
               <button
                 onClick={selectAllVisible}
                 className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                Vybrať zobrazené
+                VybraLA zobrazenA�
               </button>
               <button
                 onClick={clearSelection}
                 className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                Zrušiť výber
+                ZruL?iLA vA?ber
               </button>
               <div className="hidden md:flex items-center space-x-1">
-                <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>Čakajúce</button>
-                <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovaní</button>
-                <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokončené</button>
-                <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>Zrušené</button>
-                <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>Vymazať vybrané</button>
+                <button onClick={() => handleBulkStatusChange('pending')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-yellow-100 text-yellow-300 cursor-not-allowed':'bg-yellow-600 text-white hover:bg-yellow-700'}`}>�SakajAsce</button>
+                <button onClick={() => handleBulkStatusChange('in_progress')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-blue-100 text-blue-300 cursor-not-allowed':'bg-blue-600 text-white hover:bg-blue-700'}`}>V spracovanA�</button>
+                <button onClick={() => handleBulkStatusChange('completed')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-green-100 text-green-300 cursor-not-allowed':'bg-green-600 text-white hover:bg-green-700'}`}>Dokon�TenA�</button>
+                <button onClick={() => handleBulkStatusChange('cancelled')} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-gray-100 text-gray-300 cursor-not-allowed':'bg-gray-600 text-white hover:bg-gray-700'}`}>ZruL?enA�</button>
+                <button onClick={handleBulkDelete} disabled={selectedIds.size===0} className={`px-3 py-2 text-sm rounded-md ${selectedIds.size===0?'bg-red-100 text-red-300 cursor-not-allowed':'bg-red-600 text-white hover:bg-red-700'}`}>VymazaLA vybranA�</button>
               </div>
               <button
                 onClick={handleAddTask}
@@ -314,7 +314,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                 }`}
               >
                 <CogIcon className="h-5 w-5 mr-2" />
-                {companies.length === 0 ? 'Žiadne firmy' : 'Pridať úlohu'}
+                {companies.length === 0 ? 'L?iadne firmy' : 'PridaLA Aslohu'}
               </button>
             </div>
           </div>
@@ -332,7 +332,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  Všetky ({assignedTasks.length})
+                  VL?etky ({assignedTasks.length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('pending')}
@@ -342,7 +342,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  Čakajúce ({assignedTasks.filter(t => t.status === 'pending').length})
+                  �SakajAsce ({assignedTasks.filter(t => t.status === 'pending').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('in_progress')}
@@ -352,7 +352,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  V spracovaní ({assignedTasks.filter(t => t.status === 'in_progress').length})
+                  V spracovanA� ({assignedTasks.filter(t => t.status === 'in_progress').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('completed')}
@@ -362,7 +362,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  Dokončené ({assignedTasks.filter(t => t.status === 'completed').length})
+                  Dokon�TenA� ({assignedTasks.filter(t => t.status === 'completed').length})
                 </button>
                 <button
                   onClick={() => setTaskFilter('cancelled')}
@@ -372,7 +372,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                 >
-                  Zrušené ({assignedTasks.filter(t => t.status === 'cancelled').length})
+                  ZruL?enA� ({assignedTasks.filter(t => t.status === 'cancelled').length})
                 </button>
               </div>
             </div>
@@ -382,7 +382,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
             {loadingTasks ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Načítavam úlohy...</p>
+                <p className="mt-4 text-gray-600">Na�TA�tavam Aslohy...</p>
               </div>
             ) : filteredTasks.length > 0 ? (
               <div className="space-y-4">
@@ -398,7 +398,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                               checked={isSelected(task.id)}
                               onChange={() => toggleSelect(task.id)}
                             />
-                            <span>Vybrať</span>
+                            <span>VybraLA</span>
                           </label>
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
@@ -411,7 +411,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                           </div>
                           <div className="flex items-center">
                             <CalendarIcon className="h-4 w-4 mr-1" />
-                            <span>Termín: {new Date(task.dueDate).toLocaleDateString('sk-SK')}</span>
+                            <span>TermA�n: {new Date(task.dueDate).toLocaleDateString('sk-SK')}</span>
                           </div>
                           {task.estimatedHours && (
                             <div>
@@ -428,7 +428,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                     
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                       <div className="text-xs text-gray-500">
-                        Vytvoril: {task.createdBy} | Kategória: {task.category}
+                        Vytvoril: {task.createdBy} | KategAlria: {task.category}
                       </div>
                       <div className="flex space-x-2">
                         {task.status === 'pending' && (
@@ -436,7 +436,7 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                             onClick={() => handleUpdateTaskStatus(task.id, 'in_progress')}
                             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                           >
-                            Začať prácu
+                            Za�TaLA prA?cu
                           </button>
                         )}
                         {task.status === 'in_progress' && (
@@ -444,20 +444,20 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
                             onClick={() => handleUpdateTaskStatus(task.id, 'completed')}
                             className="text-green-600 hover:text-green-700 text-sm font-medium"
                           >
-                            Dokončiť
+                            Dokon�TiLA
                           </button>
                         )}
                         <button
                           onClick={() => handleEditTask(task)}
                           className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                         >
-                          Upraviť
+                          UpraviLA
                         </button>
                         <button
                           onClick={() => handleDeleteTask(task.id)}
                           className="text-red-600 hover:text-red-700 text-sm font-medium"
                         >
-                          Vymazať
+                          VymazaLA
                         </button>
                       </div>
                     </div>
@@ -467,19 +467,19 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
             ) : companies.length === 0 ? (
               <div className="text-center py-12">
                 <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Nemáte priradené firmy</h3>
-                <p className="mt-1 text-sm text-gray-500">Kontaktujte administrátora, aby vám priradil firmy.</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">NemA?te priradenA� firmy</h3>
+                <p className="mt-1 text-sm text-gray-500">Kontaktujte administrA?tora, aby vA?m priradil firmy.</p>
               </div>
             ) : (
               <div className="text-center py-12">
                 <CogIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  {taskFilter === 'all' ? 'Žiadne úlohy' : 'Žiadne úlohy s vybraným filtrom'}
+                  {taskFilter === 'all' ? 'L?iadne Aslohy' : 'L?iadne Aslohy s vybranA?m filtrom'}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {taskFilter === 'all' 
-                    ? 'Zatiaľ nemáte žiadne úlohy od priradených firiem.' 
-                    : 'Skúste zmeniť filter alebo sa vrátiť na "Všetky"'
+                    ? 'Zatia�l nemA?te Lliadne Aslohy od priradenA?ch firiem.' 
+                    : 'SkAsste zmeniLA filter alebo sa vrA?tiLA na "VL?etky"'
                   }
                 </p>
               </div>
@@ -510,3 +510,4 @@ const AccountantTasksPage: React.FC<AccountantTasksPageProps> = ({ userEmail, on
 };
 
 export default AccountantTasksPage;
+

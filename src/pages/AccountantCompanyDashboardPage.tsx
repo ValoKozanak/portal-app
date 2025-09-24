@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Company } from '../services/apiService';
 
-// Lazy loading pre CompanyDashboard aby sme predišli cirkulárnej závislosti
+// Lazy loading pre CompanyDashboard aby sme prediL?li cirkulA?rnej zA?vislosti
 const CompanyDashboard = React.lazy(() => import('../components/CompanyDashboard'));
 
 interface AccountantCompanyDashboardPageProps {
@@ -28,7 +28,7 @@ const AccountantCompanyDashboardPage: React.FC<AccountantCompanyDashboardPagePro
                 className="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md p-2 -ml-2"
               >
                 <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                <span className="text-sm font-medium">Späť na zoznam firiem</span>
+                <span className="text-sm font-medium">SpA�LA na zoznam firiem</span>
               </button>
               <div className="border-l border-gray-300 h-6 mx-2"></div>
               <div>
@@ -38,7 +38,7 @@ const AccountantCompanyDashboardPage: React.FC<AccountantCompanyDashboardPagePro
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -53,7 +53,7 @@ const AccountantCompanyDashboardPage: React.FC<AccountantCompanyDashboardPagePro
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-2 text-gray-600 ml-3">Načítavam dashboard firmy...</p>
+                <p className="mt-2 text-gray-600 ml-3">Na�TA�tavam dashboard firmy...</p>
               </div>
             </div>
           }>
@@ -71,3 +71,4 @@ const AccountantCompanyDashboardPage: React.FC<AccountantCompanyDashboardPagePro
 };
 
 export default AccountantCompanyDashboardPage;
+

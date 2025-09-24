@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { XMarkIcon, CloudArrowDownIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { DocumentData } from '../services/apiService';
 
@@ -51,11 +51,11 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
 
   const getCategoryName = (category: string) => {
     const categoryNames: { [key: string]: string } = {
-      'faktury': 'FaktĂşry',
+      'faktury': 'FaktAsry',
       'zmluvy': 'Zmluvy',
-      'vykazy': 'VĂ˝kazy',
+      'vykazy': 'VA?kazy',
       'dokumenty': 'Dokumenty',
-      'archiv': 'ArchĂ­v'
+      'archiv': 'ArchA�v'
     };
     return categoryNames[category] || category;
   };
@@ -76,7 +76,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               {document.original_name}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {getCategoryName(document.category)} â€˘ {formatFileSize(document.file_size)} â€˘ {formatDate(document.created_at)}
+              {getCategoryName(document.category)} �?? {formatFileSize(document.file_size)} �?? {formatDate(document.created_at)}
             </p>
           </div>
           <div className="flex items-center gap-2 ml-4">
@@ -84,7 +84,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               onClick={handleDownload}
               disabled={isLoading}
               className="p-2 text-gray-600 hover:text-gray-700 disabled:opacity-50"
-              title="StiahnuĹĄ"
+              title="StiahnuLA"
             >
               <CloudArrowDownIcon className="h-5 w-5" />
             </button>
@@ -92,7 +92,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               <button
                 onClick={handleOpenInNewTab}
                 className="p-2 text-gray-600 hover:text-gray-700"
-                title="OtvoriĹĄ v novom okne"
+                title="OtvoriLA v novom okne"
               >
                 <ArrowTopRightOnSquareIcon className="h-5 w-5" />
               </button>
@@ -100,7 +100,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600"
-              title="ZavrieĹĄ"
+              title="ZavrieLA"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -127,12 +127,12 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     }}
                   />
                   <div className="preview-error hidden text-center py-12">
-                    <p className="text-gray-500">Nepodarilo sa naÄŤĂ­taĹĄ nĂˇhÄľad obrĂˇzka</p>
+                    <p className="text-gray-500">Nepodarilo sa na�TA�taLA nA?h�lad obrA?zka</p>
                     <button
                       onClick={handleDownload}
                       className="mt-2 text-blue-600 hover:text-blue-700"
                     >
-                      StiahnuĹĄ sĂşbor
+                      StiahnuLA sAsbor
                     </button>
                   </div>
                 </div>
@@ -147,8 +147,8 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
               ) : document.file_type === 'text/' ? (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                    {/* Tu by sa naÄŤĂ­tal textovĂ˝ obsah */}
-                    NĂˇhÄľad textovĂ©ho sĂşboru
+                    {/* Tu by sa na�TA�tal textovA? obsah */}
+                    NA?h�lad textovA�ho sAsboru
                   </pre>
                 </div>
               ) : null}
@@ -162,10 +162,10 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  NĂˇhÄľad nie je dostupnĂ˝
+                  NA?h�lad nie je dostupnA?
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  Tento typ sĂşboru ({document.file_type}) nepodporuje nĂˇhÄľad. MĂ´Ĺľete si ho stiahnuĹĄ alebo otvoriĹĄ v prĂ­sluĹˇnej aplikĂˇcii.
+                  Tento typ sAsboru ({document.file_type}) nepodporuje nA?h�lad. MA�Llete si ho stiahnuLA alebo otvoriLA v prA�sluL?nej aplikA?cii.
                 </p>
                 <div className="flex gap-3 justify-center">
                   <button
@@ -174,7 +174,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                   >
                     <CloudArrowDownIcon className="h-4 w-4" />
-                    StiahnuĹĄ sĂşbor
+                    StiahnuLA sAsbor
                   </button>
                 </div>
               </div>
@@ -182,15 +182,15 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
           )}
         </div>
 
-        {/* Footer s informĂˇciami */}
+        {/* Footer s informA?ciami */}
         <div className="border-t bg-gray-50 p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="font-medium text-gray-700">KategĂłria:</span>
+              <span className="font-medium text-gray-700">KategAlria:</span>
               <span className="ml-2 text-gray-600">{getCategoryName(document.category)}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">VeÄľkosĹĄ:</span>
+              <span className="font-medium text-gray-700">Ve�lkosLA:</span>
               <span className="ml-2 text-gray-600">{formatFileSize(document.file_size)}</span>
             </div>
             <div>

@@ -14,24 +14,24 @@ const label = (k: string) => {
   const map: Record<string, string> = {
     year: 'Rok',
     month: 'Mesiac',
-    employeeCode: 'Osobné číslo',
-    calendarDays: 'Kalendárne dni',
+    employeeCode: 'OsobnA� �TA�slo',
+    calendarDays: 'KalendA?rne dni',
     holidays: 'Sviatky',
-    workingDays: 'Pracovné dni',
-    workRatio: 'Pracovný úväzok',
-    workedDays: 'Odpracované dni',
-    workedHours: 'Odpracované hodiny',
-    baseWage: 'Základná mzda',
-    bonuses: 'Prémie',
-    grossWage: 'Hrubá mzda',
-    taxableIncome: 'Zdaniteľný príjem',
-    wageTax: 'Daň zo mzdy',
-    taxBonus: 'Daňový bonus',
-    netWage: 'Čistá mzda',
-    advance: 'Záloha',
+    workingDays: 'PracovnA� dni',
+    workRatio: 'PracovnA? AsvA�zok',
+    workedDays: 'OdpracovanA� dni',
+    workedHours: 'OdpracovanA� hodiny',
+    baseWage: 'ZA?kladnA? mzda',
+    bonuses: 'PrA�mie',
+    grossWage: 'HrubA? mzda',
+    taxableIncome: 'Zdanite�lnA? prA�jem',
+    wageTax: 'DaL� zo mzdy',
+    taxBonus: 'DaL�ovA? bonus',
+    netWage: '�SistA? mzda',
+    advance: 'ZA?loha',
     settlement: 'Doplatok',
-    socialInsurance: 'Sociálne poistenie (SP)',
-    healthInsurance: 'Zdravotné poistenie (ZP)'
+    socialInsurance: 'SociA?lne poistenie (SP)',
+    healthInsurance: 'ZdravotnA� poistenie (ZP)'
   };
   return map[k] || k;
 };
@@ -56,7 +56,7 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
         const res = await payrollService.getPayslipDetail(companyId, employeeId, year, month);
         setData(res.payslip || null);
       } catch (e: any) {
-        setError('Nepodarilo sa načítať detail výplatnej pásky');
+        setError('Nepodarilo sa na�TA�taLA detail vA?platnej pA?sky');
       } finally {
         setLoading(false);
       }
@@ -70,12 +70,12 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-lg w-full max-w-2xl">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detail výplatnej pásky</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">✕</button>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detail vA?platnej pA?sky</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">�s.</button>
         </div>
         <div className="p-6">
           {loading ? (
-            <div>Načítavam...</div>
+            <div>Na�TA�tavam...</div>
           ) : error ? (
             <div className="text-red-600">{error}</div>
           ) : data ? (
@@ -88,11 +88,11 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
               ))}
             </div>
           ) : (
-            <div>Žiadne dáta</div>
+            <div>L?iadne dA?ta</div>
           )}
         </div>
         <div className="px-6 py-4 border-t border-gray-200 dark:border-dark-600 flex justify-end">
-          <button onClick={onClose} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Zavrieť</button>
+          <button onClick={onClose} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">ZavrieLA</button>
         </div>
       </div>
     </div>
@@ -100,5 +100,6 @@ const PayslipDetailModal: React.FC<PayslipDetailModalProps> = ({ isOpen, onClose
 };
 
 export default PayslipDetailModal;
+
 
 

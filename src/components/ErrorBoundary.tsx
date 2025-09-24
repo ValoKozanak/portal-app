@@ -23,8 +23,8 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // Tu môžete poslať error do error tracking služby
-    // napr. Sentry, LogRocket, atď.
+    // Tu mA�Llete poslaLA error do error tracking sluLlby
+    // napr. Sentry, LogRocket, at�Z.
   }
 
   render() {
@@ -53,17 +53,17 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <div className="mt-4 text-center">
               <h3 className="text-lg font-medium text-gray-900">
-                Niečo sa pokazilo
+                Nie�To sa pokazilo
               </h3>
               <p className="mt-2 text-sm text-gray-500">
-                Nastala neočakávaná chyba. Skúste obnoviť stránku.
+                Nastala neo�TakA?vanA? chyba. SkAsste obnoviLA strA?nku.
               </p>
               <div className="mt-4">
                 <button
                   onClick={() => window.location.reload()}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  Obnoviť stránku
+                  ObnoviLA strA?nku
                 </button>
               </div>
             </div>
@@ -75,4 +75,5 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
 

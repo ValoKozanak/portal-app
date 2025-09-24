@@ -42,7 +42,7 @@ const DirectoryPage: React.FC = () => {
       const data = await accountingService.getDirectory(companyId);
       setCompanies(data.companies || []);
     } catch (error) {
-      console.error('Chyba pri načítaní adresára:', error);
+      console.error('Chyba pri na�TA�tanA� adresA?ra:', error);
     } finally {
       setLoading(false);
     }
@@ -56,13 +56,13 @@ const DirectoryPage: React.FC = () => {
   );
 
   const handleEditCompany = (company: DirectoryCompany) => {
-    console.log('Editovať firmu:', company);
+    console.log('EditovaLA firmu:', company);
 
-    alert(`Editovať firmu: ${company.name}`);
+    alert(`EditovaLA firmu: ${company.name}`);
   };
 
   const handleDeleteCompany = async (company: DirectoryCompany) => {
-    if (!window.confirm(`Naozaj chcete vymazať firmu ${company.name}?`)) {
+    if (!window.confirm(`Naozaj chcete vymazaLA firmu ${company.name}?`)) {
       return;
     }
 
@@ -70,15 +70,15 @@ const DirectoryPage: React.FC = () => {
   
       await loadDirectory();
     } catch (error) {
-      console.error('Chyba pri mazaní firmy:', error);
-      alert('Chyba pri mazaní firmy');
+      console.error('Chyba pri mazanA� firmy:', error);
+      alert('Chyba pri mazanA� firmy');
     }
   };
 
   const handleCreateCompany = () => {
-    console.log('Vytvoriť novú firmu');
+    console.log('VytvoriLA novAs firmu');
 
-    alert('Vytvoriť novú firmu');
+    alert('VytvoriLA novAs firmu');
   };
 
   if (loading) {
@@ -87,7 +87,7 @@ const DirectoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
-      {/* Header s navigáciou späť */}
+      {/* Header s navigA?ciou spA�LA */}
       <div className="bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -97,29 +97,29 @@ const DirectoryPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Späť na Účtovníctvo
+                SpA�LA na As�TtovnA�ctvo
               </button>
             </div>
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Adresár</h1>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">AdresA?r</h1>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hlavný obsah */}
+      {/* HlavnA? obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Hlavička s vyhľadávaním a tlačidlami */}
+        {/* Hlavi�Tka s vyh�ladA?vanA�m a tla�Tidlami */}
         <div className="bg-white dark:bg-dark-800 shadow rounded-lg mb-6">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Firmy v adresári</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Firmy v adresA?ri</h2>
                 <div className="relative">
                   <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Hľadať firmy..."
+                    placeholder="H�ladaLA firmy..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -132,37 +132,37 @@ const DirectoryPage: React.FC = () => {
                   className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <PlusIcon className="h-4 w-4 mr-1" />
-                  Nová firma
+                  NovA? firma
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Tabuľka firiem */}
+          {/* Tabu�lka firiem */}
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-dark-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Názov firmy
+                    NA?zov firmy
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    IČO
+                    I�SO
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    DIČ
+                    DI�S
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Adresa
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Telefón
+                    TelefAln
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Bankový účet
+                    BankovA? As�Tet
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Akcie
@@ -173,13 +173,13 @@ const DirectoryPage: React.FC = () => {
                 {loading ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
-                      Načítavam firmy...
+                      Na�TA�tavam firmy...
                     </td>
                   </tr>
                 ) : filteredCompanies.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
-                      Žiadne firmy neboli nájdené
+                      L?iadne firmy neboli nA?jdenA�
                     </td>
                   </tr>
                 ) : (
@@ -244,3 +244,4 @@ const DirectoryPage: React.FC = () => {
 };
 
 export default DirectoryPage;
+

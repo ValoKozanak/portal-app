@@ -51,33 +51,33 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.ico.trim()) {
-      newErrors.ico = 'IČO je povinné';
+      newErrors.ico = 'I�SO je povinnA�';
     } else if (!/^\d{8}$/.test(formData.ico)) {
-      newErrors.ico = 'IČO musí mať presne 8 číslic';
+      newErrors.ico = 'I�SO musA� maLA presne 8 �TA�slic';
     }
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Názov firmy je povinný';
+      newErrors.name = 'NA?zov firmy je povinnA?';
     }
 
     if (!formData.address.trim()) {
-      newErrors.address = 'Adresa je povinná';
+      newErrors.address = 'Adresa je povinnA?';
     }
 
     if (!formData.authorized_person.trim()) {
-      newErrors.authorized_person = 'Osoba oprávnená konať je povinná';
+      newErrors.authorized_person = 'Osoba oprA?vnenA? konaLA je povinnA?';
     }
 
     if (formData.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contact_email)) {
-      newErrors.contact_email = 'Neplatný formát emailu';
+      newErrors.contact_email = 'NeplatnA? formA?t emailu';
     }
 
     if (formData.contact_phone && !/^\+?[\d\s\-()]+$/.test(formData.contact_phone)) {
-      newErrors.contact_phone = 'Neplatný formát telefónu';
+      newErrors.contact_phone = 'NeplatnA? formA?t telefAlnu';
     }
 
     if (formData.tax_id && !/^\d{10}$/.test(formData.tax_id)) {
-      newErrors.tax_id = 'DIČ musí mať presne 10 číslic';
+      newErrors.tax_id = 'DI�S musA� maLA presne 10 �TA�slic';
     }
 
     setErrors(newErrors);
@@ -97,7 +97,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
       await onSave(company.id, formData);
       onClose();
     } catch (error) {
-      console.error('Chyba pri uložení firmy:', error);
+      console.error('Chyba pri uloLlenA� firmy:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -130,7 +130,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
               <BuildingOfficeIcon className="h-5 w-5 text-primary-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Upraviť firmu</h2>
+            <h2 className="text-xl font-semibold text-gray-900">UpraviLA firmu</h2>
           </div>
           <button
             onClick={onClose}
@@ -141,12 +141,12 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Základné informácie */}
+          {/* ZA?kladnA� informA?cie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* IČO */}
+            {/* I�SO */}
             <div>
               <label htmlFor="ico" className="block text-sm font-medium text-gray-700 mb-2">
-                IČO *
+                I�SO *
               </label>
               <input
                 type="text"
@@ -165,10 +165,10 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               )}
             </div>
 
-            {/* Názov firmy */}
+            {/* NA?zov firmy */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Názov firmy *
+                NA?zov firmy *
               </label>
               <input
                 type="text"
@@ -179,7 +179,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                   errors.name ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Názov firmy s.r.o."
+                placeholder="NA?zov firmy s.r.o."
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -201,18 +201,18 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                 errors.address ? 'border-red-300' : 'border-gray-300'
               }`}
-              placeholder="Hlavná 123, 81101 Bratislava"
+              placeholder="HlavnA? 123, 81101 Bratislava"
             />
             {errors.address && (
               <p className="mt-1 text-sm text-red-600">{errors.address}</p>
             )}
           </div>
 
-          {/* Obchodný register a IČ DPH */}
+          {/* ObchodnA? register a I�S DPH */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="business_registry" className="block text-sm font-medium text-gray-700 mb-2">
-                Číslo obchodného registra
+                �SA�slo obchodnA�ho registra
               </label>
               <input
                 type="text"
@@ -227,7 +227,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
 
             <div>
               <label htmlFor="vat_id" className="block text-sm font-medium text-gray-700 mb-2">
-                IČ DPH
+                I�S DPH
               </label>
               <input
                 type="text"
@@ -241,10 +241,10 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             </div>
           </div>
 
-          {/* DIČ */}
+          {/* DI�S */}
           <div>
             <label htmlFor="tax_id" className="block text-sm font-medium text-gray-700 mb-2">
-              DIČ
+              DI�S
             </label>
             <input
               type="text"
@@ -263,10 +263,10 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             )}
           </div>
 
-          {/* Osoba oprávnená konať */}
+          {/* Osoba oprA?vnenA? konaLA */}
           <div>
             <label htmlFor="authorized_person" className="block text-sm font-medium text-gray-700 mb-2">
-              Osoba oprávnená konať v mene firmy *
+              Osoba oprA?vnenA? konaLA v mene firmy *
             </label>
             <div className="relative">
               <input
@@ -278,7 +278,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
                 className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                   errors.authorized_person ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Ing. Ján Novák"
+                placeholder="Ing. JA?n NovA?k"
               />
               <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
@@ -287,11 +287,11 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             )}
           </div>
 
-          {/* Kontaktné informácie */}
+          {/* KontaktnA� informA?cie */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700 mb-2">
-                Kontaktný email
+                KontaktnA? email
               </label>
               <div className="relative">
                 <input
@@ -314,7 +314,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
 
             <div>
               <label htmlFor="contact_phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Kontaktný telefón
+                KontaktnA? telefAln
               </label>
               <div className="relative">
                 <input
@@ -336,14 +336,14 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
             </div>
           </div>
 
-          {/* Informácie o firme */}
+          {/* InformA?cie o firme */}
           <div className="bg-gray-50 rounded-md p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Informácie o firme</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o firme</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {company.id}</p>
-              <p><span className="font-medium">Vlastník:</span> {company.owner_email}</p>
-              <p><span className="font-medium">Vytvorená:</span> {new Date(company.created_at).toLocaleDateString('sk-SK')}</p>
-              <p><span className="font-medium">Priradení účtovníci:</span> {company.assignedToAccountants.length}</p>
+              <p><span className="font-medium">VlastnA�k:</span> {company.owner_email}</p>
+              <p><span className="font-medium">VytvorenA?:</span> {new Date(company.created_at).toLocaleDateString('sk-SK')}</p>
+              <p><span className="font-medium">PriradenA� As�TtovnA�ci:</span> {company.assignedToAccountants.length}</p>
               {company.assignedToAccountants.length > 0 && (
                 <div className="mt-2">
                   <p className="text-xs text-gray-500">
@@ -353,27 +353,27 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               )}
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <p className="text-xs text-blue-600">
-                  💡 <strong>Many-to-Many vzťah:</strong> Účtovník môže mať viacero firiem a firma môže mať viacero účtovníkov
+                  dz'? <strong>Many-to-Many vzLAah:</strong> As�TtovnA�k mA�Lle maLA viacero firiem a firma mA�Lle maLA viacero As�TtovnA�kov
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Ukladám...' : 'Uložiť zmeny'}
+              {isSubmitting ? 'UkladA?m...' : 'UloLliLA zmeny'}
             </button>
           </div>
         </form>
@@ -383,3 +383,4 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
 };
 
 export default EditCompanyModal;
+

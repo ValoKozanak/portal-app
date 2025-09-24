@@ -40,7 +40,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
   const [tags, setTags] = useState('');
   const [selectedCompanyId, setSelectedCompanyId] = useState<number>(companyId || 0);
 
-  // Pre firmy automaticky nastavíme ich vlastnú firmu
+  // Pre firmy automaticky nastavA�me ich vlastnAs firmu
   useEffect(() => {
     if (userRole === 'company' && companyId) {
       setSelectedCompanyId(companyId);
@@ -52,12 +52,12 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 
   const categories = [
     { id: 'documents', name: 'Dokumenty', icon: DocumentTextIcon },
-    { id: 'invoices', name: 'Faktúry', icon: DocumentIcon },
+    { id: 'invoices', name: 'FaktAsry', icon: DocumentIcon },
     { id: 'contracts', name: 'Zmluvy', icon: DocumentTextIcon },
-    { id: 'reports', name: 'Správy', icon: DocumentTextIcon },
-    { id: 'images', name: 'Obrázky', icon: PhotoIcon },
-    { id: 'archives', name: 'Archívy', icon: ArchiveBoxIcon },
-    { id: 'other', name: 'Ostatné', icon: DocumentIcon }
+    { id: 'reports', name: 'SprA?vy', icon: DocumentTextIcon },
+    { id: 'images', name: 'ObrA?zky', icon: PhotoIcon },
+    { id: 'archives', name: 'ArchA�vy', icon: ArchiveBoxIcon },
+    { id: 'other', name: 'OstatnA�', icon: DocumentIcon }
   ];
 
   const allowedFileTypes = [
@@ -77,13 +77,13 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       
-      // Validácia súborov
+      // ValidA?cia sAsborov
       const validFiles = filesArray.filter(file => {
-        // Kontrola veľkosti (10MB = 10 * 1024 * 1024 bytes)
+        // Kontrola ve�lkosti (10MB = 10 * 1024 * 1024 bytes)
         if (file.size > 10 * 1024 * 1024) {
           setUploadErrors(prev => ({
             ...prev,
-            [file.name]: 'Súbor je príliš veľký (max. 10MB)'
+            [file.name]: 'SAsbor je prA�liL? ve�lkA? (max. 10MB)'
           }));
           return false;
         }
@@ -92,7 +92,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         if (!allowedFileTypes.includes(file.type)) {
           setUploadErrors(prev => ({
             ...prev,
-            [file.name]: 'Nepodporovaný typ súboru'
+            [file.name]: 'NepodporovanA? typ sAsboru'
           }));
           return false;
         }
@@ -136,17 +136,17 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
-      alert('Vyberte aspoň jeden súbor na nahranie');
+      alert('Vyberte aspoL� jeden sAsbor na nahranie');
       return;
     }
 
     if (!selectedCompanyId) {
-      alert('Vyberte firmu, pre ktorú nahrávate súbory');
+      alert('Vyberte firmu, pre ktorAs nahrA?vate sAsbory');
       return;
     }
 
     if (!category) {
-      alert('Vyberte typ súboru');
+      alert('Vyberte typ sAsboru');
       return;
     }
 
@@ -155,22 +155,22 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 
     try {
       for (const file of selectedFiles) {
-        // Progress tracking pre každý súbor
+        // Progress tracking pre kaLldA? sAsbor
         setUploadProgress(prev => ({
           ...prev,
           [file.name]: { loaded: 0, total: file.size, percentage: 0 }
         }));
 
         try {
-          // Skutočné nahrávanie súboru cez API
+          // Skuto�TnA� nahrA?vanie sAsboru cez API
           const fileData = await apiService.uploadFile(file, selectedCompanyId, 'user@portal.sk', category);
           
-          // Voláme onFileUpload s kompletným objektom súboru
+          // VolA?me onFileUpload s kompletnA?m objektom sAsboru
           onFileUpload(fileData);
         } catch (error) {
           setUploadErrors(prev => ({
             ...prev,
-            [file.name]: error instanceof Error ? error.message : 'Neznáma chyba'
+            [file.name]: error instanceof Error ? error.message : 'NeznA?ma chyba'
           }));
         }
       }
@@ -180,8 +180,8 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       setDescription('');
       setTags('');
       setUploadProgress({});
-      // Modal sa zatvorí až po úspešnom nahratí všetkých súborov
-      // onClose() sa volá v handleFileUpload v FileManager
+      // Modal sa zatvorA� aLl po AsspeL?nom nahratA� vL?etkA?ch sAsborov
+      // onClose() sa volA? v handleFileUpload v FileManager
     }
   };
 
@@ -192,7 +192,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">
-            Nahrať súbory
+            NahraLA sAsbory
           </h2>
           <button
             onClick={onClose}
@@ -203,7 +203,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Výber firmy - skrytý pre firmy */}
+          {/* VA?ber firmy - skrytA? pre firmy */}
           {userRole !== 'company' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -225,19 +225,19 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </div>
           )}
           
-          {/* Pre firmy zobrazíme informáciu o ich firme */}
+          {/* Pre firmy zobrazA�me informA?ciu o ich firme */}
           {userRole === 'company' && companyId && (
             <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
               <p className="text-sm text-blue-800">
-                <strong>Súbory sa nahrávajú pre vašu firmu</strong>
+                <strong>SAsbory sa nahrA?vajAs pre vaL?u firmu</strong>
               </p>
             </div>
           )}
 
-          {/* Kategória */}
+          {/* KategAlria */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Typ súboru *
+              Typ sAsboru *
             </label>
             <select
               value={category}
@@ -245,7 +245,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               required
             >
-              <option value="">Vyberte typ súboru</option>
+              <option value="">Vyberte typ sAsboru</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -260,9 +260,9 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
             <div className="mt-4">
               <label htmlFor="file-upload" className="cursor-pointer">
                 <span className="text-primary-600 hover:text-primary-700 font-medium">
-                  Kliknite pre výber súborov
+                  Kliknite pre vA?ber sAsborov
                 </span>
-                <span className="text-gray-500"> alebo ich sem presuňte</span>
+                <span className="text-gray-500"> alebo ich sem presuL�te</span>
               </label>
               <input
                 id="file-upload"
@@ -274,7 +274,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              PDF, DOC, XLS, obrázky, archívy (max. 10MB na súbor)
+              PDF, DOC, XLS, obrA?zky, archA�vy (max. 10MB na sAsbor)
             </p>
           </div>
 
@@ -282,7 +282,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           {selectedFiles.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Vybrané súbory ({selectedFiles.length})
+                VybranA� sAsbory ({selectedFiles.length})
               </h3>
               <div className="space-y-2">
                 {selectedFiles.map((file, index) => {
@@ -331,28 +331,28 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Popis (voliteľné)
+              Popis (volite�lnA�)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="Krátky popis súborov..."
+              placeholder="KrA?tky popis sAsborov..."
             />
           </div>
 
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tagy (voliteľné)
+              Tagy (volite�lnA�)
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="dôležité, urgent, 2024 (oddelené čiarkami)"
+              placeholder="dA�leLlitA�, urgent, 2024 (oddelenA� �Tiarkami)"
             />
           </div>
 
@@ -363,14 +363,14 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
               onClick={onClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               onClick={handleUpload}
               disabled={selectedFiles.length === 0 || isUploading || !selectedCompanyId}
               className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? 'Nahrávam...' : `Nahrať ${selectedFiles.length} súborov`}
+              {isUploading ? 'NahrA?vam...' : `NahraLA ${selectedFiles.length} sAsborov`}
             </button>
           </div>
         </div>
@@ -380,3 +380,4 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({
 };
 
 export default FileUploadModal;
+

@@ -40,8 +40,8 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({
         text-gray-600 dark:text-gray-300
         ${className}
       `}
-      aria-label={isDarkMode ? 'Prepni na svetlý režim' : 'Prepni na tmavý režim'}
-      title={isDarkMode ? 'Prepni na svetlý režim' : 'Prepni na tmavý režim'}
+      aria-label={isDarkMode ? 'Prepni na svetlA? reLlim' : 'Prepni na tmavA? reLlim'}
+      title={isDarkMode ? 'Prepni na svetlA? reLlim' : 'Prepni na tmavA? reLlim'}
     >
       {isDarkMode ? (
         <SunIcon className={`${iconSizes[size]} text-yellow-500`} />
@@ -53,3 +53,4 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({
 };
 
 export default DarkModeToggle;
+

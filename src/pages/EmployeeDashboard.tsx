@@ -23,7 +23,7 @@ import LeaveRequestModal from '../components/LeaveRequestModal';
 import MessagesList from '../components/MessagesList';
 import PayslipDetailModal from '../components/PayslipDetailModal';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -66,32 +66,32 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
     try {
       setLoading(true);
       
-      // Vytvorenie profilu používateľa z dostupných údajov
+      // Vytvorenie profilu pouLlA�vate�la z dostupnA?ch Asdajov
       const profile: User = {
         id: 0,
         email: userEmail,
-        name: userEmail.split('@')[0], // Základné meno z emailu
+        name: userEmail.split('@')[0], // ZA?kladnA� meno z emailu
         role: userRole as 'admin' | 'accountant' | 'user' | 'employee',
         status: 'active',
         phone: ''
       };
       setUserProfile(profile);
 
-      // Načítanie firiem a hľadanie zamestnanca vo všetkých firmách
+      // Na�TA�tanie firiem a h�ladanie zamestnanca vo vL?etkA?ch firmA?ch
       const companiesData: Company[] = await apiService.getAllCompanies();
 
       let foundEmployee: Employee | null = null;
       let foundCompany: Company | null = null;
       const matchedCompanies: Company[] = [];
 
-      // Hľadanie zamestnanca vo všetkých firmách
+      // H�ladanie zamestnanca vo vL?etkA?ch firmA?ch
       for (const company of companiesData) {
         try {
           const employees = await hrService.getEmployees(company.id);
           const currentEmployee = employees.find(emp => emp.email === userEmail);
           
           if (currentEmployee) {
-            // Nastav prvý nájdený ako primárny
+            // Nastav prvA? nA?jdenA? ako primA?rny
             if (!foundEmployee) {
               foundEmployee = currentEmployee;
               foundCompany = company;
@@ -99,11 +99,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             matchedCompanies.push(company);
           }
         } catch (error) {
-          console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+          console.error(`Chyba pri na�TA�tanA� zamestnancov pre firmu ${company.id}:`, error);
         }
       }
 
-      // Pre zamestnanca zobraz len firmy, kde má väzbu; pre admin/accountant/user nechaj všetky
+      // Pre zamestnanca zobraz len firmy, kde mA? vA�zbu; pre admin/accountant/user nechaj vL?etky
       if (userRole === 'employee') {
         setCompanies(matchedCompanies);
       } else {
@@ -116,11 +116,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         setSelectedCompany(foundCompany);
         setEmployeeData(foundEmployee);
         
-        // Načítanie žiadostí o dovolenku
+        // Na�TA�tanie LliadostA� o dovolenku
         const leaveData = await hrService.getLeaveRequests(companyId, undefined, employeeId);
         setLeaveRequests(leaveData);
         
-        // Načítanie dochádzky za posledných 30 dní
+        // Na�TA�tanie dochA?dzky za poslednA?ch 30 dnA�
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const attendanceData = await hrService.getAttendance(
@@ -130,33 +130,33 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         );
         setAttendance(attendanceData);
 
-        // Načítanie počtu neprečítaných správ
+        // Na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v
         await loadUnreadMessagesCount();
 
-        // Načítanie zmien pre zamestnanca
+        // Na�TA�tanie zmien pre zamestnanca
         const changesData = await hrService.getEmployeeChanges(employeeId);
         setEmployeeChanges(changesData);
 
-        // Načítanie dochádzkových nastavení
+        // Na�TA�tanie dochA?dzkovA?ch nastavenA�
         try {
           const settingsData = await hrService.getAttendanceSettings(employeeId);
           setAttendanceSettings(settingsData);
         } catch (error) {
-          console.error('Chyba pri načítaní dochádzkových nastavení:', error);
+          console.error('Chyba pri na�TA�tanA� dochA?dzkovA?ch nastavenA�:', error);
         }
 
-        // Načítanie pracovných pomerov z backendu a filtrovanie podľa zamestnanca
+        // Na�TA�tanie pracovnA?ch pomerov z backendu a filtrovanie pod�la zamestnanca
         try {
           const relations = await hrService.getEmploymentRelations(companyId);
           const employeeRelations = Array.isArray(relations) ? relations.filter((r: any) => r.employee_id === employeeId) : [];
           setEmploymentRelations(employeeRelations);
         } catch (e) {
-          console.error('Chyba pri načítaní pracovných pomerov:', e);
+          console.error('Chyba pri na�TA�tanA� pracovnA?ch pomerov:', e);
           setEmploymentRelations([]);
         }
       }
     } catch (error) {
-      console.error('Chyba pri načítaní dát:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -192,7 +192,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const handleChangeRequestSubmit = async (requestData: { field: string; currentValue: string; newValue: string; reason: string }) => {
     try {
       if (!employeeData || !selectedCompany) {
-        alert('Chyba: Chýbajú údaje o zamestnancovi alebo firme');
+        alert('Chyba: ChA?bajAs Asdaje o zamestnancovi alebo firme');
         return;
       }
 
@@ -205,38 +205,38 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         company_id: selectedCompany.id
       });
       
-      alert('Požiadavka na zmenu bola úspešne odoslaná. Zamestnávateľ ju poskytne v najbližšom čase.');
+      alert('PoLliadavka na zmenu bola AsspeL?ne odoslanA?. ZamestnA?vate�l ju poskytne v najbliLlL?om �Tase.');
       setShowChangeRequestModal(false);
       
-      // Obnoviť dáta aby sa zobrazila zmena
+      // ObnoviLA dA?ta aby sa zobrazila zmena
       await loadData();
     } catch (error) {
-      console.error('Chyba pri odosielaní požiadavky:', error);
-      alert('Chyba pri odosielaní požiadavky');
+      console.error('Chyba pri odosielanA� poLliadavky:', error);
+      alert('Chyba pri odosielanA� poLliadavky');
     }
   };
 
-  // Načítanie počtu neprečítaných správ
+  // Na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v
   const loadUnreadMessagesCount = async () => {
     try {
       const count = await apiService.getUnreadCount(userEmail);
       setUnreadMessagesCount(count);
     } catch (error) {
-      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+      console.error('Chyba pri na�TA�tanA� po�Ttu nepre�TA�tanA?ch sprA?v:', error);
       setUnreadMessagesCount(0);
     }
   };
 
-  // Funkcia na získanie stavu zmeny pre pole
+  // Funkcia na zA�skanie stavu zmeny pre pole
   const getFieldChangeStatus = (fieldName: string) => {
-    // Hľadanie najnovšej pending zmeny (podľa ID alebo created_at)
+    // H�ladanie najnovL?ej pending zmeny (pod�la ID alebo created_at)
     const pendingChanges = employeeChanges.filter(c => 
       c.field_name === fieldName && 
       c.status === 'pending'
     );
     
     if (pendingChanges.length > 0) {
-      // Vrátiť najnovšiu pending zmenu (s najvyšším ID)
+      // VrA?tiLA najnovL?iu pending zmenu (s najvyL?L?A�m ID)
       const latestPendingChange = pendingChanges.reduce((latest, current) => 
         (current.id > latest.id) ? current : latest
       );
@@ -249,7 +249,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       };
     }
     
-    // Hľadanie najnovšej approved zmeny
+    // H�ladanie najnovL?ej approved zmeny
     const approvedChanges = employeeChanges.filter(c => 
       c.field_name === fieldName && 
       c.status === 'approved'
@@ -271,14 +271,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
     return null;
   };
 
-  // Pomocná funkcia na konverziu hodín na formát HH:MM
+  // PomocnA? funkcia na konverziu hodA�n na formA?t HH:MM
   const formatHoursToTime = (hours: number): string => {
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
     return `${wholeHours}:${minutes.toString().padStart(2, '0')}`;
   };
 
-  // Pomocná funkcia pre získanie aktuálnej hodnoty poľa
+  // PomocnA? funkcia pre zA�skanie aktuA?lnej hodnoty po�la
   const getCurrentFieldValue = (fieldName: string): string => {
     if (!employeeData) return '';
     
@@ -348,7 +348,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       case 'employment_type':
         return hrService.getEmploymentTypeLabel(employeeData.employment_type);
       case 'employment_relation':
-        return 'Pracovný pomer';
+        return 'PracovnA? pomer';
       default:
         return '';
     }
@@ -357,7 +357,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Načítavam dashboard..." />
+        <LoadingSpinner size="lg" text="Na�TA�tavam dashboard..." />
       </div>
     );
   }
@@ -366,10 +366,10 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Zamestnanec nenájdený
+          Zamestnanec nenA?jdenA?
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
-          Vaše údaje nie sú v systéme zamestnancov. Kontaktujte administrátora.
+          VaL?e Asdaje nie sAs v systA�me zamestnancov. Kontaktujte administrA?tora.
         </p>
       </div>
     );
@@ -385,7 +385,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               Vitajte, {employeeData.first_name}!
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              {employeeData.position} • {selectedCompany?.name}
+              {employeeData.position} �?? {selectedCompany?.name}
             </p>
           </div>
           <div className="text-right">
@@ -402,7 +402,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Štatistiky */}
+      {/* L�tatistiky */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div 
           className="bg-white dark:bg-dark-800 rounded-lg shadow p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-lg transition-shadow"
@@ -413,11 +413,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <ClockIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Odpracované hodiny</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">OdpracovanA� hodiny</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {formatHoursToTime(attendance.reduce((sum, att) => sum + (att.total_hours || 0), 0))}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Posledných 30 dní</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">PoslednA?ch 30 dnA�</p>
             </div>
           </div>
         </div>
@@ -435,7 +435,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {leaveRequests.filter(req => req.status === 'approved').length}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Schválené</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">SchvA?lenA�</p>
             </div>
           </div>
         </div>
@@ -446,11 +446,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <BellIcon className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Čakajúce žiadosti</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">�SakajAsce Lliadosti</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {leaveRequests.filter(req => req.status === 'pending').length}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Na schválenie</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Na schvA?lenie</p>
             </div>
           </div>
         </div>
@@ -464,14 +464,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <EnvelopeIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Správy</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">SprA?vy</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {unreadMessagesCount}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {unreadMessagesCount === 1 ? 'Nová správa' : 
-                 unreadMessagesCount > 1 && unreadMessagesCount < 5 ? 'Nové správy' : 
-                 'Nových správ'}
+                {unreadMessagesCount === 1 ? 'NovA? sprA?va' : 
+                 unreadMessagesCount > 1 && unreadMessagesCount < 5 ? 'NovA� sprA?vy' : 
+                 'NovA?ch sprA?v'}
               </p>
             </div>
             {unreadMessagesCount > 0 && (
@@ -485,30 +485,30 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Rýchle akcie */}
+      {/* RA?chle akcie */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Rýchle akcie</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">RA?chle akcie</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button 
             onClick={() => setActiveTab('attendance')}
             className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
           >
             <ClockIcon className="w-6 h-6 text-gray-400 mr-2" />
-            <span className="text-gray-600 dark:text-gray-300">Zaznamenať dochádzku</span>
+            <span className="text-gray-600 dark:text-gray-300">ZaznamenaLA dochA?dzku</span>
           </button>
           <button 
             onClick={() => setShowLeaveRequestModal(true)}
             className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
           >
             <CalendarIcon className="w-6 h-6 text-gray-400 mr-2" />
-            <span className="text-gray-600 dark:text-gray-300">Žiadosť o dovolenku</span>
+            <span className="text-gray-600 dark:text-gray-300">L?iadosLA o dovolenku</span>
           </button>
         </div>
       </div>
 
-      {/* Posledná dochádzka */}
+      {/* PoslednA? dochA?dzka */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Posledná dochádzka</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">PoslednA? dochA?dzka</h3>
         <div className="space-y-3">
           {attendance.slice(0, 5).map((att) => (
             <div key={att.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
@@ -517,8 +517,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                   {new Date(att.date).toLocaleDateString('sk-SK')}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {att.check_in ? new Date(att.check_in).toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' }) : 'Nezaznamenané'} - 
-                  {att.check_out ? new Date(att.check_out).toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' }) : 'Nezaznamenané'}
+                  {att.check_in ? new Date(att.check_in).toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' }) : 'NezaznamenanA�'} - 
+                  {att.check_out ? new Date(att.check_out).toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' }) : 'NezaznamenanA�'}
                 </p>
               </div>
               <div className="text-right">
@@ -542,61 +542,61 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Mzdové informácie */}
+      {/* MzdovA� informA?cie */}
       {employmentRelations.length > 0 && (
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Mzdové informácie</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">MzdovA� informA?cie</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {employmentRelations.map((relation) => (
               <div key={relation.id} className="space-y-3">
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mzda</label>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.salary} €</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.salary} �,�</p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TA?LldennA� hodiny</label>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodA�n</p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">DochA?dzka</label>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {relation.attendance_mode === 'automatic' ? 'Automatická' : 
-                     relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                    {relation.attendance_mode === 'automatic' ? 'AutomatickA?' : 
+                     relation.attendance_mode === 'manual' ? 'ManuA?lna' : 'NenastavenA�'}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PracovnA? �Tas</label>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {relation.work_start_time && relation.work_end_time ? 
-                      `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
+                      `${relation.work_start_time} - ${relation.work_end_time}` : 'NenastavenA�'}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PrestA?vka</label>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
                     {relation.break_start_time && relation.break_end_time ? 
-                      `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
+                      `${relation.break_start_time} - ${relation.break_end_time}` : 'NenastavenA�'}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ úväzku</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ AsvA�zku</label>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {relation.employment_type === 'full_time' ? 'Plný úväzok' :
-                     relation.employment_type === 'part_time' ? 'Čiastočný úväzok' :
+                    {relation.employment_type === 'full_time' ? 'PlnA? AsvA�zok' :
+                     relation.employment_type === 'part_time' ? '�Siasto�TnA? AsvA�zok' :
                      relation.employment_type === 'contract' ? 'Zmluva' :
-                     relation.employment_type === 'intern' ? 'Stáž' :
+                     relation.employment_type === 'intern' ? 'StA?Ll' :
                      relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Aktuálne</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">AktuA?lne</label>
                   <p className="text-gray-900 dark:text-white">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       relation.status === 'active' 
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                         : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                     }`}>
-                      {relation.status === 'active' ? 'Aktívny' : 'Neaktívny'}
+                      {relation.status === 'active' ? 'AktA�vny' : 'NeaktA�vny'}
                     </span>
                   </p>
                 </div>
@@ -611,22 +611,22 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const renderAttendance = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Moja dochádzka</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Moja dochA?dzka</h2>
       </div>
 
-      {/* Dochádzkový režim */}
+      {/* DochA?dzkovA? reLlim */}
       {attendanceSettings && (
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Dochádzkový režim</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">DochA?dzkovA? reLlim</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Režim dochádzky:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">ReLlim dochA?dzky:</p>
               <p className="text-lg font-medium text-gray-900 dark:text-white">
-                {attendanceSettings.attendance_mode === 'automatic' ? '🔄 Automatický' : '✏️ Manuálny'}
+                {attendanceSettings.attendance_mode === 'automatic' ? 'dz"" AutomatickA?' : '�sZd�Z ManuA?lny'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Pracovný čas:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">PracovnA? �Tas:</p>
               <p className="text-lg font-medium text-gray-900 dark:text-white">
                 {attendanceSettings.work_start_time} - {attendanceSettings.work_end_time}
               </p>
@@ -636,15 +636,15 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           {attendanceSettings.attendance_mode === 'automatic' && (
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                💡 <strong>Automatický režim:</strong> Vaša dochádzka sa počíta automaticky na základe nastavených 
-                pracovných hodín. Nemusíte manuálne označovať dochádzku.
+                dz'? <strong>AutomatickA? reLlim:</strong> VaL?a dochA?dzka sa po�TA�ta automaticky na zA?klade nastavenA?ch 
+                pracovnA?ch hodA�n. NemusA�te manuA?lne ozna�TovaLA dochA?dzku.
               </p>
             </div>
           )}
         </div>
       )}
 
-      {/* AttendanceTracker len pre manuálny režim */}
+      {/* AttendanceTracker len pre manuA?lny reLlim */}
       {!!selectedCompany && (!attendanceSettings || attendanceSettings.attendance_mode === 'manual') && (
         <AttendanceTracker
           companyId={selectedCompany.id}
@@ -654,7 +654,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         />
       )}
 
-      {/* Prehľad dochádzky */}
+      {/* Preh�lad dochA?dzky */}
       {!!selectedCompany && (
         <AttendanceOverview
           companyId={selectedCompany.id}
@@ -669,7 +669,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const renderPayslips = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Výplatné pásky</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">VA?platnA� pA?sky</h2>
         <div className="flex items-center space-x-3">
           <label className="text-sm text-gray-600 dark:text-gray-300">Rok</label>
           <select
@@ -685,33 +685,33 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Ročný sumár */}
+      {/* Ro�TnA? sumA?r */}
       {loadingPayslips ? (
-        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">Načítavam...</div>
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">Na�TA�tavam...</div>
       ) : payslipsData ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <p className="text-sm text-green-700 dark:text-green-300">Čistá mzda spolu</p>
-            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsData.summary.totalNet.toFixed(2)} €</p>
+            <p className="text-sm text-green-700 dark:text-green-300">�SistA? mzda spolu</p>
+            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{payslipsData.summary.totalNet.toFixed(2)} �,�</p>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">Hrubá mzda spolu</p>
-            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsData.summary.totalGross.toFixed(2)} €</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">HrubA? mzda spolu</p>
+            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{payslipsData.summary.totalGross.toFixed(2)} �,�</p>
           </div>
           <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-            <p className="text-sm text-purple-700 dark:text-purple-300">Vyplatené spolu</p>
-            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsData.summary.totalSettlement.toFixed(2)} €</p>
+            <p className="text-sm text-purple-700 dark:text-purple-300">VyplatenA� spolu</p>
+            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{payslipsData.summary.totalSettlement.toFixed(2)} �,�</p>
           </div>
           <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">Počet mesiacov</p>
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">Po�Tet mesiacov</p>
             <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{payslipsData.summary.monthsCount}</p>
           </div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">Žiadne dáta pre zvolený rok.</div>
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">L?iadne dA?ta pre zvolenA? rok.</div>
       )}
 
-      {/* Mesačný prehľad */}
+      {/* Mesa�TnA? preh�lad */}
       {payslipsData && (
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
@@ -719,13 +719,13 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <thead className="bg-gray-50 dark:bg-dark-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mesiac</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Odpracované (Dni/H)</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Hrubá mzda</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">OdpracovanA� (Dni/H)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">HrubA? mzda</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">SP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ZP</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Daň</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Čistá</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vyplatené</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">DaL�</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">�SistA?</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">VyplatenA�</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-dark-600">
@@ -733,12 +733,12 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                   <tr key={`${m.year}-${m.month}`} className="hover:bg-gray-50 dark:hover:bg-dark-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{payrollService.getMonthName(m.month)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.workedDays} / {m.workedHours}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.grossWage.toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.socialInsurance || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.healthInsurance || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.wageTax || 0).toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.netWage.toFixed(2)} €</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.settlement.toFixed(2)} €</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.grossWage.toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.socialInsurance || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.healthInsurance || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{(m.wageTax || 0).toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.netWage.toFixed(2)} �,�</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{m.settlement.toFixed(2)} �,�</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button
                         onClick={() => { setPayslipModalMonth(m.month); setShowPayslipModal(true); }}
@@ -766,14 +766,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
         >
           <CalendarIcon className="w-5 h-5 mr-2" />
-          Nová žiadosť
+          NovA? LliadosLA
         </button>
       </div>
 
-      {/* Zoznam žiadostí o dovolenku */}
+      {/* Zoznam LliadostA� o dovolenku */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-600">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Žiadosti o dovolenku</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">L?iadosti o dovolenku</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-dark-600">
@@ -786,13 +786,13 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                   Obdobie
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Dní
+                  DnA�
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Dôvod
+                  DA�vod
                 </th>
               </tr>
             </thead>
@@ -809,7 +809,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {request.total_days} dní
+                    {request.total_days} dnA�
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -819,8 +819,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                         : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                     }`}>
-                      {request.status === 'pending' ? 'Čaká' : 
-                       request.status === 'approved' ? 'Schválené' : 'Zamietnuté'}
+                      {request.status === 'pending' ? '�SakA?' : 
+                       request.status === 'approved' ? 'SchvA?lenA�' : 'ZamietnutA�'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
@@ -833,7 +833,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
         {leaveRequests.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">Žiadne žiadosti o dovolenku</p>
+            <p className="text-gray-500 dark:text-gray-400">L?iadne Lliadosti o dovolenku</p>
           </div>
         )}
       </div>
@@ -843,11 +843,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const renderEmployment = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Pracovné pomery</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">PracovnA� pomery</h2>
       </div>
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         {employmentRelations.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-300">Žiadne pracovné pomery</p>
+          <p className="text-gray-600 dark:text-gray-300">L?iadne pracovnA� pomery</p>
         ) : (
           <div className="space-y-4">
             {employmentRelations.map((relation) => (
@@ -858,61 +858,61 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                     <p className="text-gray-900 dark:text-white">{relation.workplace}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pozícia</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PozA�cia</label>
                     <p className="text-gray-900 dark:text-white">{relation.position_name}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mzda</label>
-                    <p className="text-gray-900 dark:text-white">{relation.salary} €</p>
+                    <p className="text-gray-900 dark:text-white">{relation.salary} �,�</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dátum nástupu</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">DA?tum nA?stupu</label>
                     <p className="text-gray-900 dark:text-white">{new Date(relation.employment_start_date).toLocaleDateString('sk-SK')}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ úväzku</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Typ AsvA�zku</label>
                     <p className="text-gray-900 dark:text-white">
-                      {relation.employment_type === 'full_time' ? 'Plný úväzok' :
-                       relation.employment_type === 'part_time' ? 'Čiastočný úväzok' :
+                      {relation.employment_type === 'full_time' ? 'PlnA? AsvA�zok' :
+                       relation.employment_type === 'part_time' ? '�Siasto�TnA? AsvA�zok' :
                        relation.employment_type === 'contract' ? 'Zmluva' :
-                       relation.employment_type === 'intern' ? 'Stáž' :
+                       relation.employment_type === 'intern' ? 'StA?Ll' :
                        relation.employment_type === 'dohoda' ? 'Dohoda' : relation.employment_type}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Týždenné hodiny</label>
-                    <p className="text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodín</p>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TA?LldennA� hodiny</label>
+                    <p className="text-gray-900 dark:text-white">{relation.agreed_weekly_hours || relation.weekly_hours || 40} hodA�n</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dochádzka</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">DochA?dzka</label>
                     <p className="text-gray-900 dark:text-white">
-                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
-                       relation.attendance_mode === 'manual' ? 'Manuálna' : 'Nenastavené'}
+                      {relation.attendance_mode === 'automatic' ? 'AutomatickA?' : 
+                       relation.attendance_mode === 'manual' ? 'ManuA?lna' : 'NenastavenA�'}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pracovný čas</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PracovnA? �Tas</label>
                     <p className="text-gray-900 dark:text-white">
                       {relation.work_start_time && relation.work_end_time ? 
-                        `${relation.work_start_time} - ${relation.work_end_time}` : 'Nenastavené'}
+                        `${relation.work_start_time} - ${relation.work_end_time}` : 'NenastavenA�'}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prestávka</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PrestA?vka</label>
                     <p className="text-gray-900 dark:text-white">
                       {relation.break_start_time && relation.break_end_time ? 
-                        `${relation.break_start_time} - ${relation.break_end_time}` : 'Nenastavené'}
+                        `${relation.break_start_time} - ${relation.break_end_time}` : 'NenastavenA�'}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Aktuálne</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">AktuA?lne</label>
                     <p className="text-gray-900 dark:text-white">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         relation.status === 'active' 
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                       }`}>
-                        {relation.status === 'active' ? 'Aktívny' : 'Neaktívny'}
+                        {relation.status === 'active' ? 'AktA�vny' : 'NeaktA�vny'}
                       </span>
                     </p>
                   </div>
@@ -928,23 +928,23 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
   const renderProfile = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Môj profil</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">MA�j profil</h2>
         <div className="flex space-x-2">
           <button 
             onClick={() => handleChangeRequest('general')}
             className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center"
           >
             <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-            Nahlásiť zmenu
+            NahlA?siLA zmenu
           </button>
         </div>
       </div>
 
-      {/* Osobné údaje */}
+      {/* OsobnA� Asdaje */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
           <UserIcon className="w-5 h-5 mr-2" />
-          Osobné údaje
+          OsobnA� Asdaje
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
@@ -976,8 +976,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Telefón</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.phone || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TelefAln</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.phone || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('phone')}
@@ -990,7 +990,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             {employeeData.birth_date && (
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dátum narodenia</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">DA?tum narodenia</label>
                   <p className="text-gray-900 dark:text-white">{new Date(employeeData.birth_date).toLocaleDateString('sk-SK')}</p>
                 </div>
                 <button 
@@ -1005,7 +1005,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             {employeeData.birth_number && (
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rodné číslo</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">RodnA� �TA�slo</label>
                   <p className="text-gray-900 dark:text-white">{employeeData.birth_number}</p>
                 </div>
                 <button 
@@ -1022,7 +1022,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             {employeeData.permanent_street && (
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Trvalý pobyt</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TrvalA? pobyt</label>
                   <p className="text-gray-900 dark:text-white">
                     {employeeData.permanent_street} {employeeData.permanent_number}<br />
                     {employeeData.permanent_zip} {employeeData.permanent_city}
@@ -1040,7 +1040,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             {employeeData.contact_street && (
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kontaktná adresa</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">KontaktnA? adresa</label>
                   <p className="text-gray-900 dark:text-white">
                     {employeeData.contact_street} {employeeData.contact_number}<br />
                     {employeeData.contact_zip} {employeeData.contact_city}
@@ -1058,7 +1058,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             {employeeData.nationality && (
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Národnosť</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">NA?rodnosLA</label>
                   <p className="text-gray-900 dark:text-white">{employeeData.nationality}</p>
                 </div>
                 <button 
@@ -1088,16 +1088,16 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Personálne údaje */}
+      {/* PersonA?lne Asdaje */}
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
           <UserIcon className="w-5 h-5 mr-2" />
-          Personálne údaje
+          PersonA?lne Asdaje
         </h3>
         
-        {/* Základné údaje */}
+        {/* ZA?kladnA� Asdaje */}
         <div className="mb-6">
-          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">Základné údaje</h4>
+          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">ZA?kladnA� Asdaje</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
@@ -1127,8 +1127,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rodné priezvisko</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.birth_name || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">RodnA� priezvisko</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.birth_name || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('birth_name')}
@@ -1141,7 +1141,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Titul pred</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.title_before || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.title_before || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('title_before')}
@@ -1154,7 +1154,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Titul za</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.title_after || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.title_after || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('title_after')}
@@ -1167,7 +1167,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pohlavie</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.gender || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.gender || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('gender')}
@@ -1179,9 +1179,9 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dátum narodenia</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">DA?tum narodenia</label>
                 <p className="text-gray-900 dark:text-white">
-                  {employeeData.birth_date ? new Date(employeeData.birth_date).toLocaleDateString('sk-SK') : 'Nezadané'}
+                  {employeeData.birth_date ? new Date(employeeData.birth_date).toLocaleDateString('sk-SK') : 'NezadanA�'}
                 </p>
               </div>
               <button 
@@ -1194,8 +1194,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rodné číslo</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.birth_number || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">RodnA� �TA�slo</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.birth_number || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('birth_number')}
@@ -1208,7 +1208,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Miesto narodenia</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.birth_place || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.birth_place || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('birth_place')}
@@ -1220,8 +1220,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Národnosť</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.nationality || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">NA?rodnosLA</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.nationality || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('nationality')}
@@ -1233,14 +1233,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Štát občianstvo</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">L�tA?t ob�Tianstvo</label>
                 <p className="text-gray-900 dark:text-white">
                   {(() => {
                     const changeStatus = getFieldChangeStatus('citizenship');
                     if (changeStatus && changeStatus.status === 'pending') {
                       return changeStatus.newValue;
                     }
-                    return employeeData.citizenship || 'Nezadané';
+                    return employeeData.citizenship || 'NezadanA�';
                   })()}
                 </p>
               </div>
@@ -1258,14 +1258,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                 title={(() => {
                   const changeStatus = getFieldChangeStatus('citizenship');
                   if (changeStatus && changeStatus.status === 'pending') {
-                    return `🔄 Čakajúca zmena odoslaná zamestnávateľovi
+                    return `dz"" �SakajAsca zmena odoslanA? zamestnA?vate�lovi
 
-📝 Dôvod: ${changeStatus.reason}
-🆕 Nová hodnota: ${changeStatus.newValue}
+dz"t DA�vod: ${changeStatus.reason}
+dz?. NovA? hodnota: ${changeStatus.newValue}
 
-Čaká sa na schválenie.`;
+�SakA? sa na schvA?lenie.`;
                   }
-                  return 'Kliknite pre nahlásenie zmeny';
+                  return 'Kliknite pre nahlA?senie zmeny';
                 })()}
               >
                 <PencilIcon className="w-4 h-4" />
@@ -1275,7 +1275,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vzdelanie</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.education || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.education || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('education')}
@@ -1287,8 +1287,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rodinný stav</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.marital_status || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">RodinnA? stav</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.marital_status || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('marital_status')}
@@ -1301,7 +1301,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Partner</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.is_partner ? 'Áno' : 'Nie'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_partner ? 'A�no' : 'Nie'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('is_partner')}
@@ -1313,8 +1313,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Štatutárny zástupca</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.is_statutory ? 'Áno' : 'Nie'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">L�tatutA?rny zA?stupca</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_statutory ? 'A�no' : 'Nie'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('is_statutory')}
@@ -1326,8 +1326,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zamestnanecký bonus</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.employee_bonus ? 'Áno' : 'Nie'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">ZamestnaneckA? bonus</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.employee_bonus ? 'A�no' : 'Nie'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('employee_bonus')}
@@ -1339,7 +1339,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Počet mesiacov bonus</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Po�Tet mesiacov bonus</label>
                 <p className="text-gray-900 dark:text-white">{employeeData.bonus_months || '0'} mesiacov</p>
               </div>
               <button 
@@ -1353,7 +1353,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cudzinec</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.is_foreigner ? 'Áno' : 'Nie'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.is_foreigner ? 'A�no' : 'Nie'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('is_foreigner')}
@@ -1367,7 +1367,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
               <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Krajina cudzinca</label>
-                  <p className="text-gray-900 dark:text-white">{employeeData.foreigner_country || 'Nezadané'}</p>
+                  <p className="text-gray-900 dark:text-white">{employeeData.foreigner_country || 'NezadanA�'}</p>
                 </div>
                 <button 
                   onClick={() => handleChangeRequest('foreigner_country')}
@@ -1380,14 +1380,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           </div>
         </div>
 
-        {/* Adresa trvalého pobytu */}
+        {/* Adresa trvalA�ho pobytu */}
         <div className="mb-6">
-          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">Adresa trvalého pobytu</h4>
+          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">Adresa trvalA�ho pobytu</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ulica</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.permanent_street || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.permanent_street || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('permanent_street')}
@@ -1399,14 +1399,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Číslo popisné</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">�SA�slo popisnA�</label>
                 <p className="text-gray-900 dark:text-white">
                   {(() => {
                     const changeStatus = getFieldChangeStatus('permanent_number');
                     if (changeStatus && changeStatus.status === 'pending') {
                       return changeStatus.newValue;
                     }
-                    return employeeData.permanent_number || 'Nezadané';
+                    return employeeData.permanent_number || 'NezadanA�';
                   })()}
                 </p>
               </div>
@@ -1424,14 +1424,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                 title={(() => {
                   const changeStatus = getFieldChangeStatus('permanent_number');
                   if (changeStatus && changeStatus.status === 'pending') {
-                    return `🔄 Čakajúca zmena odoslaná zamestnávateľovi
+                    return `dz"" �SakajAsca zmena odoslanA? zamestnA?vate�lovi
 
-📝 Dôvod: ${changeStatus.reason}
-🆕 Nová hodnota: ${changeStatus.newValue}
+dz"t DA�vod: ${changeStatus.reason}
+dz?. NovA? hodnota: ${changeStatus.newValue}
 
-Čaká sa na schválenie.`;
+�SakA? sa na schvA?lenie.`;
                   }
-                  return 'Kliknite pre nahlásenie zmeny';
+                  return 'Kliknite pre nahlA?senie zmeny';
                 })()}
               >
                 <PencilIcon className="w-4 h-4" />
@@ -1441,7 +1441,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Obec</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.permanent_city || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.permanent_city || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('permanent_city')}
@@ -1453,8 +1453,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PSČ</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.permanent_zip || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PS�S</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.permanent_zip || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('permanent_zip')}
@@ -1466,8 +1466,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Štát</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.permanent_country || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">L�tA?t</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.permanent_country || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('permanent_country')}
@@ -1479,14 +1479,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           </div>
         </div>
 
-        {/* Kontaktná adresa */}
+        {/* KontaktnA? adresa */}
         <div className="mb-6">
-          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">Kontaktná adresa</h4>
+          <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-3">KontaktnA? adresa</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ulica</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.contact_street || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.contact_street || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('contact_street')}
@@ -1498,14 +1498,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Číslo popisné</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">�SA�slo popisnA�</label>
                 <p className="text-gray-900 dark:text-white">
                   {(() => {
                     const changeStatus = getFieldChangeStatus('contact_number');
                     if (changeStatus && changeStatus.status === 'pending') {
                       return changeStatus.newValue;
                     }
-                    return employeeData.contact_number || 'Nezadané';
+                    return employeeData.contact_number || 'NezadanA�';
                   })()}
                 </p>
               </div>
@@ -1523,14 +1523,14 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
                 title={(() => {
                   const changeStatus = getFieldChangeStatus('contact_number');
                   if (changeStatus && changeStatus.status === 'pending') {
-                    return `🔄 Čakajúca zmena odoslaná zamestnávateľovi
+                    return `dz"" �SakajAsca zmena odoslanA? zamestnA?vate�lovi
 
-📝 Dôvod: ${changeStatus.reason}
-🆕 Nová hodnota: ${changeStatus.newValue}
+dz"t DA�vod: ${changeStatus.reason}
+dz?. NovA? hodnota: ${changeStatus.newValue}
 
-Čaká sa na schválenie.`;
+�SakA? sa na schvA?lenie.`;
                   }
-                  return 'Kliknite pre nahlásenie zmeny';
+                  return 'Kliknite pre nahlA?senie zmeny';
                 })()}
               >
                 <PencilIcon className="w-4 h-4" />
@@ -1540,7 +1540,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Obec</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.contact_city || 'Nezadané'}</p>
+                <p className="text-gray-900 dark:text-white">{employeeData.contact_city || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('contact_city')}
@@ -1552,8 +1552,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PSČ</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.contact_zip || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PS�S</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.contact_zip || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('contact_zip')}
@@ -1565,8 +1565,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Štát</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.contact_country || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">L�tA?t</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.contact_country || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('contact_country')}
@@ -1578,8 +1578,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
             <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Telefón</label>
-                <p className="text-gray-900 dark:text-white">{employeeData.phone || 'Nezadané'}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TelefAln</label>
+                <p className="text-gray-900 dark:text-white">{employeeData.phone || 'NezadanA�'}</p>
               </div>
               <button 
                 onClick={() => handleChangeRequest('phone')}
@@ -1599,9 +1599,9 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         </div>
       </div>
 
-      {/* Pracovné pomery - presunuté do samostatnej záložky */}
+      {/* PracovnA� pomery - presunutA� do samostatnej zA?loLlky */}
 
-      {/* Informačný box */}
+      {/* Informa�TnA? box */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
@@ -1609,12 +1609,12 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-              Informácia o zmenách údajov
+              InformA?cia o zmenA?ch Asdajov
             </h3>
             <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
               <p>
-                Ak potrebujete zmeniť ktorékoľvek údaje v profile, kliknite na ikonu ceruzky vedľa príslušného poľa 
-                alebo použite tlačidlo "Nahlásiť zmenu". Vaša požiadavka bude odoslaná administrátorovi na schválenie.
+                Ak potrebujete zmeniLA ktorA�ko�lvek Asdaje v profile, kliknite na ikonu ceruzky ved�la prA�sluL?nA�ho po�la 
+                alebo pouLlite tla�Tidlo "NahlA?siLA zmenu". VaL?a poLliadavka bude odoslanA? administrA?torovi na schvA?lenie.
               </p>
             </div>
           </div>
@@ -1643,7 +1643,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Personalistika a mzdy</h1>
-          <p className="text-gray-600 dark:text-gray-300">Váš osobný priestor pre správu dochádzky a dovoleniek</p>
+          <p className="text-gray-600 dark:text-gray-300">VA?L? osobnA? priestor pre sprA?vu dochA?dzky a dovoleniek</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <select
@@ -1668,13 +1668,13 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
         <div className="px-4">
           <div className="flex space-x-8">
             {[
-              { id: 'overview', name: 'Prehľad', icon: ChartBarIcon },
-              { id: 'attendance', name: 'Dochádzka', icon: ClockIcon },
+              { id: 'overview', name: 'Preh�lad', icon: ChartBarIcon },
+              { id: 'attendance', name: 'DochA?dzka', icon: ClockIcon },
               { id: 'leave', name: 'Dovolenky', icon: CalendarIcon },
-              { id: 'employment', name: 'Pracovné pomery', icon: DocumentTextIcon },
-              { id: 'payslips', name: 'Výplatné pásky', icon: BanknotesIcon },
+              { id: 'employment', name: 'PracovnA� pomery', icon: DocumentTextIcon },
+              { id: 'payslips', name: 'VA?platnA� pA?sky', icon: BanknotesIcon },
               { id: 'profile', name: 'Profil', icon: UserIcon },
-              { id: 'messages', name: 'Správy', icon: EnvelopeIcon }
+              { id: 'messages', name: 'SprA?vy', icon: EnvelopeIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1742,7 +1742,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ userEmail, userRo
 
 
 
-// Komponent pre modal požiadavky na zmenu
+// Komponent pre modal poLliadavky na zmenu
 interface ChangeRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -1773,20 +1773,20 @@ const ChangeRequestModal: React.FC<ChangeRequestModalProps> = ({ isOpen, onClose
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-dark-800 rounded-lg p-6 w-full max-w-md">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          Nahlásiť zmenu údajov
+          NahlA?siLA zmenu Asdajov
         </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Aktuálna hodnota
+              AktuA?lna hodnota
             </label>
             <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-dark-700 p-2 rounded">
-              {currentValue || 'Nezadané'}
+              {currentValue || 'NezadanA�'}
             </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nová hodnota *
+              NovA? hodnota *
             </label>
             <input
               type="text"
@@ -1798,7 +1798,7 @@ const ChangeRequestModal: React.FC<ChangeRequestModalProps> = ({ isOpen, onClose
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dôvod zmeny *
+              DA�vod zmeny *
             </label>
             <textarea
               value={formData.reason}
@@ -1814,13 +1814,13 @@ const ChangeRequestModal: React.FC<ChangeRequestModalProps> = ({ isOpen, onClose
               onClick={onClose}
               className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-600 rounded-md hover:bg-gray-50 dark:hover:bg-dark-700"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
             >
-              Odoslať požiadavku
+              OdoslaLA poLliadavku
             </button>
           </div>
         </form>
@@ -1830,3 +1830,4 @@ const ChangeRequestModal: React.FC<ChangeRequestModalProps> = ({ isOpen, onClose
 };
 
 export default EmployeeDashboard;
+

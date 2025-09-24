@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+﻿import { useEffect, useCallback, useRef } from 'react';
 
 interface PerformanceMetrics {
   fcp: number | null; // First Contentful Paint
@@ -173,3 +173,4 @@ export const usePerformance = (): PerformanceData => {
     getMemoryUsage
   };
 };
+

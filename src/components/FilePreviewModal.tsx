@@ -26,14 +26,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     setError('');
 
     try {
-      // Používame apiService pre autentifikáciu
+      // PouLlA�vame apiService pre autentifikA?ciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
       setPreviewUrl(url);
     } catch (err) {
-      setError('Nepodarilo sa načítať náhľad súboru');
-      console.error('Chyba pri načítaní náhľadu:', err);
+      setError('Nepodarilo sa na�TA�taLA nA?h�lad sAsboru');
+      console.error('Chyba pri na�TA�tanA� nA?h�ladu:', err);
     } finally {
       setLoading(false);
     }
@@ -43,14 +43,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      // Používame apiService pre autentifikáciu
+      // PouLlA�vame apiService pre autentifikA?ciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (err) {
-      console.error('Chyba pri otváraní súboru:', err);
-      alert('Nepodarilo sa otvoriť súbor');
+      console.error('Chyba pri otvA?ranA� sAsboru:', err);
+      alert('Nepodarilo sa otvoriLA sAsbor');
     }
   };
 
@@ -58,7 +58,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
     if (!file) return;
 
     try {
-      // Používame apiService pre konzistenciu
+      // PouLlA�vame apiService pre konzistenciu
       const { apiService } = await import('../services/apiService');
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
@@ -70,8 +70,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      console.error('Chyba pri sťahovaní súboru:', err);
-      alert('Nepodarilo sa stiahnuť súbor');
+      console.error('Chyba pri sLAahovanA� sAsboru:', err);
+      alert('Nepodarilo sa stiahnuLA sAsbor');
     }
   };
 
@@ -99,16 +99,16 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
             <button
               onClick={handleOpenInNewTab}
               className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              title="Otvoriť v novom okne"
+              title="OtvoriLA v novom okne"
             >
-              Otvoriť
+              OtvoriLA
             </button>
             <button
               onClick={handleDownload}
               className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-              title="Stiahnuť súbor"
+              title="StiahnuLA sAsbor"
             >
-              Stiahnuť
+              StiahnuLA
             </button>
             <button
               onClick={onClose}
@@ -124,25 +124,25 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-gray-600">Načítavam náhľad...</span>
+              <span className="ml-3 text-gray-600">Na�TA�tavam nA?h�lad...</span>
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="text-red-500 text-lg mb-2">⚠️</div>
+                <div className="text-red-500 text-lg mb-2">�s�d�Z</div>
                 <p className="text-gray-600">{error}</p>
                 <div className="mt-4 space-x-2">
                   <button
                     onClick={handleOpenInNewTab}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
-                    Otvoriť v novom okne
+                    OtvoriLA v novom okne
                   </button>
                   <button
                     onClick={handleDownload}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                   >
-                    Stiahnuť súbor
+                    StiahnuLA sAsbor
                   </button>
                 </div>
               </div>
@@ -170,15 +170,15 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
               {isText && (
                 <div className="h-full p-4">
                   <pre className="whitespace-pre-wrap text-sm text-gray-800 bg-gray-50 p-4 rounded border h-full overflow-auto">
-                    {/* Pre textové súbory by sme tu zobrazili obsah */}
-                    Simulovaný textový súbor: {file.original_name}
+                    {/* Pre textovA� sAsbory by sme tu zobrazili obsah */}
+                    SimulovanA? textovA? sAsbor: {file.original_name}
                     
-                    Tento súbor bol vytvorený v simulovanom prostredí.
-                    Dátum vytvorenia: {new Date(file.created_at).toLocaleDateString('sk-SK')}
-                    Veľkosť: {file.file_size} bajtov
-                    Kategória: {file.file_type}
+                    Tento sAsbor bol vytvorenA? v simulovanom prostredA�.
+                    DA?tum vytvorenia: {new Date(file.created_at).toLocaleDateString('sk-SK')}
+                    Ve�lkosLA: {file.file_size} bajtov
+                    KategAlria: {file.file_type}
                     
-                    Obsah súboru:
+                    Obsah sAsboru:
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                     Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
                     Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
@@ -189,20 +189,20 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
               {!isImage && !isPdf && !isText && (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="text-gray-500 text-lg mb-2">📄</div>
-                    <p className="text-gray-600">Náhľad nie je dostupný pre tento typ súboru</p>
+                    <div className="text-gray-500 text-lg mb-2">dz""</div>
+                    <p className="text-gray-600">NA?h�lad nie je dostupnA? pre tento typ sAsboru</p>
                     <div className="mt-4 space-x-2">
                       <button
                         onClick={handleOpenInNewTab}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                       >
-                        Otvoriť v novom okne
+                        OtvoriLA v novom okne
                       </button>
                       <button
                         onClick={handleDownload}
                         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                       >
-                        Stiahnuť súbor
+                        StiahnuLA sAsbor
                       </button>
                     </div>
                   </div>
@@ -217,4 +217,5 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, fi
 };
 
 export default FilePreviewModal;
+
 

@@ -29,8 +29,8 @@ const Contact: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Tu by sa odoslal formulár na server
-    alert('Ďakujeme za váš záujem! Budeme vás kontaktovať v najbližšom čase.');
+    // Tu by sa odoslal formulA?r na server
+    alert('�Zakujeme za vA?L? zA?ujem! Budeme vA?s kontaktovaLA v najbliLlL?om �Tase.');
     setFormData({
       name: '',
       email: '',
@@ -43,12 +43,12 @@ const Contact: React.FC = () => {
 
   const contactInfo = [
     {
-      title: 'Adresa kancelárie',
-      content: 'Hlavná 123, 811 01 Bratislava',
+      title: 'Adresa kancelA?rie',
+      content: 'HlavnA? 123, 811 01 Bratislava',
       icon: MapPinIcon
     },
     {
-      title: 'Telefón',
+      title: 'TelefAln',
       content: '+421 123 456 789',
       icon: PhoneIcon
     },
@@ -58,18 +58,18 @@ const Contact: React.FC = () => {
       icon: EnvelopeIcon
     },
     {
-      title: 'Úradné hodiny',
+      title: 'AsradnA� hodiny',
       content: 'Pondelok - Piatok: 8:00 - 17:00',
       icon: ClockIcon
     }
   ];
 
   const services = [
-    'Podvojné účtovníctvo',
-    'Jednoduché účtovníctvo',
+    'PodvojnA� As�TtovnA�ctvo',
+    'JednoduchA� As�TtovnA�ctvo',
     'Mzdy a personalistika',
-    'Daňové poradenstvo',
-    'Konsolidované účtovníctvo',
+    'DaL�ovA� poradenstvo',
+    'KonsolidovanA� As�TtovnA�ctvo',
     'Audit a kontrola'
   ];
 
@@ -80,11 +80,11 @@ const Contact: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-              Kontaktujte nás
+              Kontaktujte nA?s
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Máte otázky alebo záujem o naše služby? Neváhajte nás kontaktovať. 
-              Radi vám pomôžeme a dohodneme si bezplatnú konzultáciu.
+              MA?te otA?zky alebo zA?ujem o naL?e sluLlby? NevA?hajte nA?s kontaktovaLA. 
+              Radi vA?m pomA�Lleme a dohodneme si bezplatnAs konzultA?ciu.
             </p>
           </div>
         </div>
@@ -97,7 +97,7 @@ const Contact: React.FC = () => {
             {/* Contact Information */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                Kontaktné informácie
+                KontaktnA� informA?cie
               </h2>
               <div className="space-y-6">
                 {contactInfo.map((info) => (
@@ -127,7 +127,7 @@ const Contact: React.FC = () => {
             {/* Contact Form */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                Napíšte nám
+                NapA�L?te nA?m
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -164,7 +164,7 @@ const Contact: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Telefón
+                      TelefAln
                     </label>
                     <input
                       type="tel"
@@ -192,7 +192,7 @@ const Contact: React.FC = () => {
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Vaša správa *
+                    VaL?a sprA?va *
                   </label>
                   <textarea
                     id="message"
@@ -202,7 +202,7 @@ const Contact: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Opíšte nám vaše potreby alebo otázky..."
+                    placeholder="OpA�L?te nA?m vaL?e potreby alebo otA?zky..."
                   />
                 </div>
 
@@ -216,7 +216,7 @@ const Contact: React.FC = () => {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="consultation" className="ml-2 block text-sm text-gray-700">
-                    Mám záujem o bezplatnú konzultáciu
+                    MA?m zA?ujem o bezplatnAs konzultA?ciu
                   </label>
                 </div>
 
@@ -224,7 +224,7 @@ const Contact: React.FC = () => {
                   type="submit"
                   className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                 >
-                  Odoslať správu
+                  OdoslaLA sprA?vu
                 </button>
               </form>
             </div>
@@ -237,10 +237,10 @@ const Contact: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Naše služby
+              NaL?e sluLlby
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Poskytujeme kompletný servis v oblasti účtovníctva a daní
+              Poskytujeme kompletnA? servis v oblasti As�TtovnA�ctva a danA�
             </p>
           </div>
           
@@ -261,23 +261,23 @@ const Contact: React.FC = () => {
       <div className="py-24 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Bezplatná konzultácia
+            BezplatnA? konzultA?cia
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Dohodneme si osobné stretnutie a poradíme vám s najlepším riešením pre vašu firmu
+            Dohodneme si osobnA� stretnutie a poradA�me vA?m s najlepL?A�m rieL?enA�m pre vaL?u firmu
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="tel:+421123456789"
               className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors"
             >
-              Zavolať teraz
+              ZavolaLA teraz
             </a>
             <a
               href="mailto:info@ucto.sk"
               className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors"
             >
-              Napísať email
+              NapA�saLA email
             </a>
           </div>
         </div>
@@ -287,4 +287,5 @@ const Contact: React.FC = () => {
 };
 
 export default Contact;
+
 

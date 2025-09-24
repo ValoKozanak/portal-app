@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -22,3 +22,4 @@ export default function Home() {
 
   return <Dashboard />;
 }
+

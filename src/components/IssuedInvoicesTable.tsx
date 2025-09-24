@@ -29,7 +29,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
       const data = await accountingService.getIssuedInvoices(companyId, { limit: 100 });
       setInvoices(data);
     } catch (error) {
-      console.error('Chyba pri načítaní faktúr:', error);
+      console.error('Chyba pri na�TA�tanA� faktAsr:', error);
     } finally {
       setLoading(false);
     }
@@ -57,10 +57,10 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       draft: { color: 'bg-gray-100 text-gray-800', text: 'Koncept' },
-      sent: { color: 'bg-blue-100 text-blue-800', text: 'Odoslaná' },
-      paid: { color: 'bg-green-100 text-green-800', text: 'Zaplatená' },
+      sent: { color: 'bg-blue-100 text-blue-800', text: 'OdoslanA?' },
+      paid: { color: 'bg-green-100 text-green-800', text: 'ZaplatenA?' },
       overdue: { color: 'bg-red-100 text-red-800', text: 'Po splatnosti' },
-      cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'Zrušená' }
+      cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'ZruL?enA?' }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
@@ -73,29 +73,29 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
   };
 
   const handleViewInvoice = (invoice: IssuedInvoice) => {
-    console.log('Zobraziť faktúru:', invoice);
+    console.log('ZobraziLA faktAsru:', invoice);
     
-    alert(`Zobraziť faktúru: ${invoice.invoice_number}`);
+    alert(`ZobraziLA faktAsru: ${invoice.invoice_number}`);
   };
 
   const handleEditInvoice = (invoice: IssuedInvoice) => {
-    console.log('Editovať faktúru:', invoice);
+    console.log('EditovaLA faktAsru:', invoice);
     
-    alert(`Editovať faktúru: ${invoice.invoice_number}`);
+    alert(`EditovaLA faktAsru: ${invoice.invoice_number}`);
   };
 
   
 
   const handleCreateInvoice = () => {
-    console.log('Vytvoriť novú faktúru');
+    console.log('VytvoriLA novAs faktAsru');
     
-    alert('Vytvoriť novú faktúru');
+    alert('VytvoriLA novAs faktAsru');
   };
 
   const handleExportInvoices = () => {
-    console.log('Export faktúr');
+    console.log('Export faktAsr');
     
-    alert('Export faktúr');
+    alert('Export faktAsr');
   };
 
   if (loading) {
@@ -108,14 +108,14 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 
   return (
     <div className="space-y-4">
-      {/* Ovládacie prvky */}
+      {/* OvlA?dacie prvky */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAllColumns(!showAllColumns)}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
           >
-            {showAllColumns ? 'Skryť POHODA polia' : 'Zobraziť všetky POHODA polia'}
+            {showAllColumns ? 'SkryLA POHODA polia' : 'ZobraziLA vL?etky POHODA polia'}
           </button>
         </div>
         
@@ -125,7 +125,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center space-x-1"
           >
             <PlusIcon className="h-4 w-4" />
-            <span>Nova faktúra</span>
+            <span>Nova faktAsra</span>
           </button>
           <button 
             onClick={() => setShowXmlImportModal(true)}
@@ -144,27 +144,27 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
         </div>
       </div>
 
-      {/* Tabuľka */}
+      {/* Tabu�lka */}
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {/* Základné polia - vždy viditeľné */}
+                {/* ZA?kladnA� polia - vLldy vidite�lnA� */}
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Číslo
+                  �SA�slo
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Varsym
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dátum
+                  DA?tum
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Splatné
+                  SplatnA�
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Daňpovin
+                  DaL�povin
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Text
@@ -173,7 +173,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                   Firma
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  IČO
+                  I�SO
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -182,32 +182,32 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                   Akcie
                 </th>
 
-                {/* POHODA polia - podmienene viditeľné */}
+                {/* POHODA polia - podmienene vidite�lnA� */}
                 {showAllColumns && (
                   <>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      € 0
+                      �,� 0
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      € znížená
+                      �,� znA�LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DPH znížená
+                      DPH znA�LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      € základná
+                      �,� zA?kladnA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DPH základná
+                      DPH zA?kladnA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      € 2 znížená
+                      �,� 2 znA�LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DPH 2 znížená
+                      DPH 2 znA�LlenA?
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Záloha
+                      ZA?loha
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Likv
@@ -219,13 +219,13 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                       CM kurz
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      CM čiastka
+                      CM �Tiastka
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Celkom
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      K likvidácii
+                      K likvidA?cii
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Storno
@@ -237,7 +237,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
             <tbody className="bg-white divide-y divide-gray-200">
               {invoices.map((invoice) => (
                 <tr key={invoice.id} className="hover:bg-gray-50">
-                  {/* Základné polia */}
+                  {/* ZA?kladnA� polia */}
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {invoice.invoice_number || '-'}
                   </td>
@@ -270,14 +270,14 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                       <button 
                         onClick={() => handleViewInvoice(invoice)}
                         className="text-blue-600 hover:text-blue-900"
-                        title="Zobraziť"
+                        title="ZobraziLA"
                       >
                         <EyeIcon className="h-4 w-4" />
                       </button>
                       <button 
                         onClick={() => handleEditInvoice(invoice)}
                         className="text-gray-600 hover:text-gray-900"
-                        title="Editovať"
+                        title="EditovaLA"
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
@@ -331,7 +331,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
                         {formatCurrency((invoice as any).liquidation_amount)}
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {(invoice as any).cancelled ? 'Áno' : 'Nie'}
+                        {(invoice as any).cancelled ? 'A�no' : 'Nie'}
                       </td>
                     </>
                   )}
@@ -343,7 +343,7 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 
         {invoices.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Žiadne vydané faktúry</p>
+            <p className="text-gray-500">L?iadne vydanA� faktAsry</p>
           </div>
         )}
       </div>
@@ -354,13 +354,13 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b">
               <h2 className="text-xl font-semibold text-gray-900">
-                Import POHODA XML faktúr
+                Import POHODA XML faktAsr
               </h2>
               <button
                 onClick={() => setShowXmlImportModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <span className="sr-only">Zatvoriť</span>
+                <span className="sr-only">ZatvoriLA</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -377,3 +377,4 @@ const IssuedInvoicesTable: React.FC<IssuedInvoicesTableProps> = ({ companyId, us
 };
 
 export default IssuedInvoicesTable;
+

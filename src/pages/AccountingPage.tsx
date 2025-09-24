@@ -1,4 +1,4 @@
-﻿import { API_BASE_URL } from '../services/apiService';
+import { API_BASE_URL } from '../services/apiService';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -24,7 +24,7 @@ const AccountingPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [companies, setCompanies] = useState<any[]>([]);
   
-  // PouĹľĂ­vame useLocalStorage hook pre konzistentnosĹĄ s App.tsx
+  // PouLlA�vame useLocalStorage hook pre konzistentnosLA s App.tsx
   const [userEmail] = useLocalStorage('userEmail', '');
   const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
   const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
@@ -41,7 +41,7 @@ const AccountingPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // ParalelnĂ© naÄŤĂ­tanie ĹˇtatistĂ­k, finanÄŤnej analĂ˝zy, DPH dĂˇt, bankovĂ˝ch dĂˇt a pokladĹovĂ˝ch dĂˇt
+      // ParalelnA� na�TA�tanie L?tatistA�k, finan�Tnej analA?zy, DPH dA?t, bankovA?ch dA?t a pokladL�ovA?ch dA?t
       const [statsData, analysisData, vatData, bankData, cashData] = await Promise.all([
         accountingService.getStats(companyId),
         accountingService.getFinancialAnalysis(companyId),
@@ -56,7 +56,7 @@ const AccountingPage: React.FC = () => {
       setBankData(bankData);
       setCashData(cashData);
     } catch (error) {
-      console.error('Chyba pri naÄŤĂ­tanĂ­ ĂşÄŤtovnĂ­ckych dĂˇt:', error);
+      console.error('Chyba pri na�TA�tanA� As�TtovnA�ckych dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -78,24 +78,24 @@ const AccountingPage: React.FC = () => {
     try {
       let endpoint = `${API_BASE_URL}/companies`;
       
-      // VĂ˝ber sprĂˇvneho endpointu podÄľa role
+      // VA?ber sprA?vneho endpointu pod�la role
       if (userRole === 'user') {
         endpoint = `${API_BASE_URL}/companies/user/${userEmail}`;
       } else if (userRole === 'accountant') {
         endpoint = `${API_BASE_URL}/companies/accountant/${userEmail}`;
       }
-      // Pre admin sa pouĹľĂ­va default endpoint '/api/companies'
+      // Pre admin sa pouLlA�va default endpoint '/api/companies'
       
       const response = await fetch(endpoint);
       const companiesData = await response.json();
       setCompanies(companiesData);
       
-      // Automaticky nastavĂ­me firmu podÄľa role, len ak nemĂˇme companyId v localStorage
+      // Automaticky nastavA�me firmu pod�la role, len ak nemA?me companyId v localStorage
       if (companiesData.length > 0 && !companyId) {
         setCompanyId(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri naÄŤĂ­tanĂ­ firiem:', error);
+      console.error('Chyba pri na�TA�tanA� firiem:', error);
     }
   };
 
@@ -107,25 +107,25 @@ const AccountingPage: React.FC = () => {
     }).format(amount);
   };
 
-  // Funkcia na zĂ­skanie poslednĂ©ho DPH obdobia s vĂ˝sledkom
+  // Funkcia na zA�skanie poslednA�ho DPH obdobia s vA?sledkom
   const getLastVatPeriod = () => {
     if (!vatData || !vatData.returns || vatData.returns.length === 0) {
       return { period: '-', result: 0, isPositive: false };
     }
     
-    // Zoradenie podÄľa mesiaca a vĂ˝ber poslednĂ©ho
+    // Zoradenie pod�la mesiaca a vA?ber poslednA�ho
     const sortedReturns = [...vatData.returns].sort((a, b) => b.mesiac - a.mesiac);
     const lastReturn = sortedReturns[0];
     
     const months = [
-      'JanuĂˇr', 'FebruĂˇr', 'Marec', 'AprĂ­l', 'MĂˇj', 'JĂşn',
-      'JĂşl', 'August', 'September', 'OktĂłber', 'November', 'December'
+      'JanuA?r', 'FebruA?r', 'Marec', 'AprA�l', 'MA?j', 'JAsn',
+      'JAsl', 'August', 'September', 'OktAlber', 'November', 'December'
     ];
     
     const period = `${months[lastReturn.mesiac - 1]} ${lastReturn.rok}`;
-    const result = lastReturn.povinnost - lastReturn.odpoÄŤet;
-    // ZmenenĂˇ logika: mĂ­nus = povinnosĹĄ (musĂ­ platiĹĄ), plus = odpoÄŤet (mĂ´Ĺľe si odpoÄŤĂ­taĹĄ)
-    const isPositive = result < 0; // NegatĂ­vny vĂ˝sledok znamenĂˇ povinnosĹĄ
+    const result = lastReturn.povinnost - lastReturn.odpo�Tet;
+    // ZmenenA? logika: mA�nus = povinnosLA (musA� platiLA), plus = odpo�Tet (mA�Lle si odpo�TA�taLA)
+    const isPositive = result < 0; // NegatA�vny vA?sledok znamenA? povinnosLA
     
     return { period, result, isPositive };
   };
@@ -133,8 +133,8 @@ const AccountingPage: React.FC = () => {
   const accountingCards = [
     {
       id: 'issued-invoices',
-      name: 'VydanĂ© faktĂşry',
-      description: 'SprĂˇva vydanĂ˝ch faktĂşr',
+      name: 'VydanA� faktAsry',
+      description: 'SprA?va vydanA?ch faktAsr',
       icon: DocumentTextIcon,
       color: 'bg-blue-500',
       hoverColor: 'hover:bg-blue-600',
@@ -143,8 +143,8 @@ const AccountingPage: React.FC = () => {
     },
     {
       id: 'received-invoices',
-      name: 'PrijatĂ© faktĂşry',
-      description: 'SprĂˇva prijatĂ˝ch faktĂşr',
+      name: 'PrijatA� faktAsry',
+      description: 'SprA?va prijatA?ch faktAsr',
       icon: ArrowDownIcon,
       color: 'bg-green-500',
       hoverColor: 'hover:bg-green-600',
@@ -153,8 +153,8 @@ const AccountingPage: React.FC = () => {
     },
     {
       id: 'cash',
-      name: 'PokladĹa',
-      description: 'CelkovĂ˝ zostatok pokladnĂ­',
+      name: 'PokladL�a',
+      description: 'CelkovA? zostatok pokladnA�',
       icon: BanknotesIcon,
       color: 'bg-yellow-500',
       hoverColor: 'hover:bg-yellow-600',
@@ -165,7 +165,7 @@ const AccountingPage: React.FC = () => {
     {
       id: 'bank',
       name: 'Banka',
-      description: 'CelkovĂ˝ zostatok bankovĂ˝ch ĂşÄŤtov',
+      description: 'CelkovA? zostatok bankovA?ch As�Ttov',
       icon: CreditCardIcon,
       color: 'bg-purple-500',
       hoverColor: 'hover:bg-purple-600',
@@ -176,7 +176,7 @@ const AccountingPage: React.FC = () => {
     {
       id: 'vat-returns',
       name: 'DPH',
-      description: `PoslednĂ© obdobie: ${getLastVatPeriod().period}`,
+      description: `PoslednA� obdobie: ${getLastVatPeriod().period}`,
       icon: ChartBarIcon,
       color: 'bg-indigo-500',
       hoverColor: 'hover:bg-indigo-600',
@@ -187,8 +187,8 @@ const AccountingPage: React.FC = () => {
     },
     {
       id: 'financial-results',
-      name: 'HospodĂˇrske vĂ˝sledky',
-      description: 'VĂ˝sledok hospodĂˇrenia',
+      name: 'HospodA?rske vA?sledky',
+      description: 'VA?sledok hospodA?renia',
       icon: ChartPieIcon,
       color: 'bg-red-500',
       hoverColor: 'hover:bg-red-600',
@@ -217,7 +217,7 @@ const AccountingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-900">
-      {/* Header s navigĂˇciou spĂ¤ĹĄ */}
+      {/* Header s navigA?ciou spA�LA */}
       <div className="bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -227,13 +227,13 @@ const AccountingPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                SpĂ¤ĹĄ na Dashboard
+                SpA�LA na Dashboard
               </button>
             </div>
                          <div className="flex items-center space-x-4">
-               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">ĂšÄŤtovnĂ­ctvo</h1>
+               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">As�TtovnA�ctvo</h1>
                
-                               {/* Pre Admin, Accountant a User - dropdown na vĂ˝ber firmy */}
+                               {/* Pre Admin, Accountant a User - dropdown na vA?ber firmy */}
                 {(userRole === 'admin' || userRole === 'accountant' || userRole === 'user') && companies.length > 0 ? (
                   <select
                     value={companyId || ''}
@@ -243,7 +243,7 @@ const AccountingPage: React.FC = () => {
                     <option value="">Vyberte firmu</option>
                     {companies.map(company => (
                       <option key={company.id} value={company.id}>
-                        {company.name} (IÄŚO: {company.ico})
+                        {company.name} (I�SO: {company.ico})
                       </option>
                     ))}
                   </select>
@@ -253,11 +253,11 @@ const AccountingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* HlavnĂ˝ obsah */}
+      {/* HlavnA? obsah */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Sekcie ĂşÄŤtovnĂ­ctva */}
+        {/* Sekcie As�TtovnA�ctva */}
         <div>
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Sekcie ĂşÄŤtovnĂ­ctva</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Sekcie As�TtovnA�ctva</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {accountingCards.map((card) => (
               <div
@@ -275,7 +275,7 @@ const AccountingPage: React.FC = () => {
                       <p className="text-sm text-gray-500 dark:text-gray-400">{card.description}</p>
                       {(card.id === 'issued-invoices' || card.id === 'received-invoices') && card.unpaidAmount > 0 && (
                         <p className="text-sm text-red-600 font-medium mt-1">
-                          NeuhradenĂ©: {formatCurrency(card.unpaidAmount)}
+                          NeuhradenA�: {formatCurrency(card.unpaidAmount)}
                         </p>
                       )}
 
@@ -297,7 +297,7 @@ const AccountingPage: React.FC = () => {
                           {getLastVatPeriod().isPositive ? '+' : '-'} {formatCurrency(Math.abs(getLastVatPeriod().result))}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {getLastVatPeriod().isPositive ? 'OdpoÄŤet' : 'PovinnosĹĄ'}
+                          {getLastVatPeriod().isPositive ? 'Odpo�Tet' : 'PovinnosLA'}
                         </p>
                       </>
                     ) : card.id === 'bank' ? (
@@ -306,7 +306,7 @@ const AccountingPage: React.FC = () => {
                           {formatCurrency(bankData?.summary?.totalBalance || 0)}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          CelkovĂ˝ zostatok
+                          CelkovA? zostatok
                         </p>
                       </>
                     ) : card.id === 'cash' ? (
@@ -315,13 +315,13 @@ const AccountingPage: React.FC = () => {
                           {formatCurrency(cashData?.summary?.totalBalance || 0)}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          CelkovĂ˝ zostatok
+                          CelkovA? zostatok
                         </p>
                       </>
                     ) : (
                       <>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{card.stats}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">poloĹľiek</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">poloLliek</p>
                       </>
                     )}
                   </div>

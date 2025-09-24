@@ -36,8 +36,8 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
   const importTypes: ImportType[] = [
     {
       id: 'issued-invoices',
-      name: 'Vydané faktúry',
-      description: 'Import vydaných faktúr z POHODA XML súborov',
+      name: 'VydanA� faktAsry',
+      description: 'Import vydanA?ch faktAsr z POHODA XML sAsborov',
       icon: DocumentTextIcon,
       color: 'text-blue-600',
       status: 'available',
@@ -45,24 +45,24 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     },
     {
       id: 'received-invoices',
-      name: 'Prijaté faktúry',
-      description: 'Import prijatých faktúr z POHODA XML súborov',
+      name: 'PrijatA� faktAsry',
+      description: 'Import prijatA?ch faktAsr z POHODA XML sAsborov',
       icon: DocumentArrowDownIcon,
       color: 'text-green-600',
       status: 'coming-soon'
     },
     {
       id: 'bank-transactions',
-      name: 'Bankové pohyby',
-      description: 'Import bankových pohybov z POHODA XML súborov',
+      name: 'BankovA� pohyby',
+      description: 'Import bankovA?ch pohybov z POHODA XML sAsborov',
       icon: BanknotesIcon,
       color: 'text-yellow-600',
       status: 'coming-soon'
     },
     {
       id: 'cash-transactions',
-      name: 'Pokladňa',
-      description: 'Import pokladňových pohybov z POHODA XML súborov',
+      name: 'PokladL�a',
+      description: 'Import pokladL�ovA?ch pohybov z POHODA XML sAsborov',
       icon: CreditCardIcon,
       color: 'text-purple-600',
       status: 'coming-soon'
@@ -70,7 +70,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     {
       id: 'partners',
       name: 'Partneri',
-      description: 'Import partnerov z POHODA XML súborov',
+      description: 'Import partnerov z POHODA XML sAsborov',
       icon: BuildingOfficeIcon,
       color: 'text-indigo-600',
       status: 'coming-soon'
@@ -78,7 +78,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     {
       id: 'employees',
       name: 'Zamestnanci',
-      description: 'Import zamestnancov z POHODA XML súborov',
+      description: 'Import zamestnancov z POHODA XML sAsborov',
       icon: UserGroupIcon,
       color: 'text-pink-600',
       status: 'coming-soon'
@@ -86,7 +86,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     {
       id: 'settings',
       name: 'Nastavenia',
-      description: 'Import nastavení z POHODA XML súborov',
+      description: 'Import nastavenA� z POHODA XML sAsborov',
       icon: CogIcon,
       color: 'text-gray-600',
       status: 'coming-soon'
@@ -105,7 +105,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
         setSelectedCompany(companiesData[0].id);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní firiem:', error);
+      console.error('Chyba pri na�TA�tanA� firiem:', error);
     }
   };
 
@@ -117,7 +117,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
     setImportStatus(prev => ({ ...prev, [importType.id]: 'importing' }));
 
     try {
-      // Tu by sa implementoval konkrétny import
+      // Tu by sa implementoval konkrA�tny import
       // Pre teraz len simulujeme
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -149,7 +149,7 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
       case 'importing':
         return 'Importujem...';
       case 'success':
-        return 'Import úspešný';
+        return 'Import AsspeL?nA?';
       case 'error':
         return 'Chyba importu';
       default:
@@ -177,25 +177,25 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
       </div>
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Informácie */}
+        {/* InformA?cie */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex">
             <InformationCircleIcon className="h-5 w-5 text-blue-400 mt-0.5" />
             <div className="ml-3">
               <h3 className="text-sm font-medium text-blue-800">
-                POHODA Import - Informácie
+                POHODA Import - InformA?cie
               </h3>
               <div className="mt-2 text-sm text-blue-700">
-                <p>Importujte dáta z POHODA XML súborov do systému. Vyberte typ importu a firmu.</p>
-                <p className="mt-1">Dostupné sú rôzne typy importov pre faktúry, pohyby a ďalšie dáta.</p>
+                <p>Importujte dA?ta z POHODA XML sAsborov do systA�mu. Vyberte typ importu a firmu.</p>
+                <p className="mt-1">DostupnA� sAs rA�zne typy importov pre faktAsry, pohyby a �ZalL?ie dA?ta.</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Výber firmy */}
+        {/* VA?ber firmy */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Výber firmy</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">VA?ber firmy</h2>
           <select
             value={selectedCompany || ''}
             onChange={(e) => setSelectedCompany(Number(e.target.value))}
@@ -252,12 +252,12 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     >
-                      {status === 'importing' ? 'Importujem...' : 'Importovať'}
+                      {status === 'importing' ? 'Importujem...' : 'ImportovaLA'}
                     </button>
                   ) : (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">
-                        {importType.status === 'coming-soon' ? 'Čoskoro dostupné' : 'Nedostupné'}
+                        {importType.status === 'coming-soon' ? '�Soskoro dostupnA�' : 'NedostupnA�'}
                       </span>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                         {importType.status === 'coming-soon' ? 'SOON' : 'N/A'}
@@ -274,11 +274,11 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
         <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-yellow-800 mb-2">Pokyny pre import</h3>
           <ul className="text-sm text-yellow-700 space-y-1">
-            <li>• XML súbory musia byť vo formáte POHODA dataPack</li>
-            <li>• Import sa vykonáva pre vybranú firmu</li>
-            <li>• Existujúce záznamy sa aktualizujú podľa ID</li>
-            <li>• Import je bezpečný - dáta sa nemazajú</li>
-            <li>• Po importe sa zobrazí súhrn výsledkov</li>
+            <li>�?? XML sAsbory musia byLA vo formA?te POHODA dataPack</li>
+            <li>�?? Import sa vykonA?va pre vybranAs firmu</li>
+            <li>�?? ExistujAsce zA?znamy sa aktualizujAs pod�la ID</li>
+            <li>�?? Import je bezpe�TnA? - dA?ta sa nemazajAs</li>
+            <li>�?? Po importe sa zobrazA� sAshrn vA?sledkov</li>
           </ul>
         </div>
       </div>
@@ -287,3 +287,4 @@ const AdminPohodaImportPage: React.FC<AdminPohodaImportPageProps> = ({ onBack })
 };
 
 export default AdminPohodaImportPage;
+

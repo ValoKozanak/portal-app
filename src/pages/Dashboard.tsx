@@ -22,7 +22,7 @@ import UserEmployeesPage from './UserEmployeesPage';
 import { apiService, Company } from '../services/apiService';
 import { hrService } from '../services/hrService';
 
-// Helper funkcia pre lokálne formátovanie dátumu
+// Helper funkcia pre lokA?lne formA?tovanie dA?tumu
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -36,10 +36,10 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) => {
   const [userProfile, setUserProfile] = useState({
-    name: 'Používateľ',
+    name: 'PouLlA�vate�l',
     email: userEmail,
     phone: '+421 123 456 789',
-    bio: 'Aktívny používateľ portálu s záujmom o dokumenty a úlohy.'
+    bio: 'AktA�vny pouLlA�vate�l portA?lu s zA?ujmom o dokumenty a Aslohy.'
   });
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
@@ -58,17 +58,17 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const [showEmployeesPage, setShowEmployeesPage] = useState(false);
   const [employeesCount, setEmployeesCount] = useState({ working: 0, notWorking: 0, total: 0 });
 
-  // Načítanie počtu neprečítaných správ
+  // Na�TA�tanie po�Ttu nepre�TA�tanA?ch sprA?v
   const loadUnreadMessagesCount = useCallback(async () => {
     try {
       const count = await apiService.getUnreadCount(userEmail);
       setUnreadMessagesCount(count);
     } catch (error) {
-      console.error('Chyba pri načítaní počtu neprečítaných správ:', error);
+      console.error('Chyba pri na�TA�tanA� po�Ttu nepre�TA�tanA?ch sprA?v:', error);
     }
   }, [userEmail]);
 
-  // Načítanie počtu zamestnancov
+  // Na�TA�tanie po�Ttu zamestnancov
   const loadEmployeesCount = useCallback(async () => {
     try {
       const userCompanies = await apiService.getUserCompanies(userEmail);
@@ -81,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           const employees = await hrService.getEmployees(company.id);
           totalEmployees += employees.length;
           
-          // Načítanie dochádzky a dovoleniek pre každého zamestnanca
+          // Na�TA�tanie dochA?dzky a dovoleniek pre kaLldA�ho zamestnanca
           const today = formatDate(new Date());
           
           for (const employee of employees) {
@@ -94,14 +94,14 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               const employeeAttendance = attendance.filter(att => att.employee_id === employee.id);
               const employeeLeaveRequests = leaveRequests.filter(leave => leave.employee_id === employee.id);
               
-              // Používame rovnakú logiku ako v UserEmployeesPage
-              // Najprv kontrolujeme status zamestnania z databázy
+              // PouLlA�vame rovnakAs logiku ako v UserEmployeesPage
+              // Najprv kontrolujeme status zamestnania z databA?zy
               if (employee.status === 'terminated' || employee.status === 'inactive') {
                 totalNotWorking++;
               } else if (employee.status === 'on_leave') {
                 totalNotWorking++;
               } else {
-                // Kontrola dochádzky na dnešný deň
+                // Kontrola dochA?dzky na dneL?nA? deL�
                 const todayAttendance = employeeAttendance.find(att => att.date === today);
                 
                 if (todayAttendance && todayAttendance.status === 'present') {
@@ -120,19 +120,19 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                 }
               }
             } catch (error) {
-              console.error(`Chyba pri načítaní detailov pre zamestnanca ${employee.id}:`, error);
-              // Ak sa nepodarí načítať údaje, považujeme za neprítomného
+              console.error(`Chyba pri na�TA�tanA� detailov pre zamestnanca ${employee.id}:`, error);
+              // Ak sa nepodarA� na�TA�taLA Asdaje, povaLlujeme za neprA�tomnA�ho
               totalNotWorking++;
             }
           }
         } catch (error) {
-          console.error(`Chyba pri načítaní zamestnancov pre firmu ${company.id}:`, error);
+          console.error(`Chyba pri na�TA�tanA� zamestnancov pre firmu ${company.id}:`, error);
         }
       }
 
       setEmployeesCount({ working: totalWorking, notWorking: totalNotWorking, total: totalEmployees });
     } catch (error) {
-      console.error('Chyba pri načítaní počtu zamestnancov:', error);
+      console.error('Chyba pri na�TA�tanA� po�Ttu zamestnancov:', error);
     }
   }, [userEmail]);
 
@@ -141,7 +141,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     loadEmployeesCount();
   }, [loadUnreadMessagesCount, loadEmployeesCount]);
 
-  // Načítanie úloh používateľa
+  // Na�TA�tanie Asloh pouLlA�vate�la
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -159,12 +159,12 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           dueDate: apiTask.due_date || '',
           createdAt: apiTask.created_at,
           createdBy: apiTask.created_by,
-          category: 'other', // Default kategória
+          category: 'other', // Default kategAlria
         }));
         
         setTasks(convertedTasks);
       } catch (error) {
-        console.error('Chyba pri načítaní úloh:', error);
+        console.error('Chyba pri na�TA�tanA� Asloh:', error);
       } finally {
         setLoadingTasks(false);
       }
@@ -177,7 +177,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
 
 
 
-  // Načítanie firiem z API
+  // Na�TA�tanie firiem z API
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         const userCompanies = await apiService.getUserCompanies(userEmail);
         setCompanies(userCompanies);
       } catch (error) {
-        console.error('Chyba pri načítaní firiem:', error);
+        console.error('Chyba pri na�TA�tanA� firiem:', error);
       } finally {
         setLoading(false);
       }
@@ -194,7 +194,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     loadCompanies();
   }, [userEmail]);
 
-  // Po načítaní firiem automaticky otvoríme dashboard vybranej firmy (ak je uložená v localStorage)
+  // Po na�TA�tanA� firiem automaticky otvorA�me dashboard vybranej firmy (ak je uloLlenA? v localStorage)
   useEffect(() => {
     try {
       const savedId = localStorage.getItem('selectedCompanyId');
@@ -205,13 +205,13 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         }
       }
     } catch (e) {
-      // ignorovať chybu pri localStorage
+      // ignorovaLA chybu pri localStorage
     }
   }, [companies, selectedCompany]);
 
   const handleSaveProfile = (updatedProfile: any) => {
     setUserProfile(updatedProfile);
-    console.log('Profil bol aktualizovaný:', updatedProfile);
+    console.log('Profil bol aktualizovanA?:', updatedProfile);
   };
 
   const handleAddCompany = () => {
@@ -231,7 +231,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   const handleSaveCompany = async (company: any) => {
     try {
       if (isEditingCompany) {
-        // Aktualizácia existujúcej firmy
+        // AktualizA?cia existujAscej firmy
         await apiService.updateCompany(company.id, company);
         setCompanies((prev: Company[]) => prev.map((c: Company) => c.id === company.id ? company : c));
       } else {
@@ -242,15 +242,15 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
           status: 'active'
         };
         
-        // Kontrola povinných polí
+        // Kontrola povinnA?ch polA�
         if (!companyData.name || !companyData.ico || !companyData.address || !companyData.authorized_person) {
-          alert('Chýbajú povinné údaje: názov firmy, IČO, adresa alebo oprávnená osoba');
+          alert('ChA?bajAs povinnA� Asdaje: nA?zov firmy, I�SO, adresa alebo oprA?vnenA? osoba');
           return;
         }
         
-        console.log('Vytváram firmu s dátami:', companyData);
+        console.log('VytvA?ram firmu s dA?tami:', companyData);
         const response = await apiService.createCompany(companyData);
-        console.log('Odpoveď z API:', response);
+        console.log('Odpove�Z z API:', response);
         const newCompany = { ...company, id: response.companyId, owner_email: userEmail, status: 'active' };
         setCompanies((prev: Company[]) => [...prev, newCompany]);
         setShowCompanyModal(false);
@@ -258,8 +258,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
         setIsEditingCompany(false);
       }
     } catch (error) {
-      console.error('Chyba pri ukladaní firmy:', error);
-      alert('Chyba pri ukladaní firmy: ' + (error instanceof Error ? error.message : 'Neznáma chyba'));
+      console.error('Chyba pri ukladanA� firmy:', error);
+      alert('Chyba pri ukladanA� firmy: ' + (error instanceof Error ? error.message : 'NeznA?ma chyba'));
     }
   };
 
@@ -273,7 +273,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     setSelectedCompany(null);
   };
 
-  // Ak je vybraná firma, zobrazíme dashboard firmy
+  // Ak je vybranA? firma, zobrazA�me dashboard firmy
   if (selectedCompany) {
     return (
       <CompanyDashboard
@@ -285,7 +285,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazená stránka úloh, zobrazíme ju
+  // Ak je zobrazenA? strA?nka Asloh, zobrazA�me ju
   if (showTasksPage) {
     return (
       <UserTasksPage
@@ -295,7 +295,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazená stránka správ, zobrazíme ju
+  // Ak je zobrazenA? strA?nka sprA?v, zobrazA�me ju
   if (showMessagesPage) {
     return (
       <UserMessagesPage
@@ -305,7 +305,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
     );
   }
 
-  // Ak je zobrazená stránka zamestnancov, zobrazíme ju
+  // Ak je zobrazenA? strA?nka zamestnancov, zobrazA�me ju
   if (showEmployeesPage) {
     return (
       <UserEmployeesPage
@@ -322,16 +322,16 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Váš Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-300">Vyberte si firmu pre prácu</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Prihlásený ako: {userProfile.name} ({userEmail})</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">VA?L? Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300">Vyberte si firmu pre prA?cu</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">PrihlA?senA? ako: {userProfile.name} ({userEmail})</p>
         </div>
         <div className="mt-4 sm:mt-0 flex items-center space-x-4">
           <button
             onClick={() => setShowEditProfileModal(true)}
             className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
           >
-            Upraviť profil
+            UpraviLA profil
           </button>
         </div>
       </div>
@@ -344,7 +344,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <BuildingOfficeIcon className="h-8 w-8 text-blue-500" />
          </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Vaše firmy</p>
+              <p className="text-sm font-medium text-gray-600">VaL?e firmy</p>
               <p className="text-2xl font-bold text-gray-900">{companies.length}</p>
                 </div>
                 </div>
@@ -381,7 +381,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <EnvelopeIcon className="h-8 w-8 text-purple-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Neprečítané správy</p>
+              <p className="text-sm font-medium text-gray-600">Nepre�TA�tanA� sprA?vy</p>
               <p className="text-2xl font-bold text-gray-900">{unreadMessagesCount}</p>
           </div>
         </div>
@@ -393,7 +393,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <CheckCircleIcon className="h-8 w-8 text-green-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Aktívne firmy</p>
+              <p className="text-sm font-medium text-gray-600">AktA�vne firmy</p>
               <p className="text-2xl font-bold text-gray-900">
                 {companies.filter(c => c.status === 'active').length}
               </p>
@@ -410,9 +410,9 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
               <ClipboardDocumentListIcon className="h-8 w-8 text-orange-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Vaše úlohy</p>
+              <p className="text-sm font-medium text-gray-600">VaL?e Aslohy</p>
               <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
-              <p className="text-sm text-gray-500">{tasks.filter(t => t.status === 'pending').length} čakajúcich</p>
+              <p className="text-sm text-gray-500">{tasks.filter(t => t.status === 'pending').length} �TakajAscich</p>
             </div>
           </div>
         </div>
@@ -421,14 +421,14 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
       {/* Company Selection */}
          <div className="bg-white rounded-lg shadow-md">
            <div className="px-6 py-4 border-b border-gray-200">
-             <h2 className="text-lg font-semibold text-gray-900">Vaše firmy</h2>
-          <p className="text-sm text-gray-600 mt-1">Vyberte firmu, s ktorou chcete pracovať</p>
+             <h2 className="text-lg font-semibold text-gray-900">VaL?e firmy</h2>
+          <p className="text-sm text-gray-600 mt-1">Vyberte firmu, s ktorou chcete pracovaLA</p>
            </div>
            <div className="p-6">
           {loading ? (
                <div className="text-center py-12">
                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Načítavam vaše firmy...</p>
+              <p className="mt-4 text-gray-600">Na�TA�tavam vaL?e firmy...</p>
                </div>
           ) : companies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -444,7 +444,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                       <div className="space-y-2 text-sm text-gray-600">
                            <div className="flex items-center">
                           <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                          <span>IČO: {company.ico}</span>
+                          <span>I�SO: {company.ico}</span>
                            </div>
                            <div className="flex items-center">
                           <EnvelopeIcon className="h-4 w-4 mr-2" />
@@ -462,7 +462,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         company.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {company.status === 'active' ? 'Aktívna' : 'Neaktívna'}
+                        {company.status === 'active' ? 'AktA�vna' : 'NeaktA�vna'}
                          </span>
                        </div>
                      </div>
@@ -476,11 +476,11 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                          }}
                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                        >
-                         Upraviť
+                         UpraviLA
                  </button>
                      </div>
                     <div className="flex items-center text-primary-600">
-                      <span className="text-sm font-medium mr-1">Vybrať firmu</span>
+                      <span className="text-sm font-medium mr-1">VybraLA firmu</span>
                       <ArrowRightIcon className="h-4 w-4" />
                        </div>
                      </div>
@@ -490,16 +490,16 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
              ) : (
                <div className="text-center py-12">
               <BuildingOfficeIcon className="mx-auto h-16 w-16 text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900">Nemáte žiadne firmy</h3>
+              <h3 className="mt-4 text-lg font-medium text-gray-900">NemA?te Lliadne firmy</h3>
               <p className="mt-2 text-sm text-gray-500 mb-6">
-                Pre prácu v portáli potrebujete vytvoriť aspoň jednu firmu.
+                Pre prA?cu v portA?li potrebujete vytvoriLA aspoL� jednu firmu.
               </p>
               <button
                 onClick={handleAddCompany}
                 className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 flex items-center mx-auto"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Pridať prvú firmu
+                PridaLA prvAs firmu
               </button>
             </div>
           )}
@@ -511,7 +511,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Pridať ďalšiu firmu
+                PridaLA �ZalL?iu firmu
               </button>
                </div>
              )}
@@ -521,7 +521,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
        {/* User Profile */}
        <div className="bg-white rounded-lg shadow-md">
          <div className="px-6 py-4 border-b border-gray-200">
-           <h2 className="text-lg font-semibold text-gray-900">Váš profil</h2>
+           <h2 className="text-lg font-semibold text-gray-900">VA?L? profil</h2>
          </div>
          <div className="p-6">
            <div className="flex items-start space-x-4">
@@ -544,7 +544,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
                onClick={() => setShowEditProfileModal(true)}
                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
              >
-               Upraviť
+               UpraviLA
              </button>
            </div>
          </div>
@@ -575,3 +575,4 @@ const Dashboard: React.FC<DashboardProps> = ({ userEmail = 'user@portal.sk' }) =
   };
 
 export default Dashboard;
+

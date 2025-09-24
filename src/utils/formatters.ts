@@ -1,4 +1,4 @@
-// Formátovanie meny
+// FormA?tovanie meny
 export const formatCurrency = (amount: number | null | undefined, currency: string = 'EUR'): string => {
   if (amount === null || amount === undefined || isNaN(amount)) return '-';
   
@@ -8,7 +8,7 @@ export const formatCurrency = (amount: number | null | undefined, currency: stri
   }).format(amount);
 };
 
-// Formátovanie dátumu
+// FormA?tovanie dA?tumu
 export const formatDate = (date: string | Date | null | undefined): string => {
   if (!date) return '-';
   
@@ -23,16 +23,17 @@ export const formatDate = (date: string | Date | null | undefined): string => {
   }).format(dateObj);
 };
 
-// Formátovanie čísla
+// FormA?tovanie �TA�sla
 export const formatNumber = (number: number | null | undefined): string => {
   if (number === null || number === undefined || isNaN(number)) return '-';
   
   return new Intl.NumberFormat('sk-SK').format(number);
 };
 
-// Formátovanie percent
+// FormA?tovanie percent
 export const formatPercent = (value: number | null | undefined, decimals: number = 2): string => {
   if (value === null || value === undefined || isNaN(value)) return '-';
   
   return `${value.toFixed(decimals)}%`;
 };
+

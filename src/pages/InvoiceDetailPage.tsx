@@ -33,7 +33,7 @@ const InvoiceDetailPage: React.FC = () => {
         setInvoice(data);
       }
     } catch (error) {
-      console.error('Chyba pri načítaní detailu faktúry:', error);
+      console.error('Chyba pri na�TA�tanA� detailu faktAsry:', error);
     } finally {
       setLoading(false);
     }
@@ -61,11 +61,11 @@ const InvoiceDetailPage: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       draft: { color: 'bg-gray-100 text-gray-800', text: 'Koncept' },
-      sent: { color: 'bg-blue-100 text-blue-800', text: 'Odoslaná' },
-      received: { color: 'bg-blue-100 text-blue-800', text: 'Prijatá' },
-      paid: { color: 'bg-green-100 text-green-800', text: 'Zaplatená' },
+      sent: { color: 'bg-blue-100 text-blue-800', text: 'OdoslanA?' },
+      received: { color: 'bg-blue-100 text-blue-800', text: 'PrijatA?' },
+      paid: { color: 'bg-green-100 text-green-800', text: 'ZaplatenA?' },
       overdue: { color: 'bg-red-100 text-red-800', text: 'Po splatnosti' },
-      cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'Zrušená' }
+      cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'ZruL?enA?' }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
@@ -82,7 +82,7 @@ const InvoiceDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Načítavam detail faktúry...</p>
+          <p className="mt-4 text-gray-600">Na�TA�tavam detail faktAsry...</p>
         </div>
       </div>
     );
@@ -92,12 +92,12 @@ const InvoiceDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Faktúra nebola nájdená</p>
+          <p className="text-gray-600">FaktAsra nebola nA?jdenA?</p>
           <button
             onClick={() => navigate(-1)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Späť
+            SpA�LA
           </button>
         </div>
       </div>
@@ -119,10 +119,10 @@ const InvoiceDetailPage: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
-                  Detail faktúry {invoice.invoice_number}
+                  Detail faktAsry {invoice.invoice_number}
                 </h1>
                 <p className="text-sm text-gray-500">
-                  {type === 'issued' ? 'Vydaná faktúra' : 'Prijatá faktúra'}
+                  {type === 'issued' ? 'VydanA? faktAsra' : 'PrijatA? faktAsra'}
                 </p>
               </div>
             </div>
@@ -157,10 +157,10 @@ const InvoiceDetailPage: React.FC = () => {
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  {tab === 'basic' && 'Základné údaje'}
+                  {tab === 'basic' && 'ZA?kladnA� Asdaje'}
                   {tab === 'vat' && 'Rozpis DPH'}
                   {tab === 'payments' && 'Platby'}
-                  {tab === 'notes' && 'Poznámky'}
+                  {tab === 'notes' && 'PoznA?mky'}
                 </button>
               ))}
             </nav>
@@ -171,18 +171,18 @@ const InvoiceDetailPage: React.FC = () => {
             {activeTab === 'basic' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Informácie o faktúre</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">InformA?cie o faktAsre</h3>
                   <dl className="space-y-3">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Číslo faktúry</dt>
+                      <dt className="text-sm font-medium text-gray-500">�SA�slo faktAsry</dt>
                       <dd className="text-sm text-gray-900">{invoice.invoice_number}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Dátum vystavenia</dt>
+                      <dt className="text-sm font-medium text-gray-500">DA?tum vystavenia</dt>
                       <dd className="text-sm text-gray-900">{formatDate(invoice.issue_date)}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Dátum splatnosti</dt>
+                      <dt className="text-sm font-medium text-gray-500">DA?tum splatnosti</dt>
                       <dd className="text-sm text-gray-900">{formatDate(invoice.due_date)}</dd>
                     </div>
                     <div>
@@ -190,7 +190,7 @@ const InvoiceDetailPage: React.FC = () => {
                       <dd className="text-sm">{getStatusBadge(invoice.status)}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Variabilný symbol</dt>
+                      <dt className="text-sm font-medium text-gray-500">VariabilnA? symbol</dt>
                       <dd className="text-sm text-gray-900">{(invoice as any).var_sym || '-'}</dd>
                     </div>
                   </dl>
@@ -198,23 +198,23 @@ const InvoiceDetailPage: React.FC = () => {
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    {type === 'issued' ? 'Zákazník' : 'Dodávateľ'}
+                    {type === 'issued' ? 'ZA?kaznA�k' : 'DodA?vate�l'}
                   </h3>
                   <dl className="space-y-3">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Názov</dt>
+                      <dt className="text-sm font-medium text-gray-500">NA?zov</dt>
                       <dd className="text-sm text-gray-900">
                         {type === 'issued' ? (invoice as IssuedInvoice).customer_name : (invoice as ReceivedInvoice).supplier_name}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">IČO</dt>
+                      <dt className="text-sm font-medium text-gray-500">I�SO</dt>
                       <dd className="text-sm text-gray-900">
                         {type === 'issued' ? (invoice as IssuedInvoice).customer_ico : (invoice as ReceivedInvoice).supplier_ico}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">DIČ</dt>
+                      <dt className="text-sm font-medium text-gray-500">DI�S</dt>
                       <dd className="text-sm text-gray-900">
                         {type === 'issued' ? (invoice as IssuedInvoice).customer_dic : (invoice as ReceivedInvoice).supplier_dic}
                       </dd>
@@ -232,11 +232,11 @@ const InvoiceDetailPage: React.FC = () => {
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Sumy</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">Celková suma</dt>
+                      <dt className="text-sm font-medium text-gray-500">CelkovA? suma</dt>
                       <dd className="text-2xl font-bold text-gray-900">{formatCurrency(invoice.total_amount)}</dd>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <dt className="text-sm font-medium text-gray-500">Základ DPH</dt>
+                      <dt className="text-sm font-medium text-gray-500">ZA?klad DPH</dt>
                       <dd className="text-2xl font-bold text-gray-900">{formatCurrency(invoice.total_amount - invoice.vat_amount)}</dd>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -253,22 +253,22 @@ const InvoiceDetailPage: React.FC = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Rozpis DPH</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-3">Základ DPH</h4>
+                    <h4 className="font-medium text-gray-900 mb-3">ZA?klad DPH</h4>
                                          <dl className="space-y-1">
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">Základ 0%:</dt>
+                         <dt className="text-sm text-gray-600">ZA?klad 0%:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc0 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">Znížená 1:</dt>
+                         <dt className="text-sm text-gray-600">ZnA�LlenA? 1:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc1 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">Znížená 2:</dt>
+                         <dt className="text-sm text-gray-600">ZnA�LlenA? 2:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc3 || 0)}</dd>
                        </div>
                        <div className="flex justify-between">
-                         <dt className="text-sm text-gray-600">Základná sadzba:</dt>
+                         <dt className="text-sm text-gray-600">ZA?kladnA? sadzba:</dt>
                          <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc2 || 0)}</dd>
                        </div>
                      </dl>
@@ -277,15 +277,15 @@ const InvoiceDetailPage: React.FC = () => {
                      <h4 className="font-medium text-gray-900 mb-3">DPH</h4>
                                            <dl className="space-y-1">
                         <div className="flex justify-between">
-                          <dt className="text-sm text-gray-600">1 - Znížená sadzba DPH:</dt>
+                          <dt className="text-sm text-gray-600">1 - ZnA�LlenA? sadzba DPH:</dt>
                           <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc_dph1 || 0)}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-sm text-gray-600">2 - Znížená sadzba DPH:</dt>
+                          <dt className="text-sm text-gray-600">2 - ZnA�LlenA? sadzba DPH:</dt>
                           <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc_dph3 || 0)}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-sm text-gray-600">Základná sadzba DPH:</dt>
+                          <dt className="text-sm text-gray-600">ZA?kladnA? sadzba DPH:</dt>
                           <dd className="text-sm font-medium">{formatCurrency((invoice as any).kc_dph2 || 0)}</dd>
                         </div>
                       </dl>
@@ -297,15 +297,15 @@ const InvoiceDetailPage: React.FC = () => {
             {activeTab === 'payments' && (
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Platby</h3>
-                <p className="text-gray-500">Funkcia platby bude implementovaná v budúcnosti.</p>
+                <p className="text-gray-500">Funkcia platby bude implementovanA? v budAscnosti.</p>
               </div>
             )}
 
             {activeTab === 'notes' && (
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Poznámky</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">PoznA?mky</h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-700">{(invoice as any).s_text || 'Žiadne poznámky'}</p>
+                  <p className="text-sm text-gray-700">{(invoice as any).s_text || 'L?iadne poznA?mky'}</p>
                 </div>
               </div>
             )}
@@ -317,3 +317,4 @@ const InvoiceDetailPage: React.FC = () => {
 };
 
 export default InvoiceDetailPage;
+

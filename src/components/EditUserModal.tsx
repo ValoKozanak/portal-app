@@ -59,37 +59,37 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinné';
+      newErrors.name = 'Meno je povinnA�';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (!formData.role) {
-      newErrors.role = 'Rola je povinná';
+      newErrors.role = 'Rola je povinnA?';
     }
 
     if (!formData.status) {
-      newErrors.status = 'Status je povinný';
+      newErrors.status = 'Status je povinnA?';
     }
 
     if (formData.phone && !/^\+?[\d\s\-()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Neplatný formát telefónu';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnu';
     }
 
-    // Validácia hesla ak sa mení
+    // ValidA?cia hesla ak sa menA�
     if (showPasswordChange) {
       if (!passwordData.newPassword) {
-        newErrors.newPassword = 'Nové heslo je povinné';
+        newErrors.newPassword = 'NovA� heslo je povinnA�';
       } else if (passwordData.newPassword.length < 6) {
-        newErrors.newPassword = 'Heslo musí mať aspoň 6 znakov';
+        newErrors.newPassword = 'Heslo musA� maLA aspoL� 6 znakov';
       }
 
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        newErrors.confirmPassword = 'Heslá sa nezhodujú';
+        newErrors.confirmPassword = 'HeslA? sa nezhodujAs';
       }
     }
 
@@ -107,17 +107,17 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Aktualizácia údajov používateľa
+      // AktualizA?cia Asdajov pouLlA�vate�la
       await onSave(user.id, formData);
       
-      // Zmena hesla ak je požadovaná
+      // Zmena hesla ak je poLladovanA?
       if (showPasswordChange && passwordData.newPassword) {
         await apiService.changeUserPassword(user.id, passwordData.newPassword);
       }
       
       onClose();
     } catch (error) {
-      console.error('Chyba pri uložení používateľa:', error);
+      console.error('Chyba pri uloLlenA� pouLlA�vate�la:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +150,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
               <UserIcon className="h-5 w-5 text-primary-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Upraviť používateľa</h2>
+            <h2 className="text-xl font-semibold text-gray-900">UpraviLA pouLlA�vate�la</h2>
           </div>
           <button
             onClick={onClose}
@@ -222,10 +222,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 }`}
               >
                 <option value="">Vyberte rolu</option>
-                <option value="user">Používateľ</option>
-                <option value="accountant">Účtovník (Moderátor)</option>
+                <option value="user">PouLlA�vate�l</option>
+                <option value="accountant">As�TtovnA�k (ModerA?tor)</option>
                 <option value="employee">Zamestnanec</option>
-                <option value="admin">Administrátor</option>
+                <option value="admin">AdministrA?tor</option>
               </select>
               <ShieldCheckIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
@@ -234,10 +234,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             )}
           </div>
 
-          {/* Telefón */}
+          {/* TelefAln */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Telefón
+              TelefAln
             </label>
             <div className="relative">
               <input
@@ -273,9 +273,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               }`}
             >
               <option value="">Vyberte status</option>
-              <option value="active">Aktívny</option>
-              <option value="inactive">Neaktívny</option>
-              <option value="suspended">Pozastavený</option>
+              <option value="active">AktA�vny</option>
+              <option value="inactive">NeaktA�vny</option>
+              <option value="suspended">PozastavenA?</option>
             </select>
             {errors.status && (
               <p className="mt-1 text-sm text-red-600">{errors.status}</p>
@@ -291,7 +291,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 onClick={() => setShowPasswordChange(!showPasswordChange)}
                 className="text-sm text-primary-600 hover:text-primary-700"
               >
-                {showPasswordChange ? 'Skryť' : 'Zmeniť heslo'}
+                {showPasswordChange ? 'SkryLA' : 'ZmeniLA heslo'}
               </button>
             </div>
             
@@ -299,7 +299,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <div className="space-y-4">
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nové heslo *
+                    NovA� heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -311,7 +311,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                         errors.newPassword ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="Minimálne 6 znakov"
+                      placeholder="MinimA?lne 6 znakov"
                     />
                     <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
@@ -322,7 +322,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Potvrďte nové heslo *
+                    Potvr�Zte novA� heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -334,7 +334,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                       className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                         errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="Zopakujte nové heslo"
+                      placeholder="Zopakujte novA� heslo"
                     />
                     <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
@@ -346,31 +346,31 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             )}
           </div>
 
-          {/* Informácie o používateľovi */}
+          {/* InformA?cie o pouLlA�vate�lovi */}
           <div className="bg-gray-50 rounded-md p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Informácie o používateľovi</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o pouLlA�vate�lovi</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {user.id}</p>
-              <p><span className="font-medium">Aktuálna rola:</span> {user.role}</p>
-              <p><span className="font-medium">Aktuálny status:</span> {user.status}</p>
+              <p><span className="font-medium">AktuA?lna rola:</span> {user.role}</p>
+              <p><span className="font-medium">AktuA?lny status:</span> {user.status}</p>
             </div>
           </div>
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="sticky bottom-0 bg-white flex justify-end space-x-3 pt-6 border-t border-gray-200 z-10">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Ukladám...' : 'Uložiť zmeny'}
+              {isSubmitting ? 'UkladA?m...' : 'UloLliLA zmeny'}
             </button>
           </div>
         </form>
@@ -380,4 +380,5 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 };
 
 export default EditUserModal;
+
 

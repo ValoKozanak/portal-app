@@ -19,12 +19,12 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Úlohy</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Aslohy</h2>
         <button
           onClick={onRefresh}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
         >
-          Obnoviť
+          ObnoviLA
         </button>
       </div>
 
@@ -32,7 +32,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center">
             <ClipboardDocumentListIcon className="h-6 w-6 text-gray-400 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">Zoznam úloh</h3>
+            <h3 className="text-lg font-medium text-gray-900">Zoznam Asloh</h3>
           </div>
         </div>
         
@@ -40,7 +40,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Hľadať úlohy..."
+              placeholder="H�ladaLA Aslohy..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -50,7 +50,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500">Načítavam úlohy...</p>
+              <p className="mt-2 text-gray-500">Na�TA�tavam Aslohy...</p>
             </div>
           ) : tasks.length > 0 ? (
             <div className="overflow-x-auto">
@@ -58,7 +58,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Názov
+                      NA?zov
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Firma
@@ -106,7 +106,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
           ) : (
             <div className="text-center py-8">
               <ClipboardDocumentListIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Žiadne úlohy neboli nájdené</p>
+              <p className="text-gray-500">L?iadne Aslohy neboli nA?jdenA�</p>
             </div>
           )}
         </div>
@@ -116,6 +116,7 @@ const AdminDashboardTasks: React.FC<AdminDashboardTasksProps> = ({
 };
 
 export default AdminDashboardTasks;
+
 
 
 

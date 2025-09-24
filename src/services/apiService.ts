@@ -1,18 +1,18 @@
 // src/services/apiService.ts
 
 // =========================
-// Base URL (ENV) – JEDINÝ zdroj pravdy
+// Base URL (ENV) �?" JEDINAt zdroj pravdy
 // =========================
 const envBase =
-  process.env.REACT_APP_API_BASE ||        // preferované (Netlify: /api)
+  process.env.REACT_APP_API_BASE ||        // preferovanA� (Netlify: /api)
   process.env.REACT_APP_API_URL  ||        // legacy fallback, ak by niekde ostalo
   '/api';
 
 export const API_BASE_URL = envBase.replace(/\/$/, ''); // bez trailing /
-export const API_ORIGIN = ''; // nepoužívaj pevný host
+export const API_ORIGIN = ''; // nepouLlA�vaj pevnA? host
 
 // =========================
-// Pomocné funkcie
+// PomocnA� funkcie
 // =========================
 const withLeadingSlash = (endpoint: string) =>
   endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -113,7 +113,7 @@ class ApiService {
 
   setToken(token: string) {
     this.token = token;
-    // udrž kompatibilitu s historickými kľúčmi
+    // udrLl kompatibilitu s historickA?mi k�lAs�Tmi
     localStorage.setItem('token', token);
     localStorage.setItem('auth_token', token);
   }
@@ -154,7 +154,7 @@ class ApiService {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        // skús prečítať JSON chybu, inak text
+        // skAss pre�TA�taLA JSON chybu, inak text
         let errMsg = `HTTP ${response.status}`;
         try {
           if (isJsonResponse(response)) {
@@ -168,7 +168,7 @@ class ApiService {
         throw new Error(errMsg);
       }
 
-      // 204/205 alebo prázdny content -> vráť prázdny objekt
+      // 204/205 alebo prA?zdny content -> vrA?LA prA?zdny objekt
       const len = response.headers.get('content-length');
       if (response.status === 204 || response.status === 205 || len === '0') {
         return {} as T;
@@ -177,13 +177,13 @@ class ApiService {
       if (isJsonResponse(response)) {
         return (await response.json()) as T;
       } else {
-        // ne-JSON odpoveď (napr. text)
+        // ne-JSON odpove�Z (napr. text)
         const txt = await response.text();
-        // @ts-ignore – necháme caller rozhodnúť
+        // @ts-ignore �?" nechA?me caller rozhodnAsLA
         return txt as unknown as T;
       }
     } catch (error) {
-      // centralizované logovanie
+      // centralizovanA� logovanie
       console.error('API request error:', { url, endpoint: ep, error });
       throw error;
     }
@@ -204,7 +204,7 @@ class ApiService {
   }
 
   async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    // bez Content-Type – boundary nastaví prehliadač
+    // bez Content-Type �?" boundary nastavA� prehliada�T
     return this.request<T>(endpoint, {
       method: 'POST',
       body: formData,
@@ -605,3 +605,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+

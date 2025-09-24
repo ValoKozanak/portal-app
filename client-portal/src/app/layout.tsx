@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Client Portal",
-  description: "Moderný portál pre správu firiem a dokumentov",
+  description: "ModernĂ˝ portĂˇl pre sprĂˇvu firiem a dokumentov",
 };
 
 export default function RootLayout({
@@ -27,3 +27,4 @@ export default function RootLayout({
     </html>
   );
 }
+

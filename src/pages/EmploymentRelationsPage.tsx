@@ -37,15 +37,15 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
   const loadData = async () => {
     try {
       setLoading(true);
-      // Načítanie zamestnancov firmy
+      // Na�TA�tanie zamestnancov firmy
       const employeesData = await hrService.getEmployees(companyId);
       setEmployees(employeesData);
       
-      // Načítanie pracovných pomerov z API
+      // Na�TA�tanie pracovnA?ch pomerov z API
       const relationsData = await hrService.getEmploymentRelations(companyId);
       setEmploymentRelations(relationsData);
     } catch (error) {
-      console.error('Chyba pri načítaní dát:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -104,30 +104,30 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
         });
       }
       
-      // Obnoviť dáta
+      // ObnoviLA dA?ta
       await loadData();
     } catch (error) {
-      console.error('Chyba pri ukladaní pracovného pomeru:', error);
-      alert('Chyba pri ukladaní pracovného pomeru');
+      console.error('Chyba pri ukladanA� pracovnA�ho pomeru:', error);
+      alert('Chyba pri ukladanA� pracovnA�ho pomeru');
     }
   };
 
   const handleDeleteRelation = (relationId: number) => {
-    if (window.confirm('Naozaj chcete vymazať tento pracovný pomer?')) {
+    if (window.confirm('Naozaj chcete vymazaLA tento pracovnA? pomer?')) {
       try {
 
         setEmploymentRelations(prev => prev.filter(r => r.id !== relationId));
       } catch (error) {
-        console.error('Chyba pri vymazaní pracovného pomeru:', error);
+        console.error('Chyba pri vymazanA� pracovnA�ho pomeru:', error);
       }
     }
   };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { color: 'bg-green-100 text-green-800', label: 'Aktívny' },
-      inactive: { color: 'bg-gray-100 text-gray-800', label: 'Neaktívny' },
-      terminated: { color: 'bg-red-100 text-red-800', label: 'Ukončený' }
+      active: { color: 'bg-green-100 text-green-800', label: 'AktA�vny' },
+      inactive: { color: 'bg-gray-100 text-gray-800', label: 'NeaktA�vny' },
+      terminated: { color: 'bg-red-100 text-red-800', label: 'Ukon�TenA?' }
     };
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive;
     return (
@@ -139,10 +139,10 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
 
   const getEmploymentTypeLabel = (type: string) => {
     const labels = {
-      'full_time': 'Plný úväzok',
-      'part_time': 'Čiastočný úväzok',
+      'full_time': 'PlnA? AsvA�zok',
+      'part_time': '�Siasto�TnA? AsvA�zok',
       'contract': 'Dohoda',
-      'intern': 'Stáž'
+      'intern': 'StA?Ll'
     };
     return labels[type as keyof typeof labels] || type;
   };
@@ -162,14 +162,14 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
               className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              Späť
+              SpA�LA
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pracovné pomery</h1>
-              <p className="text-gray-600 dark:text-gray-300">Správa pracovných pomerov zamestnancov</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">PracovnA� pomery</h1>
+              <p className="text-gray-600 dark:text-gray-300">SprA?va pracovnA?ch pomerov zamestnancov</p>
             </div>
           </div>
-          {/* Tlačidlo odstránené na žiadosť: vytváranie cez kartu zamestnanca */}
+          {/* Tla�Tidlo odstrA?nenA� na LliadosLA: vytvA?ranie cez kartu zamestnanca */}
         </div>
 
         {/* Search */}
@@ -178,7 +178,7 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Hľadať zamestnanca alebo pozíciu..."
+              placeholder="H�ladaLA zamestnanca alebo pozA�ciu..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -196,31 +196,31 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
                     Zamestnanec
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Pozícia
+                    PozA�cia
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Typ
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Začiatok
+                    Za�Tiatok
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Ukončenie
+                    Ukon�Tenie
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Mzda
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Týždenné hodiny
+                    TA?LldennA� hodiny
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Dochádzka
+                    DochA?dzka
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Pracovný čas
+                    PracovnA? �Tas
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Aktuálne
+                    AktuA?lne
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Akcie
@@ -253,14 +253,14 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
                        {relation.employment_termination_date ? new Date(relation.employment_termination_date).toLocaleDateString('sk-SK') : '-'}
                      </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {relation.salary ? `${relation.salary} €` : '-'}
+                      {relation.salary ? `${relation.salary} �,�` : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {relation.weekly_hours ? `${relation.weekly_hours} hodín` : '-'}
+                      {relation.weekly_hours ? `${relation.weekly_hours} hodA�n` : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {relation.attendance_mode === 'automatic' ? 'Automatická' : 
-                       relation.attendance_mode === 'manual' ? 'Manuálna' : '-'}
+                      {relation.attendance_mode === 'automatic' ? 'AutomatickA?' : 
+                       relation.attendance_mode === 'manual' ? 'ManuA?lna' : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {relation.work_start_time && relation.work_end_time ? 
@@ -297,7 +297,7 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
           {filteredRelations.length === 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400">
-                {searchTerm ? 'Žiadne výsledky pre vyhľadávanie' : 'Žiadne pracovné pomery'}
+                {searchTerm ? 'L?iadne vA?sledky pre vyh�ladA?vanie' : 'L?iadne pracovnA� pomery'}
               </p>
             </div>
           )}
@@ -330,3 +330,4 @@ const EmploymentRelationsPage: React.FC<EmploymentRelationsPageProps> = ({
 };
 
 export default EmploymentRelationsPage;
+

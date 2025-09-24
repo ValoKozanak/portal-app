@@ -49,29 +49,29 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Meno je povinné';
+      newErrors.name = 'Meno je povinnA�';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email je povinný';
+      newErrors.email = 'Email je povinnA?';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Neplatný formát emailu';
+      newErrors.email = 'NeplatnA? formA?t emailu';
     }
 
     if (formData.phone && !/^\+?[\d\s\-()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Neplatný formát telefónu';
+      newErrors.phone = 'NeplatnA? formA?t telefAlnu';
     }
 
-    // Validácia hesla ak sa mení
+    // ValidA?cia hesla ak sa menA�
     if (showPasswordChange) {
       if (!passwordData.newPassword) {
-        newErrors.newPassword = 'Nové heslo je povinné';
+        newErrors.newPassword = 'NovA� heslo je povinnA�';
       } else if (passwordData.newPassword.length < 6) {
-        newErrors.newPassword = 'Heslo musí mať aspoň 6 znakov';
+        newErrors.newPassword = 'Heslo musA� maLA aspoL� 6 znakov';
       }
 
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        newErrors.confirmPassword = 'Heslá sa nezhodujú';
+        newErrors.confirmPassword = 'HeslA? sa nezhodujAs';
       }
     }
 
@@ -89,17 +89,17 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Aktualizácia údajov používateľa
+      // AktualizA?cia Asdajov pouLlA�vate�la
       await onSave(user.id, formData);
       
-      // Zmena hesla ak je požadovaná
+      // Zmena hesla ak je poLladovanA?
       if (showPasswordChange && passwordData.newPassword) {
         await apiService.changeUserPassword(user.id, passwordData.newPassword);
       }
       
       onClose();
     } catch (error) {
-      console.error('Chyba pri uložení profilu:', error);
+      console.error('Chyba pri uloLlenA� profilu:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +132,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
             <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
               <BuildingOfficeIcon className="h-5 w-5 text-primary-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Upraviť profil účtovníka</h2>
+            <h2 className="text-xl font-semibold text-gray-900">UpraviLA profil As�TtovnA�ka</h2>
           </div>
           <button
             onClick={onClose}
@@ -191,10 +191,10 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
             )}
           </div>
 
-          {/* Telefón */}
+          {/* TelefAln */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Telefón
+              TelefAln
             </label>
             <div className="relative">
               <input
@@ -224,7 +224,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
                 onClick={() => setShowPasswordChange(!showPasswordChange)}
                 className="text-sm text-primary-600 hover:text-primary-700"
               >
-                {showPasswordChange ? 'Skryť' : 'Zmeniť heslo'}
+                {showPasswordChange ? 'SkryLA' : 'ZmeniLA heslo'}
               </button>
             </div>
             
@@ -232,7 +232,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
               <div className="space-y-4">
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nové heslo *
+                    NovA� heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -244,7 +244,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
                       className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                         errors.newPassword ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="Minimálne 6 znakov"
+                      placeholder="MinimA?lne 6 znakov"
                     />
                     <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
@@ -255,7 +255,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Potvrďte nové heslo *
+                    Potvr�Zte novA� heslo *
                   </label>
                   <div className="relative">
                     <input
@@ -267,7 +267,7 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
                       className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                         errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="Zopakujte nové heslo"
+                      placeholder="Zopakujte novA� heslo"
                     />
                     <KeyIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
@@ -279,31 +279,31 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
             )}
           </div>
 
-          {/* Informácie o účtovníkovi */}
+          {/* InformA?cie o As�TtovnA�kovi */}
           <div className="bg-gray-50 rounded-md p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Informácie o účtovníkovi</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">InformA?cie o As�TtovnA�kovi</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p><span className="font-medium">ID:</span> {user.id}</p>
-              <p><span className="font-medium">Rola:</span> Účtovník (Moderátor)</p>
+              <p><span className="font-medium">Rola:</span> As�TtovnA�k (ModerA?tor)</p>
               <p><span className="font-medium">Status:</span> {user.status}</p>
             </div>
           </div>
 
-          {/* Tlačidlá */}
+          {/* Tla�TidlA? */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
-              Zrušiť
+              ZruL?iLA
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Ukladám...' : 'Uložiť zmeny'}
+              {isSubmitting ? 'UkladA?m...' : 'UloLliLA zmeny'}
             </button>
           </div>
         </form>
@@ -313,3 +313,4 @@ const EditAccountantProfile: React.FC<EditAccountantProfileProps> = ({
 };
 
 export default EditAccountantProfile;
+

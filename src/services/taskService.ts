@@ -1,4 +1,4 @@
-// Definícia Task interface
+// DefinA�cia Task interface
 export interface Task {
   id: string;
   title: string;
@@ -16,7 +16,7 @@ export interface Task {
   companyName: string;
 }
 
-// Simulované úložište úloh v localStorage
+// SimulovanA� AsloLliL?te Asloh v localStorage
 const TASKS_STORAGE_KEY = 'allTasks';
 
 export interface TaskService {
@@ -34,7 +34,7 @@ class TaskServiceImpl implements TaskService {
       const stored = localStorage.getItem(TASKS_STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('Chyba pri načítaní úloh:', error);
+      console.error('Chyba pri na�TA�tanA� Asloh:', error);
       return [];
     }
   }
@@ -43,7 +43,7 @@ class TaskServiceImpl implements TaskService {
     try {
       localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
     } catch (error) {
-      console.error('Chyba pri ukladaní úloh:', error);
+      console.error('Chyba pri ukladanA� Asloh:', error);
     }
   }
 
@@ -95,28 +95,28 @@ class TaskServiceImpl implements TaskService {
     const filteredTasks = allTasks.filter(task => task.id !== taskId);
     
     if (filteredTasks.length === allTasks.length) {
-      return Promise.resolve(false); // Úloha nebola nájdená
+      return Promise.resolve(false); // Asloha nebola nA?jdenA?
     }
 
     this.saveTasksToStorage(filteredTasks);
     return Promise.resolve(true);
   }
 
-  // Inicializácia s predvolenými úlohami
+  // InicializA?cia s predvolenA?mi Aslohami
   initializeDefaultTasks(): void {
     const existingTasks = this.getTasksFromStorage();
     if (existingTasks.length > 0) {
-      return; // Už existujú úlohy
+      return; // ULl existujAs Aslohy
     }
 
     const defaultTasks: Task[] = [
       {
         id: '1',
-        title: 'Dokončiť výročnú správu 2024',
-        description: 'Pripraviť a dokončiť výročnú správu za rok 2024, vrátane všetkých príloh a dokumentácie.',
+        title: 'Dokon�TiLA vA?ro�TnAs sprA?vu 2024',
+        description: 'PripraviLA a dokon�TiLA vA?ro�TnAs sprA?vu za rok 2024, vrA?tane vL?etkA?ch prA�loh a dokumentA?cie.',
         status: 'pending',
         priority: 'high',
-        assignedTo: 'Mgr. Jana Nováková',
+        assignedTo: 'Mgr. Jana NovA?kovA?',
         assignedToEmail: 'accountant@portal.sk',
         dueDate: '2024-12-20',
         createdAt: '2024-12-01T10:00:00Z',
@@ -128,11 +128,11 @@ class TaskServiceImpl implements TaskService {
       },
       {
         id: '2',
-        title: 'Overiť DPH priznanie Q4',
-        description: 'Kontrola a overenie DPH priznania za 4. štvrťrok 2024 pred odoslaním.',
+        title: 'OveriLA DPH priznanie Q4',
+        description: 'Kontrola a overenie DPH priznania za 4. L?tvrLArok 2024 pred odoslanA�m.',
         status: 'in_progress',
         priority: 'high',
-        assignedTo: 'Ing. Peter Kováč',
+        assignedTo: 'Ing. Peter KovA?�T',
         assignedToEmail: 'accountant@portal.sk',
         dueDate: '2024-12-18',
         createdAt: '2024-12-05T14:30:00Z',
@@ -144,11 +144,11 @@ class TaskServiceImpl implements TaskService {
       },
       {
         id: '3',
-        title: 'Aktualizovať firemné údaje',
-        description: 'Aktualizácia firemných údajov v registri a notifikácia zmien úradom.',
+        title: 'AktualizovaLA firemnA� Asdaje',
+        description: 'AktualizA?cia firemnA?ch Asdajov v registri a notifikA?cia zmien Asradom.',
         status: 'completed',
         priority: 'medium',
-        assignedTo: 'Mgr. Anna Svobodová',
+        assignedTo: 'Mgr. Anna SvobodovA?',
         assignedToEmail: 'accountant@portal.sk',
         dueDate: '2024-12-15',
         createdAt: '2024-12-10T09:15:00Z',
@@ -166,7 +166,7 @@ class TaskServiceImpl implements TaskService {
 
 export const taskService = new TaskServiceImpl();
 
-// Jednorazové odstránenie demo úloh a vypnutie automatického seedovania
+// JednorazovA� odstrA?nenie demo Asloh a vypnutie automatickA�ho seedovania
 if (typeof window !== 'undefined') {
   try {
     const cleanupFlagKey = 'tasks_demo_cleanup_done';
@@ -176,9 +176,9 @@ if (typeof window !== 'undefined') {
       if (stored) {
         const tasks: Task[] = JSON.parse(stored);
         const demoTitles = new Set([
-          'Dokončiť výročnú správu 2024',
-          'Overiť DPH priznanie Q4',
-          'Aktualizovať firemné údaje'
+          'Dokon�TiLA vA?ro�TnAs sprA?vu 2024',
+          'OveriLA DPH priznanie Q4',
+          'AktualizovaLA firemnA� Asdaje'
         ]);
         const filtered = tasks.filter(t => !(
           demoTitles.has(t.title) &&
@@ -195,9 +195,10 @@ if (typeof window !== 'undefined') {
     // ignore cleanup errors
   }
 
-  // Seed predvolených úloh len ak je explicitne povolené cez env premennú
+  // Seed predvolenA?ch Asloh len ak je explicitne povolenA� cez env premennAs
   if (process.env.REACT_APP_ENABLE_DEMO_DATA === 'true') {
     taskService.initializeDefaultTasks();
   }
 }
+
 

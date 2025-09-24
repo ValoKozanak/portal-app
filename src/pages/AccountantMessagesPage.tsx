@@ -20,12 +20,12 @@ const AccountantMessagesPage: React.FC<AccountantMessagesPageProps> = ({ userEma
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">Späť do Dashboard</span>
+                <span className="font-medium">SpA�LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -36,9 +36,9 @@ const AccountantMessagesPage: React.FC<AccountantMessagesPageProps> = ({ userEma
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Správy</h1>
+          <h1 className="text-3xl font-bold text-gray-900">SprA?vy</h1>
           <p className="text-gray-600 mt-2">
-            Komunikácia s firmami a správami
+            KomunikA?cia s firmami a sprA?vami
           </p>
         </div>
 
@@ -60,3 +60,4 @@ const AccountantMessagesPage: React.FC<AccountantMessagesPageProps> = ({ userEma
 };
 
 export default AccountantMessagesPage;
+

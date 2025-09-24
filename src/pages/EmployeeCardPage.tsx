@@ -46,15 +46,15 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     try {
       setLoading(true);
       
-      // Načítanie zamestnancov z aktuálnej firmy
+      // Na�TA�tanie zamestnancov z aktuA?lnej firmy
       const employeesData = await hrService.getEmployees(companyId);
       setEmployees(employeesData);
       
-      // Načítanie zmien pre firmu
+      // Na�TA�tanie zmien pre firmu
       const changesData = await hrService.getCompanyChanges(companyId);
       setEmployeeChanges(changesData);
     } catch (error) {
-      console.error('Chyba pri načítaní dát:', error);
+      console.error('Chyba pri na�TA�tanA� dA?t:', error);
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     
     const updatedEmployee = { ...selectedEmployee, ...employeeData };
     
-    // Async function sa volá, ale nevraciam Promise
+    // Async function sa volA?, ale nevraciam Promise
     (async () => {
       try {
         await hrService.updateEmployee(selectedEmployee.id!, updatedEmployee);
@@ -76,7 +76,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
         const employeesData = await hrService.getEmployees(companyId);
         setEmployees(employeesData);
         
-        // Aktualizuj vybraného zamestnanca
+        // Aktualizuj vybranA�ho zamestnanca
         const updatedSelectedEmployee = employeesData.find(emp => emp.id === selectedEmployee.id);
         if (updatedSelectedEmployee) {
           setSelectedEmployee(updatedSelectedEmployee);
@@ -84,7 +84,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
         
         setShowEditModal(false);
       } catch (error) {
-        console.error('Chyba pri aktualizácii zamestnanca:', error);
+        console.error('Chyba pri aktualizA?cii zamestnanca:', error);
       }
     })();
   };
@@ -96,7 +96,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     employee.employee_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Funkcia na získanie stavu zmeny pre pole
+  // Funkcia na zA�skanie stavu zmeny pre pole
   const getFieldChangeStatus = (employeeId: number, fieldName: string) => {
     const change = employeeChanges.find(c => 
       c.employee_id === employeeId && 
@@ -129,29 +129,29 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
     return null;
   };
 
-  // Funkcia na schválenie zmeny
+  // Funkcia na schvA?lenie zmeny
   const handleApproveChange = async (changeId: number, employeeId: number, fieldName: string, newValue: string) => {
     try {
-      // Schváliť zmenu
-      await hrService.approveEmployeeChange(changeId, 1); // TODO: použiť skutočné ID schvaľovateľa
+      // SchvA?liLA zmenu
+      await hrService.approveEmployeeChange(changeId, 1); // TODO: pouLliLA skuto�TnA� ID schva�lovate�la
       
-      // Aktualizovať údaje zamestnanca
+      // AktualizovaLA Asdaje zamestnanca
       await hrService.updateEmployeeField(employeeId, fieldName, newValue);
       
-      // Obnoviť dáta
+      // ObnoviLA dA?ta
       await loadData();
       
-      alert('Zmena bola úspešne schválená');
+      alert('Zmena bola AsspeL?ne schvA?lenA?');
     } catch (error) {
-      console.error('Chyba pri schvaľovaní zmeny:', error);
-      alert('Chyba pri schvaľovaní zmeny');
+      console.error('Chyba pri schva�lovanA� zmeny:', error);
+      alert('Chyba pri schva�lovanA� zmeny');
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner size="lg" text="Načítavam karty zamestnancov..." />
+        <LoadingSpinner size="lg" text="Na�TA�tavam karty zamestnancov..." />
       </div>
     );
   }
@@ -166,16 +166,16 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
             className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Späť na Dashboard
+            SpA�LA na Dashboard
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Karty zamestnancov</h1>
-            <p className="text-gray-600 dark:text-gray-300">Detailné personálne údaje zamestnancov</p>
+            <p className="text-gray-600 dark:text-gray-300">DetailnA� personA?lne Asdaje zamestnancov</p>
           </div>
         </div>
       </div>
 
-      {/* Informačný box */}
+      {/* Informa�TnA? box */}
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
@@ -185,11 +185,11 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              Personálne údaje zamestnancov
+              PersonA?lne Asdaje zamestnancov
             </h3>
             <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-              <p>Tu dopĺňate detailné personálne údaje pre zamestnancov, ktorí už majú vytvorený účet v sekcii "Zamestnanci".</p>
-              <p>Pre pridanie nového zamestnanca použite sekciu "Zamestnanci".</p>
+              <p>Tu dop�sL�ate detailnA� personA?lne Asdaje pre zamestnancov, ktorA� uLl majAs vytvorenA? As�Tet v sekcii "Zamestnanci".</p>
+              <p>Pre pridanie novA�ho zamestnanca pouLlite sekciu "Zamestnanci".</p>
             </div>
           </div>
         </div>
@@ -199,11 +199,11 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow p-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Vyhľadávanie zamestnancov
+            Vyh�ladA?vanie zamestnancov
           </label>
           <input
             type="text"
-            placeholder="Hľadať zamestnancov..."
+            placeholder="H�ladaLA zamestnancov..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-dark-700 text-gray-900 dark:text-white"
@@ -254,7 +254,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                 <div className="text-center py-8">
                   <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {searchTerm ? 'Žiadni zamestnanci nenájdení' : 'Žiadni zamestnanci'}
+                    {searchTerm ? 'L?iadni zamestnanci nenA?jdenA�' : 'L?iadni zamestnanci'}
                   </h3>
                 </div>
               )}
@@ -274,7 +274,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                                 {selectedEmployee.first_name} {selectedEmployee.last_name}
                               </h2>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {selectedEmployee.position} • {selectedEmployee.employee_id}
+                                {selectedEmployee.position} �?? {selectedEmployee.employee_id}
                               </p>
                             </div>
                             <div className="flex space-x-2">
@@ -283,13 +283,13 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                                 className="flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                               >
                                 <PencilIcon className="h-4 w-4 mr-1" />
-                                Upraviť
+                                UpraviLA
                               </button>
                               <button
                                 onClick={() => setShowAddERModal(true)}
                                 className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                               >
-                                Nový pracovný pomer
+                                NovA? pracovnA? pomer
                               </button>
                     <button
                       onClick={() => setActiveTab('personal')}
@@ -300,7 +300,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                       }`}
                     >
                       <DocumentTextIcon className="h-4 w-4 inline mr-1" />
-                      Personálne
+                      PersonA?lne
                     </button>
 
                   </div>
@@ -323,7 +323,7 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                 Vyberte zamestnanca
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Kliknite na zamestnanca z ľavého zoznamu pre zobrazenie jeho karty
+                Kliknite na zamestnanca z �lavA�ho zoznamu pre zobrazenie jeho karty
               </p>
             </div>
           )}
@@ -364,10 +364,10 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
                 is_active: Boolean(relationData.is_active)
               });
               setShowAddERModal(false);
-              alert('Pracovný pomer bol úspešne pridaný');
+              alert('PracovnA? pomer bol AsspeL?ne pridanA?');
             } catch (e) {
-              console.error('Chyba pri pridaní pracovného pomeru:', e);
-              alert('Chyba pri pridaní pracovného pomeru');
+              console.error('Chyba pri pridanA� pracovnA�ho pomeru:', e);
+              alert('Chyba pri pridanA� pracovnA�ho pomeru');
             }
           }}
           relation={{
@@ -398,16 +398,16 @@ const EmployeeCardPage: React.FC<EmployeeCardPageProps> = ({ userEmail, companyI
   );
 };
 
-// Komponent pre personálne údaje
+// Komponent pre personA?lne Asdaje
 const PersonalDataTab: React.FC<{ 
   employee: Employee;
   employeeChanges: any[];
   onApproveChange: (changeId: number, employeeId: number, fieldName: string, newValue: string) => void;
 }> = ({ employee, employeeChanges, onApproveChange }) => {
   
-  // Funkcia na získanie stavu zmeny pre pole
+  // Funkcia na zA�skanie stavu zmeny pre pole
   const getFieldChangeStatus = (fieldName: string) => {
-    // Hľadanie najnovšej pending zmeny (podľa ID)
+    // H�ladanie najnovL?ej pending zmeny (pod�la ID)
     const pendingChanges = employeeChanges.filter(c => 
       c.employee_id === employee.id && 
       c.field_name === fieldName && 
@@ -415,7 +415,7 @@ const PersonalDataTab: React.FC<{
     );
     
     if (pendingChanges.length > 0) {
-      // Vrátiť najnovšiu pending zmenu (s najvyšším ID)
+      // VrA?tiLA najnovL?iu pending zmenu (s najvyL?L?A�m ID)
       const latestPendingChange = pendingChanges.reduce((latest, current) => 
         (current.id > latest.id) ? current : latest
       );
@@ -428,7 +428,7 @@ const PersonalDataTab: React.FC<{
       };
     }
     
-    // Hľadanie najnovšej approved zmeny
+    // H�ladanie najnovL?ej approved zmeny
     const approvedChanges = employeeChanges.filter(c => 
       c.employee_id === employee.id && 
       c.field_name === fieldName && 
@@ -452,9 +452,9 @@ const PersonalDataTab: React.FC<{
   };
   return (
     <div className="space-y-6">
-      {/* Základné údaje */}
+      {/* ZA?kladnA� Asdaje */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Základné údaje</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">ZA?kladnA� Asdaje</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DataField 
             label="Priezvisko" 
@@ -473,7 +473,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Rodné priezvisko" 
+            label="RodnA� priezvisko" 
             value={employee.birth_name || '-'} 
             employeeId={employee.id}
             fieldName="birth_name"
@@ -505,7 +505,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Dátum narodenia" 
+            label="DA?tum narodenia" 
             value={employee.birth_date ? new Date(employee.birth_date).toLocaleDateString('sk-SK') : '-'} 
             employeeId={employee.id}
             fieldName="birth_date"
@@ -513,7 +513,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Rodné číslo" 
+            label="RodnA� �TA�slo" 
             value={employee.birth_number || '-'} 
             employeeId={employee.id}
             fieldName="birth_number"
@@ -529,7 +529,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Národnosť" 
+            label="NA?rodnosLA" 
             value={employee.nationality || '-'} 
             employeeId={employee.id}
             fieldName="nationality"
@@ -537,7 +537,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Štát občianstvo" 
+            label="L�tA?t ob�Tianstvo" 
             value={employee.citizenship || '-'} 
             employeeId={employee.id}
             fieldName="citizenship"
@@ -553,21 +553,21 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Rodinný stav" 
+            label="RodinnA? stav" 
             value={employee.marital_status || '-'} 
             employeeId={employee.id}
             fieldName="marital_status"
             changeStatus={getFieldChangeStatus('marital_status')}
             onApproveChange={onApproveChange}
           />
-          <DataField label="Spoločník" value={employee.is_partner ? 'Áno' : 'Nie'} />
-          <DataField label="Štatutár" value={employee.is_statutory ? 'Áno' : 'Nie'} />
+          <DataField label="Spolo�TnA�k" value={employee.is_partner ? 'A�no' : 'Nie'} />
+          <DataField label="L�tatutA?r" value={employee.is_statutory ? 'A�no' : 'Nie'} />
         </div>
       </div>
 
-      {/* Adresa trvalého pobytu */}
+      {/* Adresa trvalA�ho pobytu */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Adresa trvalého pobytu</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Adresa trvalA�ho pobytu</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DataField 
             label="Ulica" 
@@ -578,7 +578,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Číslo popisné" 
+            label="�SA�slo popisnA�" 
             value={employee.permanent_number || '-'} 
             employeeId={employee.id}
             fieldName="permanent_number"
@@ -594,7 +594,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="PSČ" 
+            label="PS�S" 
             value={employee.permanent_zip || '-'} 
             employeeId={employee.id}
             fieldName="permanent_zip"
@@ -602,7 +602,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Štát" 
+            label="L�tA?t" 
             value={employee.permanent_country || '-'} 
             employeeId={employee.id}
             fieldName="permanent_country"
@@ -612,9 +612,9 @@ const PersonalDataTab: React.FC<{
         </div>
       </div>
 
-      {/* Kontaktná adresa */}
+      {/* KontaktnA? adresa */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Kontaktná adresa</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">KontaktnA? adresa</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DataField 
             label="Ulica" 
@@ -625,7 +625,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Číslo popisné" 
+            label="�SA�slo popisnA�" 
             value={employee.contact_number || '-'} 
             employeeId={employee.id}
             fieldName="contact_number"
@@ -641,7 +641,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="PSČ" 
+            label="PS�S" 
             value={employee.contact_zip || '-'} 
             employeeId={employee.id}
             fieldName="contact_zip"
@@ -649,7 +649,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Štát" 
+            label="L�tA?t" 
             value={employee.contact_country || '-'} 
             employeeId={employee.id}
             fieldName="contact_country"
@@ -657,7 +657,7 @@ const PersonalDataTab: React.FC<{
             onApproveChange={onApproveChange}
           />
           <DataField 
-            label="Telefón" 
+            label="TelefAln" 
             value={employee.phone || '-'} 
             employeeId={employee.id}
             fieldName="phone"
@@ -668,18 +668,18 @@ const PersonalDataTab: React.FC<{
         </div>
       </div>
 
-      {/* Cudzinecké údaje */}
+      {/* CudzineckA� Asdaje */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Cudzinecké údaje</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">CudzineckA� Asdaje</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DataField label="Cudzinec" value={employee.is_foreigner ? 'Áno' : 'Nie'} />
-          <DataField label="Štát (cudzinec)" value={employee.foreigner_country || '-'} />
-          <DataField label="Číslo povolenia k pobytu" value={employee.residence_permit_number || '-'} />
-          <DataField label="Číslo soc. poist. v SR" value={employee.social_insurance_sr || '-'} />
-          <DataField label="Číslo soc. poist. v zahraničí" value={employee.social_insurance_foreign || '-'} />
-          <DataField label="Číslo zdrav. poist. v SR" value={employee.health_insurance_sr || '-'} />
-          <DataField label="Cudzinec bez trv. pobytu v SR" value={employee.foreigner_without_permanent_residence ? 'Áno' : 'Nie'} />
-          <DataField label="Identifikačné číslo na daňové účely" value={employee.tax_identification_number || '-'} />
+          <DataField label="Cudzinec" value={employee.is_foreigner ? 'A�no' : 'Nie'} />
+          <DataField label="L�tA?t (cudzinec)" value={employee.foreigner_country || '-'} />
+          <DataField label="�SA�slo povolenia k pobytu" value={employee.residence_permit_number || '-'} />
+          <DataField label="�SA�slo soc. poist. v SR" value={employee.social_insurance_sr || '-'} />
+          <DataField label="�SA�slo soc. poist. v zahrani�TA�" value={employee.social_insurance_foreign || '-'} />
+          <DataField label="�SA�slo zdrav. poist. v SR" value={employee.health_insurance_sr || '-'} />
+          <DataField label="Cudzinec bez trv. pobytu v SR" value={employee.foreigner_without_permanent_residence ? 'A�no' : 'Nie'} />
+          <DataField label="Identifika�TnA� �TA�slo na daL�ovA� As�Tely" value={employee.tax_identification_number || '-'} />
         </div>
       </div>
     </div>
@@ -688,7 +688,7 @@ const PersonalDataTab: React.FC<{
 
 
 
-// Pomocný komponent pre zobrazenie údajového poľa
+// PomocnA? komponent pre zobrazenie AsdajovA�ho po�la
 const DataField: React.FC<{ 
   label: string; 
   value: string; 
@@ -709,23 +709,23 @@ const DataField: React.FC<{
           <button
             onClick={() => onApproveChange?.(changeStatus.changeId, employeeId!, fieldName!, changeStatus.newValue)}
             className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-            title={`🔄 Čakajúca zmena od zamestnanca
+            title={`dz"" �SakajAsca zmena od zamestnanca
 
-📝 Dôvod: ${changeStatus.reason}
-🆕 Nová hodnota: ${changeStatus.newValue}
+dz"t DA�vod: ${changeStatus.reason}
+dz?. NovA? hodnota: ${changeStatus.newValue}
 
-Kliknite pre schválenie zmeny.`}
+Kliknite pre schvA?lenie zmeny.`}
           >
             <PencilIcon className="w-4 h-4" />
           </button>
         )}
         {changeStatus.status === 'approved' && (
-          <div className="text-green-500 dark:text-green-400" title={`✅ Schválená zmena
+          <div className="text-green-500 dark:text-green-400" title={`�s. SchvA?lenA? zmena
 
-📝 Dôvod: ${changeStatus.reason}
-🆕 Nová hodnota: ${changeStatus.newValue}
+dz"t DA�vod: ${changeStatus.reason}
+dz?. NovA? hodnota: ${changeStatus.newValue}
 
-Zmena bola schválená a aplikovaná.`}>
+Zmena bola schvA?lenA? a aplikovanA?.`}>
             <PencilIcon className="w-4 h-4" />
           </div>
         )}
@@ -734,25 +734,26 @@ Zmena bola schválená a aplikovaná.`}>
   </div>
 );
 
-// Pomocné funkcie
+// PomocnA� funkcie
 const getEmploymentTypeLabel = (type: string) => {
   const labels = {
-    'full_time': 'Plný úväzok',
-    'part_time': 'Čiastočný úväzok',
+    'full_time': 'PlnA? AsvA�zok',
+    'part_time': '�Siasto�TnA? AsvA�zok',
     'contract': 'Dohoda',
-    'intern': 'Stáž'
+    'intern': 'StA?Ll'
   };
   return labels[type as keyof typeof labels] || type;
 };
 
 const getStatusLabel = (status: string) => {
   const labels = {
-    'active': 'Aktívny',
-    'inactive': 'Neaktívny',
-    'terminated': 'Ukončený',
+    'active': 'AktA�vny',
+    'inactive': 'NeaktA�vny',
+    'terminated': 'Ukon�TenA?',
     'on_leave': 'Na dovolenke'
   };
   return labels[status as keyof typeof labels] || status;
 };
 
 export default EmployeeCardPage;
+

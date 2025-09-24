@@ -23,17 +23,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
     setError('');
 
     try {
-      // Použijeme API pre prihlásenie
+      // PouLlijeme API pre prihlA?senie
       const response = await apiService.login(credentials.email, credentials.password);
       
-      // Uložíme token
+      // UloLlA�me token
       apiService.setToken(response.token);
       
-      // Prihlásime používateľa
+      // PrihlA?sime pouLlA�vate�la
       onLogin(response.user.role as 'admin' | 'accountant' | 'user' | 'employee', credentials.email);
       onClose();
     } catch (error: any) {
-      setError(error.message || 'Nesprávne prihlasovacie údaje');
+      setError(error.message || 'NesprA?vne prihlasovacie Asdaje');
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +52,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-dark-800 rounded-lg shadow-xl max-w-md w-full mx-4 transition-colors duration-200">
         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-dark-600">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Prihlásenie</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">PrihlA?senie</h2>
           <button
             onClick={onClose}
             className="text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 transition-colors duration-200"
@@ -96,7 +96,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-dark-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200"
-              placeholder="Vaše heslo"
+              placeholder="VaL?e heslo"
             />
           </div>
 
@@ -105,16 +105,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
             disabled={isLoading}
             className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
-            {isLoading ? 'Prihlasujem...' : 'Prihlásiť sa'}
+            {isLoading ? 'Prihlasujem...' : 'PrihlA?siLA sa'}
           </button>
 
           <div className="mt-6 p-4 bg-gray-50 dark:bg-dark-700 rounded-md">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Testovacie účty:</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Testovacie As�Tty:</h3>
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p><strong>Admin:</strong> admin@portal.sk / admin123</p>
-              <p><strong>Účtovník:</strong> accountant@portal.sk / accountant123</p>
-              <p><strong>Nový účtovník:</strong> novy.ucetovnik@portal.sk / ucetovnik123</p>
-              <p><strong>Používateľ:</strong> user@portal.sk / user123</p>
+              <p><strong>As�TtovnA�k:</strong> accountant@portal.sk / accountant123</p>
+              <p><strong>NovA? As�TtovnA�k:</strong> novy.ucetovnik@portal.sk / ucetovnik123</p>
+              <p><strong>PouLlA�vate�l:</strong> user@portal.sk / user123</p>
             </div>
           </div>
         </form>
@@ -124,3 +124,4 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, onFir
 };
 
 export default LoginModal;
+

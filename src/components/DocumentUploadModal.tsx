@@ -48,8 +48,8 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         allowedTypes: category.allowedTypes
       })));
     } catch (error) {
-      console.error('Chyba pri načítaní kategórií:', error);
-      setError('Nepodarilo sa načítať kategórie dokumentov');
+      console.error('Chyba pri na�TA�tanA� kategAlriA�:', error);
+      setError('Nepodarilo sa na�TA�taLA kategAlrie dokumentov');
     }
   };
 
@@ -58,12 +58,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     
     const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
     if (selectedCategoryData && !selectedCategoryData.allowedTypes.includes(file.type)) {
-      setError(`Tento typ súboru nie je podporovaný pre kategóriu "${selectedCategoryData.name}"`);
+      setError(`Tento typ sAsboru nie je podporovanA? pre kategAlriu "${selectedCategoryData.name}"`);
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) { // 10MB
-      setError('Súbor je príliš veľký. Maximálna veľkosť je 10MB.');
+      setError('SAsbor je prA�liL? ve�lkA?. MaximA?lna ve�lkosLA je 10MB.');
       return;
     }
 
@@ -92,12 +92,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setError('Vyberte súbor na nahranie');
+      setError('Vyberte sAsbor na nahranie');
       return;
     }
 
     if (!selectedCategory) {
-      setError('Vyberte kategóriu dokumentu');
+      setError('Vyberte kategAlriu dokumentu');
       return;
     }
 
@@ -123,8 +123,8 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       setDescription('');
       onClose();
     } catch (error: any) {
-      console.error('Chyba pri nahrávaní dokumentu:', error);
-      setError(error.message || 'Chyba pri nahrávaní dokumentu');
+      console.error('Chyba pri nahrA?vanA� dokumentu:', error);
+      setError(error.message || 'Chyba pri nahrA?vanA� dokumentu');
     } finally {
       setIsUploading(false);
     }
@@ -134,11 +134,11 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     setSelectedCategory(categoryId);
     setError('');
     
-    // Ak je vybraný súbor, skontrolujeme kompatibilitu
+    // Ak je vybranA? sAsbor, skontrolujeme kompatibilitu
     if (selectedFile) {
       const categoryData = categories.find(cat => cat.id === categoryId);
       if (categoryData && !categoryData.allowedTypes.includes(selectedFile.type)) {
-        setError(`Tento typ súboru nie je podporovaný pre kategóriu "${categoryData.name}"`);
+        setError(`Tento typ sAsboru nie je podporovanA? pre kategAlriu "${categoryData.name}"`);
         setSelectedFile(null);
       }
     }
@@ -153,7 +153,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <DocumentArrowUpIcon className="h-6 w-6 text-blue-600" />
-            Nahrať dokument
+            NahraLA dokument
           </h2>
           <button
             onClick={onClose}
@@ -165,10 +165,10 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Kategória */}
+          {/* KategAlria */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kategória dokumentu *
+              KategAlria dokumentu *
             </label>
             <select
               value={selectedCategory}
@@ -183,7 +183,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             </select>
             {selectedCategory && (
               <p className="text-sm text-gray-500 mt-1">
-                Podporované formáty: {categories.find(cat => cat.id === selectedCategory)?.allowedTypes.join(', ')}
+                PodporovanA� formA?ty: {categories.find(cat => cat.id === selectedCategory)?.allowedTypes.join(', ')}
               </p>
             )}
           </div>
@@ -217,14 +217,14 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
                     onClick={() => setSelectedFile(null)}
                     className="text-sm text-red-600 hover:text-red-700"
                   >
-                    Zmeniť súbor
+                    ZmeniLA sAsbor
                   </button>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <DocumentArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto" />
                   <p className="text-sm text-gray-600">
-                    Presuňte súbor sem alebo kliknite na výber
+                    PresuL�te sAsbor sem alebo kliknite na vA?ber
                   </p>
                   <input
                     type="file"
@@ -237,7 +237,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
                     htmlFor="file-upload"
                     className="cursor-pointer text-sm text-blue-600 hover:text-blue-700"
                   >
-                    Vybrať súbor
+                    VybraLA sAsbor
                   </label>
                 </div>
               )}
@@ -247,14 +247,14 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Popis (voliteľné)
+              Popis (volite�lnA�)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Krátky popis dokumentu..."
+              placeholder="KrA?tky popis dokumentu..."
             />
           </div>
 
@@ -268,12 +268,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 
           {/* Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">Informácie o nahrávaní</h4>
+            <h4 className="text-sm font-medium text-blue-900 mb-2">InformA?cie o nahrA?vanA�</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Dokument sa nahraje do organizovaného folderu</li>
-              <li>• Maximálna veľkosť súboru: 10MB</li>
-              <li>• Admin dostane notifikáciu o novom dokumente</li>
-              <li>• Dokument bude dostupný pre priradeného účtovníka</li>
+              <li>�?? Dokument sa nahraje do organizovanA�ho folderu</li>
+              <li>�?? MaximA?lna ve�lkosLA sAsboru: 10MB</li>
+              <li>�?? Admin dostane notifikA?ciu o novom dokumente</li>
+              <li>�?? Dokument bude dostupnA? pre priradenA�ho As�TtovnA�ka</li>
             </ul>
           </div>
         </div>
@@ -285,7 +285,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             disabled={isUploading}
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
           >
-            Zrušiť
+            ZruL?iLA
           </button>
           <button
             onClick={handleUpload}
@@ -295,12 +295,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             {isUploading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Nahrávam...
+                NahrA?vam...
               </>
             ) : (
               <>
                 <DocumentArrowUpIcon className="h-4 w-4" />
-                Nahrať dokument
+                NahraLA dokument
               </>
             )}
           </button>
@@ -311,3 +311,4 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 };
 
 export default DocumentUploadModal;
+

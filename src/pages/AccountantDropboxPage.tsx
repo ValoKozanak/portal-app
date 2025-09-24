@@ -20,12 +20,12 @@ const AccountantDropboxPage: React.FC<AccountantDropboxPageProps> = ({ userEmail
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span className="font-medium">Späť do Dashboard</span>
+                <span className="font-medium">SpA�LA do Dashboard</span>
               </button>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Prihlásený ako</p>
+                <p className="text-sm text-gray-500">PrihlA?senA? ako</p>
                 <p className="font-medium text-gray-900">{userEmail}</p>
               </div>
             </div>
@@ -36,9 +36,9 @@ const AccountantDropboxPage: React.FC<AccountantDropboxPageProps> = ({ userEmail
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dropbox integrácia</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Dropbox integrA?cia</h1>
           <p className="text-gray-600 mt-2">
-            Správa súborov cez Dropbox pre všetky priradené firmy
+            SprA?va sAsborov cez Dropbox pre vL?etky priradenA� firmy
           </p>
         </div>
 
@@ -54,3 +54,4 @@ const AccountantDropboxPage: React.FC<AccountantDropboxPageProps> = ({ userEmail
 };
 
 export default AccountantDropboxPage;
+
