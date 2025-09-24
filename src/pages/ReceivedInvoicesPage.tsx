@@ -8,7 +8,6 @@ import {
   ArrowPathIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  Cog6ToothIcon,
   ArrowLeftIcon,
   ArrowUpOnSquareIcon
 } from '@heroicons/react/24/outline';
@@ -37,6 +36,14 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
   const [pendingUploadInvoice, setPendingUploadInvoice] = useState<ReceivedInvoice | null>(null);
 
+  // helper: typovo čisté auth hlavičky
+  const authHeaders = (): Record<string, string> => {
+    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    const h: Record<string, string> = {};
+    if (t) h.Authorization = `Bearer ${t}`;
+    return h;
+  };
+
   // Helper: zostavenie Spaces URL pre prijaté faktúry
   const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
     const y = (() => {
@@ -58,11 +65,6 @@ const ReceivedInvoicesPage: React.FC = () => {
     } catch {
       return false;
     }
-  };
-
-  const authHeader = () => {
-    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
   };
 
   // Filtre
@@ -94,13 +96,14 @@ const ReceivedInvoicesPage: React.FC = () => {
     if (userRole && userEmail) {
       loadCompanies();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRole, userEmail]);
 
   useEffect(() => {
     if (urlCompanyId && !companyId) {
       setCompanyId(Number(urlCompanyId));
     }
-  }, [urlCompanyId, companyId]);
+  }, [urlCompanyId, companyId, setCompanyId]);
 
   useEffect(() => {
     if (companyId) {
@@ -108,6 +111,7 @@ const ReceivedInvoicesPage: React.FC = () => {
       // Automatické obnovenie faktúr z MDB pri načítaní stránky
       handleRefreshInvoices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId]);
 
   const loadCompanies = async () => {
@@ -123,7 +127,7 @@ const ReceivedInvoicesPage: React.FC = () => {
       }
       // Pre admin sa používa default endpoint '/companies'
 
-      const response = await fetch(endpoint, { headers: { ...authHeader() } });
+      const response = await fetch(endpoint, { headers: authHeaders() });
       const companiesData = await response.json();
       setCompanies(companiesData);
 
@@ -156,17 +160,17 @@ const ReceivedInvoicesPage: React.FC = () => {
         const key = `received-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
           const idOrNum = encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym || inv.id));
-          const issueDateParam =
+          const rawIssueDate =
             (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+          const issueDateOnly = String(rawIssueDate).slice(0, 10); // YYYY-MM-DD
+
           // 1) podľa ID/čísla (ak nemáme DB id, doplníme companyId + issueDate)
           const queryId =
             inv.id == null
-              ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
-                  String(issueDateParam)
-                )}`
+              ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(issueDateOnly)}`
               : '';
           const urlId = `${API_BASE_URL}/accounting/invoices/received/${idOrNum}/exists${queryId}`;
-          const respId = await fetch(urlId, { headers: { ...authHeader() } });
+          const respId = await fetch(urlId, { headers: authHeaders() });
           const jsonId = await respId.json().catch(() => ({ exists: false }));
           if (jsonId && typeof jsonId.exists === 'boolean' && jsonId.exists) {
             setPdfExistsByKey((prev) => ({ ...prev, [key]: true }));
@@ -175,7 +179,7 @@ const ReceivedInvoicesPage: React.FC = () => {
             const ico = companies.find((c) => c.id === companyId)?.ico;
             if (ico) {
               const num = (inv as any).invoice_number || (inv as any).varsym || inv.id;
-              const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateParam);
+              const directUrl = buildSpacesPdfUrl(String(ico), String(num), issueDateOnly);
               const exists = await checkExistsOnSpaces(directUrl);
               setPdfExistsByKey((prev) => ({ ...prev, [key]: exists }));
             } else {
@@ -214,10 +218,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<
-      string,
-      { color: string; text: string }
-    > = {
+    const statusConfig: Record<string, { color: string; text: string }> = {
       draft: { color: 'bg-gray-100 text-gray-800', text: 'Koncept' },
       received: { color: 'bg-blue-100 text-blue-800', text: 'Prijatá' },
       paid: { color: 'bg-green-100 text-green-800', text: 'Zaplatená' },
@@ -447,18 +448,17 @@ const ReceivedInvoicesPage: React.FC = () => {
                               inv.id != null
                                 ? encodeURIComponent(String(inv.id))
                                 : encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym));
-                            const issueDateParam =
+                            const rawIssueDate =
                               (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+                            const issueDateOnly = String(rawIssueDate).slice(0, 10); // YYYY-MM-DD
                             const query =
                               inv.id == null
-                                ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
-                                    String(issueDateParam)
-                                  )}`
+                                ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(issueDateOnly)}`
                                 : '';
                             const presignEndpoint = `${API_BASE_URL}/accounting/invoices/received/${invoiceId}/presign-upload${query}`;
                             const resp = await fetch(presignEndpoint, {
                               method: 'POST',
-                              headers: { ...authHeader() }
+                              headers: authHeaders()
                             });
                             if (!resp.ok) throw new Error('Chyba pri vytváraní upload linku');
                             const { url: presignedUrl } = await resp.json();
@@ -669,20 +669,21 @@ const ReceivedInvoicesPage: React.FC = () => {
                                             : encodeURIComponent(
                                                 String((invoice as any).invoice_number || (invoice as any).varsym)
                                               );
-                                        const issueDateParam2 =
+                                        const rawIssueDate2 =
                                           (invoice as any).issue_date ||
                                           (invoice as any).datum ||
                                           (invoice as any).due_date ||
                                           '';
+                                        const issueDateOnly2 = String(rawIssueDate2).slice(0, 10);
                                         const query =
                                           invoice.id == null
                                             ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
-                                                String(issueDateParam2)
+                                                issueDateOnly2
                                               )}`
                                             : '';
                                         const resp = await fetch(
                                           `${API_BASE_URL}/accounting/invoices/received/${idOrNum}/presign${query}`,
-                                          { headers: { ...authHeader() } }
+                                          { headers: authHeaders() }
                                         );
                                         if (resp.ok) {
                                           const data = await resp.json();
@@ -692,15 +693,10 @@ const ReceivedInvoicesPage: React.FC = () => {
                                           }
                                         }
                                         const ico = companies.find((c) => c.id === companyId)?.ico;
-                                        const issueDateParam3 =
-                                          (invoice as any).issue_date ||
-                                          (invoice as any).datum ||
-                                          (invoice as any).due_date ||
-                                          '';
                                         const numOrId =
                                           (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
                                         if (ico && numOrId) {
-                                          const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateParam3);
+                                          const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateOnly2);
                                           window.open(directUrl, '_blank');
                                         } else {
                                           throw new Error('PDF nenájdené');
