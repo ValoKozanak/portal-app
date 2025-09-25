@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BuildingOfficeIcon, FolderIcon, EyeIcon } from '@heroicons/react/24/outline';
 import DropboxIntegration from './DropboxIntegration';
+import { authHeaders } from '../utils/http';
 
 interface DropboxCompany {
   id: number;
@@ -40,7 +41,9 @@ const AccountantDropboxSelector: React.FC<AccountantDropboxSelectorProps> = ({ u
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://localhost:5000/api/dropbox/admin/all-settings');
+     const response = await fetch(`${API_BASE_URL}/dropbox/admin/all-settings`, {
+  headers: authHeaders(),
+});
       const data = await response.json();
       
       if (data.success) {

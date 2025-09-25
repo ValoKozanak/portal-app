@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { authHeaders } from '../utils/http';
 import { 
   XMarkIcon, 
   EnvelopeIcon,
@@ -37,16 +38,11 @@ const EmailTestModal: React.FC<EmailTestModalProps> = ({ isOpen, onClose }) => {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/test/send-test-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          type: emailType
-        }),
-      });
+      const response = await fetch(`${API_BASE_URL}/test/send-test-email`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', ...authHeaders() },
+  body: JSON.stringify({ email, type: emailType }),
+});
 
       const data = await response.json();
 
