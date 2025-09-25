@@ -15,7 +15,7 @@ import {
 import { dropboxService } from '../services/dropboxService';
 import { Company } from '../services/apiService';
 
-// Lokálny bezpečný základ pre API volania (Netlify proxy / env)
+// Bezpečný základ pre API volania (Netlify proxy / env)
 const API_BASE = (process.env.REACT_APP_API_BASE || '/api').replace(/\/$/, '');
 
 interface DropboxAdminPanelProps {
@@ -39,10 +39,9 @@ interface DropboxShareSettings {
   folderPath: string;
 }
 
-const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEmail }) => {
+const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
   const [shareSettings, setShareSettings] = useState<DropboxShareSettings[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingCompany, setEditingCompany] = useState<number | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,33 +53,31 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     canDelete: boolean;
   } | null>(null);
 
-  // Kontrola Dropbox autentifikácie - len raz pri mount
+  // Autentifikácia Dropbox – pri mount
   useEffect(() => {
     const initAuth = async () => {
       const authenticated = dropboxService.isAuthenticated();
       setIsAuthenticated(authenticated);
 
-      if (authenticated) {
+      if (!authenticated) return;
+
+      try {
+        const account = await dropboxService.getAccountInfo();
+        setAccountInfo(account);
+      } catch {
         try {
+          await dropboxService.refreshAccessToken();
           const account = await dropboxService.getAccountInfo();
           setAccountInfo(account);
         } catch {
-          // token mohol expirovať – skús refresh
-          try {
-            await dropboxService.refreshAccessToken();
-            const account = await dropboxService.getAccountInfo();
-            setAccountInfo(account);
-          } catch {
-            handleLogout();
-          }
+          handleLogout();
         }
       }
     };
-
     initAuth();
   }, []);
 
-  // Kontrola autentifikácie po návrate z callbacku (URL parametre)
+  // Po návrate z OAuth callbacku
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const fromCallback = urlParams.get('from_callback');
@@ -97,22 +94,19 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     }
   }, []);
 
-  // Načítanie nastavení zdieľania pre všetky firmy
+  // Načítanie share settings
   useEffect(() => {
     if (isAuthenticated && companies.length > 0) {
       loadShareSettings();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companies, isAuthenticated]);
+  }, [isAuthenticated, companies]);
 
   const handleLogin = () => {
-    // vyčistenie starých tokenov a state
     localStorage.removeItem('dropbox_access_token');
     localStorage.removeItem('dropbox_refresh_token');
     localStorage.removeItem('dropbox_auth_state');
-    // redirect na OAuth
-    const authUrl = dropboxService.getAuthUrl();
-    window.location.href = authUrl;
+    window.location.href = dropboxService.getAuthUrl();
   };
 
   const handleLogout = () => {
@@ -132,12 +126,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         return;
       }
 
-      // 1) Skús načítať nastavenia z DB cez backend
+      // 1) skús DB cez backend
       try {
-        const response = await fetch(`${API_BASE}/dropbox/admin/all-settings`, {
+        const resp = await fetch(`${API_BASE}/dropbox/admin/all-settings`, {
           headers: authHeaders(),
         });
-        const data = await response.json();
+        const data = await resp.json();
 
         if (data?.success && data?.settings) {
           const settings: DropboxShareSettings[] = companies.map((company) => {
@@ -155,57 +149,43 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
                 folderPath: dbSetting.folderPath || folderPath,
                 shareLink: dbSetting.shareLink,
               };
-            } else {
-              return {
-                companyId: company.id,
-                companyEmail: company.owner_email,
-                companyName: company.name,
-                companyICO: company.ico,
-                isShared: false,
-                permissions: {
-                  canView: true,
-                  canEdit: false,
-                  canUpload: true,
-                  canDelete: false,
-                },
-                folderPath,
-              };
             }
+            return {
+              companyId: company.id,
+              companyEmail: company.owner_email,
+              companyName: company.name,
+              companyICO: company.ico,
+              isShared: false,
+              permissions: { canView: true, canEdit: false, canUpload: true, canDelete: false },
+              folderPath,
+            };
           });
 
           setShareSettings(settings);
           setLoading(false);
-          return;
+          return; // hotovo
         }
-      } catch (dbError) {
-        // padlo – pôjdeme fallback vetvou
+      } catch {
+        // padlo – pokračuj fallbackom
       }
 
-      // 2) Fallback: z Dropbox API
+      // 2) Fallback: Dropbox API
       const settings: DropboxShareSettings[] = [];
       for (const company of companies) {
         const folderPath = `/Portal/Companies/${dropboxService.hashICO(company.ico)}`;
 
         try {
           const folderExists = await dropboxService.checkFolderExists(folderPath);
-
           let shareLink: string | undefined;
-          const permissions = {
-            canView: true,
-            canEdit: false,
-            canUpload: true,
-            canDelete: false,
-          };
+          const permissions = { canView: true, canEdit: false, canUpload: true, canDelete: false };
 
           if (folderExists) {
             try {
-              const existingLinks = await dropboxService.getAllSharedLinks();
-              const companyLink = existingLinks.find(
-                (link: any) => link.path_lower === folderPath.toLowerCase()
-              );
-              if (companyLink) shareLink = companyLink.url;
+              const links = await dropboxService.getAllSharedLinks();
+              const match = links.find((l: any) => l.path_lower === folderPath.toLowerCase());
+              if (match) shareLink = match.url;
             } catch {
-              // ignoruj
+              // ignore
             }
           }
 
@@ -226,17 +206,11 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             companyName: company.name,
             companyICO: company.ico,
             isShared: false,
-            permissions: {
-              canView: true,
-              canEdit: false,
-              canUpload: true,
-              canDelete: false,
-            },
+            permissions: { canView: true, canEdit: false, canUpload: true, canDelete: false },
             folderPath,
           });
         }
       }
-
       setShareSettings(settings);
     } catch (error) {
       console.error('Chyba pri načítaní Dropbox nastavení:', error);
@@ -250,21 +224,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       alert('Najprv sa musíte prihlásiť do Dropbox');
       return;
     }
-
     try {
-      // 1) vytvor zložku v Dropboxe
       const folderPath = await dropboxService.createCompanyFolder(company.ico);
-
-      // 2) default oprávnenia a share link
-      const defaultPermissions = {
-        canView: true,
-        canEdit: false,
-        canUpload: true,
-        canDelete: false,
-      };
+      const defaultPermissions = { canView: true, canEdit: false, canUpload: true, canDelete: false };
       const shareLink = await dropboxService.createSharedLink(folderPath, defaultPermissions);
 
-      // 3) uloženie nastavení do DB (cez backend API)
+      // uložiť do DB
       try {
         const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
           method: 'POST',
@@ -286,7 +251,6 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         console.error('Chyba pri ukladaní do databázy:', dbError);
       }
 
-      // 4) refresh lokálneho stavu
       setShareSettings((prev) =>
         prev.map((s) =>
           s.companyId === company.id
@@ -294,7 +258,6 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
             : s
         )
       );
-
       alert(`Zložka pre firmu ${company.name} bola úspešne vytvorená a zdieľaná!`);
     } catch (error) {
       console.error('Chyba pri vytváraní zložky:', error);
@@ -302,19 +265,19 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     }
   };
 
-  const handleShareFolder = async (company: Company) => {
+  const handleShareFolder = (company: Company) => {
     setSelectedCompany(company);
     setShowShareModal(true);
     setInitialPermissions(null);
   };
 
-  const handleEditPermissions = async (
+  const handleEditPermissions = (
     company: Company,
-    currentPermissions: { canView: boolean; canEdit: boolean; canUpload: boolean; canDelete: boolean }
+    current: { canView: boolean; canEdit: boolean; canUpload: boolean; canDelete: boolean }
   ) => {
     setSelectedCompany(company);
     setShowShareModal(true);
-    setInitialPermissions(currentPermissions);
+    setInitialPermissions(current);
   };
 
   const handleSaveShareSettings = async (settings: {
@@ -324,21 +287,20 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
     canDelete: boolean;
   }) => {
     if (!selectedCompany) return;
-
     try {
       const folderPath = `/Portal/Companies/${dropboxService.hashICO(selectedCompany.ico)}`;
 
-      // ak existoval link, skús ho odvolať
+      // odvolaj starý link (ak existuje)
       const currentSetting = shareSettings.find((s) => s.companyId === selectedCompany.id);
       if (currentSetting?.shareLink) {
         try {
           await dropboxService.revokeSharedLink(currentSetting.shareLink);
         } catch {
-          // ignoruj
+          // ignore
         }
       }
 
-      // nový link s nastaveniami
+      // vytvor nový
       const shareLink = await dropboxService.createSharedLink(folderPath, settings);
 
       // uložiť do DB
@@ -362,7 +324,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         console.error('Chyba pri ukladaní do databázy:', dbError);
       }
 
-      // lokálny refresh
+      // refresh lokálneho stavu
       setShareSettings((prev) =>
         prev.map((s) =>
           s.companyId === selectedCompany.id
@@ -375,10 +337,11 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
       setSelectedCompany(null);
       setInitialPermissions(null);
 
-      const message = initialPermissions
-        ? `Oprávnenia pre firmu ${selectedCompany.name} boli úspešne aktualizované!`
-        : `Zdieľanie pre firmu ${selectedCompany.name} bolo úspešne nastavené!`;
-      alert(message);
+      alert(
+        (initialPermissions
+          ? `Oprávnenia pre firmu ${selectedCompany.name} boli úspešne aktualizované!`
+          : `Zdieľanie pre firmu ${selectedCompany.name} bolo úspešne nastavené!`) as string
+      );
     } catch (error) {
       console.error('Chyba pri nastavovaní zdieľania:', error);
       alert('Chyba pri nastavovaní zdieľania');
@@ -390,38 +353,36 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
 
     try {
       const setting = shareSettings.find((s) => s.companyId === companyId);
-      if (setting?.shareLink) {
-        await dropboxService.revokeSharedLink(setting.shareLink);
+      if (!setting?.shareLink) return;
 
-        // update DB (isShared=false, shareLink=null)
-        try {
-          const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({
-              companyId: setting.companyId,
-              companyEmail: setting.companyEmail,
-              folderPath: setting.folderPath,
-              shareLink: null,
-              permissions: setting.permissions,
-            }),
-          });
-          const saveData = await saveResponse.json();
-          if (!saveResponse.ok || !saveData?.success) {
-            console.error('Chyba pri aktualizácii databázy:', saveData?.error || saveResponse.status);
-          }
-        } catch (dbError) {
-          console.error('Chyba pri aktualizácii databázy:', dbError);
+      await dropboxService.revokeSharedLink(setting.shareLink);
+
+      // DB update
+      try {
+        const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({
+            companyId: setting.companyId,
+            companyEmail: setting.companyEmail,
+            folderPath: setting.folderPath,
+            shareLink: null,
+            permissions: setting.permissions,
+          }),
+        });
+        const saveData = await saveResponse.json();
+        if (!saveResponse.ok || !saveData?.success) {
+          console.error('Chyba pri aktualizácii databázy:', saveData?.error || saveResponse.status);
         }
-
-        setShareSettings((prev) =>
-          prev.map((s) =>
-            s.companyId === companyId ? { ...s, isShared: false, shareLink: undefined } : s
-          )
-        );
-
-        alert('Prístup bol úspešne odobraný!');
+      } catch (dbError) {
+        console.error('Chyba pri aktualizácii databázy:', dbError);
       }
+
+      setShareSettings((prev) =>
+        prev.map((s) => (s.companyId === companyId ? { ...s, isShared: false, shareLink: undefined } : s))
+      );
+
+      alert('Prístup bol úspešne odobraný!');
     } catch (error) {
       console.error('Chyba pri odoberaní prístupu:', error);
       alert('Chyba pri odoberaní prístupu');
@@ -437,13 +398,8 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
         <div className="text-center">
           <CloudIcon className="mx-auto h-12 w-12 text-blue-500 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Pripojte sa k Dropbox</h3>
-          <p className="text-gray-600 mb-4">
-            Pre správu Dropbox zdieľaní sa musíte najprv prihlásiť do vášho Dropbox účtu.
-          </p>
-          <button
-            onClick={handleLogin}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
+          <p className="text-gray-600 mb-4">Pre správu Dropbox zdieľaní sa musíte najprv prihlásiť do vášho Dropbox účtu.</p>
+          <button onClick={handleLogin} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
             <CloudIcon className="h-5 w-5 mr-2" />
             Pripojiť Dropbox
           </button>
@@ -455,14 +411,10 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
   if (loading || !companies || companies.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">
-          {loading ? 'Načítavam Dropbox nastavenia...' : 'Načítavam zoznam firiem...'}
-        </p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+        <p className="mt-4 text-gray-600">{loading ? 'Načítavam Dropbox nastavenia...' : 'Načítavam zoznam firiem...'}</p>
         {!companies || companies.length === 0 ? (
-          <p className="text-sm text-gray-500 mt-2">
-            {companies ? 'Žiadne firmy neboli nájdené' : 'Čakám na načítanie firiem...'}
-          </p>
+          <p className="text-sm text-gray-500 mt-2">{companies ? 'Žiadne firmy neboli nájdené' : 'Čakám na načítanie firiem...'}</p>
         ) : null}
       </div>
     );
@@ -618,22 +570,12 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies, userEm
   );
 };
 
-// Share Settings Modal Component
+// Share Settings Modal
 interface ShareSettingsModalProps {
   company: Company;
-  initialPermissions?: {
-    canView: boolean;
-    canEdit: boolean;
-    canUpload: boolean;
-    canDelete: boolean;
-  } | null;
+  initialPermissions?: { canView: boolean; canEdit: boolean; canUpload: boolean; canDelete: boolean } | null;
   onClose: () => void;
-  onSave: (settings: {
-    canView: boolean;
-    canEdit: boolean;
-    canUpload: boolean;
-    canDelete: boolean;
-  }) => void;
+  onSave: (settings: { canView: boolean; canEdit: boolean; canUpload: boolean; canDelete: boolean }) => void;
 }
 
 const ShareSettingsModal: React.FC<ShareSettingsModalProps> = ({ company, initialPermissions, onClose, onSave }) => {
