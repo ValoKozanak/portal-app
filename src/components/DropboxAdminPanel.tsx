@@ -10,7 +10,7 @@ import {
   XMarkIcon,
   LinkIcon,
   FolderIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 import { dropboxService } from '../services/dropboxService';
 import { Company } from '../services/apiService';
@@ -20,7 +20,7 @@ const API_BASE = (process.env.REACT_APP_API_BASE || '/api').replace(/\/$/, '');
 
 interface DropboxAdminPanelProps {
   companies: Company[];
-  userEmail: string;
+  userEmail: string; // (nepoužité, ale ponecháme pre kompatibilitu propov)
 }
 
 interface DropboxShareSettings {
@@ -52,6 +52,13 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
     canUpload: boolean;
     canDelete: boolean;
   } | null>(null);
+
+  // Pomocné: JSON + Authorization headers (bez TS chýb)
+  const jsonAuthHeaders = (): HeadersInit => {
+    const h = new Headers(authHeaders());
+    h.set('Content-Type', 'application/json');
+    return h;
+  };
 
   // Autentifikácia Dropbox – pri mount
   useEffect(() => {
@@ -233,7 +240,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
       try {
         const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          headers: jsonAuthHeaders(),
           body: JSON.stringify({
             companyId: company.id,
             companyEmail: company.owner_email,
@@ -307,7 +314,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
       try {
         const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          headers: jsonAuthHeaders(),
           body: JSON.stringify({
             companyId: selectedCompany.id,
             companyEmail: selectedCompany.owner_email,
@@ -361,7 +368,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
       try {
         const saveResponse = await fetch(`${API_BASE}/dropbox/admin/save-settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          headers: jsonAuthHeaders(),
           body: JSON.stringify({
             companyId: setting.companyId,
             companyEmail: setting.companyEmail,
@@ -399,7 +406,10 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
           <CloudIcon className="mx-auto h-12 w-12 text-blue-500 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Pripojte sa k Dropbox</h3>
           <p className="text-gray-600 mb-4">Pre správu Dropbox zdieľaní sa musíte najprv prihlásiť do vášho Dropbox účtu.</p>
-          <button onClick={handleLogin} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+          <button
+            onClick={handleLogin}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
             <CloudIcon className="h-5 w-5 mr-2" />
             Pripojiť Dropbox
           </button>
@@ -423,7 +433,7 @@ const DropboxAdminPanel: React.FC<DropboxAdminPanelProps> = ({ companies }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex itemsCenter justify-between">
         <div>
           <h3 className="text-lg font-medium text-gray-900">Dropbox zdieľania pre firmy</h3>
           <p className="text-sm text-gray-600">Spravujte prístupy k Dropbox zložkám pre jednotlivé firmy</p>
