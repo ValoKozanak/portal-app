@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { authHeaders } from '../utils/http';
 import {
   EyeIcon,
   PencilIcon,
@@ -14,7 +15,7 @@ import { accountingService, ReceivedInvoice } from '../services/accountingServic
 import InvoiceSummary from '../components/InvoiceSummary';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
-// Jednotný základ pre API – ide cez Netlify proxy (/api) alebo REACT_APP_API_BASE
+// Jednotný základ – Netlify proxy (/api) alebo REACT_APP_API_BASE
 const API_BASE = (process.env.REACT_APP_API_BASE || '/api').replace(/\/$/, '');
 
 const ReceivedInvoicesPage: React.FC = () => {
@@ -38,11 +39,6 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [pendingUploadInvoice, setPendingUploadInvoice] = useState<ReceivedInvoice | null>(null);
 
   // Helpery
-  const authHeader = () => {
-    const t = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    return t ? { Authorization: `Bearer ${t}` } : {};
-  };
-
   const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
     const y = (() => {
       const d = issueDateLike ? new Date(issueDateLike) : new Date();
@@ -76,7 +72,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     invoiceNumber: '',
   });
 
-  // URL auto-filter (príklad: ?filter=dividenda)
+  // URL auto-filter (?filter=dividenda → supplierName)
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const filterParam = urlParams.get('filter');
@@ -104,7 +100,6 @@ const ReceivedInvoicesPage: React.FC = () => {
   useEffect(() => {
     if (companyId) {
       loadInvoices();
-      // Automatické obnovenie z MDB (na backende sa dá ignorovať, ale FE to volá)
       handleRefreshInvoices();
     }
   }, [companyId]);
@@ -117,9 +112,11 @@ const ReceivedInvoicesPage: React.FC = () => {
       } else if (userRole === 'accountant') {
         endpoint = `${API_BASE}/companies/accountant/${encodeURIComponent(userEmail)}`;
       }
-      const response = await fetch(endpoint, { headers: { ...authHeader() } });
+
+      const response = await fetch(endpoint, { headers: authHeaders() });
       const companiesData = await response.json();
       setCompanies(companiesData);
+
       if (companiesData.length > 0 && !urlCompanyId && !companyId) {
         setCompanyId(companiesData[0].id);
       }
@@ -143,18 +140,15 @@ const ReceivedInvoicesPage: React.FC = () => {
         return null;
       });
 
-      // Skontroluj existenciu PDF (ID/číslo → exists; fallback Spaces HEAD)
+      // Skontroluj existenciu PDF
       const checks = data.map(async (inv) => {
         const key = `received-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
-          const idOrNum = encodeURIComponent(
-            String((inv as any).invoice_number || (inv as any).varsym || inv.id)
-          );
+          const idOrNum = encodeURIComponent(String((inv as any).invoice_number || (inv as any).varsym || inv.id));
           const rawDate =
             (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
-          const issueDateISO = rawDate && !isNaN(Date.parse(rawDate))
-            ? new Date(rawDate).toISOString().slice(0, 10)
-            : '';
+          const issueDateISO =
+            rawDate && !isNaN(Date.parse(rawDate)) ? new Date(rawDate).toISOString().slice(0, 10) : '';
 
           const queryId =
             inv.id == null
@@ -163,7 +157,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                 )}`
               : '';
           const urlId = `${API_BASE}/accounting/invoices/received/${idOrNum}/exists${queryId}`;
-          const respId = await fetch(urlId, { headers: { ...authHeader() } });
+          const respId = await fetch(urlId, { headers: authHeaders() });
           const jsonId = await respId.json().catch(() => ({ exists: false }));
 
           if (jsonId && typeof jsonId.exists === 'boolean' && jsonId.exists) {
@@ -264,9 +258,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     return true;
   });
 
-  const handleInvoiceSelect = (invoice: ReceivedInvoice) => {
-    setSelectedInvoice(invoice);
-  };
+  const handleInvoiceSelect = (invoice: ReceivedInvoice) => setSelectedInvoice(invoice);
 
   const handleViewInvoiceDetail = (invoice: ReceivedInvoice) => {
     window.location.href = `/invoice/received/${invoice.id}`;
@@ -450,7 +442,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 
                             const resp = await fetch(presignEndpoint, {
                               method: 'POST',
-                              headers: { ...authHeader() },
+                              headers: authHeaders(),
                             });
 
                             if (!resp.ok) {
@@ -585,7 +577,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 
                                         const resp = await fetch(
                                           `${API_BASE}/accounting/invoices/received/${idOrNum}/presign${query}`,
-                                          { headers: { ...authHeader() } }
+                                          { headers: authHeaders() }
                                         );
 
                                         if (resp.ok) {
