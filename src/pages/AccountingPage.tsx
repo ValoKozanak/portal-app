@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authHeaders } from '../utils/http';
 import { 
   DocumentTextIcon, 
   BanknotesIcon, 
@@ -85,7 +86,7 @@ const AccountingPage: React.FC = () => {
       }
       // Pre admin sa používa default endpoint '/api/companies'
       
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, { headers: authHeaders() });
       const companiesData = await response.json();
       setCompanies(companiesData);
       
