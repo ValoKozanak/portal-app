@@ -1,3 +1,4 @@
+// services/pgService.js
 const fs = require('fs');
 const { Pool } = require('pg');
 
@@ -14,31 +15,57 @@ function getPgPool() {
       const ca = fs.readFileSync(process.env.PGSSLROOTCERT, 'utf8');
       ssl = { ca, rejectUnauthorized: true };
     } catch (_e) {
+      // CA sa nepodarilo načítať → explicitne povoliť neoverený cert (staging)
       ssl = { rejectUnauthorized: false };
     }
   } else {
+    // žiadny CA → staging/dev (napr. DO/Neon self-signed)
     ssl = { rejectUnauthorized: false };
   }
 
   singletonPool = new Pool({
     connectionString,
     ssl,
-    max: 5,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    max: Number(process.env.PG_POOL_MAX || 10),
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
   });
+
+  // graceful shutdown
+  const shutdown = async (signal) => {
+    try { await singletonPool.end(); } finally { process.exit(0); }
+  };
+  process.once('SIGINT',  shutdown);
+  process.once('SIGTERM', shutdown);
+
   return singletonPool;
 }
 
+// Jednoduché zdravie DB
 async function checkPg() {
   const pool = getPgPool();
   if (!pool) return { enabled: false, ok: false, error: 'POSTGRES_URL not set' };
   try {
     const result = await pool.query('select now() as now');
-    return { enabled: true, ok: true, now: (result.rows && result.rows[0] && result.rows[0].now) || null };
+    return { enabled: true, ok: true, now: (result.rows?.[0]?.now) || null };
   } catch (error) {
-    return { enabled: true, ok: false, error: String(error && error.message ? error.message : error) };
+    return { enabled: true, ok: false, error: String(error?.message || error) };
   }
 }
 
-module.exports = { getPgPool, checkPg };
+// --- NOVÉ: pohodlné API pre routes ---
+async function query(text, params) {
+  const pool = getPgPool();
+  if (!pool) throw new Error('Postgres not configured (POSTGRES_URL missing)');
+  // parameterizované dotazy ($1..$n) – bezpečné a odporúčané
+  return pool.query(text, params);
+}
+
+// ak potrebuješ transakcie: const client = await getClient(); await client.query('BEGIN'); ...
+async function getClient() {
+  const pool = getPgPool();
+  if (!pool) throw new Error('Postgres not configured (POSTGRES_URL missing)');
+  return pool.connect();
+}
+
+module.exports = { getPgPool, checkPg, query, getClient };
