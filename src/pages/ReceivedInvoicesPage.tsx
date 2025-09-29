@@ -38,30 +38,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
   const [pendingUploadInvoice, setPendingUploadInvoice] = useState<ReceivedInvoice | null>(null);
 
-  // Helpery
-  const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
-    const y = (() => {
-      const d = issueDateLike ? new Date(issueDateLike) : new Date();
-      const yr = d.getFullYear();
-      return Number.isFinite(yr) ? yr : new Date().getFullYear();
-    })();
-    const idPart = String(invoiceNumberOrId);
-    const safeKind = 'received';
-    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(
-      ico
-    )}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
-  };
-
-  const checkExistsOnSpaces = async (url: string): Promise<boolean> => {
-    try {
-      const resp = await fetch(url, { method: 'HEAD' });
-      return resp.ok;
-    } catch {
-      return false;
-    }
-  };
-
-  // Filtre
+  // ==== Filtre UI + serverové filtre pre prijaté ====
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     supplierName: '',
@@ -71,6 +48,11 @@ const ReceivedInvoicesPage: React.FC = () => {
     unpaidAmountMax: '',
     invoiceNumber: '',
   });
+
+  // server-side filtre
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
+  const [useDue, setUseDue] = useState<boolean>(false); // “podľa splatnosti”
 
   // URL auto-filter (?filter=dividenda → supplierName)
   useEffect(() => {
@@ -104,6 +86,28 @@ const ReceivedInvoicesPage: React.FC = () => {
     }
   }, [companyId]);
 
+  const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
+    const y = (() => {
+      const d = issueDateLike ? new Date(issueDateLike) : new Date();
+      const yr = d.getFullYear();
+      return Number.isFinite(yr) ? yr : new Date().getFullYear();
+    })();
+    const idPart = String(invoiceNumberOrId);
+    const safeKind = 'received';
+    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(
+      ico
+    )}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
+  };
+
+  const checkExistsOnSpaces = async (url: string): Promise<boolean> => {
+    try {
+      const resp = await fetch(url, { method: 'HEAD' });
+      return resp.ok;
+    } catch {
+      return false;
+    }
+  };
+
   const loadCompanies = async () => {
     try {
       let endpoint = `${API_BASE}/companies`;
@@ -129,6 +133,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     if (!companyId) return;
     try {
       setLoading(true);
+      // default bez serverových filtrov (limit)
       const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
       setInvoices(data);
 
@@ -186,6 +191,28 @@ const ReceivedInvoicesPage: React.FC = () => {
     }
   };
 
+  // ==== SERVER-SIDE APPLY (na Filtre) ====
+  const applyReceivedServerFilters = async () => {
+    if (!companyId) return;
+    try {
+      setLoading(true);
+      const data = await accountingService.getReceivedInvoices(companyId, {
+        dateFrom: dateFrom || undefined,
+        dateTo:   dateTo   || undefined,
+        by:       useDue ? 'due' : 'issue',
+        limit:    100,
+        orderBy:  'issue_date',
+        orderDir: 'DESC',
+      });
+      setInvoices(data);
+      setShowFilters(false);
+    } catch (e) {
+      console.error('Chyba pri aplikovaní filtrov (server):', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return '-';
     try {
@@ -220,6 +247,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     );
   };
 
+  // Klientsky doplnkový filter (názov, varsym, lokálne rozsahy)
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -235,14 +263,14 @@ const ReceivedInvoicesPage: React.FC = () => {
     }
 
     if (filters.dueDateFrom) {
-      const dueDate = new Date(invoice.due_date);
+      const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
       const fromDate = new Date(filters.dueDateFrom);
-      if (dueDate < fromDate) return false;
+      if (!dueDate || dueDate < fromDate) return false;
     }
     if (filters.dueDateTo) {
-      const dueDate = new Date(invoice.due_date);
+      const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
       const toDate = new Date(filters.dueDateTo);
-      if (dueDate > toDate) return false;
+      if (!dueDate || dueDate > toDate) return false;
     }
 
     const unpaidAmount = parseFloat(String((invoice as any).kc_likv || 0)) || 0;
@@ -259,11 +287,9 @@ const ReceivedInvoicesPage: React.FC = () => {
   });
 
   const handleInvoiceSelect = (invoice: ReceivedInvoice) => setSelectedInvoice(invoice);
-
   const handleViewInvoiceDetail = (invoice: ReceivedInvoice) => {
     window.location.href = `/invoice/received/${invoice.id}`;
   };
-
   const handleEditInvoice = (invoice: ReceivedInvoice) => {
     console.log('Editovať faktúru:', invoice);
   };
@@ -281,6 +307,9 @@ const ReceivedInvoicesPage: React.FC = () => {
       unpaidAmountMax: '',
       invoiceNumber: '',
     });
+    setDateFrom('');
+    setDateTo('');
+    setUseDue(false);
   };
 
   const handleCreateInvoice = () => {
@@ -352,6 +381,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Zoznam prijatých faktúr</h2>
 
                   <button
+                    type="button"
                     onClick={() => setShowFilters(!showFilters)}
                     className={`inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md ${
                       showFilters ? 'text-white bg-green-600 hover:bg-green-700' : 'text-gray-700 bg-white hover:bg-gray-50'
@@ -479,6 +509,59 @@ const ReceivedInvoicesPage: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              {/* FILTER PANEL */}
+              {showFilters && (
+                <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Dátum od</label>
+                      <input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Dátum do</label>
+                      <input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={useDue}
+                          onChange={(e) => setUseDue(e.target.checked)}
+                          className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
+                        />
+                        <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
+                      </label>
+                    </div>
+                    <div className="flex items-end justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={clearFilters}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Vymazať
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyReceivedServerFilters}
+                        className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
+                      >
+                        Použiť
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-x-auto overflow-y-auto">
