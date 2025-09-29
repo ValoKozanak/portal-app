@@ -476,18 +476,19 @@ const ReceivedInvoicesPage: React.FC = () => {
         : '';
 
     // 2) presign-upload (POST)
-    const presignEndpoint = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
+    const presignTryA = ${API_BASE}/accounting/invoices/received//presign-upload;
+let resp = await fetch(presignTryA, { method: 'POST', headers: authHeaders() });
 
-    const resp = await fetch(presignEndpoint, {
-      method: 'POST',
-      headers: authHeaders(), // jednotné overenie
-    });
+if (resp.status === 404) {
+  const presignTryB = ${API_BASE}/accounting/received-invoices//presign-upload;
+  resp = await fetch(presignTryB, { method: 'POST', headers: authHeaders() });
+}
 
-    if (!resp.ok) {
-      const errT = await resp.text().catch(() => '');
-      console.error('presign-upload FAILED', resp.status, errT);
-      throw new Error('Chyba pri vytváraní upload linku');
-    }
+if (!resp.ok) {
+  const errT = await resp.text().catch(() => '');
+  console.error('presign-upload FAILED', resp.status, errT);
+  throw new Error('Chyba pri vytváraní upload linku');
+}
 
     const { url: presignedUrl } = await resp.json();
     if (!presignedUrl) throw new Error('Chýba presigned URL');
@@ -812,6 +813,7 @@ const ReceivedInvoicesPage: React.FC = () => {
 };
 
 export default ReceivedInvoicesPage;
+
 
 
 
