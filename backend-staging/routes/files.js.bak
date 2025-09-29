@@ -1,0 +1,217 @@
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const multer = require('multer');
+const db = require('../services/dbCompat');
+
+// Optional auth middleware; fallback to no-op if not present
+let authenticateToken = (req, _res, next) => next();
+try {
+  // eslint-disable-next-line global-require, import/no-unresolved
+  authenticateToken = require('../middleware/auth').authenticateToken || authenticateToken;
+} catch (_e) {
+  // no-op
+}
+
+// Multer in-memory storage (works for S3). Limit 50 MB
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
+
+// Lazy S3 client loader (DigitalOcean Spaces compatible). Returns null if not configured.
+function getS3Client() {
+  try {
+    const endpoint = process.env.SPACES_ENDPOINT || 'https://ams3.digitaloceanspaces.com';
+    const region = process.env.SPACES_REGION || 'us-east-1';
+    const key = process.env.SPACES_KEY;
+    const secret = process.env.SPACES_SECRET;
+    if (!key || !secret) return null;
+    // eslint-disable-next-line global-require
+    const s3mod = require('@aws-sdk/client-s3');
+    const { S3Client } = s3mod;
+    return new S3Client({
+      region,
+      endpoint,
+      forcePathStyle: false,
+      credentials: { accessKeyId: key, secretAccessKey: secret },
+    });
+  } catch (_err) {
+    return null;
+  }
+}
+
+function sanitizePart(value) {
+  return String(value || '').replace(/[^0-9A-Za-z._-]+/g, '_');
+}
+
+function buildObjectKey(companyIco, category, originalName) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const date = now.toISOString().slice(0, 10);
+  const base = path.parse(originalName || 'file.bin');
+  const safeName = `${sanitizePart(base.name)}${(base.ext || '').toLowerCase()}`;
+  return `companies/${sanitizePart(companyIco)}/documents/${sanitizePart(category || 'general')}/${year}/${date}-${crypto.randomUUID()}-${safeName}`;
+}
+
+const router = express.Router();
+
+router.get('/health', (_req, res) => res.json({ ok: true }));
+
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    const { company_id, uploaded_by, category } = req.body || {};
+    const file = req.file;
+
+    if (!file) return res.status(400).json({ error: 'Chýba súbor (pole "file")' });
+    if (!company_id) return res.status(400).json({ error: 'Chýba company_id' });
+    if (!uploaded_by) return res.status(400).json({ error: 'Chýba uploaded_by' });
+
+    // Fetch company ICO
+    db.get('SELECT id, ico, name FROM companies WHERE id = ?', [company_id], async (err, company) => {
+      if (err) {
+        console.error('files.upload: DB chyba (companies):', err);
+        return res.status(500).json({ error: 'Chyba pri čítaní firmy' });
+      }
+      if (!company || !company.ico) {
+        return res.status(404).json({ error: 'Firma/IČO nenájdené' });
+      }
+
+      let filePath = null;
+      const bucket = process.env.SPACES_BUCKET;
+      const s3 = getS3Client();
+
+      // Try S3/Spaces first
+      if (s3 && bucket) {
+        try {
+          // eslint-disable-next-line global-require
+          const { PutObjectCommand } = require('@aws-sdk/client-s3');
+          const Key = buildObjectKey(company.ico, category, file.originalname);
+          await s3.send(new PutObjectCommand({
+            Bucket: bucket,
+            Key,
+            Body: file.buffer,
+            ContentType: file.mimetype || 'application/octet-stream',
+          }));
+          filePath = `s3://${bucket}/${Key}`;
+        } catch (e) {
+          console.error('files.upload: S3 upload zlyhal, spúšťam lokálny fallback:', e);
+        }
+      }
+
+      // Local fallback: backend-staging/uploads/files/<ICO>/ (served via app.use('/uploads', ...))
+      if (!filePath) {
+        try {
+          const uploadsRoot = path.resolve(__dirname, '..', 'uploads', 'files');
+          const companyDir = path.join(uploadsRoot, sanitizePart(company.ico));
+          fs.mkdirSync(companyDir, { recursive: true });
+          const ext = (path.parse(file.originalname).ext || '.bin').toLowerCase();
+          const safeBase = sanitizePart(path.parse(file.originalname).name);
+          const fname = `${new Date().toISOString().slice(0, 10)}-${crypto.randomUUID()}-${safeBase}${ext}`;
+          const abs = path.join(companyDir, fname);
+          fs.writeFileSync(abs, file.buffer);
+          filePath = `/uploads/files/${sanitizePart(company.ico)}/${fname}`;
+        } catch (e2) {
+          console.error('files.upload: Lokálny fallback zlyhal:', e2);
+          return res.status(500).json({ error: 'Chyba pri ukladaní súboru' });
+        }
+      }
+
+      // 4) zápis do DB – adaptívne podľa skutočných stĺpcov tabuľky `files`
+      try {
+        db.all(
+          `SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='files'`,
+          [],
+          (eCols, colsRows) => {
+            if (eCols) {
+              console.error('files.upload: DB chyba pri načítaní stĺpcov:', eCols);
+              return res.status(500).json({ error: 'Chyba pri uložení metadát súboru' });
+            }
+
+            const cols = new Set((colsRows || []).map(r => r.column_name));
+            const payload = {
+              filename: path.basename(filePath),
+              original_name: file.originalname || path.basename(filePath),
+              file_type: file.mimetype || 'application/octet-stream',
+              file_size: Number(file.size) || 0,
+              company_id: Number(company_id),
+              uploaded_by: uploaded_by,
+              file_path: filePath,
+              category: category || 'general',
+            };
+
+            const fieldOrder = [
+              'filename',
+              'original_name',
+              'file_type',
+              'file_size',
+              'company_id',
+              'uploaded_by',
+              'file_path',
+              'category',
+            ];
+
+            const useCols = fieldOrder.filter(c => cols.has(c));
+            const valuesSql = [];
+            const params = [];
+
+            for (const c of useCols) {
+              valuesSql.push('?');
+              params.push(payload[c]);
+            }
+
+            // created_at/updated_at ak existujú – nastav CURRENT_TIMESTAMP
+            if (cols.has('created_at')) { useCols.push('created_at'); valuesSql.push('CURRENT_TIMESTAMP'); }
+            if (cols.has('updated_at')) { useCols.push('updated_at'); valuesSql.push('CURRENT_TIMESTAMP'); }
+
+            const sql = `INSERT INTO files (${useCols.join(', ')}) VALUES (${valuesSql.join(', ')}) ${cols.has('id') ? 'RETURNING id' : ''}`;
+            console.log('files.upload: INSERT debug:', { sql, params });
+
+            db.get(sql, params, (e3, row) => {
+              if (e3) {
+                console.error('files.upload: DB INSERT zlyhal:', e3);
+                return res.status(500).json({ error: 'Chyba pri uložení metadát súboru' });
+              }
+              return res.json({
+                id: row && row.id !== undefined ? row.id : null,
+                filename: path.basename(filePath),
+                original_name: file.originalname || path.basename(filePath),
+                file_type: file.mimetype || 'application/octet-stream',
+                file_size: Number(file.size) || 0,
+                company_id: Number(company_id),
+                uploaded_by,
+                file_path: filePath,
+                category: category || 'general',
+                message: 'Súbor nahratý',
+              });
+            });
+          }
+        );
+      } catch (eAny) {
+        console.error('files.upload: neočakávaná chyba pri skladaní INSERTu:', eAny);
+        return res.status(500).json({ error: 'Chyba pri uložení metadát súboru' });
+      }
+    });
+  } catch (e) {
+    console.error('files.upload: neošetrená výnimka:', e);
+    return res.status(500).json({ error: 'Chyba pri nahrávaní súboru' });
+  }
+});
+
+// GET listing of files by company
+router.get('/company/:companyId', authenticateToken, (req, res) => {
+  const { companyId } = req.params;
+  const sql = "SELECT id, filename, original_name, file_type, file_size, company_id, uploaded_by, file_path, category, created_at FROM files WHERE company_id = ? ORDER BY created_at DESC";
+  db.all(sql, [companyId], (err, rows) => {
+    if (err) {
+      console.error('files.company list error:', err);
+      return res.status(500).json({ error: 'Chyba pri načítaní súborov' });
+    }
+    return res.json(rows || []);
+  });
+});
+
+module.exports = router;
+
+
