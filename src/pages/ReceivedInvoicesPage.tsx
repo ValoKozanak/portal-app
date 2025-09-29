@@ -476,11 +476,11 @@ const ReceivedInvoicesPage: React.FC = () => {
         : '';
 
     // 2) presign-upload (POST)
-    const presignTryA = ${API_BASE}/accounting/invoices/received//presign-upload;
+    const presignTryA = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
 let resp = await fetch(presignTryA, { method: 'POST', headers: authHeaders() });
 
 if (resp.status === 404) {
-  const presignTryB = ${API_BASE}/accounting/received-invoices//presign-upload;
+        const presignTryB = `${API_BASE}/accounting/received-invoices/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
   resp = await fetch(presignTryB, { method: 'POST', headers: authHeaders() });
 }
 
@@ -813,6 +813,7 @@ if (!resp.ok) {
 };
 
 export default ReceivedInvoicesPage;
+
 
 
 
