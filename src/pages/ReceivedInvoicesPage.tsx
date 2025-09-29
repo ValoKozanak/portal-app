@@ -444,76 +444,77 @@ const ReceivedInvoicesPage: React.FC = () => {
                         accept="application/pdf"
                         className="hidden"
                         onChange={async (e) => {
-                          const file = e.target.files && e.target.files[0];
-                          if (!file) return;
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
 
-                          try {
-                            const inv = pendingUploadInvoice || selectedInvoice;
-                            const hasId = !!(inv && inv.id != null);
-                            const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
-                            if (!inv || (!hasId && !hasNumber)) {
-                              console.error('Missing invoice before presign', inv);
-                              alert('Vyberte faktúru v zozname.');
-                              return;
-                            }
+  try {
+    const inv = pendingUploadInvoice || selectedInvoice;
+    const hasId = !!(inv && inv.id != null);
+    const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
+    if (!inv || (!hasId && !hasNumber)) {
+      console.error('Missing invoice before presign', inv);
+      alert('Vyberte faktúru v zozname.');
+      return;
+    }
 
-                            const idOrNum =
-                              inv.id != null
-                                ? String(inv.id)
-                                : String((inv as any).invoice_number || (inv as any).varsym);
+    // 1) identifikátor + issueDate
+    const idOrNum =
+      inv.id != null
+        ? String(inv.id)
+        : String((inv as any).invoice_number || (inv as any).varsym);
 
-                            const rawDate =
-                              (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
-                            const issueDateISO =
-                              rawDate && !isNaN(Date.parse(rawDate))
-                                ? new Date(rawDate).toISOString().slice(0, 10)
-                                : '';
+    const rawDate =
+      (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+    const issueDateISO =
+      rawDate && !isNaN(Date.parse(rawDate))
+        ? new Date(rawDate).toISOString().slice(0, 10)
+        : '';
 
-                            const query =
-                              inv.id == null
-                                ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
-                                    String(issueDateISO)
-                                  )}`
-                                : '';
+    const query =
+      inv.id == null
+        ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateISO))}`
+        : '';
 
-                            const presignEndpoint = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(
-                              idOrNum
-                            )}/presign-upload${query}`;
+    // 2) presign-upload (POST)
+    const presignEndpoint = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
 
-                            const resp = await fetch(presignEndpoint, {
-                              method: 'POST',
-                              headers: authHeaders(),
-                            });
+    const resp = await fetch(presignEndpoint, {
+      method: 'POST',
+      headers: authHeaders(), // jednotné overenie
+    });
 
-                            if (!resp.ok) {
-                              const errT = await resp.text().catch(() => '');
-                              console.error('presign-upload FAILED', resp.status, errT);
-                              throw new Error('Chyba pri vytváraní upload linku');
-                            }
+    if (!resp.ok) {
+      const errT = await resp.text().catch(() => '');
+      console.error('presign-upload FAILED', resp.status, errT);
+      throw new Error('Chyba pri vytváraní upload linku');
+    }
 
-                            const { url: presignedUrl } = await resp.json();
-                            const put = await fetch(presignedUrl, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/pdf' },
-                              body: file,
-                            });
+    const { url: presignedUrl } = await resp.json();
+    if (!presignedUrl) throw new Error('Chýba presigned URL');
 
-                            if (!put.ok) {
-                              const errT = await put.text().catch(() => '');
-                              console.error('PUT to Spaces FAILED', put.status, errT);
-                              throw new Error('Chyba uploadu do úložiska');
-                            }
+    // 3) PUT na Spaces (iba Content-Type)
+    const put = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf' },
+      body: file,
+    });
+    if (!put.ok) {
+      const errT = await put.text().catch(() => '');
+      console.error('PUT to Spaces FAILED', put.status, errT);
+      throw new Error('Chyba uploadu do úložiska');
+    }
 
-                            const existsKey = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
-                            setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
-                            alert('PDF nahrané. Skúste náhľad (oko).');
-                          } catch (err: any) {
-                            alert(err?.message || 'Chyba pri nahrávaní PDF');
-                          } finally {
-                            setPendingUploadInvoice(null);
-                            if (fileInputRef.current) fileInputRef.current.value = '';
-                          }
-                        }}
+    // 4) Optimisticky označ PDF ako dostupné (pre ikonku oka)
+    const existsKey = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
+    setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
+    alert('PDF nahrané. Skúste náhľad (oko).');
+  } catch (err: any) {
+    alert(err?.message || 'Chyba pri nahrávaní PDF');
+  } finally {
+    setPendingUploadInvoice(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+}}}
                       />
                     </>
                   )}
@@ -811,4 +812,5 @@ const ReceivedInvoicesPage: React.FC = () => {
 };
 
 export default ReceivedInvoicesPage;
+
 
