@@ -196,14 +196,15 @@ const ReceivedInvoicesPage: React.FC = () => {
     if (!companyId) return;
     try {
       setLoading(true);
-      const data = await accountingService.getReceivedInvoices(companyId, {
-        dateFrom: dateFrom || undefined,
-        dateTo:   dateTo   || undefined,
-        by:       useDue ? 'due' : 'issue',
-        limit:    100,
-        orderBy:  'issue_date',
-        orderDir: 'DESC',
-      });
+      const data = await accountingService.getReceivedInvoices(companyId!, {
+  date_from: dateFrom || undefined,
+  date_to:   dateTo   || undefined,
+  by:        useDue ? 'due' : 'issue',
+  limit:     100,
+  order:     'desc',
+  status:    status || undefined,
+  search:    q || undefined,
+});
       setInvoices(data);
       setShowFilters(false);
     } catch (e) {
