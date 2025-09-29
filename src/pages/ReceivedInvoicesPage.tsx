@@ -49,11 +49,11 @@ const ReceivedInvoicesPage: React.FC = () => {
     invoiceNumber: '',
   });
 
-  // server-side filtre
+  // server-side filtre (rovnako ako pri vydaných – posiela sa len status/date_from/date_to/limit)
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
-  const [useDue, setUseDue] = useState<boolean>(false); // “podľa splatnosti”
-  const [invStatus, setInvStatus] = useState<string | undefined>(undefined); // namiesto glob. 'status'
+  const [useDue, setUseDue] = useState<boolean>(false); // len klientsky filter podľa splatnosti
+  const [invStatus, setInvStatus] = useState<string | undefined>(undefined); // nepoužívame globál 'status'
 
   // URL auto-filter (?filter=dividenda → supplierName)
   useEffect(() => {
@@ -130,18 +130,12 @@ const ReceivedInvoicesPage: React.FC = () => {
     }
   };
 
-  // === loadInvoices START
   const loadInvoices = async () => {
     if (!companyId) return;
     try {
       setLoading(true);
       // default bez serverových filtrov (limit)
-      const data = await accountingService.getReceivedInvoices(companyId, {
-  date_from: dateFrom || undefined,
-  date_to:   dateTo   || undefined,
-  limit:     100,
-  status:    invStatus || undefined,
-});
+      const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
       setInvoices(data);
 
       setSelectedInvoice((prev) => {
@@ -152,7 +146,7 @@ const ReceivedInvoicesPage: React.FC = () => {
         return null;
       });
 
-      // Skontroluj existenciu PDF
+      // Skontroluj existenciu PDF (najprv BE exists, potom Spaces HEAD fallback)
       const checks = data.map(async (inv) => {
         const key = `received-${(inv as any).invoice_number || (inv as any).varsym || inv.id}`;
         try {
@@ -197,19 +191,18 @@ const ReceivedInvoicesPage: React.FC = () => {
       setLoading(false);
     }
   };
-  // === loadInvoices END
 
-  // ==== SERVER-SIDE APPLY (na Filtre) ====
+  // ==== SERVER-SIDE APPLY (na Filtre) – len status/date_from/date_to/limit ====
   const applyReceivedServerFilters = async () => {
     if (!companyId) return;
     try {
       setLoading(true);
       const data = await accountingService.getReceivedInvoices(companyId!, {
-  date_from: dateFrom || undefined,
-  date_to:   dateTo   || undefined,
-  limit:     100,
-  status:    invStatus || undefined,
-});
+        date_from: dateFrom || undefined,
+        date_to:   dateTo   || undefined,
+        limit:     100,
+        status:    invStatus || undefined,
+      });
       setInvoices(data);
       setShowFilters(false);
     } catch (e) {
@@ -237,22 +230,6 @@ const ReceivedInvoicesPage: React.FC = () => {
     );
   };
 
-  const getStatusBadge = (st: string) => {
-    const statusConfig: Record<string, { color: string; text: string }> = {
-      draft: { color: 'bg-gray-100 text-gray-800', text: 'Koncept' },
-      received: { color: 'bg-blue-100 text-blue-800', text: 'Prijatá' },
-      paid: { color: 'bg-green-100 text-green-800', text: 'Zaplatená' },
-      overdue: { color: 'bg-red-100 text-red-800', text: 'Po splatnosti' },
-      cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'Zrušená' },
-    };
-    const config = statusConfig[st] || statusConfig.draft;
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
-      </span>
-    );
-  };
-
   // Klientsky doplnkový filter (názov, varsym, lokálne rozsahy)
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
@@ -268,15 +245,18 @@ const ReceivedInvoicesPage: React.FC = () => {
       return false;
     }
 
-    if (filters.dueDateFrom) {
-      const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
-      const fromDate = new Date(filters.dueDateFrom);
-      if (!dueDate || dueDate < fromDate) return false;
-    }
-    if (filters.dueDateTo) {
-      const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
-      const toDate = new Date(filters.dueDateTo);
-      if (!dueDate || dueDate > toDate) return false;
+    // Klientsky „podľa splatnosti“ toggle
+    if (useDue) {
+      if (filters.dueDateFrom) {
+        const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
+        const fromDate = new Date(filters.dueDateFrom);
+        if (!dueDate || dueDate < fromDate) return false;
+      }
+      if (filters.dueDateTo) {
+        const dueDate = invoice.due_date ? new Date(invoice.due_date) : null;
+        const toDate = new Date(filters.dueDateTo);
+        if (!dueDate || dueDate > toDate) return false;
+      }
     }
 
     const unpaidAmount = parseFloat(String((invoice as any).kc_likv || 0)) || 0;
@@ -386,9 +366,9 @@ const ReceivedInvoicesPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <h2 className="text-lg font-semibold text-gray-900">Zoznam prijatých faktúr</h2>
-  <span className="text-sm text-gray-500">
-    Zobrazených: {filteredInvoices.length} z {invoices.length}
-  </span>
+                  <span className="text-sm text-gray-500">
+                    Zobrazených: {filteredInvoices.length} z {invoices.length}
+                  </span>
 
                   <button
                     type="button"
@@ -444,109 +424,84 @@ const ReceivedInvoicesPage: React.FC = () => {
                         accept="application/pdf"
                         className="hidden"
                         onChange={async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
+                          const file = e.target.files && e.target.files[0];
+                          if (!file) return;
 
-  try {
-    const inv = pendingUploadInvoice || selectedInvoice;
-    const hasId = !!(inv && inv.id != null);
-    const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
-    if (!inv || (!hasId && !hasNumber)) {
-      console.error('Missing invoice before presign', inv);
-      alert('Vyberte faktúru v zozname.');
-      return;
-    }
+                          try {
+                            const inv = pendingUploadInvoice || selectedInvoice;
+                            const hasId = !!(inv && inv.id != null);
+                            const hasNumber = !!(inv && ((inv as any).invoice_number || (inv as any).varsym));
+                            if (!inv || (!hasId && !hasNumber)) {
+                              console.error('Missing invoice before presign', inv);
+                              alert('Vyberte faktúru v zozname.');
+                              return;
+                            }
 
-    // 1) identifikátor + issueDate (ISO YYYY-MM-DD)
-    const idOrNum =
-      inv.id != null
-        ? String(inv.id)
-        : String((inv as any).invoice_number || (inv as any).varsym);
+                            // 1) identifikátor + issueDate
+                            const idOrNum =
+                              inv.id != null
+                                ? String(inv.id)
+                                : String((inv as any).invoice_number || (inv as any).varsym);
 
-    const rawDate =
-      (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
-    const issueDateISO =
-      rawDate && !isNaN(Date.parse(rawDate))
-        ? new Date(rawDate).toISOString().slice(0, 10)
-        : '';
+                            const rawDate =
+                              (inv as any).issue_date || (inv as any).datum || (inv as any).due_date || '';
+                            const issueDateISO =
+                              rawDate && !isNaN(Date.parse(rawDate))
+                                ? new Date(rawDate).toISOString().slice(0, 10)
+                                : '';
 
-    const query =
-      inv.id == null
-        ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateISO))}`
-        : '';
+                            const query =
+                              inv.id == null
+                                ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
+                                    String(issueDateISO)
+                                  )}`
+                                : `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(
+                                    String(issueDateISO)
+                                  )}`;
 
-    // ==========  presign upload – viaceré pokusy ==========
-    // A) PATH VARIANTY
-    const tryA = async () => {
-      const urlA = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
-      return fetch(urlA, { method: 'POST', headers: authHeaders() });
-    };
-    const tryB = async () => {
-      const urlB = `${API_BASE}/accounting/received-invoices/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
-      return fetch(urlB, { method: 'POST', headers: authHeaders() });
-    };
+                            // 2) presign-upload (POST) – GENERIC ROUTE
+                            const presignEndpoint = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(
+                              idOrNum
+                            )}/presign-upload${query}`;
 
-    // B) BODY VARIANTY (bez path parametra)
-    const bodyPayload = {
-      id_or_number: idOrNum,
-      companyId: companyId,
-      issueDate: issueDateISO
-    };
-    const tryC = async () => {
-      const urlC = `${API_BASE}/accounting/invoices/received/presign-upload`;
-      return fetch(urlC, {
-        method: 'POST',
-        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload),
-      });
-    };
-    const tryD = async () => {
-      const urlD = `${API_BASE}/accounting/received-invoices/presign-upload`;
-      return fetch(urlD, {
-        method: 'POST',
-        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload),
-      });
-    };
+                            const resp = await fetch(presignEndpoint, {
+                              method: 'POST',
+                              headers: authHeaders(),
+                            });
 
-    // vykonaj pokusy jeden po druhom
-    let resp = await tryA();
-    if (resp.status === 404) resp = await tryB();
-    if (resp.status === 404) resp = await tryC();
-    if (resp.status === 404) resp = await tryD();
+                            if (!resp.ok) {
+                              const errT = await resp.text().catch(() => '');
+                              console.error('presign-upload FAILED', resp.status, errT);
+                              throw new Error('Chyba pri vytváraní upload linku');
+                            }
 
-    if (!resp.ok) {
-      const errT = await resp.text().catch(() => '');
-      console.error('presign-upload FAILED', resp.status, errT);
-      throw new Error('Chyba pri vytváraní upload linku (received)');
-    }
+                            const { url: presignedUrl } = await resp.json();
+                            if (!presignedUrl) throw new Error('Chýba presigned URL');
 
-    const { url: presignedUrl } = await resp.json();
-    if (!presignedUrl) throw new Error('Chýba presigned URL (received)');
+                            // 3) PUT na Spaces
+                            const put = await fetch(presignedUrl, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/pdf' },
+                              body: file,
+                            });
 
-    // 3) PUT na Spaces
-    const put = await fetch(presignedUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/pdf' },
-      body: file,
-    });
-    if (!put.ok) {
-      const errT = await put.text().catch(() => '');
-      console.error('PUT to Spaces FAILED', put.status, errT);
-      throw new Error('Chyba uploadu do úložiska (received)');
-    }
+                            if (!put.ok) {
+                              const errT = await put.text().catch(() => '');
+                              console.error('PUT to Spaces FAILED', put.status, errT);
+                              throw new Error('Chyba uploadu do úložiska');
+                            }
 
-    // 4) Optimistický flag pre ikonku oka
-    const existsKey = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
-    setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
-    alert('PDF nahrané. Skúste náhľad (oko).');
-  } catch (err: any) {
-    alert(err?.message || 'Chyba pri nahrávaní PDF (received)');
-  } finally {
-    setPendingUploadInvoice(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }
-}}
+                            // 4) Optimisticky označ PDF ako dostupné
+                            const existsKey = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
+                            setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
+                            alert('PDF nahrané. Skúste náhľad (oko).');
+                          } catch (err: any) {
+                            alert(err?.message || 'Chyba pri nahrávaní PDF');
+                          } finally {
+                            setPendingUploadInvoice(null);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }
+                        }}
                       />
                     </>
                   )}
@@ -554,120 +509,105 @@ const ReceivedInvoicesPage: React.FC = () => {
               </div>
 
               {/* FILTER PANEL */}
-{showFilters && (
-  <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      {/* Firma (pri prijatých = Dodávateľ) */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Firma</label>
-        <input
-          type="text"
-          placeholder="Zadajte názov firmy..."
-          value={filters.supplierName}
-          onChange={(e) => handleFilterChange('supplierName', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Číslo faktúry */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Číslo faktúry</label>
-        <input
-          type="text"
-          placeholder="Zadajte číslo faktúry..."
-          value={filters.invoiceNumber}
-          onChange={(e) => handleFilterChange('invoiceNumber', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Splatné od */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Splatné od</label>
-        <input
-          type="date"
-          placeholder="dd. mm. rrrr"
-          value={filters.dueDateFrom}
-          onChange={(e) => handleFilterChange('dueDateFrom', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Splatné do */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Splatné do</label>
-        <input
-          type="date"
-          placeholder="dd. mm. rrrr"
-          value={filters.dueDateTo}
-          onChange={(e) => handleFilterChange('dueDateTo', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Doplatok od (€) */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Doplatok od (€)</label>
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          value={filters.unpaidAmountMin}
-          onChange={(e) => handleFilterChange('unpaidAmountMin', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Doplatok do (€) */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Doplatok do (€)</label>
-        <input
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          placeholder="999999.99"
-          value={filters.unpaidAmountMax}
-          onChange={(e) => handleFilterChange('unpaidAmountMax', e.target.value)}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-        />
-      </div>
-
-      {/* Prepínač "podľa splatnosti" – môžeš ponechať */}
-      <div className="flex items-end">
-        <label className="inline-flex items-center">
-          <input
-            type="checkbox"
-            checked={useDue}
-            onChange={(e) => setUseDue(e.target.checked)}
-            className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
-          />
-          <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
-        </label>
-      </div>
-
-      {/* Tlačidlá akcie */}
-      <div className="flex items-end justify-end space-x-2">
-        <button
-          type="button"
-          onClick={clearFilters}
-          className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-        >
-          Vymazať filtre
-        </button>
-        <button
-          type="button"
-          onClick={applyReceivedServerFilters}
-          className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
-        >
-          Použiť
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              {showFilters && (
+                <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Firma</label>
+                      <input
+                        type="text"
+                        placeholder="Zadajte názov firmy..."
+                        value={filters.supplierName}
+                        onChange={(e) => handleFilterChange('supplierName', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Číslo faktúry</label>
+                      <input
+                        type="text"
+                        placeholder="Zadajte číslo faktúry..."
+                        value={filters.invoiceNumber}
+                        onChange={(e) => handleFilterChange('invoiceNumber', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Splatné od</label>
+                      <input
+                        type="date"
+                        placeholder="dd. mm. rrrr"
+                        value={filters.dueDateFrom}
+                        onChange={(e) => handleFilterChange('dueDateFrom', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Splatné do</label>
+                      <input
+                        type="date"
+                        placeholder="dd. mm. rrrr"
+                        value={filters.dueDateTo}
+                        onChange={(e) => handleFilterChange('dueDateTo', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Doplatok od (€)</label>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        value={filters.unpaidAmountMin}
+                        onChange={(e) => handleFilterChange('unpaidAmountMin', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Doplatok do (€)</label>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        min="0"
+                        placeholder="999999.99"
+                        value={filters.unpaidAmountMax}
+                        onChange={(e) => handleFilterChange('unpaidAmountMax', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={useDue}
+                          onChange={(e) => setUseDue(e.target.checked)}
+                          className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
+                        />
+                        <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
+                      </label>
+                    </div>
+                    <div className="flex items-end justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={clearFilters}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Vymazať filtre
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyReceivedServerFilters}
+                        className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
+                      >
+                        Použiť
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-x-auto overflow-y-auto">
@@ -758,11 +698,9 @@ const ReceivedInvoicesPage: React.FC = () => {
                                             : '';
 
                                         const query =
-                                          invoice.id == null
-                                            ? `?companyId=${encodeURIComponent(
-                                                String(companyId)
-                                              )}&issueDate=${encodeURIComponent(String(issueDateISO))}`
-                                            : '';
+                                          `?companyId=${encodeURIComponent(
+                                            String(companyId)
+                                          )}&issueDate=${encodeURIComponent(String(issueDateISO))}`;
 
                                         const resp = await fetch(
                                           `${API_BASE}/accounting/invoices/received/${idOrNum}/presign${query}`,
@@ -777,6 +715,7 @@ const ReceivedInvoicesPage: React.FC = () => {
                                           }
                                         }
 
+                                        // Fallback priamo na Spaces (ak by presign nebol k dispozícii)
                                         const ico = companies.find((c) => c.id === companyId)?.ico;
                                         const numOrId =
                                           (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
@@ -844,10 +783,3 @@ const ReceivedInvoicesPage: React.FC = () => {
 };
 
 export default ReceivedInvoicesPage;
-
-
-
-
-
-
-
