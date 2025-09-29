@@ -514,7 +514,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     setPendingUploadInvoice(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
-}}}
+}}
                       />
                     </>
                   )}
@@ -812,5 +812,6 @@ const ReceivedInvoicesPage: React.FC = () => {
 };
 
 export default ReceivedInvoicesPage;
+
 
 
