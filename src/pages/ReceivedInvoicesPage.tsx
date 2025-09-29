@@ -386,6 +386,9 @@ const ReceivedInvoicesPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <h2 className="text-lg font-semibold text-gray-900">Zoznam prijatých faktúr</h2>
+  <span className="text-sm text-gray-500">
+    Zobrazených: {filteredInvoices.length} z {invoices.length}
+  </span>
 
                   <button
                     type="button"
@@ -745,3 +748,4 @@ const ReceivedInvoicesPage: React.FC = () => {
 };
 
 export default ReceivedInvoicesPage;
+
