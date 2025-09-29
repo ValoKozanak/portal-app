@@ -521,57 +521,120 @@ const ReceivedInvoicesPage: React.FC = () => {
               </div>
 
               {/* FILTER PANEL */}
-              {showFilters && (
-                <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Dátum od</label>
-                      <input
-                        type="date"
-                        value={dateFrom}
-                        onChange={(e) => setDateFrom(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Dátum do</label>
-                      <input
-                        type="date"
-                        value={dateTo}
-                        onChange={(e) => setDateTo(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={useDue}
-                          onChange={(e) => setUseDue(e.target.checked)}
-                          className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
-                        />
-                        <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
-                      </label>
-                    </div>
-                    <div className="flex items-end justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={clearFilters}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Vymazať
-                      </button>
-                      <button
-                        type="button"
-                        onClick={applyReceivedServerFilters}
-                        className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
-                      >
-                        Použiť
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+{showFilters && (
+  <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Firma (pri prijatých = Dodávateľ) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Firma</label>
+        <input
+          type="text"
+          placeholder="Zadajte názov firmy..."
+          value={filters.supplierName}
+          onChange={(e) => handleFilterChange('supplierName', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Číslo faktúry */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Číslo faktúry</label>
+        <input
+          type="text"
+          placeholder="Zadajte číslo faktúry..."
+          value={filters.invoiceNumber}
+          onChange={(e) => handleFilterChange('invoiceNumber', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Splatné od */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Splatné od</label>
+        <input
+          type="date"
+          placeholder="dd. mm. rrrr"
+          value={filters.dueDateFrom}
+          onChange={(e) => handleFilterChange('dueDateFrom', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Splatné do */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Splatné do</label>
+        <input
+          type="date"
+          placeholder="dd. mm. rrrr"
+          value={filters.dueDateTo}
+          onChange={(e) => handleFilterChange('dueDateTo', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Doplatok od (€) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Doplatok od (€)</label>
+        <input
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          value={filters.unpaidAmountMin}
+          onChange={(e) => handleFilterChange('unpaidAmountMin', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Doplatok do (€) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Doplatok do (€)</label>
+        <input
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="0"
+          placeholder="999999.99"
+          value={filters.unpaidAmountMax}
+          onChange={(e) => handleFilterChange('unpaidAmountMax', e.target.value)}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+        />
+      </div>
+
+      {/* Prepínač "podľa splatnosti" – môžeš ponechať */}
+      <div className="flex items-end">
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            checked={useDue}
+            onChange={(e) => setUseDue(e.target.checked)}
+            className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
+          />
+          <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
+        </label>
+      </div>
+
+      {/* Tlačidlá akcie */}
+      <div className="flex items-end justify-end space-x-2">
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Vymazať filtre
+        </button>
+        <button
+          type="button"
+          onClick={applyReceivedServerFilters}
+          className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
+        >
+          Použiť
+        </button>
+      </div>
+    </div>
+  </div>
+)}
             </div>
 
             <div className="flex-1 overflow-x-auto overflow-y-auto">
