@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { authHeaders } from '../utils/http';
 import {
@@ -53,6 +53,7 @@ const ReceivedInvoicesPage: React.FC = () => {
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
   const [useDue, setUseDue] = useState<boolean>(false); // “podľa splatnosti”
+  const [invStatus, setInvStatus] = useState<string | undefined>(undefined); // namiesto glob. 'status'
 
   // URL auto-filter (?filter=dividenda → supplierName)
   useEffect(() => {
@@ -77,7 +78,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     if (urlCompanyId && !companyId) {
       setCompanyId(Number(urlCompanyId));
     }
-  }, [urlCompanyId, companyId]);
+  }, [urlCompanyId, companyId, setCompanyId]);
 
   useEffect(() => {
     if (companyId) {
@@ -129,6 +130,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     }
   };
 
+  // === loadInvoices START
   const loadInvoices = async () => {
     if (!companyId) return;
     try {
@@ -190,6 +192,7 @@ const ReceivedInvoicesPage: React.FC = () => {
       setLoading(false);
     }
   };
+  // === loadInvoices END
 
   // ==== SERVER-SIDE APPLY (na Filtre) ====
   const applyReceivedServerFilters = async () => {
@@ -197,14 +200,14 @@ const ReceivedInvoicesPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await accountingService.getReceivedInvoices(companyId!, {
-  date_from: dateFrom || undefined,
-  date_to:   dateTo   || undefined,
-  by:        useDue ? 'due' : 'issue',
-  limit:     100,
-  order:     'desc',
-  status:    status || undefined,
-  search:    q || undefined,
-});
+        date_from: dateFrom || undefined,
+        date_to:   dateTo   || undefined,
+        by:        useDue ? 'due' : 'issue',
+        limit:     100,
+        order:     'desc',
+        status:    invStatus || undefined,
+        search:    searchTerm || undefined,
+      });
       setInvoices(data);
       setShowFilters(false);
     } catch (e) {
@@ -232,7 +235,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     );
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (st: string) => {
     const statusConfig: Record<string, { color: string; text: string }> = {
       draft: { color: 'bg-gray-100 text-gray-800', text: 'Koncept' },
       received: { color: 'bg-blue-100 text-blue-800', text: 'Prijatá' },
@@ -240,7 +243,7 @@ const ReceivedInvoicesPage: React.FC = () => {
       overdue: { color: 'bg-red-100 text-red-800', text: 'Po splatnosti' },
       cancelled: { color: 'bg-yellow-100 text-yellow-800', text: 'Zrušená' },
     };
-    const config = statusConfig[status] || statusConfig.draft;
+    const config = statusConfig[st] || statusConfig.draft;
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         {config.text}
@@ -311,6 +314,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     setDateFrom('');
     setDateTo('');
     setUseDue(false);
+    setInvStatus(undefined);
   };
 
   const handleCreateInvoice = () => {
@@ -528,214 +532,3 @@ const ReceivedInvoicesPage: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700">Dátum do</label>
                       <input
                         type="date"
-                        value={dateTo}
-                        onChange={(e) => setDateTo(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={useDue}
-                          onChange={(e) => setUseDue(e.target.checked)}
-                          className="h-4 w-4 text-green-600 border-gray-300 rounded mr-2"
-                        />
-                        <span className="text-sm text-gray-700">Filtrovať podľa splatnosti</span>
-                      </label>
-                    </div>
-                    <div className="flex items-end justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={clearFilters}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Vymazať
-                      </button>
-                      <button
-                        type="button"
-                        onClick={applyReceivedServerFilters}
-                        className="px-3 py-2 text-sm rounded-md text-white bg-green-600 hover:bg-green-700"
-                      >
-                        Použiť
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 overflow-x-auto overflow-y-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Číslo</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Varsym</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dátum</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Splatné</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dodávateľ</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celkom</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doplatok</th>
-                    <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcie</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
-                        Načítavam faktúry...
-                      </td>
-                    </tr>
-                  ) : filteredInvoices.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="px-4 py-3 text-center text-gray-500">
-                        Žiadne faktúry neboli nájdené
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredInvoices.map((invoice) => (
-                      <tr
-                        key={invoice.id}
-                        onClick={() => handleInvoiceSelect(invoice)}
-                        className={`cursor-pointer hover:bg-gray-50 ${
-                          selectedInvoice && String(selectedInvoice.id) === String(invoice.id) ? 'bg-green-50' : ''
-                        }`}
-                      >
-                        <td className="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {invoice.invoice_number}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
-                          {(invoice as any).varsym || '-'}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(invoice.issue_date)}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(invoice.due_date)}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {invoice.supplier_name}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency((invoice as any).kc_celkem || invoice.total_amount)}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency((invoice as any).kc_likv || 0)}
-                        </td>
-                        <td className="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex items-center space-x-2">
-                            {(() => {
-                              const k = `received-${(invoice as any).invoice_number || (invoice as any).varsym || invoice.id}`;
-                              const hasPdf = !!pdfExistsByKey[k];
-                              if (hasPdf) {
-                                return (
-                                  <button
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
-                                      try {
-                                        setPreviewLoadingId(invoice.id as number);
-
-                                        const idOrNum =
-                                          invoice.id != null
-                                            ? encodeURIComponent(String(invoice.id))
-                                            : encodeURIComponent(
-                                                String((invoice as any).invoice_number || (invoice as any).varsym)
-                                              );
-
-                                        const rawDate =
-                                          (invoice as any).issue_date ||
-                                          (invoice as any).datum ||
-                                          (invoice as any).due_date ||
-                                          '';
-                                        const issueDateISO =
-                                          rawDate && !isNaN(Date.parse(rawDate))
-                                            ? new Date(rawDate).toISOString().slice(0, 10)
-                                            : '';
-
-                                        const query =
-                                          invoice.id == null
-                                            ? `?companyId=${encodeURIComponent(
-                                                String(companyId)
-                                              )}&issueDate=${encodeURIComponent(String(issueDateISO))}`
-                                            : '';
-
-                                        const resp = await fetch(
-                                          `${API_BASE}/accounting/invoices/received/${idOrNum}/presign${query}`,
-                                          { headers: authHeaders() }
-                                        );
-
-                                        if (resp.ok) {
-                                          const data = await resp.json();
-                                          if (data?.url) {
-                                            window.open(data.url, '_blank');
-                                            return;
-                                          }
-                                        }
-
-                                        const ico = companies.find((c) => c.id === companyId)?.ico;
-                                        const numOrId =
-                                          (invoice as any).invoice_number || (invoice as any).varsym || invoice.id;
-                                        if (ico && numOrId) {
-                                          const directUrl = buildSpacesPdfUrl(String(ico), String(numOrId), issueDateISO);
-                                          window.open(directUrl, '_blank');
-                                        } else {
-                                          throw new Error('PDF nenájdené');
-                                        }
-                                      } catch {
-                                        alert('PDF nie je dostupné pre túto faktúru');
-                                      } finally {
-                                        setPreviewLoadingId(null);
-                                      }
-                                    }}
-                                    className="text-green-600 hover:text-green-900"
-                                    title="Náhľad PDF"
-                                  >
-                                    <EyeIcon className="h-4 w-4" />
-                                  </button>
-                                );
-                              }
-
-                              if (userRole === 'admin' || userRole === 'accountant') {
-                                return (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setPendingUploadInvoice(invoice);
-                                      fileInputRef.current?.click();
-                                    }}
-                                    className="text-green-600 hover:text-green-900"
-                                    title="Nahrať PDF"
-                                  >
-                                    <ArrowUpOnSquareIcon className="h-4 w-4" />
-                                  </button>
-                                );
-                              }
-                              return null;
-                            })()}
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditInvoice(invoice);
-                              }}
-                              className="text-green-600 hover:text-green-900"
-                              title="Upraviť"
-                            >
-                              <PencilIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ReceivedInvoicesPage;

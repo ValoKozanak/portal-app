@@ -136,12 +136,7 @@ const ReceivedInvoicesPage: React.FC = () => {
     try {
       setLoading(true);
       // default bez serverových filtrov (limit)
-      const data = await accountingService.getReceivedInvoices(companyId, {
-  date_from: dateFrom || undefined,
-  date_to:   dateTo   || undefined,
-  limit:     100,
-  status:    invStatus || undefined,
-});
+      const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
       setInvoices(data);
 
       setSelectedInvoice((prev) => {
@@ -205,11 +200,14 @@ const ReceivedInvoicesPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await accountingService.getReceivedInvoices(companyId!, {
-  date_from: dateFrom || undefined,
-  date_to:   dateTo   || undefined,
-  limit:     100,
-  status:    invStatus || undefined,
-});
+        date_from: dateFrom || undefined,
+        date_to:   dateTo   || undefined,
+        by:        useDue ? 'due' : 'issue',
+        limit:     100,
+        order:     'desc',
+        status:    invStatus || undefined,
+        search:    searchTerm || undefined,
+      });
       setInvoices(data);
       setShowFilters(false);
     } catch (e) {

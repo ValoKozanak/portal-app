@@ -1,0 +1,138 @@
+﻿import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { authHeaders } from '../utils/http';
+import {
+  EyeIcon,
+  PencilIcon,
+  PlusIcon,
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  ArrowLeftIcon,
+  ArrowUpOnSquareIcon,
+} from '@heroicons/react/24/outline';
+import { accountingService, ReceivedInvoice } from '../services/accountingService';
+import InvoiceSummary from '../components/InvoiceSummary';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+
+// JednotnĂ˝ zĂˇklad â€“ Netlify proxy (/api) alebo REACT_APP_API_BASE
+const API_BASE = (process.env.REACT_APP_API_BASE || '/api').replace(/\/$/, '');
+
+const ReceivedInvoicesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { companyId: urlCompanyId } = useParams<{ companyId: string }>();
+
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [userEmail] = useLocalStorage('userEmail', '');
+  const [userRole] = useLocalStorage<'admin' | 'accountant' | 'user' | 'employee' | null>('userRole', null);
+  const [companyId, setCompanyId] = useLocalStorage<number | null>('selectedCompanyId', null);
+
+  const [invoices, setInvoices] = useState<ReceivedInvoice[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<ReceivedInvoice | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSummary, setShowSummary] = useState(true);
+  const [previewLoadingId, setPreviewLoadingId] = useState<number | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [pdfExistsByKey, setPdfExistsByKey] = useState<Record<string, boolean>>({});
+  const [pendingUploadInvoice, setPendingUploadInvoice] = useState<ReceivedInvoice | null>(null);
+
+  // ==== Filtre UI + serverovĂ© filtre pre prijatĂ© ====
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    supplierName: '',
+    dueDateFrom: '',
+    dueDateTo: '',
+    unpaidAmountMin: '',
+    unpaidAmountMax: '',
+    invoiceNumber: '',
+  });
+
+  // server-side filtre
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
+  const [useDue, setUseDue] = useState<boolean>(false); // â€śpodÄľa splatnostiâ€ť
+  const [invStatus, setInvStatus] = useState<string | undefined>(undefined); // nĂˇhrada za 'status' (no-restricted-globals)
+
+  // URL auto-filter (?filter=dividenda â†’ supplierName)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const filterParam = urlParams.get('filter');
+    if (filterParam === 'dividenda') {
+      setFilters((prev) => ({
+        ...prev,
+        supplierName: 'DIVIDENDA s.r.o.',
+      }));
+      setShowFilters(true);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (userRole && userEmail) {
+      loadCompanies();
+    }
+  }, [userRole, userEmail]);
+
+  useEffect(() => {
+    if (urlCompanyId && !companyId) {
+      setCompanyId(Number(urlCompanyId));
+    }
+  }, [urlCompanyId, companyId, setCompanyId]);
+
+  useEffect(() => {
+    if (companyId) {
+      loadInvoices();
+      handleRefreshInvoices();
+    }
+  }, [companyId]);
+
+  const buildSpacesPdfUrl = (ico: string, invoiceNumberOrId: string | number, issueDateLike: any) => {
+    const y = (() => {
+      const d = issueDateLike ? new Date(issueDateLike) : new Date();
+      const yr = d.getFullYear();
+      return Number.isFinite(yr) ? yr : new Date().getFullYear();
+    })();
+    const idPart = String(invoiceNumberOrId);
+    const safeKind = 'received';
+    return `https://client-portal-docs.ams3.digitaloceanspaces.com/companies/${String(
+      ico
+    )}/documents/invoices/${safeKind}/${y}/${encodeURIComponent(idPart)}.pdf`;
+  };
+
+  const checkExistsOnSpaces = async (url: string): Promise<boolean> => {
+    try {
+      const resp = await fetch(url, { method: 'HEAD' });
+      return resp.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const loadCompanies = async () => {
+    try {
+      let endpoint = `${API_BASE}/companies`;
+      if (userRole === 'user') {
+        endpoint = `${API_BASE}/companies/user/${encodeURIComponent(userEmail)}`;
+      } else if (userRole === 'accountant') {
+        endpoint = `${API_BASE}/companies/accountant/${encodeURIComponent(userEmail)}`;
+      }
+
+      const response = await fetch(endpoint, { headers: authHeaders() });
+      const companiesData = await response.json();
+      setCompanies(companiesData);
+
+      if (companiesData.length > 0 && !urlCompanyId && !companyId) {
+        setCompanyId(companiesData[0].id);
+      }
+    } catch (error) {
+      console.error('Chyba pri naÄŤĂ­tanĂ­ firiem:', error);
+    }
+  };
+
+  const loadInvoices = async () => {
+    if (!companyId) return;
+    try {
+      setLoading(true);
+      // default bez serverovĂ˝ch filtrov (limit)
+      const data = await accountingService.getReceivedInvoices(companyId, { limit: 100 });
