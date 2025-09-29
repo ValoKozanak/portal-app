@@ -457,7 +457,7 @@ const ReceivedInvoicesPage: React.FC = () => {
       return;
     }
 
-    // 1) identifikátor + issueDate
+    // 1) identifikátor + issueDate (ISO YYYY-MM-DD)
     const idOrNum =
       inv.id != null
         ? String(inv.id)
@@ -475,25 +475,56 @@ const ReceivedInvoicesPage: React.FC = () => {
         ? `?companyId=${encodeURIComponent(String(companyId))}&issueDate=${encodeURIComponent(String(issueDateISO))}`
         : '';
 
-    // 2) presign-upload (POST)
-    const presignTryA = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
-let resp = await fetch(presignTryA, { method: 'POST', headers: authHeaders() });
+    // ==========  presign upload – viaceré pokusy ==========
+    // A) PATH VARIANTY
+    const tryA = async () => {
+      const urlA = `${API_BASE}/accounting/invoices/received/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
+      return fetch(urlA, { method: 'POST', headers: authHeaders() });
+    };
+    const tryB = async () => {
+      const urlB = `${API_BASE}/accounting/received-invoices/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
+      return fetch(urlB, { method: 'POST', headers: authHeaders() });
+    };
 
-if (resp.status === 404) {
-        const presignTryB = `${API_BASE}/accounting/received-invoices/${encodeURIComponent(idOrNum)}/presign-upload${query}`;
-  resp = await fetch(presignTryB, { method: 'POST', headers: authHeaders() });
-}
+    // B) BODY VARIANTY (bez path parametra)
+    const bodyPayload = {
+      id_or_number: idOrNum,
+      companyId: companyId,
+      issueDate: issueDateISO
+    };
+    const tryC = async () => {
+      const urlC = `${API_BASE}/accounting/invoices/received/presign-upload`;
+      return fetch(urlC, {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload),
+      });
+    };
+    const tryD = async () => {
+      const urlD = `${API_BASE}/accounting/received-invoices/presign-upload`;
+      return fetch(urlD, {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload),
+      });
+    };
 
-if (!resp.ok) {
-  const errT = await resp.text().catch(() => '');
-  console.error('presign-upload FAILED', resp.status, errT);
-  throw new Error('Chyba pri vytváraní upload linku');
-}
+    // vykonaj pokusy jeden po druhom
+    let resp = await tryA();
+    if (resp.status === 404) resp = await tryB();
+    if (resp.status === 404) resp = await tryC();
+    if (resp.status === 404) resp = await tryD();
+
+    if (!resp.ok) {
+      const errT = await resp.text().catch(() => '');
+      console.error('presign-upload FAILED', resp.status, errT);
+      throw new Error('Chyba pri vytváraní upload linku (received)');
+    }
 
     const { url: presignedUrl } = await resp.json();
-    if (!presignedUrl) throw new Error('Chýba presigned URL');
+    if (!presignedUrl) throw new Error('Chýba presigned URL (received)');
 
-    // 3) PUT na Spaces (iba Content-Type)
+    // 3) PUT na Spaces
     const put = await fetch(presignedUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/pdf' },
@@ -502,15 +533,15 @@ if (!resp.ok) {
     if (!put.ok) {
       const errT = await put.text().catch(() => '');
       console.error('PUT to Spaces FAILED', put.status, errT);
-      throw new Error('Chyba uploadu do úložiska');
+      throw new Error('Chyba uploadu do úložiska (received)');
     }
 
-    // 4) Optimisticky označ PDF ako dostupné (pre ikonku oka)
+    // 4) Optimistický flag pre ikonku oka
     const existsKey = `received-${inv.id ?? (inv as any).invoice_number ?? (inv as any).varsym}`;
     setPdfExistsByKey((prev) => ({ ...prev, [existsKey]: true }));
     alert('PDF nahrané. Skúste náhľad (oko).');
   } catch (err: any) {
-    alert(err?.message || 'Chyba pri nahrávaní PDF');
+    alert(err?.message || 'Chyba pri nahrávaní PDF (received)');
   } finally {
     setPendingUploadInvoice(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -813,6 +844,8 @@ if (!resp.ok) {
 };
 
 export default ReceivedInvoicesPage;
+
+
 
 
 
