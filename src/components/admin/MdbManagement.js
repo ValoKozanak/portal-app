@@ -95,7 +95,7 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre stiahnutie súboru');
       }
-      const url = `${API_BASE}/accounting/admin/mdb/download/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      const url = `${API_BASE}/accounting/admin/mdb/download?companyId=${encodeURIComponent(selectedCompany)}&name=${encodeURIComponent(fileName)}`;
       const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         responseType: 'blob'
@@ -119,7 +119,7 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre zmazanie súboru');
       }
-      const url = `${API_BASE}/accounting/admin/mdb/file/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      const url = `${API_BASE}/accounting/admin/mdb/file?companyId=${encodeURIComponent(selectedCompany)}&name=${encodeURIComponent(fileName)}`;
       await axios.delete(url, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
