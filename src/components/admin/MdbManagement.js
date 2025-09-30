@@ -95,11 +95,15 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre stiahnutie súboru');
       }
-      const url = `${API_BASE}/accounting/admin/mdb/download?companyId=${encodeURIComponent(selectedCompany)}&name=${encodeURIComponent(fileName)}`;
-      const response = await axios.get(url, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-        responseType: 'blob'
-      });
+      const url = `${API_BASE}/accounting/admin/mdb/download`;
+      const response = await axios.post(
+        url,
+        { companyId: selectedCompany, name: fileName },
+        {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          responseType: 'blob'
+        }
+      );
       const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -119,10 +123,12 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre zmazanie súboru');
       }
-      const url = `${API_BASE}/accounting/admin/mdb/file?companyId=${encodeURIComponent(selectedCompany)}&name=${encodeURIComponent(fileName)}`;
-      await axios.delete(url, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
+      const url = `${API_BASE}/accounting/admin/mdb/delete`;
+      await axios.post(
+        url,
+        { companyId: selectedCompany, name: fileName },
+        { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
+      );
       setSuccess(`MDB súbor ${fileName} bol odstránený`);
       fetchFiles();
     } catch (error) {
