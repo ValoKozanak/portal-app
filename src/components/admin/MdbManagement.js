@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// Základné URL
+const API_ROOT = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+const API_BASE = (process.env.REACT_APP_API_BASE || '/api').replace(/\/$/, '');
+
 const MdbManagement = ({ onBack }) => {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -15,7 +19,7 @@ const MdbManagement = ({ onBack }) => {
   const fetchCompanies = async () => {
     try {
       setLoadingCompanies(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/companies`, {
+      const response = await axios.get(`${API_ROOT || ''}/api/companies`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -31,10 +35,9 @@ const MdbManagement = ({ onBack }) => {
   // Získanie zoznamu MDB súborov
   const fetchFiles = async () => {
     try {
-      const baseUrl = process.env.REACT_APP_API_URL;
       const url = selectedCompany
-        ? `${baseUrl}/api/accounting/admin/mdb/files/${selectedCompany}`
-        : `${baseUrl}/api/accounting/admin/mdb/files`;
+        ? `${API_BASE}/accounting/admin/mdb/files/${selectedCompany}`
+        : `${API_BASE}/accounting/admin/mdb/files`;
       const response = await axios.get(url, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -66,7 +69,7 @@ const MdbManagement = ({ onBack }) => {
       formData.append('year', selectedYear);
 
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/upload/${selectedCompany}`,
+        `${API_BASE}/accounting/admin/mdb/upload/${selectedCompany}`,
         formData,
         {
           headers: {
@@ -92,7 +95,7 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre stiahnutie súboru');
       }
-      const url = `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/download/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      const url = `${API_BASE}/accounting/admin/mdb/download/${selectedCompany}/${encodeURIComponent(fileName)}`;
       const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         responseType: 'blob'
@@ -116,7 +119,7 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre zmazanie súboru');
       }
-      const url = `${process.env.REACT_APP_API_URL}/api/accounting/admin/mdb/file/${selectedCompany}/${encodeURIComponent(fileName)}`;
+      const url = `${API_BASE}/accounting/admin/mdb/file/${selectedCompany}/${encodeURIComponent(fileName)}`;
       await axios.delete(url, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
