@@ -96,11 +96,11 @@ const MdbManagement = ({ onBack }) => {
         return setError('Vyber firmu pre stiahnutie súboru');
       }
       const url = `${API_BASE}/accounting/admin/mdb/download`;
-      const response = await axios.post(
+      const response = await axios.get(
         url,
-        { companyId: selectedCompany, name: fileName },
         {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          params: { companyId: selectedCompany, name: fileName },
           responseType: 'blob'
         }
       );
@@ -123,11 +123,13 @@ const MdbManagement = ({ onBack }) => {
       if (!selectedCompany) {
         return setError('Vyber firmu pre zmazanie súboru');
       }
-      const url = `${API_BASE}/accounting/admin/mdb/delete`;
-      await axios.post(
+      const url = `${API_BASE}/accounting/admin/mdb/file`;
+      await axios.delete(
         url,
-        { companyId: selectedCompany, name: fileName },
-        { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
+        {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          params: { companyId: selectedCompany, name: fileName }
+        }
       );
       setSuccess(`MDB súbor ${fileName} bol odstránený`);
       fetchFiles();
